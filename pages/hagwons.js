@@ -1,5 +1,6 @@
 import HagwonCard from '@/components/HagwonCard';
 import { useState, useEffect } from 'react';
+import Head from 'next/head';
 
 export default function HagwonsPage({ hagwons }) {
   const [selectedRegions, setSelectedRegions] = useState([]);
@@ -46,6 +47,17 @@ export default function HagwonsPage({ hagwons }) {
   }, [selectedRegions, selectedLessonType, selectedLessonFormat, selectedServices, hagwons]);
 
   return (
+    <>
+    <Head>
+      <link
+        rel="preload"
+        href="/fonts/NotoSansKR-Regular.woff2"
+        as="font"
+        type="font/woff2"
+        crossOrigin="anonymous"
+      />
+    </Head>
+
     <main className="max-w-5xl mx-auto px-4 py-10">
       <h1 className="text-2xl font-bold mb-6">SAT 학원 29곳 추천 및 비교 [2025년 최신]</h1>
 
@@ -98,17 +110,15 @@ export default function HagwonsPage({ hagwons }) {
 
       {/* Cards */}
       <div className="space-y-5 flex flex-col">
-        {filteredData.map(card => (
-          <div key={card.id}>
-            <HagwonCard {...card} />
-          </div>
+        {filteredData.map((card, i) => (
+          <HagwonCard key={card.id} {...card} priority={i === 0} />
         ))}
       </div>
     </main>
+      </>
   );
 }
 
-// 📦 Static pre-rendered data
 export async function getStaticProps() {
   const hagwons = (await import('@/data/hagwons')).default;
 

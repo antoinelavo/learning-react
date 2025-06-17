@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase"; // adjust path
+import { supabase } from "@/lib/supabase";
 import TeacherCard from "@/components/TeacherCard";
 
 export default function FindPage() {

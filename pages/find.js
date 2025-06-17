@@ -1,3 +1,4 @@
+// pages/find.js
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import TeacherCard from "@/components/TeacherCard";

@@ -9,7 +9,7 @@ export default function HagwonCard({ image, name, region, format, lessonType, ia
         <div className="flex flex-wrap justify-between flex-row items-start">
           <div className="flex gap-[2em]">
             <div className="relative w-[3em] h-[3em]">
-              {/* <Image
+              <Image
                 src={image}
                 alt={`${name} 로고`}
                 width={48}
@@ -17,7 +17,7 @@ export default function HagwonCard({ image, name, region, format, lessonType, ia
                 priority={priority}
                 className="rounded-lg shadow"
                 style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' }}
-              /> */}
+              />
             </div>
             <div className="w-[11em]">
               <div className="text-[1.1em] font-bold mb-2 text-[#111]">{name}</div>

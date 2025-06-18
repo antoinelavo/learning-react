@@ -1,6 +1,6 @@
 const hagwons = [
  {
-    "image": "/images/hagwons/WEBP/ibsept.webp",
+    "image": "/images/hagwons/small/ibsept.png",
     "name":"아이비셉트",
     "url":"https:\/\/www.ibsept.com\/",
     "address":"압구정본원: 서울시 강남구 논현로 175길 63, 호창빌딩 3층 | 제주분원: 서귀포시 대정읍 글로벌에듀로 145번길 40 캐논스상가 2층",
@@ -17,7 +17,7 @@ const hagwons = [
     "description": "아이비셉트는 국내에 드문 International Baccalaureate Diploma Program (IBDP) 전문 교육 기관으로 그동안 수많은 국내외 명문대 합격생을 배출해왔습니다. 6개의 과목에 EE, TOK 같은 추가 과제까지 해야 하는 IB는 그 어떤 교육과정보다 까다롭습니다. 한국 내 국제고(NLCS, Chadwick, Branksome Hall Asia, Dulwich)뿐 아니라 전 세계 많은 국제고 학생들을 오랜 기간 가르치며 쌓은 노하우가 IB 학생들의 성공적인 대학 입시를 도와드립니다. 수차례 성공적인 영국 대입 과정을 진행해온 경험과 영국 대학 출신 전문 컨설팅 팀을 기반으로 A-level Program까지 교육 프로그램을 확장하였습니다. 전문 A-level Program을 통해 영국 대학 진학을 희망하는 학생들에게 보다 정확하고 책임감 있는 대입 준비 과정을 제공하고자 합니다. 아이비셉트는 학생들과의 직접적인 커뮤니케이션을 통해 특정 학문 분야의 개념 이해를 도울 뿐 아니라 전반적인 고등학교 과정에 대한 가이드라인을 제공하는 것을 목표로 합니다. 학생들이 최소한의 시간을 투자하여 최대한 효율적으로 목표 대학에 진학할 수 있도록 최선을 다해 길잡이가 되겠습니다."
   },
   {
-    "image": "/images/hagwons/WEBP/masterib.webp",
+    "image": "/images/hagwons/small/masterib.png",
     "name":"마스터아이비",
     "url":"https:\/\/masterib.co.kr\/",
     "address":"서울특별시 강남구 압구정로36길 12, 501호 (신사동)",
@@ -35,7 +35,7 @@ const hagwons = [
   },
 
   {
-    "image": "/images/hagwons/WEBP/pinnacleeducation.webp",
+    "image": "/images/hagwons/small/pinnacleeducation.png",
     "name":"Pinnacle Education",
     "url":"https:\/\/www.pinnacleeducation.blog\/",
     "address":"영국",
@@ -51,7 +51,7 @@ const hagwons = [
   },
 
   {
-    "image": "/images/hagwons/WEBP/paretoprep.webp",
+    "image": "/images/hagwons/small/paretoprep.png",
     "name":"파레토프렙",
     "url":"https:\/\/blog.naver.com\/paretoprepib",
     "address":"서울 강남구 압구정로34길 32 성우 에이치 빌딩 2층",
@@ -72,7 +72,7 @@ const hagwons = [
  
 
     {
-    "image": "/images/hagwons/WEBP/inspirica.webp",
+    "image": "/images/hagwons/small/inspirica.png",
     "name":"Inspirica",
     "url":"http:\/\/www.inspirica.co.kr\/index.html",
     "address":"서울 강남구 테헤란로86길 15 3174호",
@@ -90,7 +90,7 @@ const hagwons = [
 
   },
   {
-    "image": "/images/hagwons/WEBP/alliance.webp",
+    "image": "/images/hagwons/small/alliance.png",
     "name":"얼라이언스",
     "url":"https:\/\/www.allianceedu.co.kr\/default\/",
     "address":"서울특별시 강남구 강남대로98길 11 4층",
@@ -107,7 +107,7 @@ const hagwons = [
     "description": "IB로 향하는 퍼스트클래스! 확실한 강사진의 실력있는 개념 수업, 담당 강사가 직접 진행하는 문제풀이반. 저희 얼라이언스의 전문 강사진은 확실한 전문성과 높은 만족도를 바탕으로, IB 과정을 시작하는 순간부터 졸업까지 동행하는 든든한 파트너가 됩니다. 저학년부터 같이 시작한 학생들, IB 과정 시작 때 합류한 학생들, 그리고 뒤늦게 저희와 함께하기 시작한 학생들까지. 저희와 동행하는 학생들에게는 항상 진심을 다해 졸업까지 든든한 버팀목과 등불이 되어줍니다. 특히, IB 마라톤을 완주하는 동안 학생들이 직면하는 어려움에 대응하여, 강사진이 옆에서 꾸준히 지원합니다. 길고 도전적인 학업 여정을 성공적으로 마무리한 학생들의 성과에 대해 깊은 자부심을 느낍니다. 학생 여러분의 미래가 저희의 최우선 목표이며, 여러분의 성공적인 졸업을 향해 함께 나아가는 것이 저희의 영광입니다."
   },
   {
-    "image": "/images/hagwons/WEBP/paulacademy.webp",
+    "image": "/images/hagwons/small/paulacademy.png",
     "name":"폴아카데미",
     "url":"https:\/\/paulacademy.net\/",
     "address":"서울특별시 강남구 삼성로 85길 32 3,4층",
@@ -125,7 +125,7 @@ const hagwons = [
   },
 
   {
-    "image": "/images/hagwons/WEBP/satus.webp",
+    "image": "/images/hagwons/small/satus.png",
     "name":"새터스",
     "url":"http:\/\/satusedu.org\/",
     "address":"서울특별시 강남구 신사동 567-27번지 동보빌딩 3층",
@@ -142,7 +142,7 @@ const hagwons = [
     "description": "1. 2008년부터 오늘 날까지 오로지 IB만을 가르쳐 온 IB전문 학원입니다. 2. 오랜 시간 동안 세터스는 몇가지의 유의미한 10,000시간의 법칙을 경험하게 되었습니다. (A) 세터스는 10,000시간 이상의 IB강의를 이뤘습니다. (B) 세터스는 10,000건 이상의 학생 및 학부모 IB 심층 상담을 이뤘습니다. 그래서 세터스는 누구보다도 한국 학생들의 뛰어난 우수성과 목표의식, 그리고 어려운 점을 학습에서 생활에 이르기까지 샅샅이 이해하고 있습니다. 세터스의 경험은 세터스에서 함께 공부한 3,000여명의 학생들이 이미 공유하였고, 원하던 미래에 첫 발을 들여놓았습니다."
   },
   {
-    "image": "/images/hagwons/WEBP/leskorea.webp",
+    "image": "/images/hagwons/small/leskorea.png",
     "name":"로렌스빌아카데미",
     "url":"https:\/\/www.leskorea.org\/",
     "address":"서울 서초구 서초중앙로 156 블루원빌딩 702호",
@@ -159,7 +159,7 @@ const hagwons = [
     "description": "로렌스빌아카데미는 미국.영국 명문대학 입시컨설팅, 국제학교/외국인학교 GPA 관리 전문교육기관입니다."
   },
     {
-    "image": "/images/hagwons/WEBP/monthlyib.webp",
+    "image": "/images/hagwons/small/monthlyib.png",
     "name":"MonthlyIB",
     "url":"https:\/\/www.monthly-ib.com\/",
     "address":"서울시 강남구 강남대로 84길 8, 우인빌딩 3·4·6층",
@@ -176,7 +176,7 @@ const hagwons = [
     "description": "안녕하세요, 검증된 IB 고득점의 지름길, MonthlyIB입니다. IB DP를 이수한 전문 강사진의 노하우를 바탕으로 전략적이고 체계적인 과목 선정과 학습 플랜을 제공합니다. 1:1 맞춤수업과 방학특강으로 기본기를 탄탄하게 정리하고 기출문제 풀이를 진행합니다. EE, TOK, IA 주제 선정과 첨삭 수업을 통해 학생의 리포트 작성 실력이 향상될 수 있도록 지도합니다. IB 과정에서 요구하는 교내외 활동 (Extracurricular activities)과 대입 준비에 대한 컨설팅 제공이 가능합니다."
   },
   {
-    "image": "/images/hagwons/WEBP/iblab.webp",
+    "image": "/images/hagwons/small/iblab.png",
     "name":"아이비랩",
     "url":"http:\/\/iblab.co.kr\/sub\/gt.php",
     "address":"서울 강남구 언주로 167길36 ok빌딩",
@@ -193,7 +193,7 @@ const hagwons = [
     "description": "IB 전문학원 IBLAB 오로지 IB과정에만 몰두! IB 고득점을 얻기 위한 맞춤 프로그램만을 제공합니다. IB 출신 프로강사진: 고득점 IB학력과 강의경력을 동시에 지닌, IB 프로강사진 스스로 IB를 공부해 본 경험을 바탕으로, IB 문제 유형과 변화 흐름을 꿰뚫어보는 강사님들입니다. 학생들에게 배움에 대한 믿음과 확신을 줄 수 있는 베테랑 분들로 구성되어 있습니다. IBLAB 의 강점, IA 수업 제공: 정규시즌 프로그램에 IA(Internal Assessment) 전문 수업 제공! 실제로 IA는 학생 혼자 준비하기에는 많은 시간과 투자, 노력이 필요합니다. 때문에 Predicted Grade와 Final Exam의 준비에 있어 큰 걸림돌이 됩니다. 이를 정규시즌 중 지정된 강사님께 도움을 받아 방향을 미리 대비함으로써, 학생들이 공부에 더 집중할 수 있게 도와주자는 것이 IBLAB의 목표입니다. IB 실전대비, 인텐시브 트레이닝: 단순히 이론 공부만으로 7점을 받기는 매우 어렵습니다. 많은 문제를 풀어봄으로써 본인의 미흡한 부분을 알아가고, 실전에 대비하는 것이 중요합니다. 따라서 IBLAB 문제풀이반에서는 5년치의 May와 November 시험 문제와 강사님이 직접 만든 최신유형문제를 기반으로 7점의 초석을 다집니다."
   },
   {
-    "image": "/images/hagwons/WEBP/sehan.webp",
+    "image": "/images/hagwons/small/sehan.png",
     "name":"세한아카데미",
     "url":"https:\/\/www.sehann.com\/w\/intro.php",
     "address":"서울특별시 강남구 테헤란로64길 16-9, 3·4층(대치동)",
@@ -210,7 +210,7 @@ const hagwons = [
     "description": "국내에서 가장 HOT한 글로벌인재 교육기관 세한아카데미는 학생의 20년간 축적된 데이터 및 노하우를 바탕으로 실력 & 잠재력을 바탕으로 하는 서류 전형을 필두로 그에 필요한 수업과 컨설팅을 제공하고 있습니다. 급변하는 세계화 및 융합형 인재를 원하는 사회에 발맞추어 World Best를 포함하는 세계적 대학에 걸맞는 Global Player들을 지속적으로 양성하고, 차후 이루어질 세번째 스테이지, SeHan Global Campus 구축을 통하여 세계 일류 교육 기관으로 도약할 것입니다."
   },
   {
-    "image": "/images/hagwons/WEBP/thescholars.webp",
+    "image": "/images/hagwons/small/thescholars.png",
     "name":"더스콜라스",
     "url":"https:\/\/thescholars.co.kr\/main",
     "address":"서울 강남구 압구정로30길 17 (이소니프라자) 5F",
@@ -228,7 +228,7 @@ const hagwons = [
   },
 
   {
-    "image": "/images/hagwons/WEBP/storyeducation.webp",
+    "image": "/images/hagwons/small/storyeducation.png",
     "name":"StoryEducation",
     "url":"http:\/\/storyeducation.com\/",
     "address":"서울특별시 서초구 사임당로 50해양빌딩 2층",
@@ -245,7 +245,7 @@ const hagwons = [
     "description": "스토리 에듀케이션은 국내외 국제학교 및 영국 초, 중, 고등학교 학생들을 대상으로 하는 영국대학교 전문 입시교육을 제공하고 있습니다. 차별화된 커리큘럼과 프로그램으로 학생들에게 가장 효율적이고 정확한 교육을 제공하고 있습니다. 스토리 에듀케이션은 2013년부터 많은 유학생, 국제학교, 특목고 학생들과의 성공적인 경험을 바탕으로 전문적인 유학컨설팅과 교육 시스템을 구축 하였습니다. IB, GCSE/IGCSE, A-Level을 전문적으로 강의하며 신상현 원장의 십여 년간 축척해온 자료와 정보 그리고 경험으로 가장 정확한 컨설팅, 순도 높은 강의로 학생들의 명문대 입학을 지원합니다. 스토리 에듀케이션은 세계 명문대 출신의 Full-time 강사진을 보유하고 있으며 철저한 훈련과 교육을 통하여 교육의 질을 높이며 유지하는 것을 저희의 사명으로 생각하고 실천하고있습니다. 빠르게 변화되는 영국, 호주, 캐나다 교육에 발맞춰 가장 신속하고 알찬 정보를 제공하며 국제교육의 선두주자가 되고자 최선을 다해 노력하고 있습니다."
   },
   {
-    "image": "/images/hagwons/WEBP/ibthetop.webp",
+    "image": "/images/hagwons/small/ibthetop.png",
     "name":"IBTheTop",
     "url":"https:\/\/ibthetop.com\/",
     "address":"서울특별시 강남구 강남대로94길 34, 7층",
@@ -262,7 +262,7 @@ const hagwons = [
     "description": "IB the TOP은 전 세계 보다 많은 학생에게 더 큰 기회를 제공하고자 탄탄한 강의력을 바탕으로 최상의 커리큘럼을 제공합니다. 또한 유학 경험, 학업, 해외입시 관련 양질의 컨텐츠를 제공하여 학생들에게 동기부여와 올바른 가이드라인을 제시합니다. IBDP 고득점, 글로벌 명문대학 진학이라는 목표를 위해 학생, 학부모님과 끊임없이 소통하며 목표 달성을 위한 One-Stop Solution 으로 거듭나겠습니다."
   },
   {
-    "image": "/images/hagwons/WEBP/campbell.webp",
+    "image": "/images/hagwons/small/campbell.png",
     "name":"강남캠벨아카데미",
     "url":"https:\/\/www.campbellsec.com\/SETF\/main.asp",
     "address":"서울시 서초구 사임당로 174 강남미래타워12층",
@@ -280,7 +280,7 @@ const hagwons = [
   },
 
   {
-    "image": "/images/hagwons/WEBP/royalib.webp",
+    "image": "/images/hagwons/small/royalib.png",
     "name":"로얄아이비",
     "url":"http:\/\/www.royalib.net\/",
     "address":"서울특별시 강남구 압구정로 34길 11, 603 ,604, 605, 606호(신사동, 압구정스퀘어)",
@@ -297,7 +297,7 @@ const hagwons = [
     "description": "로얄아이비는 앞으로도 수업 하나만 생각하며 결과로 증명하겠습니다. 교육의 본질, 수업과 교재에 대한 끝없는 연구, 학생에 대한 책임감을 가지고 수업한 결과 2024, 로얄아이비가 또 해냈습니다! 24년 여름-겨울특강 이과 과목 압도적 1위 (최다수강생 767명) 기록 24년 여름-겨울특강 영어 전 과목 마감 (전체 39개반) 기록 24년 여름-겨울특강 주니어 영어 100% 재수강 신청 로얄아이비는 IB 과정을 전문적으로 지도하는 학원으로, 학생들의 고득점 달성을 목표로 체계적이고 세밀한 교육 프로그램을 제공합니다. 과목별 전문 강사진이 학생들의 학업 성취를 지원하며, EE, TOK, IA와 같은 주요 과제 또한 전문적으로 지도합니다. 로얄아이비는 학생 개개인의 학습 스타일과 목표에 맞춘 맞춤형 커리큘럼을 제공하여, 효율적이고 집중적인 학습이 가능하도록 돕습니다. 또한, 지속적인 모의고사와 피드백 시스템을 통해 실전 감각을 기르고, 최종 시험에서 최고의 결과를 얻을 수 있도록 지원합니다. IB 점수를 높이고 명문대 진학을 목표로 하는 학생들에게 로얄아이비는 확실한 선택지가 되어줄 것입니다."
   },
   {
-    "image": "/images/hagwons/WEBP/stevenacademy.webp",
+    "image": "/images/hagwons/small/stevenacademy.png",
     "name":"스티븐아카데미",
     "url":"http:\/\/www.stevenacademy.co.kr\/index.php",
     "address":"1410 Irving St, San Francisco, CA 94122",
@@ -313,7 +313,7 @@ const hagwons = [
   },
   
   {
-    "image": "/images/hagwons/WEBP/bloomsbury.webp",
+    "image": "/images/hagwons/small/bloomsbury.png",
     "name":"블룸스버리 에듀케이션",
     "url":"http:\/\/www.bloomsburyedu.com\/index.php",
     "address":"[서울] 서울특별시 강남구 선릉로 754, 2층(서진빌딩) [제주] 제주특별자치도 서귀포시 대정읍 글로벌에듀로304번길 36, 가보드림타운 D동 1층",
@@ -330,7 +330,7 @@ const hagwons = [
     "description": "최근 들어 유학의 트렌드가 바뀌고 있습니다. 해외 명문대에 입학하기 위해 영국 또는 미국 등의 고등학교에서 공부하며 입시를 준비하는 것이 일반적이었지만, 최근 다수 해외 명문 사립학교의 국내 진출로 해외 대학 입학의 길이 예전보다 더 다양해졌습니다. 이 변화의 중심에 국제학교 교육과정의 핵심인 IB DIPLOMA는 영국, 미국 등 해외 명문대 입학을 희망하는 학생과 학부모님들의 관심이 점점 커지고 있습니다. 블룸스버리 에듀케이션은 “국제학교 과정 전문” 이란 의미를 정확히 이해하고 가르치는 학원입니다. 명문 국제학교가 모여있는 서울과 제주도 영어교육도시에 수년간 국제학교 재학생과 해외 유학생들의 성공적인 입시를 이끌었습니다."
   },
   {
-    "image": "/images/hagwons/WEBP/shineprep.webp",
+    "image": "/images/hagwons/small/shineprep.png",
     "name":"샤인프렙",
     "url":"https:\/\/www.shineprep.org\/",
     "address":"서울특별시 서초구 강남대로 53길 8, 10층",
@@ -348,7 +348,7 @@ const hagwons = [
   },
 
   {
-    "image": "/images/hagwons/WEBP/verusacademy.webp",
+    "image": "/images/hagwons/small/verusacademy.png",
     "name":"Verus Academy",
     "url":"https:\/\/verusacademy.co.kr\/default\/",
     "address":"[압구정] 서울특별시 강남구 압구정로34길 34, 성우S빌딩 4층 [송도] 인천광역시 연수구 신송로 160, 넥서스빌딩 9층 2호",
@@ -365,7 +365,7 @@ const hagwons = [
     "description": "VERUS ACADEMY 에서는 학교별 선행학습 / 내신관리 프로그램을 통해 각 학교의 모든 IB 과목을 가장 효율적으로 공부할 수 있도록 지도합니다. <br><br>Point 01:<br> IB 과목의 특성상 정해진 커리큘럼을 그대로 따라가지 않고 각 학교 선생님 별 수업 진행 방식이 모두 상이합니다. 따라서 VERUS ACADEMY 선생님들은 각 학교 별 수업 진도를 파악하고 학교 별 선행학습 / 내신관리 프로그램을 통해 시기마다 가장 효율적으로 공부하고 안정적으로 내신 점수를 낼 수 있도록 지도합니다. <br><br>Point: 02<br>저희 VERUS ACADEMY는 인천 송도에서 다년간 채드윅 학생들의 내신관리를 맡아 왔으며, 서울에서도 압구정점을 오픈하여 서울소재의 국제학교 아이들을 교육하고 있습니다."
   },
   {
-    "image": "/images/hagwons/WEBP/brompton.webp",
+    "image": "/images/hagwons/small/brompton.png",
     "name":"Brompton",
     "url":"https:\/\/www.brmptn.com\/",
     "address":"글로벌에듀로 304번길 36 D동 3층",
@@ -382,7 +382,7 @@ const hagwons = [
     "description": "㈜브롬튼그룹은 2019년 1월부터 글로벌 핵심인재 양성 교육기관으로서 매년 빠르게 성장하고 있습니다. 브롬튼그룹은 교육에 가치와 신뢰를 더하여 사람들의 행복한 삶과 개인의 꿈을 키우고 실현할 수 있는 기회를 제공하며, 글로벌 인재 양성을 통해 대한민국을 넘어 세계로 향할 수 있도록 도와주는 기업입니다."
   },
   {
-    "image": "/images/hagwons/WEBP/noblesse.webp",
+    "image": "/images/hagwons/small/noblesse.png",
     "name":"노블레스",
     "url":"https:\/\/noblesse0813.imweb.me\/",
     "address":"부산시 해운대구 양운로 80번길 22 YH 프라자 7층",
@@ -399,7 +399,7 @@ const hagwons = [
     "description": "노블레스 국제어학원은 국내 및 해외 국제 학교 학생들을 집중 케어 시스템을 통해 각 학생의 역량을 최대로 이끌어내는 학원입니다. 맞춤별 수준별 케어와 대학 컨설팅을 제공하고 있습니다."
   },
   {
-    "image": "/images/hagwons/WEBP/beceduclass.webp",
+    "image": "/images/hagwons/small/beceduclass.png",
     "name":"BEC 에듀클래스",
     "url":"https:\/\/www.beceduclass.com\/index.htm",
     "address":"서초구 서초중앙로 22길 87 유정빌딩 3층",

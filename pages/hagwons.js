@@ -66,7 +66,7 @@ export async function getStaticProps() {
   const hagwons = (await import('@/data/hagwons')).default;
 
   return {
-    props: { hagwons: hagwons.slice(0, 10) }, // Only render 10 for testing
+    props: { hagwons },
     revalidate: 3600,
   };
 }

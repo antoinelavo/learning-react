@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { useState } from 'react';
 
 export default function HagwonCard({ image, name, region, format, lessonType, ia_ee_tok, description, address, url, }) {
@@ -9,13 +8,13 @@ export default function HagwonCard({ image, name, region, format, lessonType, ia
         <div className="flex flex-wrap justify-between flex-row items-start">
           <div className="flex gap-[2em]">
             <div className="relative w-[3em] h-[3em]">
-              <Image
+              <img
                 src={image}
                 alt={`${name} 로고`}
                 width={48}
                 height={48}
-                className="rounded-lg shadow"
-                style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' }}
+                loading="lazy"
+                style={{ borderRadius: '8px' }}
               />
             </div>
             <div className="w-[11em]">

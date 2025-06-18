@@ -9,7 +9,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Noto Sans KR"', ...defaultTheme.fontFamily.sans],
+        sans: ['"Noto Sans KR"', 'sans-serif'],
       },
       colors: {
         blue: {

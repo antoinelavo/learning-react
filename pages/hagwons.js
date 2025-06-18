@@ -33,16 +33,6 @@ export default function HagwonsPage({ hagwons }) {
 
   return (
     <>
-      <Head>
-        <link
-          rel="preload"
-          href="/fonts/NotoSansKR-Regular.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-      </Head>
-
       <main className="max-w-5xl mx-auto px-4 py-10">
         <h1 className="text-2xl font-bold mb-6">IB 학원 29곳 추천 및 비교 [2025년 최신]</h1>
 

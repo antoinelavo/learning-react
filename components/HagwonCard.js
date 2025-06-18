@@ -8,14 +8,14 @@ export default function HagwonCard({ image, name, region, format, lessonType, ia
         <div className="flex flex-wrap justify-between flex-row items-start">
           <div className="flex gap-[2em]">
             <div className="relative w-[3em] h-[3em]">
-              {/* <img
+              <img
                 src={image}
                 alt={`${name} 로고`}
                 width={48}
                 height={48}
                 loading="lazy"
                 style={{ borderRadius: '8px' }}
-              /> */}
+              />
             </div>
             <div className="w-[11em]">
               <div className="text-[1.1em] font-bold mb-2 text-[#111]">{name}</div>

@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import HagwonCard from '@/components/HagwonCard';
+import { CheckCircle, Circle } from 'lucide-react';
 
 export default function HagwonsPage({ filteredHagwons = [], selected = {} }) {
   return (
@@ -78,8 +79,8 @@ function FilterLinks({ selected }) {
   const base = '/hagwons';
 
   const filterGroups = [
-    { title: '지역', param: 'region', options: ['강남', '서초', '제주', '부산', '해외'] },
-    { title: '수업 방식', param: 'lessonType', options: ['개인', '그룹'] },
+    { title: '지역', param: 'region', options: ['전체', '강남', '서초', '제주', '부산', '해외'] },
+    { title: '수업 방식', param: 'lessonType', options: ['전체', '개인', '그룹'] },
     { title: '수업 형태', param: 'format', options: ['대면', '온라인'] },
     { title: '추가 과목', param: 'service', options: ['IA', 'EE', 'TOK'] },
   ];
@@ -94,28 +95,46 @@ function FilterLinks({ selected }) {
             for (const key in selected) {
               selected[key].forEach(val => current.append(key, val));
             }
-            const isSelected = selected[group.param]?.includes(option);
-            const updated = isSelected
-              ? selected[group.param].filter(o => o !== option)
-              : [...(selected[group.param] || []), option];
+            const isAll = option === '전체';
+            const selectedValues = selected[group.param] || [];
 
-            current.delete(group.param);
-            updated.forEach(val => current.append(group.param, val));
+            const isSelected = isAll
+              ? selectedValues.length === 0
+              : selectedValues.includes(option);
+
+            // If 전체: remove param entirely. Otherwise, toggle value in URL
+            if (!isAll) {
+              const updated = isSelected
+                ? selectedValues.filter(o => o !== option)
+                : [...selectedValues, option];
+
+              current.delete(group.param);
+              updated.forEach(val => current.append(group.param, val));
+            } else {
+              current.delete(group.param); // 전체 means nothing selected
+            }
 
             const href = `${base}?${current.toString()}`;
+
 
             return (
               <a
                 key={option}
                 href={href}
-                className={`text-sm px-2 py-1 rounded border ${
+                className={`text-sm px-3 py-1.5 rounded-full border transition font-medium shadow-sm whitespace-nowrap flex items-center gap-1 ${
                   isSelected
-                    ? 'bg-black text-white border-black'
-                    : 'text-gray-600 border-gray-300 hover:bg-gray-100'
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'text-gray-600 border-gray-300 hover:bg-gray-100 hover:border-gray-400'
                 }`}
               >
+                {isSelected ? (
+                  <CheckCircle className="w-4 h-4 text-white" />
+                ) : (
+                  <Circle className="w-4 h-4 text-gray-400" />
+                )}
                 {option}
               </a>
+            
             );
           })}
         </div>

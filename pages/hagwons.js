@@ -33,9 +33,8 @@ export default function HagwonsPage({ hagwons }) {
 
   return (
     <>
-      <main className="max-w-5xl mx-auto px-4 py-10">
+      <div>
         <h1 className="text-2xl font-bold mb-6">IB 학원 29곳 추천 및 비교 [2025년 최신]</h1>
-
         <article className="prose lg:prose-base max-w-none space-y-4 text-gray-500 mb-6">
           <p><strong>최신 업데이트:</strong> 2025년 6월 16일</p>
           <p>
@@ -44,6 +43,10 @@ export default function HagwonsPage({ hagwons }) {
             학원 선택 시 고려해야 할 요소, 수업 구성, 과외와의 차이점 등을 상세히 안내합니다.
           </p>
         </article>
+      </div>
+
+      <main className="max-w-5xl mx-auto px-4 py-10">
+
 
         <FilterLinks selected={selected} setSelected={setSelected} />
 

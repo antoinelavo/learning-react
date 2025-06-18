@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { useState } from 'react';
 
-export default function HagwonCard({ image, name, region, format, lessonType, ia_ee_tok, description, address, url, priority = false }) {
+export default function HagwonCard({ image, name, region, format, lessonType, ia_ee_tok, description, address, url, }) {
   const [showDetails, setShowDetails] = useState(false);
 
   return (
@@ -14,7 +14,6 @@ export default function HagwonCard({ image, name, region, format, lessonType, ia
                 alt={`${name} 로고`}
                 width={48}
                 height={48}
-                priority={priority}
                 className="rounded-lg shadow"
                 style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' }}
               />

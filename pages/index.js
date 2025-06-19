@@ -1,6 +1,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import FadeInWhenVisible from '@/components/FadeInWhenVisible';
+import dynamic from "next/dynamic";
+
+const FadeInWhenVisible = dynamic(() => import("@/components/FadeInWhenVisible"), {
+  ssr: false,
+  loading: () => <></>, // or return null
+});
 
 
 export default function Home() {
@@ -44,12 +49,10 @@ export default function Home() {
 
       {/* Problem Quote */}
       <section id="problemQuote" className="max-w-4xl mx-auto px-4 py-32 text-left space-y-28">
-        <FadeInWhenVisible>
           <p className="text-2xl font-bold leading-relaxed max-w-[22em]">
             비싼 과외비를 내면 좋은 수업을 받을 줄 알았는데,
             알고 보니 <span className="text-blue-500">수업료의 25%가 플랫폼</span>으로 간다고?
           </p>
-        </FadeInWhenVisible>
 
         <FadeInWhenVisible>
           <p className="text-2xl font-bold text-right leading-relaxed">

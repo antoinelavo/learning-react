@@ -17,13 +17,13 @@ export default function TeacherCard({
       {/* ← Avatar + name/school */}
       <div className="flex items-center flex-1 justify-between px-[0.75em] py-[2em] md:p-[2em] gap-[1em] md:gap-[2em]">
         <div className="relative sm:w-14 sm:h-14 w-10 h-10 overflow-hidden rounded-full flex-0">
-          <Image
+          {/* <Image
             src={profile_picture}
             alt={`${name} 프로필 사진`}
             fill
             priority={true}
             className="object-cover"
-          />
+          /> */}
         </div>
         <div className="flex-1 min-w-0">
           <h2 className="text-lg font-semibold text-gray-900 line-clamp-1">

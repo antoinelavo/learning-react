@@ -1,10 +1,65 @@
+import { useRouter } from 'next/router';
+import { useMemo } from 'react';
 import Head from 'next/head';
 import HagwonCard from '@/components/HagwonCard';
 import { CheckCircle, Circle } from 'lucide-react';
 import Link from 'next/link';
 
+export default function HagwonsPage({ allHagwons = [] }) {
+  const { query } = useRouter();
 
-export default function HagwonsPage({ filteredHagwons = [], selected = {} }) {
+  // Derive selected filters from query params
+  const selected = useMemo(() => ({
+    region: Array.isArray(query.region)
+      ? query.region
+      : query.region
+      ? [query.region]
+      : [],
+    lessonType: Array.isArray(query.lessonType)
+      ? query.lessonType
+      : query.lessonType
+      ? [query.lessonType]
+      : [],
+    format: Array.isArray(query.format)
+      ? query.format
+      : query.format
+      ? [query.format]
+      : [],
+    service: Array.isArray(query.service)
+      ? query.service
+      : query.service
+      ? [query.service]
+      : [],
+  }), [query]);
+
+  // Filter on the client
+  const filteredHagwons = useMemo(
+    () =>
+      allHagwons.filter(h => {
+        const matchRegion =
+          selected.region.length === 0 ||
+          selected.region.some(r => h.region.includes(r));
+
+        const matchType =
+          selected.lessonType.length === 0 ||
+          (Array.isArray(h.lessonType) &&
+            selected.lessonType.some(t => h.lessonType.includes(t)));
+
+        const matchFormat =
+          selected.format.length === 0 ||
+          (Array.isArray(h.format) &&
+            selected.format.some(f => h.format.includes(f)));
+
+        const matchService =
+          selected.service.length === 0 ||
+          (h.ia_ee_tok &&
+            selected.service.every(s => ['IA', 'EE', 'TOK'].includes(s)));
+
+        return matchRegion && matchType && matchFormat && matchService;
+      }),
+    [allHagwons, selected]
+  );
+
   return (
     <>
       <Head>
@@ -12,7 +67,9 @@ export default function HagwonsPage({ filteredHagwons = [], selected = {} }) {
       </Head>
 
       <main className="max-w-5xl mx-auto px-4 py-10">
-        <h1 className="text-2xl font-bold mb-6">IB 학원 29곳 추천 및 비교 [2025년 최신]</h1>
+        <h1 className="text-2xl font-bold mb-6">
+          IB 학원 29곳 추천 및 비교 [2025년 최신]
+        </h1>
 
         <article className="prose lg:prose-base max-w-none space-y-4 text-gray-500 mb-6">
           <p><strong>최신 업데이트:</strong> 2025년 6월 16일</p>
@@ -39,41 +96,11 @@ export default function HagwonsPage({ filteredHagwons = [], selected = {} }) {
   );
 }
 
-export async function getServerSideProps(context) {
-  const hagwons = (await import('@/data/hagwons')).default;
-  const query = context.query;
-
-  const selected = {
-    region: Array.isArray(query.region) ? query.region : query.region ? [query.region] : [],
-    lessonType: Array.isArray(query.lessonType) ? query.lessonType : query.lessonType ? [query.lessonType] : [],
-    format: Array.isArray(query.format) ? query.format : query.format ? [query.format] : [],
-    service: Array.isArray(query.service) ? query.service : query.service ? [query.service] : [],
-  };
-
-  const filteredHagwons = hagwons.filter(h => {
-    const matchRegion =
-      selected.region.length === 0 || selected.region.some(r => h.region.includes(r));
-
-    const matchType =
-      selected.lessonType.length === 0 ||
-      (Array.isArray(h.lessonType) && selected.lessonType.some(type => h.lessonType.includes(type)));
-
-    const matchFormat =
-      selected.format.length === 0 ||
-      (Array.isArray(h.format) && selected.format.some(f => h.format.includes(f)));
-
-    const matchService =
-      selected.service.length === 0 ||
-      (h.ia_ee_tok && selected.service.every(s => ['IA', 'EE', 'TOK'].includes(s)));
-
-    return matchRegion && matchType && matchFormat && matchService;
-  });
-
+export async function getStaticProps() {
+  const allHagwons = (await import('@/data/hagwons')).default;
   return {
-    props: {
-      filteredHagwons,
-      selected,
-    },
+    props: { allHagwons },
+    revalidate: 60 * 60,  // rebuild hourly
   };
 }
 
@@ -104,7 +131,6 @@ function FilterLinks({ selected }) {
               ? selectedValues.length === 0
               : selectedValues.includes(option);
 
-            // If 전체: remove param entirely. Otherwise, toggle value in URL
             if (!isAll) {
               const updated = isSelected
                 ? selectedValues.filter(o => o !== option)
@@ -113,11 +139,10 @@ function FilterLinks({ selected }) {
               current.delete(group.param);
               updated.forEach(val => current.append(group.param, val));
             } else {
-              current.delete(group.param); // 전체 means nothing selected
+              current.delete(group.param);
             }
 
             const href = `${base}?${current.toString()}`;
-
 
             return (
               <Link
@@ -137,7 +162,6 @@ function FilterLinks({ selected }) {
                 )}
                 {option}
               </Link>
-            
             );
           })}
         </div>

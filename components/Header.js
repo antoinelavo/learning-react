@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -9,7 +8,7 @@ export default function Header() {
     <header className="sticky top-0 z-[1000] text-center flex justify-center items-center py-[30px] h-0 bg-white border-b border-[#e5e7eb]">
       <div className="flex justify-center flex-grow w-full max-w-7xl px-4">
         <Link href="/home" className="mr-[8em]">
-          <Image
+          <img
             src="/images/mainlogo.svg"
             alt="IB 과외 찾기"
             width={150}

@@ -1,11 +1,5 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import dynamic from "next/dynamic";
-
-const FadeInWhenVisible = dynamic(() => import("@/components/FadeInWhenVisible"), {
-  ssr: false,
-  loading: () => <></>, // or return null
-});
 
 
 export default function Home() {
@@ -54,25 +48,25 @@ export default function Home() {
             알고 보니 <span className="text-blue-500">수업료의 25%가 플랫폼</span>으로 간다고?
           </p>
 
-        <FadeInWhenVisible>
+        
           <p className="text-2xl font-bold text-right leading-relaxed">
             <span className="text-blue-500">플랫폼 수수료</span>를 내야하니,
             <span className="text-blue-500">수업료</span>를 더 받을까?
           </p>
-        </FadeInWhenVisible>
+        
 
-        <FadeInWhenVisible>
+        
           <p className="text-2xl font-bold text-left leading-relaxed">
             아무리 생각해도 수수료는 <span className="text-blue-500">부당해</span>!
           </p>
-        </FadeInWhenVisible>
+        
       </section>
 
 
       {/* Comparison Section */}
       <section id="comparison" className="pt-32">
-        <FadeInWhenVisible><p className="text-center text-gray-400 text-lg font-normal">이러한 생각에서 시작된</p></FadeInWhenVisible>
-        <FadeInWhenVisible><p className="text-center text-black text-2xl font-bold px-8">선생님이 만든, 선생님과 학생을 위한 플랫폼</p></FadeInWhenVisible>
+        <p className="text-center text-gray-400 text-lg font-normal">이러한 생각에서 시작된</p>
+        <p className="text-center text-black text-2xl font-bold px-8">선생님이 만든, 선생님과 학생을 위한 플랫폼</p>
         <div id="comparisonBlocks" className="mt-16 flex flex-col md:flex-row justify-center gap-20 max-w-5xl mx-auto">
           {/* 타 플랫폼 */}
             <div className="flex flex-col gap-12 rounded-[50px] p-8 shadow-[0_0_30px_rgba(0,0,0,0.1)] text-center mx-[10dvw] md:mx-0">
@@ -163,7 +157,7 @@ export default function Home() {
       </section>
 
       {/* Text */}
-      <FadeInWhenVisible>
+      
       <section className="max-w-4xl mx-auto px-6 bg-white">
         <h2 className="text-3xl font-bold text-center text-black mb-8">IB 과외란?</h2>
         <div className="space-y-6 text-m leading-8 text-gray-500">
@@ -183,9 +177,9 @@ export default function Home() {
           </p>
         </div>
       </section>
-      </FadeInWhenVisible>
       
-      <FadeInWhenVisible>
+      
+      
       <section className="max-w-4xl mx-auto px-6 py-24 bg-white">
         <h2 className="text-3xl font-bold text-center text-black mb-8">IB 과외가 필요한 이유</h2>
         <div className="space-y-6 text-m leading-8 text-gray-500">
@@ -207,9 +201,9 @@ export default function Home() {
           </div>
         </div>
       </section>
-      </FadeInWhenVisible>
+      
 
-      <FadeInWhenVisible>
+      
       <section className="max-w-4xl mx-auto px-6 py-24 bg-white">
         <h2 className="text-3xl font-bold text-center text-black mb-8">IB 과외 시급은 얼마인가요?</h2>
         <div className="space-y-6 text-m leading-8 text-gray-500">
@@ -234,7 +228,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      </FadeInWhenVisible>
+      
 
 
 

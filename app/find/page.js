@@ -8,7 +8,7 @@ export default async function FindPage() {
     .select('*')
     .eq('status', 'approved')
     .order('created_date', { ascending: false })
-    .limit(5);
+    .limit(10);
 
   if (error) {
     console.error(error);
@@ -23,6 +23,7 @@ export default async function FindPage() {
           과외 글 게시, 열람 비용 없이 원하는 IB 과외 선생님을 찾아보세요.
         </p>
       </div>
+      
 
       {/* Flex wrapper: <aside> and <section> come from TeacherList */}
       <div className="flex flex-col md:flex-row">

@@ -83,7 +83,7 @@ export default function TeacherList({ initialTeachers = [] }) {
 
       const { data, error } = await q;
       if (error) console.error(error);
-      else setTeachers((data || []));
+      else setTeachers(shuffle(data || []));
       setLoading(false);
     }
     fetchTeachers();

@@ -8,7 +8,7 @@ export default async function FindPage() {
     .select('*')
     .eq('status', 'approved')
     .order('created_date', { ascending: false })
-    .limit(30);
+    .limit(5);
 
   if (error) {
     console.error(error);

@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 
 export default function HagwonCard({ image, name, region, format, lessonType, ia_ee_tok, description, address, url, }) {

@@ -1,6 +1,4 @@
-// app/find/page.js
 import TeacherList from './TeacherList';
-import { supabase } from '@/lib/supabase';
 
 export default async function FindPage() {
   return (

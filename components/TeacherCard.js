@@ -21,7 +21,7 @@ export default function TeacherCard({
             src={profile_picture}
             alt={`${name} 프로필 사진`}
             fill
-            priority={false}
+            priority={true}
             className="object-cover"
           />
         </div>

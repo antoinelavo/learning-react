@@ -7,7 +7,7 @@ export default function TeacherCard({
   name,
   school,
   shortintroduction,
-  profile_picture = "https://.../default.png",
+  profile_picture = "",
 }) {
   return (
     <Link

@@ -7,7 +7,7 @@ export default function TeacherCard({
   name,
   school,
   shortintroduction,
-  profile_picture = "",
+  profile_picture = "https://.../default.png",
 }) {
   return (
     <Link
@@ -21,7 +21,6 @@ export default function TeacherCard({
             src={profile_picture}
             alt={`${name} 프로필 사진`}
             fill
-            sizes="(max-width: 48px)"
             priority={false}
             className="object-cover"
           />

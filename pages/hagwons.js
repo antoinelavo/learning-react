@@ -1,6 +1,8 @@
 import Head from 'next/head';
 import HagwonCard from '@/components/HagwonCard';
 import { CheckCircle, Circle } from 'lucide-react';
+import Link from 'next/link';
+
 
 export default function HagwonsPage({ filteredHagwons = [], selected = {} }) {
   return (
@@ -118,7 +120,7 @@ function FilterLinks({ selected }) {
 
 
             return (
-              <a
+              <Link
                 key={option}
                 href={href}
                 className={`text-sm px-3 py-1.5 rounded-full border transition font-medium shadow-sm whitespace-nowrap flex items-center gap-1 ${
@@ -126,6 +128,7 @@ function FilterLinks({ selected }) {
                     ? 'bg-blue-600 text-white border-blue-600'
                     : 'text-gray-600 border-gray-300 hover:bg-gray-100 hover:border-gray-400'
                 }`}
+                scroll={false}
               >
                 {isSelected ? (
                   <CheckCircle className="w-4 h-4 text-white" />
@@ -133,7 +136,7 @@ function FilterLinks({ selected }) {
                   <Circle className="w-4 h-4 text-gray-400" />
                 )}
                 {option}
-              </a>
+              </Link>
             
             );
           })}

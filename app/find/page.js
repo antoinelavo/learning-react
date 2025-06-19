@@ -3,17 +3,6 @@ import TeacherList from './TeacherList';
 import { supabase } from '@/lib/supabase';
 
 export default async function FindPage() {
-  const { data: initialTeachers, error } = await supabase
-    .from('teachers')
-    .select('*')
-    .eq('status', 'approved')
-    .order('created_date', { ascending: false })
-    .limit(10);
-
-  if (error) {
-    console.error(error);
-  }
-
   return (
     <main className="max-w-6xl mx-auto px-4 py-10">
       {/* Header */}
@@ -22,12 +11,6 @@ export default async function FindPage() {
         <p className="text-md font-normal text-gray-500">
           과외 글 게시, 열람 비용 없이 원하는 IB 과외 선생님을 찾아보세요.
         </p>
-      </div>
-      
-
-      {/* Flex wrapper: <aside> and <section> come from TeacherList */}
-      <div className="flex flex-col md:flex-row">
-        <TeacherList initialTeachers={initialTeachers || []} />
       </div>
     </main>
   );

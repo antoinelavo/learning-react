@@ -67,6 +67,27 @@ export default function HagwonsPage({ allHagwons = [] }) {
     <>
       <Head>
         <title>IB 학원 29곳 추천 및 비교 [2025년 최신]</title>
+        <style>{`
+          /* Tailwind utility equivalents for only above-the-fold */
+          .critical-max-w { max-width: 80rem; }
+          .critical-px { padding-left: 1rem; padding-right: 1rem; }
+          .critical-py { padding-top: 2.5rem; padding-bottom: 2.5rem; }
+          .critical-text-2xl { font-size: 1.5rem; line-height: 2rem; }
+          .critical-font-bold { font-weight: 700; }
+          .critical-mb-6 { margin-bottom: 1.5rem; }
+          .critical-prose { /* minimal prose styles: margin, line-height… */ }
+          .critical-text-gray-500 { color: #6B7280; }
+        `}
+        </style>
+        <link
+          rel="preload"
+          href="/_next/static/css/a9eda3e4ce591385.css"
+          as="style"
+          onLoad="this.rel='stylesheet'"
+        />
+        <noscript>
+          <link rel="stylesheet" href="/_next/static/css/a9eda3e4ce591385.css" />
+        </noscript>
       </Head>
 
       <main className="max-w-5xl mx-auto px-4 py-10">

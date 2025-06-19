@@ -9,28 +9,31 @@ export default function HagwonsPage({ allHagwons = [] }) {
   const { query } = useRouter();
 
   // Derive selected filters from query params
-  const selected = useMemo(() => ({
-    region: Array.isArray(query.region)
-      ? query.region
-      : query.region
-      ? [query.region]
-      : [],
-    lessonType: Array.isArray(query.lessonType)
-      ? query.lessonType
-      : query.lessonType
-      ? [query.lessonType]
-      : [],
-    format: Array.isArray(query.format)
-      ? query.format
-      : query.format
-      ? [query.format]
-      : [],
-    service: Array.isArray(query.service)
-      ? query.service
-      : query.service
-      ? [query.service]
-      : [],
-  }), [query]);
+  const selected = useMemo(
+    () => ({
+      region: Array.isArray(query.region)
+        ? query.region
+        : query.region
+        ? [query.region]
+        : [],
+      lessonType: Array.isArray(query.lessonType)
+        ? query.lessonType
+        : query.lessonType
+        ? [query.lessonType]
+        : [],
+      format: Array.isArray(query.format)
+        ? query.format
+        : query.format
+        ? [query.format]
+        : [],
+      service: Array.isArray(query.service)
+        ? query.service
+        : query.service
+        ? [query.service]
+        : [],
+    }),
+    [query]
+  );
 
   // Filter on the client
   const filteredHagwons = useMemo(
@@ -87,7 +90,11 @@ export default function HagwonsPage({ allHagwons = [] }) {
             <p className="text-gray-500 text-sm">조건에 맞는 학원이 없습니다.</p>
           ) : (
             filteredHagwons.map((card, i) => (
-              <HagwonCard key={card.id} {...card} priority={i === 0} />
+              <HagwonCard
+                key={`${card.id ?? 'hagwon'}-${i}`}
+                {...card}
+                priority={i === 0}
+              />
             ))
           )}
         </div>
@@ -146,7 +153,7 @@ function FilterLinks({ selected }) {
 
             return (
               <Link
-                key={option}
+                key={`${group.param}-${option}`}
                 href={href}
                 className={`text-sm px-3 py-1.5 rounded-full border transition font-medium shadow-sm whitespace-nowrap flex items-center gap-1 ${
                   isSelected

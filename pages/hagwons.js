@@ -2,12 +2,7 @@ import { useRouter } from 'next/router';
 import { useMemo } from 'react';
 import Head from 'next/head';
 import HagwonCard from '@/components/HagwonCard';
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
-
-// Dynamically import icons to split JS
-const CheckCircle = dynamic(() => import('lucide-react').then(m => m.CheckCircle));
-const Circle      = dynamic(() => import('lucide-react').then(m => m.Circle));
 
 export default function HagwonsPage({ allHagwons = [] }) {
   const { query } = useRouter();
@@ -182,12 +177,6 @@ function FilterLinks({ selected }) {
                 }`}
                 scroll={false}
               >
-                {isSelected ? (
-                  <CheckCircle className="w-4 h-4 text-white" />
-                ) : (
-                  <Circle className="w-4 h-4 text-gray-400" />
-                )}
-                {option}
               </Link>
             );
           })}

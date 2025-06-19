@@ -2,8 +2,12 @@ import { useRouter } from 'next/router';
 import { useMemo } from 'react';
 import Head from 'next/head';
 import HagwonCard from '@/components/HagwonCard';
-import { CheckCircle, Circle } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
+
+// Dynamically import icons to split JS
+const CheckCircle = dynamic(() => import('lucide-react').then(m => m.CheckCircle));
+const Circle      = dynamic(() => import('lucide-react').then(m => m.Circle));
 
 export default function HagwonsPage({ allHagwons = [] }) {
   const { query } = useRouter();
@@ -67,14 +71,30 @@ export default function HagwonsPage({ allHagwons = [] }) {
     <>
       <Head>
         <title>IB 학원 29곳 추천 및 비교 [2025년 최신]</title>
+        {/* Inline critical above-the-fold CSS */}
+        <style>{`
+          .critical-container { max-width: 80rem; margin: 0 auto; padding: 2.5rem 1rem; }
+          .critical-title { font-size: 1.5rem; line-height: 2rem; font-weight: 700; margin-bottom: 1.5rem; }
+          .critical-intro { color: #6B7280; margin-bottom: 1.5rem; line-height: 1.75; }
+        `}</style>
+        {/* Preload full stylesheet (replace with your actual CSS path after build) */}
+        <link
+          rel="preload"
+          href="/_next/static/css/74758ea657ca9562.css"
+          as="style"
+          onLoad="this.rel='stylesheet'"
+        />
+        <noscript>
+          <link rel="stylesheet" href="/_next/static/css/74758ea657ca9562.css" />
+        </noscript>
       </Head>
 
-      <main className="max-w-5xl mx-auto px-4 py-10">
-        <h1 className="text-2xl font-bold mb-6">
+      <main className="critical-container">
+        <h1 className="critical-title">
           IB 학원 29곳 추천 및 비교 [2025년 최신]
         </h1>
 
-        <article className="prose lg:prose-base max-w-none space-y-4 text-gray-500 mb-6">
+        <article className="critical-intro">
           <p><strong>최신 업데이트:</strong> 2025년 6월 16일</p>
           <p>
             IB 학원은 IB 과정을 이수 중이거나 준비 중인 학생들에게 집중적인 도움을 제공합니다.
@@ -83,6 +103,7 @@ export default function HagwonsPage({ allHagwons = [] }) {
           </p>
         </article>
 
+        {/* Filter UI can be lazy-loaded for further performance gains */}
         <FilterLinks selected={selected} />
 
         <div className="space-y-5 flex flex-col mt-6">
@@ -113,7 +134,6 @@ export async function getStaticProps() {
 
 function FilterLinks({ selected }) {
   const base = '/hagwons';
-
   const filterGroups = [
     { title: '지역', param: 'region', options: ['전체', '강남', '서초', '제주', '부산', '해외'] },
     { title: '수업 방식', param: 'lessonType', options: ['전체', '개인', '그룹'] },

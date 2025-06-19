@@ -2,21 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-
-body {
-  font-family: 'Noto Sans KR', sans-serif;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    word-break: keep-all;
-}
-
-html {
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  word-break: keep-all;
-}
-
-p, span, div, h1, h2, h3, h4, h5, h6, li, td, th {
+body, html, p, span, div, h1, h2, h3, h4, h5, h6, li, td, th {
   word-wrap: break-word;
   overflow-wrap: break-word;
   word-break: keep-all;

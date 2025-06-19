@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import FadeInWhenVisible from '@/components/FadeInWhenVisible';
 
+
 export default function Home() {
   return (
     <div>
@@ -33,7 +34,7 @@ export default function Home() {
                 src="/images/SampleProfiles.svg"
                 alt="샘플 프로필"
                 fill
-                priority={true}
+                priority={false}
                 placeholder="blur" 
                 blurDataURL="iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOs2fv/PwAHLgM5yEquVgAAAABJRU5ErkJggg=="
               />

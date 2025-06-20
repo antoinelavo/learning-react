@@ -8,18 +8,18 @@ export default function Home() {
       {/* Hero Section */}
       <div
           id="heroSection"
-          className="flex flex-row justify-center mx-auto bg-gradient-to-b from-[#32ade61a] to-white h-[60dvh]"
+          className="flex flex-row justify-center mx-auto bg-gradient-to-b from-[#32ade61a] to-gray-50 h-[60dvh]"
         >
           <div className="flex flex-col justify-center text-left px-6 text-center md:text-left">
-            <h1 className="text-4xl font-bold mb-2">IB 과외 무료 매칭 플랫폼</h1>
-            <p className="text-l font-normal text-gray-500 leading-[2em] mb-6">
+            <h1 className="text-4xl font-bold mb-2 text-balance leading-relaxed">IB 과외 무료 매칭 플랫폼</h1>
+            <p className="text-l font-normal text-gray-500 leading-[2em] mb-6 text-balance">
               국내 유일 수수료 0원 과외 플랫폼
             </p>
             <div className="flex gap-4 justify-center md:justify-start">
-              <Link href="/find" className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition">
+              <Link href="/find" className="bg-blue-500 text-white px-2 sm:px-6 py-2 rounded-lg hover:bg-blue-600 transition">
                 과외 찾기
               </Link>
-              <Link href="/apply" className="border border-blue-500 text-blue-500 px-6 py-2 rounded-lg bg-white hover:bg-blue-100 transition">
+              <Link href="/apply" className="border border-blue-500 text-blue-500 px-2 sm:px-6 py-2 rounded-lg bg-white hover:bg-blue-100 transition">
                 선생님 등록하기
               </Link>
             </div>
@@ -43,20 +43,20 @@ export default function Home() {
 
       {/* Problem Quote */}
       <section id="problemQuote" className="max-w-4xl mx-auto px-4 py-32 text-left space-y-28">
-          <p className="text-2xl font-bold leading-relaxed max-w-[22em]">
+          <p className="text-2xl font-bold leading-relaxed max-w-[22em] text-balance">
             비싼 과외비를 내면 좋은 수업을 받을 줄 알았는데,
             알고 보니 <span className="text-blue-500">수업료의 25%가 플랫폼</span>으로 간다고?
           </p>
 
         
-          <p className="text-2xl font-bold text-right leading-relaxed">
+          <p className="text-2xl font-bold text-right leading-relaxed text-balance">
             <span className="text-blue-500">플랫폼 수수료</span>를 내야하니,
             <span className="text-blue-500">수업료</span>를 더 받을까?
           </p>
         
 
         
-          <p className="text-2xl font-bold text-left leading-relaxed">
+          <p className="text-2xl font-bold text-left leading-relaxed text-balance">
             아무리 생각해도 수수료는 <span className="text-blue-500">부당해</span>!
           </p>
         
@@ -65,24 +65,24 @@ export default function Home() {
 
       {/* Comparison Section */}
       <section id="comparison" className="pt-32">
-        <p className="text-center text-gray-400 text-lg font-normal">이러한 생각에서 시작된</p>
-        <p className="text-center text-black text-2xl font-bold px-8">선생님이 만든, 선생님과 학생을 위한 플랫폼</p>
+        <p className="text-center text-gray-400 text-lg font-normal mb-[0.25em]">이러한 생각에서 시작된</p>
+        <p className="text-center text-black text-2xl font-bold px-8 text-balance leading-relaxed">선생님이 만든, 선생님과 학생을 위한 플랫폼</p>
         <div id="comparisonBlocks" className="mt-16 flex flex-col md:flex-row justify-center gap-20 max-w-5xl mx-auto">
           {/* 타 플랫폼 */}
-            <div className="flex flex-col gap-12 rounded-[50px] p-8 shadow-[0_0_30px_rgba(0,0,0,0.1)] text-center mx-[10dvw] md:mx-0">
+            <div className="flex flex-col gap-12 rounded-[2em] sm:rounded-[50px] p-8 shadow-[0_0_30px_rgba(0,0,0,0.1)] text-center mx-[10dvw] md:mx-0">
               <p className="text-[25px] font-bold text-gray-500">타 플랫폼</p>
               {[
                 "수업료의 일부분을 플랫폼이 가져감",
                 "등록 비용, 견적서 등 선생님에게 비용 발생",
                 "IB 전문이 아님"
-              ].map((text, i) => (
-                <div key={i} className="flex flex-row gap-4 items-center text-left justify-start">
-                  <svg width="40" height="40">
+              ].map((id) => (
+                <div key={id} className="flex flex-row gap-4 items-center text-left justify-start">
+                  <svg width="40" height="40" className="flex-none">
                     <circle cx="20" cy="20" r="18" fill="#FF605D" fillOpacity="0.17" />
                     <line x1="12" y1="12" x2="28" y2="28" stroke="#FF605D" strokeWidth="3" strokeLinecap="round" />
                     <line x1="28" y1="12" x2="12" y2="28" stroke="#FF605D" strokeWidth="3" strokeLinecap="round" />
                   </svg>
-                  <p className="text-[18px] font-bold text-black md:max-w-[10em]">{text}</p>
+                  <p className="font-bold text-black md:max-w-[10em]">{text}</p>
                 </div>
               ))}
             </div>
@@ -99,7 +99,7 @@ export default function Home() {
                 "IB 전문"
               ].map((text, i) => (
                 <div key={i} className="flex flex-row gap-4 items-center text-left justify-start">
-                  <svg width="40" height="40">
+                  <svg width="40" height="40" className="flex-none">
                     <circle cx="20" cy="20" r="18" fill="#28A745" fillOpacity="0.17" />
                     <polyline
                       points="10,20 18,28 30,14"
@@ -110,7 +110,7 @@ export default function Home() {
                       fill="none"
                     />
                   </svg>
-                  <p className="text-[18px] font-bold text-black md:max-w-[10em]">{text}</p>
+                  <p className="font-bold text-black md:max-w-[10em]">{text}</p>
                 </div>
               ))}
             </div>
@@ -158,7 +158,7 @@ export default function Home() {
 
       {/* Text */}
       
-      <section className="max-w-4xl mx-auto px-6 bg-white">
+      <section className="max-w-4xl mx-auto px-6">
         <h2 className="text-3xl font-bold text-center text-black mb-8">IB 과외란?</h2>
         <div className="space-y-6 text-m leading-8 text-gray-500">
           <p>
@@ -180,7 +180,7 @@ export default function Home() {
       
       
       
-      <section className="max-w-4xl mx-auto px-6 py-24 bg-white">
+      <section className="max-w-4xl mx-auto px-6 py-24">
         <h2 className="text-3xl font-bold text-center text-black mb-8">IB 과외가 필요한 이유</h2>
         <div className="space-y-6 text-m leading-8 text-gray-500">
           <p>
@@ -204,7 +204,7 @@ export default function Home() {
       
 
       
-      <section className="max-w-4xl mx-auto px-6 py-24 bg-white">
+      <section className="max-w-4xl mx-auto px-6 py-24">
         <h2 className="text-3xl font-bold text-center text-black mb-8">IB 과외 시급은 얼마인가요?</h2>
         <div className="space-y-6 text-m leading-8 text-gray-500">
           <p>
@@ -233,7 +233,7 @@ export default function Home() {
 
 
       {/* Registration CTA */}
-      <section className="flex flex-col sm:flex-row justify-center items-center gap-8 px-4 py-20 bg-gradient-to-t from-[#32ade61a] to-white h-[60dvh]">
+      <section className="flex flex-col sm:flex-row justify-center items-center gap-8 px-4 py-20 bg-gradient-to-t from-[#32ade61a] to-gray-50 h-[60dvh]">
         <Link href="/login" className="no-underline">
           <div className="w-[80dvw] h-[10em] sm:w-[15em] sm:h-[15em] bg-blue-300/80 rounded-2xl flex flex-col items-center justify-center text-center transform transition-transform duration-300 hover:scale-105">
             <p className="text-base text-black">회원 가입하고</p>

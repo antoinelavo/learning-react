@@ -23,7 +23,7 @@ export default function RootLayout({ children }) {
         <link rel="icon" href="/images/favicon.svg" />
         <meta name="author" content="IB Master" />
       </Head>
-      <body className="min-h-screen">
+      <body className="min-h-screen min-w-screen bg-gray-50">
         <Header />
         {children}
         <Footer />

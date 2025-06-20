@@ -10,12 +10,12 @@ export default function Home() {
           id="heroSection"
           className="flex flex-row justify-center mx-auto bg-gradient-to-b from-[#32ade61a] to-white h-[60dvh]"
         >
-          <div className="flex flex-col justify-center text-left px-6">
+          <div className="flex flex-col justify-center text-left px-6 text-center md:text-left">
             <h1 className="text-4xl font-bold mb-2">IB 과외 무료 매칭 플랫폼</h1>
             <p className="text-l font-normal text-gray-500 leading-[2em] mb-6">
               국내 유일 수수료 0원 과외 플랫폼
             </p>
-            <div className="flex gap-4">
+            <div className="flex gap-4 justify-center md:justify-start">
               <Link href="/find" className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition">
                 과외 찾기
               </Link>
@@ -233,15 +233,15 @@ export default function Home() {
 
 
       {/* Registration CTA */}
-      <section className="flex flex-col md:flex-row justify-center items-center gap-8 px-4 py-20 bg-gradient-to-t from-[#32ade61a] to-white h-[60dvh]">
+      <section className="flex flex-col sm:flex-row justify-center items-center gap-8 px-4 py-20 bg-gradient-to-t from-[#32ade61a] to-white h-[60dvh]">
         <Link href="/login" className="no-underline">
-          <div className="w-[20em] h-[20em] sm:min-w-[350px] sm:min-h-[300px] bg-blue-300/80 rounded-2xl flex flex-col items-center justify-center text-center transform transition-transform duration-300 hover:scale-105">
+          <div className="w-[80dvw] h-[10em] sm:w-[15em] sm:h-[15em] bg-blue-300/80 rounded-2xl flex flex-col items-center justify-center text-center transform transition-transform duration-300 hover:scale-105">
             <p className="text-base text-black">회원 가입하고</p>
             <p className="text-2xl font-bold text-black">과외 선생님 찾기</p>
           </div>
         </Link>
         <Link href="/apply" className="no-underline">
-          <div className="w-[20em] h-[20em] sm:min-w-[350px] sm:min-h-[300px] bg-blue-300/30 rounded-2xl flex flex-col items-center justify-center text-center transform transition-transform duration-300 hover:scale-105">
+          <div className="w-[80dvw] h-[10em] sm:w-[15em] sm:h-[15em] bg-blue-300/30 rounded-2xl flex flex-col items-center justify-center text-center transform transition-transform duration-300 hover:scale-105">
             <p className="text-base text-black">프로필 작성하고</p>
             <p className="text-2xl font-bold text-black">선생님 등록하기</p>
           </div>

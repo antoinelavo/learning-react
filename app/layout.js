@@ -1,8 +1,13 @@
 import Header from '@/components/Header.server';
 import Footer from '@/components/Footer.server';
 import Head from 'next/head';
-import '@/styles/globals.css';    // ← ensure this path is correct
+import '@/styles/globals.css';
+import { Noto_Sans_KR } from "next/font/google";
 
+const notoSansKR = Noto_Sans_KR({
+    variable: "--fonts--noto-sans-kr",
+    subsets: ["latin"],
+})
 
 export const metadata = {
   title: 'IB Master 과외 찾기',
@@ -11,14 +16,14 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="ko">
+    <html lang="en" className={notoSansKR.className}>
       <Head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/images/favicon.svg" />
         <meta name="author" content="IB Master" />
       </Head>
-      <body className="bg-gray-50 min-h-screen">
+      <body className="min-h-screen">
         <Header />
         {children}
         <Footer />

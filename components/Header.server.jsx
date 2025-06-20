@@ -6,7 +6,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-[1000] text-center flex justify-center items-center py-[1em] bg-white border-b border-[#e5e7eb]">
     <div className="flex justify-between items-center flex-grow w-full max-w-7xl px-[10dvw]">
-        <Link href="/home" className="mr-[8em]">
+        <Link href="/" className="mr-[8em]">
           <img
             src="/images/mainlogo.svg"
             alt="IB 과외 찾기"

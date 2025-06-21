@@ -12,6 +12,9 @@ const notoSansKR = Noto_Sans_KR({
 export const metadata = {
   title: 'IB Master 과외 찾기',
   description: 'IB 과외 선생님을 쉽고 빠르게 찾아보세요.',
+  icons: {
+    icon: '/images/favicon.svg',      // ← public/images/favicon.svg
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -20,7 +23,7 @@ export default function RootLayout({ children }) {
       <Head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/images/favicon.svg" />
+        <link rel="icon" href="@/public/images/favicon.svg" />
         <meta name="author" content="IB Master" />
       </Head>
       <body className="min-h-screen min-w-screen bg-gray-50">

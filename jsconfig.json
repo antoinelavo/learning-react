@@ -3,6 +3,25 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["*"]
-    }
-  }
+    },
+
+    // allow JS/JSX, but don’t type-check it
+    "allowJs": true,
+    "checkJs": false,
+    "jsx": "preserve",
+    "noEmit": true,
+
+    // pull in the standard DOM + modern JS globals
+    "lib": ["dom", "esnext"],
+
+    // don’t waste time on .d.ts or node_modules
+    "skipLibCheck": true
+  },
+  "exclude": [
+    "node_modules",
+    ".next",
+    "out",
+    "contentlayer.generated",
+    "**/*.d.ts"
+  ]
 }

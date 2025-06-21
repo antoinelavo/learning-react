@@ -1,4 +1,7 @@
-import withBundleAnalyzer from '@next/bundle-analyzer';
+// next.config.js
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+})
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -6,8 +9,7 @@ const nextConfig = {
   images: {
     domains: ['scdoramzssnimcbsojml.supabase.co'],
   },
-};
+  // any other Next.js config options…
+}
 
-export default withBundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
-})(nextConfig);
+module.exports = withBundleAnalyzer(nextConfig)

@@ -42,7 +42,7 @@ export default function Home() {
 
 
       {/* Problem Quote */}
-      <section id="problemQuote" className="max-w-4xl mx-auto px-4 py-32 text-left space-y-28">
+      <section id="problemQuote" className="max-w-4xl mx-auto px-4 py-32 text-left space-y-28 mt-[15em]">
           <p className="text-2xl font-bold leading-relaxed max-w-[22em] text-balance">
             비싼 과외비를 내면 좋은 수업을 받을 줄 알았는데,
             알고 보니 <span className="text-blue-500">수업료의 25%가 플랫폼</span>으로 간다고?
@@ -75,8 +75,8 @@ export default function Home() {
                 "수업료의 일부분을 플랫폼이 가져감",
                 "등록 비용, 견적서 등 선생님에게 비용 발생",
                 "IB 전문이 아님"
-              ].map((id) => (
-                <div key={id} className="flex flex-row gap-4 items-center text-left justify-start">
+              ].map((text, i) => (
+                <div key={i} className="flex flex-row gap-4 items-center text-left justify-start">
                   <svg width="40" height="40" className="flex-none">
                     <circle cx="20" cy="20" r="18" fill="#FF605D" fillOpacity="0.17" />
                     <line x1="12" y1="12" x2="28" y2="28" stroke="#FF605D" strokeWidth="3" strokeLinecap="round" />

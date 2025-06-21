@@ -1,16 +1,12 @@
 ---
-title: "IB 과외 시급은 얼마나 받을 수 있을까?"
-date: "2025-06-17"
-author: "Eugene Park"
-tags: ["IB", "과외", "시급"]
-description: "IB 과외의 평균 시급과 그 결정 요소에 대해 알아봅니다."
+title: "Hello, MDX"
+date: "2025-06-22"
+description: "My first MDX-based post"
+ctaLabel: "Start Finding Tutors"
+ctaLink: "/find"
+ctaPosition: "top"  # or "bottom"
 ---
 
-한국에서 IB 과외는 일반적인 과외보다 높은 시급을 받을 수 있는 영역입니다.
+Welcome to my blog powered by MDX!
 
-## 시급은 어떻게 결정될까?
-
-- 과목의 난이도
-- 선생님의 경력
-- 수업 방식
-
+<BlogCTAButton label={ctaLabel} href={ctaLink} />

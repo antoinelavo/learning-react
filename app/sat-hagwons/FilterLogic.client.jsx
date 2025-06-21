@@ -14,18 +14,22 @@ export default function FilterLogic() {
     const service = searchParams.getAll('service');
 
     cards.forEach(card => {
-      const cardRegion = card.dataset.region?.split(',') || [];
+      const cardRegionRaw = card.dataset.region || '';
       const cardLessonType = card.dataset.lessontype?.split(',') || [];
       const cardFormat = card.dataset.format?.split(',') || [];
       const cardService = card.dataset.service?.split(',') || [];
 
-      const matches =
-        (region.length === 0 || region.some(r => cardRegion.includes(r))) &&
-        (lessonType.length === 0 || lessonType.every(l => cardLessonType.includes(l))) &&
-        (format.length === 0 || format.every(f => cardFormat.includes(f))) &&
-        (service.length === 0 || service.every(s => cardService.includes(s)));
+      const regionMatch =
+        region.length === 0 || region.some(r => cardRegionRaw.includes(r));
+      const lessonTypeMatch =
+        lessonType.length === 0 || lessonType.every(l => cardLessonType.includes(l));
+      const formatMatch =
+        format.length === 0 || format.every(f => cardFormat.includes(f));
+      const serviceMatch =
+        service.length === 0 || service.every(s => cardService.includes(s));
 
-      card.style.display = matches ? 'block' : 'none';
+      const visible = regionMatch && lessonTypeMatch && formatMatch && serviceMatch;
+      card.style.display = visible ? 'block' : 'none';
     });
   }, [searchParams]);
 

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../contentlayer.config.js"],
+  "sourcesContent": ["// contentlayer.config.js\nconst { defineDocumentType, makeSource } = require('contentlayer/source-files')\n\nconst Blog = defineDocumentType(() => ({\n  name: 'Blog',\n  filePathPattern: `**/*.mdx`,\n  contentType: 'mdx',\n  fields: {\n    title:       { type: 'string', required: true },\n    date:        { type: 'string', required: true },\n    description: { type: 'string', required: true },\n    ctaLabel:    { type: 'string', required: false },\n    ctaLink:     { type: 'string', required: false },\n    ctaPosition: { type: 'string', required: false },\n  },\n}))\n\nmodule.exports = makeSource({\n  contentDirPath: 'content/blog',\n  documentTypes: [Blog],\n  mdx: {},\n})"],
+  "mappings": ";;;;;;;;;;;;;AAAA;AAAA;AACA,QAAM,EAAE,oBAAoB,WAAW,IAAI,UAAQ,2BAA2B;AAE9E,QAAM,OAAO,mBAAmB,OAAO;AAAA,MACrC,MAAM;AAAA,MACN,iBAAiB;AAAA,MACjB,aAAa;AAAA,MACb,QAAQ;AAAA,QACN,OAAa,EAAE,MAAM,UAAU,UAAU,KAAK;AAAA,QAC9C,MAAa,EAAE,MAAM,UAAU,UAAU,KAAK;AAAA,QAC9C,aAAa,EAAE,MAAM,UAAU,UAAU,KAAK;AAAA,QAC9C,UAAa,EAAE,MAAM,UAAU,UAAU,MAAM;AAAA,QAC/C,SAAa,EAAE,MAAM,UAAU,UAAU,MAAM;AAAA,QAC/C,aAAa,EAAE,MAAM,UAAU,UAAU,MAAM;AAAA,MACjD;AAAA,IACF,EAAE;AAEF,WAAO,UAAU,WAAW;AAAA,MAC1B,gBAAgB;AAAA,MAChB,eAAe,CAAC,IAAI;AAAA,MACpB,KAAK,CAAC;AAAA,IACR,CAAC;AAAA;AAAA;",
+  "names": []
+}

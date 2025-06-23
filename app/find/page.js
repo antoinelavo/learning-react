@@ -1,4 +1,5 @@
 import TeacherList from './TeacherList';
+import ClientFind from './ClientFind';
 
 export const metadata = {
   title: 'IB 과외 찾기',
@@ -15,9 +16,8 @@ export const metadata = {
     },
   },
   icons: {
-    icon: '/images/favicon.svg'
+    icon: '/images/favicon.svg',
   },
-
   openGraph: {
     title: 'IB 과외 찾기',
     description: 'IB 과외 선생님을 수수료 없이 쉽고 빠르게 찾아보세요.',
@@ -26,11 +26,12 @@ export const metadata = {
     locale: 'ko-KR',
     type: 'website',
   },
-}
+};
 
-export default async function FindPage() {
+export default function FindPage() {
   return (
-    <main className="max-w-6xl mx-auto px-4 py-10 min-h-screen">
+    <ClientFind>
+      <main className="max-w-6xl mx-auto px-4 py-10 min-h-screen">
         {/* Header */}
         <div className="bg-white text-center border w-full h-fit mx-auto mb-6 py-6 px-4 border-gray-200 rounded-xl shadow-md">
           <h1 className="text-2xl font-bold mb-4">IB 과외 선생님 찾기</h1>
@@ -43,6 +44,7 @@ export default async function FindPage() {
         <div className="flex flex-col md:flex-row">
           <TeacherList />
         </div>
-    </main>
+      </main>
+    </ClientFind>
   );
 }

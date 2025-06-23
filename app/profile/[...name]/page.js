@@ -29,9 +29,12 @@ export async function generateMetadata({ params }) {
     .single();
   const description = teacher?.shortintroduction || '이 선생님의 프로필을 확인하세요.';
   return {
-    title: `${name} | IB 과외`,
+    title: `${name} | IB 과외 선생님`,
     description,
-    openGraph: { title: `${name} | IB 과외`, description },
+    openGraph: { title: `${name} | IB 과외 선생님`, description },
+    icons: {
+      icon: '/images/favicon.svg'
+    },
   };
 }
 

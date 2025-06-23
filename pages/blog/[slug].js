@@ -121,10 +121,62 @@ export async function getStaticProps({ params }) {
 export default function BlogPost({ frontmatter, mdxSource, toc }) {
   return (
     <>
-    <Head>
-       <title>{frontmatter.title}</title>
-       <link rel="icon" type="image/png" href="../images/favicon.svg"></link>
-    </Head>
+        <Head>
+            <title>{frontmatter.title} | IB Master</title>
+
+            {/* REQUIRED */}
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <meta name="robots"   content="index, follow" />
+            <link rel="icon" href="/images/favicon.svg" />
+
+            {/* 1. Description */}
+            <meta name="description" content={frontmatter.description} />
+
+
+            {/* 3. Open Graph */}
+            <meta property="og:type"        content="article" />
+            <meta property="og:title"       content={frontmatter.title} />
+            <meta property="og:description" content={frontmatter.description} />
+            <meta
+            property="og:image"
+            content={frontmatter.coverImage || '/images/mainlogo.svg'}
+            />
+
+            {/* 4. Twitter Card */}
+            <meta name="twitter:card"        content="summary_large_image" />
+            <meta name="twitter:title"       content={frontmatter.title} />
+            <meta name="twitter:description" content={frontmatter.description} />
+            <meta
+            name="twitter:image"
+            content={frontmatter.coverImage || '/images/mainlogo.svg'}
+            />
+
+            {/* 5. JSON-LD Structured Data (Article schema) */}
+            <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Article",
+                "headline": frontmatter.title,
+                "description": frontmatter.description,
+                "datePublished": frontmatter.date,
+                "author": {
+                    "@type": "Person",
+                    "name": "IB Master"
+                },
+                "publisher": {
+                    "@type": "Organization",
+                    "name": "IB Master",
+                    "logo": {
+                    "@type": "ImageObject"
+                    }
+                }                
+            })
+            }}
+            />
+        </Head>
+
     <div className="max-w-5xl mx-auto py-16 px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
       {/* — Main article (spans 3 cols) */}
       <article className="md:col-span-3">

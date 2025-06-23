@@ -1,5 +1,34 @@
 import TeacherList from './TeacherList';
 
+export const metadata = {
+  title: 'IB 과외 찾기',
+  description: 'IB 과외 선생님을 수수료 없이 쉽고 빠르게 찾아보세요.',
+  viewport: 'width=device-width, initial-scale=1',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  icons: {
+    icon: '/images/favicon.svg'
+  },
+
+  openGraph: {
+    title: 'IB 과외 찾기',
+    description: 'IB 과외 선생님을 수수료 없이 쉽고 빠르게 찾아보세요.',
+    url: 'https://ibmaster.net/find',
+    siteName: 'IB Master',
+    locale: 'ko-KR',
+    type: 'website',
+  },
+}
+
 export default async function FindPage() {
   return (
     <main className="max-w-6xl mx-auto px-4 py-10 min-h-screen">

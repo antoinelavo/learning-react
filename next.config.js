@@ -23,7 +23,6 @@ const nextConfig = {
       // add any other remote hosts here
     ],
   },
-  // so you can import .js/.jsx/.ts/.tsx/.md/.mdx pages
   pageExtensions: ['js', 'jsx', 'md', 'mdx'],
 };
 

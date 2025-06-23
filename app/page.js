@@ -1,6 +1,34 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
+export const metadata = {
+  title: '수수료 없는 IB 전문 과외 플랫폼 | IB Master',
+  description: '선생, 학생 모두 수수료 없는 IB 과외 전문 플랫폼. IB 수학, 영어, 물리 과외를 믿고 맡길 수 있는 곳, IB Master',
+  viewport: 'width=device-width, initial-scale=1',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  icons: {
+    icon: '/images/favicon.svg'
+  },
+
+  openGraph: {
+    title: '수수료 없는 IB 전문 과외 플랫폼 | IB Master',
+    description: '선생, 학생 모두 수수료 없는 IB 과외 전문 플랫폼. IB 수학, 영어, 물리 과외를 믿고 맡길 수 있는 곳, IB Master',
+    url: 'https://ibmaster.net/',
+    siteName: 'IB Master',
+    locale: 'ko-KR',
+    type: 'website',
+  },
+}
 
 export default function Home() {
   return (

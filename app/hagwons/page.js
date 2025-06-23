@@ -8,7 +8,31 @@ export const revalidate = 3600; // rebuild every hour
 export const metadata = {
   title: 'IB 학원 29곳 추천 및 비교 [2025년 최신]',
   description: 'IB 학원 추천, 비교, 선택 가이드 – 2025년 최신 업데이트',
-};
+  viewport: 'width=device-width, initial-scale=1',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  icons: {
+    icon: '/images/favicon.svg'
+  },
+
+  openGraph: {
+    title: 'IB 학원 29곳 추천 및 비교 [2025년 최신]',
+    description: 'IB 학원 추천, 비교, 선택 가이드 – 2025년 최신 업데이트',
+    url: 'https://ibmaster.net/hagwons',
+    siteName: 'IB Master',
+    locale: 'ko-KR',
+    type: 'website',
+  },
+}
 
 export default async function HagwonsPage({ searchParams }) {
   const sp = await searchParams;

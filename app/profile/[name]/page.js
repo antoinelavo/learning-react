@@ -19,9 +19,7 @@ export async function generateStaticParams() {
  * Dynamic metadata based on teacher's short introduction
  */
 export async function generateMetadata({ params }) {
-  const p = await params;
-  const rawName = p.name[0];
-  const name    = decodeURIComponent(rawName);
+  const decodedName = decodeURIComponent(params.name);
   const { data: teacher } = await supabase
     .from('teachers')
     .select('shortintroduction')

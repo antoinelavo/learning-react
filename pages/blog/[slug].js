@@ -7,6 +7,7 @@ import { MDXRemote } from 'next-mdx-remote'
 import remarkGfm from 'remark-gfm'
 import rehypeSlug from 'rehype-slug'
 import BlogCTAButton from '@/components/BlogCTAButton'
+import Head from 'next/head'
 
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
@@ -119,6 +120,11 @@ export async function getStaticProps({ params }) {
 
 export default function BlogPost({ frontmatter, mdxSource, toc }) {
   return (
+    <>
+    <Head>
+       <title>{frontmatter.title}</title>
+       <link rel="icon" type="image/png" href="../images/favicon.svg"></link>
+    </Head>
     <div className="max-w-5xl mx-auto py-16 px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
       {/* — Main article (spans 3 cols) */}
       <article className="md:col-span-3">
@@ -225,5 +231,6 @@ export default function BlogPost({ frontmatter, mdxSource, toc }) {
         </nav>
       </aside>
     </div>
+    </>
   )
 }

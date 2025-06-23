@@ -1,18 +1,30 @@
 // next.config.js
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
-})
-
+});
+const withMDX = require('@next/mdx')({
+  extension: /\.mdx?$/,
+  options: {
+    remarkPlugins: [require('remark-gfm')],
+    rehypePlugins: [
+      require('rehype-slug'),
+      [require('rehype-autolink-headings'), { behavior: 'wrap' }],
+    ],
+    providerImportSource: '@mdx-js/react',
+  },
+});
 
 /** @type {import('next').NextConfig} */
-const baseConfig = {
+const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['scdoramzssnimcbsojml.supabase.co'],
+    domains: [
+      'scdoramzssnimcbsojml.supabase.co',
+      // add any other remote hosts here
+    ],
   },
-  // include mdx so next/link & friends can resolve .md/.mdx pages
+  // so you can import .js/.jsx/.ts/.tsx/.md/.mdx pages
   pageExtensions: ['js', 'jsx', 'md', 'mdx'],
-}
+};
 
-module.exports = withBundleAnalyzer(
-)
+module.exports = withBundleAnalyzer(withMDX(nextConfig));

@@ -1,12 +1,9 @@
-// app/profile/[...name]/ContactButton.client.jsx
-'use client';
-
+// pages/profile/ContactButton.js
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/router';
 import { createClient } from '@supabase/supabase-js';
 
-// Initialize Supabase client in the browser
-const supabase = createClient(
+const supabaseClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
@@ -17,10 +14,9 @@ export default function ContactButton({ teacherName }) {
   const router = useRouter();
 
   const handleClick = async () => {
-    // Check auth state
     const {
       data: { user },
-    } = await supabase.auth.getUser();
+    } = await supabaseClient.auth.getUser();
 
     if (!user) {
       router.push('/login');
@@ -30,8 +26,8 @@ export default function ContactButton({ teacherName }) {
     if (!showContact) {
       setShowContact(true);
 
-      // Fetch and display the actual contact info
-      const { data: fetched, error: fetchErr } = await supabase
+      // Fetch contact info
+      const { data: fetched, error: fetchErr } = await supabaseClient
         .from('teachers')
         .select('contact_information')
         .eq('name', teacherName)
@@ -42,17 +38,16 @@ export default function ContactButton({ teacherName }) {
       }
 
       // Increment click count
-      const { data: record, error: countErr } = await supabase
+      const { data: record, error: countErr } = await supabaseClient
         .from('teachers')
         .select('click_count')
         .eq('name', teacherName)
         .single();
 
       if (!countErr && record) {
-        const newCount = (record.click_count || 0) + 1;
-        await supabase
+        await supabaseClient
           .from('teachers')
-          .update({ click_count: newCount })
+          .update({ click_count: (record.click_count || 0) + 1 })
           .eq('name', teacherName);
       }
     } else {

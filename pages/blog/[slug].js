@@ -148,6 +148,8 @@ export default function BlogPost({ frontmatter, mdxHtml, toc }) {
           {/* Rendered HTML */}
           <div
             className="
+              min-h-[80dvh]
+              mb-[10em]
               prose
               prose-lg
               lg:prose-xl
@@ -168,6 +170,9 @@ export default function BlogPost({ frontmatter, mdxHtml, toc }) {
               prose-a:underline-offset-4
               prose-ol:text-[16px]
               prose-ul:text-[16px]
+              prose-img:rounded-xl
+              prose-img:shadow-lg
+              prose-img:border-solid
             "
             dangerouslySetInnerHTML={{ __html: mdxHtml }}
           />

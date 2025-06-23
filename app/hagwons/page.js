@@ -8,7 +8,6 @@ export const revalidate = 3600; // rebuild every hour
 export const metadata = {
   title: 'IB 학원 29곳 추천 및 비교 [2025년 최신]',
   description: 'IB 학원 추천, 비교, 선택 가이드 – 2025년 최신 업데이트',
-  viewport: 'width=device-width, initial-scale=1',
   robots: {
     index: true,
     follow: true,

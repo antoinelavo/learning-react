@@ -3,7 +3,6 @@ import TeacherList from './TeacherList';
 export const metadata = {
   title: 'IB 과외 찾기',
   description: 'IB 과외 선생님을 수수료 없이 쉽고 빠르게 찾아보세요.',
-  viewport: 'width=device-width, initial-scale=1',
   robots: {
     index: true,
     follow: true,

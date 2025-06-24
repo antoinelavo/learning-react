@@ -1,6 +1,5 @@
 import Header from '@/components/Header.server';
 import Footer from '@/components/Footer.server';
-import Head from 'next/head';
 import '@/styles/globals.css';
 import { Noto_Sans_KR } from "next/font/google";
 
@@ -20,12 +19,6 @@ export const metadata = {
 export default function RootLayout({ Component, pageProps }) {
   return (
     <html lang="en" className={notoSansKR.className}>
-      <Head>
-        <meta charSet="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="@/public/images/favicon.ico" />
-        <meta name="author" content="IB Master" />
-      </Head>
       <body className="min-h-screen min-w-screen bg-gray-50">
         <Header />
         <Component {...pageProps} />

@@ -5,6 +5,7 @@ const satHagwons = [
     lessonType: ['그룹'],
     format: ['대면'],
     services: ['IB', 'AP'],
+    url: "https://m.blog.naver.com/sageprep?tab=1",
   },
   {
     name: '샤인프렙 (ShinePrep)',
@@ -12,6 +13,8 @@ const satHagwons = [
     lessonType: ['그룹', '1:1'],
     format: ['온라인'],
     services: ['IB', 'AP', '컨설팅'],
+    url: "https://www.shineprep.org/",
+    
   },
   {
     name: '파레토프렙 (Pareto Prep)',
@@ -19,6 +22,8 @@ const satHagwons = [
     lessonType: ['그룹', '1:1'],
     format: ['대면'],
     services: ['IB'],
+    url: "https://blog.naver.com/paretoprep",
+
   },
   {
     name: '인터프렙 (Interprep)',
@@ -26,6 +31,7 @@ const satHagwons = [
     lessonType: ['그룹'],
     format: ['대면'],
     services: ['TOEFL'],
+    url: "https://interprep.co.kr/",
   },
   {
     name: '해커스 (HACKERS)',
@@ -33,6 +39,7 @@ const satHagwons = [
     lessonType: ['그룹', '1:1'],
     format: ['대면'],
     services: ['AP', '컨설팅'],
+    url: "https://sat.hackers.ac/",
   },
   {
     name: '아크메 어학원 (ACMÉacademy)',
@@ -40,6 +47,8 @@ const satHagwons = [
     lessonType: ['그룹', '1:1'],
     format: ['온라인'],
     services: ['AP'],
+    url: "https://www.acmeacademy.co.kr/",
+
   },
   {
     name: '트리플 어학원 (tripleacademy)',
@@ -47,6 +56,8 @@ const satHagwons = [
     lessonType: ['그룹'],
     format: ['대면'],
     services: [],
+    url: "https://tripleprep.modoo.at/",
+
   },
   {
     name: '폴아카데미 (PaulAcademy)',
@@ -54,6 +65,8 @@ const satHagwons = [
     lessonType: ['그룹'],
     format: ['대면'],
     services: ['AP', '컨설팅'],
+    url: "https://paulacademy.net/sat_class",
+
   },
   {
     name: 'STARPREP (스타프랩)',
@@ -61,6 +74,8 @@ const satHagwons = [
     lessonType: ['그룹'],
     format: ['대면'],
     services: ['AP'],
+    url: "https://www.starprep.com/",
+
   },
   {
     name: '디아이 (The I Prep)',
@@ -68,6 +83,8 @@ const satHagwons = [
     lessonType: ['그룹'],
     format: ['대면'],
     services: ['컨설팅'],
+    url: "https://www.theiprep.com/theicollege/main_college.php",
+
   },
   {
     name: 'AblePrep (에이블프렙)',
@@ -75,6 +92,8 @@ const satHagwons = [
     lessonType: ['그룹'],
     format: ['대면'],
     services: ['AP'],
+    url: "https://www.ableprepedu.com/",
+
   },
   {
     name: 'CLOUD EDU (클라우드에듀)',
@@ -82,6 +101,8 @@ const satHagwons = [
     lessonType: ['그룹', '1:1'],
     format: ['대면'],
     services: ['IB', 'TOEFL'],
+    url: "https://pf.kakao.com/_lwgxoV",
+
   },
   {
     name: 'brix academy (브릭스아카데미)',
@@ -89,6 +110,8 @@ const satHagwons = [
     lessonType: ['그룹', '1:1'],
     format: ['대면'],
     services: ['ACT', '컨설팅'],
+    url: "https://www.brixacademy.co.kr/",
+
   },
   {
     name: 'LanguageWill (랭귀지윌)',
@@ -96,6 +119,8 @@ const satHagwons = [
     lessonType: ['그룹', '1:1'],
     format: ['대면'],
     services: ['컨설팅'],
+    url: "https://www.languagewill.co.kr/",
+
   },
   {
     name: 'Campbell Academy (강남캠벨아카데미)',
@@ -103,6 +128,8 @@ const satHagwons = [
     lessonType: ['그룹', '1:1'],
     format: ['대면', '온라인'],
     services: ['ACT', 'AP', 'IB', 'GCSE', 'TOEFL'],
+    url: "https://www.campbellsec.com/SETF/main.asp?",
+
   },
   {
     name: 'GatePrep (GATE 어학원)',
@@ -110,6 +137,8 @@ const satHagwons = [
     lessonType: ['그룹'],
     format: ['대면'],
     services: ['ACT', 'AP', 'TOEFL'],
+    url: "https://www.gatepreps.com/",
+
   },
   {
     name: 'PSU EDU (PSU 에듀센터)',
@@ -117,6 +146,8 @@ const satHagwons = [
     lessonType: ['그룹'],
     format: ['대면'],
     services: ['컨설팅'],
+    url: "https://psuedu.org/index",
+
   },
   {
     name: 'Elite Prep (엘리트에듀)',
@@ -124,6 +155,8 @@ const satHagwons = [
     lessonType: ['그룹', '1:1'],
     format: ['대면'],
     services: ['AP', 'IB', '컨설팅'],
+    url: "https://eliteprep.co.kr/",
+
   },
   {
     name: 'EDU MOST (에듀모스트)',
@@ -131,6 +164,8 @@ const satHagwons = [
     lessonType: ['그룹', '1:1'],
     format: ['대면', '온라인'],
     services: ['IB', '컨설팅'],
+    url: "http://www.edumost.co.kr/index.htm",
+
   },
   {
     name: 'Scholar (스칼라어학원)',
@@ -138,6 +173,8 @@ const satHagwons = [
     lessonType: ['그룹'],
     format: ['대면'],
     services: ['AP'],
+    url: "https://blog.naver.com/scholar5430",
+
   },
   {
     name: 'Nobel Prep (노벨 프렙)',
@@ -145,6 +182,8 @@ const satHagwons = [
     lessonType: ['그룹'],
     format: ['대면'],
     services: ['AP', 'IB'],
+    url: "https://blog.naver.com/ssprep0821",
+
   },
   {
     name: 'Veterans Edu (베테랑스 에듀)',
@@ -152,6 +191,8 @@ const satHagwons = [
     lessonType: ['그룹', '1:1'],
     format: ['대면'],
     services: ['AP', 'TOEFL'],
+    url: "https://veteransedu.net/",
+
   },
   {
     name: 'Brompton (브롬튼)',
@@ -159,6 +200,8 @@ const satHagwons = [
     lessonType: ['그룹', '1:1'],
     format: [],
     services: ['AP', 'IB', 'TOEFL', '컨설팅'],
+    url: "https://www.bromptoneducation.com/",
+
   },
   {
     name: 'SSLI (SSLI)',
@@ -166,6 +209,8 @@ const satHagwons = [
     lessonType: ['그룹', '1:1'],
     format: ['대면'],
     services: ['컨설팅'],
+    url: "https://ssli.education/",
+
   },
   {
     name: 'Topcle (탑클어학원)',
@@ -173,6 +218,8 @@ const satHagwons = [
     lessonType: ['그룹'],
     format: ['대면'],
     services: ['컨설팅'],
+    url: "https://topcle.co.kr/",
+
   },
   {
     name: 'PRIMA (프리마 어학원)',
@@ -180,6 +227,8 @@ const satHagwons = [
     lessonType: ['그룹', '1:1'],
     format: ['대면'],
     services: ['AP', 'ACT', 'IB', 'TOEFL', '컨설팅'],
+    url: "https://blog.naver.com/jprima2016",
+
   },
   {
     name: 'MasterPrep (인강)',
@@ -194,6 +243,8 @@ const satHagwons = [
     lessonType: ['그룹', '1:1'],
     format: ['대면'],
     services: ['TOEFL'],
+    url: "https://honorsacademy.co.kr/",
+
   },
   {
     name: 'AnnArborAcademy (앤아버 어학원)',
@@ -201,6 +252,7 @@ const satHagwons = [
     lessonType: ['그룹', '1:1'],
     format: ['대면'],
     services: ['AP', 'ACT', 'IB', 'TOEFL', '컨설팅'],
+    url: "http://www.annarboracademy.co.kr/",
   },
 ];
 

@@ -109,7 +109,8 @@ export default function HagwonCard({ image, name, region, format, lessonType, ia
                 카카오톡
               </button>
               <a target="_blank" rel="noopener noreferrer" className="cursor-pointer px-4 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg text-gray-900 hover:bg-gray-100 hover:border-gray-400"
-              onClick={() => logContactClick({ hagwonName: name, contactType: 'Website' })}>
+              onClick={() => logContactClick({ hagwonName: name, contactType: 'Website' })}
+              href={url}>
                 홈페이지
               </a>
             </div>

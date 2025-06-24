@@ -9,10 +9,8 @@ const notoSansKR = Noto_Sans_KR({
 })
 
 export const metadata = {
-  title: 'IB Master 과외 찾기',
-  description: 'IB 과외 선생님을 쉽고 빠르게 찾아보세요.',
   icons: {
-    icon: '/images/favicon.ico',
+    icon: '/favicon.ico',
   },
 };
 

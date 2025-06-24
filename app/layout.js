@@ -9,6 +9,11 @@ const notoSansKR = Noto_Sans_KR({
     subsets: ["latin"],
 })
 
+export const metadata = {
+  icons: {
+    icon: '/favicon.ico',
+  },
+};
 
 export default function RootLayout({ children }) {
   return (

@@ -60,7 +60,7 @@ export default function ProfilePage({ teacher }) {
           content={`${teacher.name} | IB 과외 선생님`}
         />
         <meta property="og:description" content={description} />
-        <link rel="icon" href="/images/favicon.svg" />
+        <link rel="icon" href="/images/favicon.ico" />
       </Head>
 
       <main className="max-w-3xl mx-auto px-4 py-10 space-y-8">

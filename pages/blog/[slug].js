@@ -81,7 +81,7 @@ export default function BlogPost({ frontmatter, mdxHtml, toc }) {
         <title>{frontmatter.title}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="robots" content="index, follow" />
-        <link rel="icon" href="/images/favicon.svg" />
+        <link rel="icon" href="/images/favicon.ico" />
         <meta name="description" content={frontmatter.description} />
         <meta property="og:type" content="article" />
         <meta property="og:title" content={frontmatter.title} />

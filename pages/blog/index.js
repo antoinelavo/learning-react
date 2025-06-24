@@ -29,7 +29,7 @@ export default function BlogIndex({ posts }) {
      <Head>
        <title>국제학교 입시 관련 정보 | IB Master Blog</title>
        <meta name="description"content="국제학교 입시, 지원 전략, 커리큘럼 비교 등 – 모든 국제학교 입시 정보를 한곳에서 확인하세요."/>
-       <link rel="icon" type="image/png" href="../images/favicon.svg"></link>
+       <link rel="icon" type="image/png" href="../images/favicon.ico"></link>
         <meta name="robots" content="index, follow"></meta>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
      </Head>

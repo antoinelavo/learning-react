@@ -20,7 +20,7 @@ export const metadata = {
     },
   },
   icons: {
-    icon: '/images/favicon.svg'
+    icon: '/images/favicon.ico'
   },
 
   openGraph: {

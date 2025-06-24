@@ -13,7 +13,7 @@ export const metadata = {
   title: 'IB Master 과외 찾기',
   description: 'IB 과외 선생님을 쉽고 빠르게 찾아보세요.',
   icons: {
-    icon: '/images/favicon.svg',      // ← public/images/favicon.svg
+    icon: '/images/favicon.ico',
   },
 };
 
@@ -23,7 +23,7 @@ export default function RootLayout({ Component, pageProps }) {
       <Head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="@/public/images/favicon.svg" />
+        <link rel="icon" href="@/public/images/favicon.ico" />
         <meta name="author" content="IB Master" />
       </Head>
       <body className="min-h-screen min-w-screen bg-gray-50">

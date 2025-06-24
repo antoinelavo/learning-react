@@ -33,13 +33,12 @@ export default function BlogIndex({ posts }) {
         <meta name="robots" content="index, follow"></meta>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
      </Head>
-    <section className="max-w-3xl mx-auto py-16 space-y-8">
-      <h1 className="text-4xl font-bold">국제학교 입시 관련 정보</h1>
+    <section className="max-w-3xl mx-auto py-16 space-y-4">
+      <h1 className="text-4xl font-bold text-center mb-16">국제학교 입시 관련 정보</h1>
       {posts.map(post => (
-        <Link key={post.slug} href={`/blog/${post.slug}`} className="block p-6 border-b hover:bg-gray-50 transition"> 
-            <h2 className="text-2xl font-semibold">{post.title}</h2>
-            <time className="text-gray-500 block mb-2">{post.date}</time>
-            <p className="text-gray-700">{post.description}</p>
+        <Link key={post.slug} href={`/blog/${post.slug}`} className="block bg-gray-200 px-[3em] py-[1em] rounded-lg mx-[2em]"> 
+            <h2 className="text-lg font-semibold hover:text-blue-500 m-0">{post.title}</h2>
+            <time className="text-sm text-gray-500 block">{post.date}</time>
         </Link>
       ))}
     </section>

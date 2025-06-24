@@ -1,6 +1,47 @@
 'use client';
 
 import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
+
+function getDeviceType() {
+  if (typeof window === 'undefined') return 'unknown';
+  const ua = navigator.userAgent;
+  if (/mobile/i.test(ua)) return 'mobile';
+  if (/tablet/i.test(ua)) return 'tablet';
+  return 'desktop';
+}
+
+async function logContactClick({ hagwonName, contactType }) {
+  if (typeof window === 'undefined') return;
+
+  // Generate or retrieve session ID (shared across tabs)
+  const sessionId = localStorage.getItem('user_session_id') || crypto.randomUUID();
+  localStorage.setItem('user_session_id', sessionId);
+
+  // Only log once per session per hagwon+contactType combo
+  const clickedKey = `clicked-${hagwonName}-${contactType}`;
+  if (localStorage.getItem(clickedKey)) return;
+  localStorage.setItem(clickedKey, 'true');
+
+  const { error } = await supabase.from('page_events').insert({
+    page: 'hagwons',
+    event_type: 'cta_click',
+    device_type: getDeviceType(),
+    timestamp: new Date().toISOString(),
+    user_session_id: sessionId,
+    details: {
+      action: 'contact_click',
+      hagwon_name: hagwonName,
+      contact_type: contactType,
+    },
+  });
+
+  if (error) {
+    console.error('❌ Failed to insert page_event:', error);
+  } else {
+    console.log('✅ Tracked contact click:', { hagwonName, contactType });
+  }
+}
 
 export default function HagwonCard({ image, name, region, format, lessonType, ia_ee_tok, description, address, url, }) {
   const [showDetails, setShowDetails] = useState(false);
@@ -62,11 +103,13 @@ export default function HagwonCard({ image, name, region, format, lessonType, ia
             <p className="my-4 text-sm leading-[1.8em]">{description}</p>
             <p className="mb-4 text-sm leading-[1.8em]">주소: {address}</p>
             <div className="flex gap-3 flex-wrap">
-              <button className="cursor-pointer px-4 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg text-gray-900 flex items-center gap-2 hover:bg-gray-100 hover:border-gray-400">
+              <button className="cursor-pointer px-4 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg text-gray-900 flex items-center gap-2 hover:bg-gray-100 hover:border-gray-400"
+              onClick={() => logContactClick({ hagwonName: name, contactType: 'KakaoTalk' })}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="icon" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12.003 2C6.478 2 2 5.858 2 10.527c0 2.486 1.379 4.693 3.548 6.197l-1.13 3.7a.5.5 0 0 0 .702.599l4.285-2.104a12.24 12.24 0 0 0 2.598.278c5.523 0 10.003-3.858 10.003-8.527S17.526 2 12.003 2Z"/></svg>
                 카카오톡
               </button>
-              <a target="_blank" rel="noopener noreferrer" className="cursor-pointer px-4 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg text-gray-900 hover:bg-gray-100 hover:border-gray-400">
+              <a target="_blank" rel="noopener noreferrer" className="cursor-pointer px-4 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg text-gray-900 hover:bg-gray-100 hover:border-gray-400"
+              onClick={() => logContactClick({ hagwonName: name, contactType: 'Website' })}>
                 홈페이지
               </a>
             </div>

@@ -14,7 +14,7 @@ export default function FilterLogic() {
     const service = searchParams.getAll('service');
 
     cards.forEach(card => {
-      const cardRegion = card.dataset.region?.split(',') || [];
+      const cardRegion = card.dataset.region || '';
       const cardLessonType = card.dataset.lessontype?.split(',') || [];
       const cardFormat = card.dataset.format?.split(',') || [];
       const cardService = card.dataset.service?.split(',') || [];

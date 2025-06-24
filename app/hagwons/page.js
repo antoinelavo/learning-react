@@ -42,10 +42,12 @@ export default async function HagwonsPage({ searchParams }) {
       : sp.lessonType
       ? [sp.lessonType]
       : [],
+
     format: Array.isArray(sp.format) ? sp.format : sp.format ? [sp.format] : [],
     service: Array.isArray(sp.service) ? sp.service : sp.service ? [sp.service] : [],
   };
-
+  console.log(selected)
+  
   return (
     <main className="min-h-screen max-w-4xl mx-[5dvw] lg:mx-auto mb-[10em]">
       <h1>IB 학원 29곳 추천 및 비교 [2025년 최신]</h1>

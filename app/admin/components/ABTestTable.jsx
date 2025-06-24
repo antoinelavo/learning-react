@@ -26,7 +26,13 @@ export default function ABTestTable() {
       };
 
       for (const row of data) {
-        const variant = row.details?.variant ?? 'null';
+        let parsedDetails;
+        try {
+          parsedDetails = typeof row.details === 'string' ? JSON.parse(row.details) : row.details;
+        } catch (e) {
+          parsedDetails = {};
+        }
+        const variant = parsedDetails.variant ?? 'null';
         if (row.event_type === 'profile_impression') stats[variant].impressions++;
         if (row.event_type === 'profile_click') stats[variant].clicks++;
       }

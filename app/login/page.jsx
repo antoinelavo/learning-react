@@ -15,6 +15,11 @@ export default function LoginPage() {
       async (event, session) => {
         if (session?.user) {
           const userId = session.user.id;
+            
+        await supabase
+          .from('users')
+          .upsert({ id: userId }, { onConflict: ['id'] });
+
           // fetch role/status
           const { data: userData, error } = await supabase
             .from('users')

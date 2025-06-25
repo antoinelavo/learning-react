@@ -161,6 +161,7 @@ export default function BlogPost({ frontmatter, mdxHtml, toc }) {
               prose-h2:mt-8
               prose-h2:mb-4
               prose-h2:text-gray-900
+              prose-h2:scroll-mt-[4em]
               prose-h3:text-lg
               prose-h3:font-semibold
               prose-h3:mt-8
@@ -184,7 +185,7 @@ export default function BlogPost({ frontmatter, mdxHtml, toc }) {
             frontmatter.ctaLabel &&
             frontmatter.ctaLink && (
               <div className="sticky top-20 flex flex-col items-center text-center bg-blue-50 rounded-xl p-6 mb-6">
-                <p className="font-bold text-black">
+                <p className="font-bold text-black text-balance">
                   {frontmatter.ctaDescription}
                 </p>
                 <BlogCTAButton
@@ -194,7 +195,7 @@ export default function BlogPost({ frontmatter, mdxHtml, toc }) {
               </div>
             )}
 
-          <nav className="sticky top-[15em] space-y-2 border-l pl-4">
+          <nav className="sticky top-[18em] space-y-2 border-l pl-4">
             <h2 className="text-lg font-semibold mb-2">목차</h2>
             <ul className="space-y-4 text-sm text-gray-700 dark:text-gray-300">
               {toc.map(({ text, depth, id }) => (

@@ -8,6 +8,8 @@ export default function TeacherCard({
   school,
   shortintroduction,
   profile_picture = "https://.../default.png",
+  badge = null,
+
 }) {
   return (
     <Link
@@ -27,9 +29,18 @@ export default function TeacherCard({
           />
         </div>
         <div className="flex-1 min-w-0">
-          <h2 className="text-lg font-bold text-gray-900 line-clamp-1 leading-1 m-0">
-            {name}
-          </h2>
+          <div className="flex flex-row gap-[1em]">
+            <h2 className="text-lg font-bold text-gray-900 line-clamp-1 leading-1 m-0">
+              {name}
+            </h2>
+
+              {badge && (
+                <span className="inline-flex items-center justify-center bg-yellow-400 text-black text-xs font-medium px-2 py-1 rounded leading-none hidden sm:flex">
+                  추천
+                </span>
+              )}
+          </div>
+
           <p className="text-sm text-gray-500 line-clamp-1 leading-1 m-0">
             {school}
           </p>

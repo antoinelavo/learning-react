@@ -27,6 +27,7 @@ export default function Footer() {
           </div>
         </div>
       </div>
+      <p className="text-center text-xs text-gray-300 mt-[10em]">IB Master | 사업자 등록 번호 634-10-03129 | 010 9785 3409 | 성남시 분당구 미금로 177 | 대표 박유진 </p>
     </footer>
   );
 }

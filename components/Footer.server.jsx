@@ -21,6 +21,7 @@ export default function Footer() {
           {/* Links */}
           <div className="flex flex-col md:flex-row flex-wrap items-start gap-4 font-medium text-gray-800 dark:text-gray-200">
             <Link href="/aboutus"><div className="hover:underline">소개</div></Link>
+            <Link href="/blog"><div className="hover:underline">IB 관련 정보</div></Link>
             <Link href="/terms"><div className="hover:underline">이용약관</div></Link>
             <Link href="/privacy-policy"><div className="hover:underline">개인정보처리방침</div></Link>
             <Link href="/sat-hagwons"><div className="hover:underline">SAT 학원 추천</div></Link>

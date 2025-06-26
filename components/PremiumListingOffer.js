@@ -104,14 +104,20 @@ export default function PremiumListingOffer({teacher}) {
     );
   };
 
+  const [duration, setDuration] = useState(1); // in months
+
   const calculateTotal = () => {
     const count = selectedSubjects.length;
     if (count === 0) return 0;
-    if (count === 1) return 5000;
-    if (count === 2) return 10000;
-    if (count === 3) return 12000;
-    return count * 4000;
-  };
+
+    let base;
+    if (count === 1) base = 5000;
+    else if (count === 2) base = 10000;
+    else if (count === 3) base = 12000;
+    else base = count * 4000;
+
+    return base * duration;
+    };
 
     const handlePaymentRequest = async () => {
         const { error } = await supabase.from('payment_request').insert([
@@ -119,6 +125,7 @@ export default function PremiumListingOffer({teacher}) {
             id: teacher.id,
             name: teacher.name,
             subjects: selectedSubjects,
+            duration_months: duration,
             amount: calculateTotal(),
             requested_at: new Date().toISOString(),
             },
@@ -186,7 +193,7 @@ export default function PremiumListingOffer({teacher}) {
                 <div className="text-sm text-gray-500 font-medium mb-0">일반 프로필 대비</div>
                 <div className="text-5xl font-extrabold bg-gradient-to-r from-black to-blue-400 bg-clip-text text-transparent">예상 프로필 클릭 수 9배</div>
                 <div className="text-lg text-gray-700 font-medium">노출 수 약 3배 × CTR(클릭율) 약 3배</div>
-                <div className="text-sm text-gray-500 font-medium">n = <CountUp target={7315} />+의 실험 결과</div>
+                <div className="text-sm text-gray-500 font-medium">n = <CountUp target={7315} />의 실험 결과</div>
             </div>
         </ScrollFadeIn>
 
@@ -270,9 +277,26 @@ export default function PremiumListingOffer({teacher}) {
                         </button>
                     ))}
                     </div>
+
+                    <div className="mt-6 text-center">
+                        <label className="block mb-2 text-sm font-medium text-gray-700">원하는 기간 선택 (개월)</label>
+                        <select
+                            value={duration}
+                            onChange={(e) => setDuration(Number(e.target.value))}
+                            className="px-4 py-2 border rounded-md text-sm font-medium text-gray-700"
+                        >
+                            {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                            <option key={month} value={month}>
+                                {month}개월
+                            </option>
+                            ))}
+                        </select>
+                    </div>
+
                     <div className="mt-6 text-center text-lg font-semibold text-gray-800">
                     총 결제 금액: <span className="text-blue-600">₩ {calculateTotal().toLocaleString()}</span>
                     </div>
+
                     <div className="mx-auto w-fill text-center">
                         <button
                         onClick={() => setShowReceipt(true)}

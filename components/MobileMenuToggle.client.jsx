@@ -42,7 +42,6 @@ export default function MobileMenuToggle() {
             ['과외 찾기', '/find'],
             ['학원 추천', '/hagwons'],
             ['선생님 등록하기', '/apply'],
-            ['IB 관련 정보', '/blog']
           ].map(([label, href]) => (
             <li key={href} className="w-full text-center">
               <Link 

@@ -16,7 +16,7 @@ export default function TeacherCard({
       href={`/profile/${encodeURIComponent(name)}`}
       className={`flex items-start justify-between items-center transition ${
         badge
-          ? 'border border-2 border-yellow-400 rounded-2xl shadow-[0_0_12px_1px_rgba(250,204,21,0.4)] rounded-xl shadow-sm'
+          ? 'bg-yellow-50 border border-2 border-yellow-400 rounded-2xl shadow-[0_0_12px_1px_rgba(250,204,21,0.4)] rounded-xl shadow-sm hover:bg-yellow-100'
           : 'hover:bg-gray-50'
       }`}
     >

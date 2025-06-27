@@ -216,11 +216,15 @@ export default function TeacherList({ initialTeachers = [] }) {
         ) : !teachers.length ? (
           <p className="text-center">조건에 맞는 선생님이 없습니다.</p>
         ) : (
-          <div className="grid grid-cols-1 bg-white border border-gray-200 rounded-xl divide-y divide-gray-200 overflow-hidden shadow-lg p-0">
-            {teachers.map((t, i) => (
-              <TeacherCard key={t.id} {...t} priority={i === 0} />
-            ))}
+          <div>
+            <p>총 검색된 선생님 수: {teachers.length}명</p>
+            <div className="grid grid-cols-1 bg-white border border-gray-200 rounded-xl divide-y divide-gray-200 overflow-hidden shadow-lg p-0">
+              {teachers.map((t, i) => (
+                <TeacherCard key={t.id} {...t} priority={i === 0} />
+              ))}
+            </div>
           </div>
+
         )}
       </section>
     </>

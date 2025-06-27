@@ -168,7 +168,6 @@ export default function PremiumListingOffer({teacher}) {
                 <div className="mb-12 max-w-[40em] mx-auto">
                     <p className="m-0 text-gray-500">프리미엄 프로필</p>
                     <div className="pointer-events-none">
-                        <div className="bg-white border-2 border-yellow-400 rounded-2xl shadow-[0_0_12px_1px_rgba(250,204,21,0.4)] rounded-xl shadow-sm">
                         <TeacherCard
                             name={teacher.name}
                             school={teacher.school}
@@ -177,7 +176,6 @@ export default function PremiumListingOffer({teacher}) {
                             badge="추천"
                         />
                         </div>
-                    </div>
                 </div>
             </ScrollFadeIn>
             </>

@@ -14,8 +14,13 @@ export default function TeacherCard({
   return (
     <Link
       href={`/profile/${encodeURIComponent(name)}`}
-      className="flex items-start justify-between items-center hover:bg-gray-50 transition"
+      className={`flex items-start justify-between items-center transition ${
+        badge
+          ? 'border border-2 border-yellow-400 rounded-2xl shadow-[0_0_12px_1px_rgba(250,204,21,0.4)] rounded-xl shadow-sm'
+          : 'hover:bg-gray-50'
+      }`}
     >
+
       {/* ← Avatar + name/school */}
       <div className="flex items-center flex-1 justify-between px-[1em] py-[1.25em] md:p-[2em] gap-[1em] md:gap-[2em]">
         <div className="relative w-10 h-10 overflow-hidden rounded-xl flex-0">

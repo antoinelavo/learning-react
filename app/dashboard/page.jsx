@@ -18,8 +18,12 @@ export default function DashboardPage() {
   const [quillReady, setQuillReady] = useState(false);
 
   const formRef = useRef();
-  const quillLongRef = useRef(null);
-  const quillExpRef = useRef(null);
+
+  const quillLongContainerRef = useRef(null);
+  const quillExpContainerRef  = useRef(null);
+  const quillLongInstanceRef  = useRef(null);
+  const quillExpInstanceRef   = useRef(null);
+
   const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
@@ -95,27 +99,40 @@ export default function DashboardPage() {
         [{ list: 'ordered' }, { list: 'bullet' }],
         ['link'],
         ];
-        console.log('Long ref:', quillLongRef.current);
-        console.log('Exp ref:', quillExpRef.current);
+        console.log('Long ref:', quillLongContainerRef.current);
+        console.log('Exp ref:', quillExpContainerRef.current);
 
-        if (quillLongRef.current && quillExpRef.current) {
-          var longQ = new Quill(quillLongRef.current, {
-              theme: 'snow',
-              modules: { toolbar },
+        // 1) Start
+        if (quillLongContainerRef.current && quillExpContainerRef.current) {
+          quillLongInstanceRef.current = new Quill(
+            quillLongContainerRef.current,
+            { theme: 'snow', modules: { toolbar } }
+          );
+          quillExpInstanceRef.current = new Quill(
+            quillExpContainerRef.current,
+            { theme: 'snow', modules: { toolbar } }
+          );
+
+        console.log('Loading longintroduction HTML:', teacher.longintroduction);
+        console.log('Loading experience HTML:',    teacher.experience);
+
+
+        // Preload saved HTML
+        if (teacher.longintroduction) {
+          const delta = quillLongInstanceRef.current.clipboard.convert({
+            html: teacher.longintroduction
           });
-
-          var expQ = new Quill(quillExpRef.current, {
-              theme: 'snow',
-              modules: { toolbar },
+          quillLongInstanceRef.current.setContents(delta, 'silent');
+        }
+        if (teacher.experience) {
+          const delta = quillExpInstanceRef.current.clipboard.convert({
+            html: teacher.experience
           });
-
-          setTimeout(() => {
-              expQ.clipboard.dangerouslyPasteHTML(teacher.experience || '');
-              longQ.clipboard.dangerouslyPasteHTML(teacher.longintroduction || '');
-          }, 100);
-
+          quillExpInstanceRef.current.setContents(delta, 'silent');
+        }
+        
           setQuillReady(true);
-          }
+        }
     };
 
     if (teacher) {
@@ -174,8 +191,8 @@ export default function DashboardPage() {
       lesson_type: [...form.querySelectorAll('input[name="lesson_type"]:checked')].map((cb) => cb.value),
       subjects: [...form.querySelectorAll('input[name="subjects"]:checked')].map((cb) => cb.value),
       IB: form.querySelector('input[name="ib_status"]:checked')?.value === 'O',
-      longintroduction: quillLongRef.current.__quill.root.innerHTML,
-      experience: quillExpRef.current.__quill.root.innerHTML,
+      longintroduction: quillLongInstanceRef.current.root.innerHTML,
+      experience:       quillExpInstanceRef.current.root.innerHTML,
       last_updated: new Date().toISOString(),
       status: 'pending',
     };
@@ -318,12 +335,18 @@ export default function DashboardPage() {
 
                 <div>
                   <label className="block font-medium">소개 *</label>
-                  <div ref={quillLongRef} className="bg-white min-h-[150px]"></div>
+                  <div
+                    ref={quillLongContainerRef}
+                    className="bg-white min-h-[150px]"
+                  />
                 </div>
 
                 <div>
                   <label className="block font-medium">경력 *</label>
-                  <div ref={quillExpRef} className="bg-white min-h-[150px]"></div>
+                  <div
+                    ref={quillExpContainerRef}
+                    className="bg-white min-h-[150px]"
+                  />
                 </div>
 
                 <div>

@@ -16,7 +16,7 @@ export default function TeacherCard({
       href={`/profile/${encodeURIComponent(name)}`}
       className={`flex items-start justify-between items-center transition ${
         badge
-          ? 'bg-yellow-50 border border-2 border-yellow-400 rounded-2xl shadow-[0_0_12px_1px_rgba(250,204,21,0.4)] rounded-xl shadow-sm hover:bg-yellow-100'
+          ? 'bg-yellow-50 shadow-[0_0_12px_1px_rgba(250,204,21,0.4)] shadow-sm hover:bg-yellow-100'
           : 'hover:bg-gray-50'
       }`}
     >
@@ -40,7 +40,7 @@ export default function TeacherCard({
             </h2>
 
               {badge && (
-                <span className="inline-flex items-center justify-center bg-yellow-400 text-black text-xs font-medium px-2 py-1 rounded leading-none hidden sm:flex">
+                <span className="inline-flex items-center justify-center bg-yellow-400 text-black hidden sm:flex sm:text-xs font-medium sm:px-2 sm:py-1 rounded leading-none ">
                   추천
                 </span>
               )}

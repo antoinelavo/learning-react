@@ -149,35 +149,38 @@ export default function PremiumListingOffer({teacher}) {
 
         {teacher && (
             <>
-            <ScrollFadeIn>
-                <div className="mb-12 max-w-[40em] mx-auto">
-                    <p className="m-0 text-gray-500">일반 프로필</p>
-                    <div className="pointer-events-none">
-                            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm">
+            <div>
+                <ScrollFadeIn>
+                    <div className="mb-12 mt-12 max-w-[40em] mx-auto">
+                        <p className="m-0 text-gray-500">일반 프로필</p>
+                        <div className="pointer-events-none">
+                                <div className="bg-white border border-gray-200 rounded-2xl shadow-sm">
+                                <TeacherCard
+                                    name={teacher.name}
+                                    school={teacher.school}
+                                    shortintroduction={teacher.shortintroduction}
+                                    profile_picture={teacher.profile_picture || 'https://.../default.png'}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </ScrollFadeIn>
+                <ScrollFadeIn>
+                    <div className="mb-12 max-w-[40em] mx-auto ">
+                        <p className="m-0 text-gray-500">프리미엄 프로필</p>
+                        <div className="pointer-events-none border border-2 border-yellow-400 rounded-2xl overflow-hidden shadow-sm w-full h-full">
                             <TeacherCard
                                 name={teacher.name}
                                 school={teacher.school}
                                 shortintroduction={teacher.shortintroduction}
                                 profile_picture={teacher.profile_picture || 'https://.../default.png'}
+                                badge="추천"
+                                className="w-full h-full"
                             />
                         </div>
                     </div>
-                </div>
-            </ScrollFadeIn>
-            <ScrollFadeIn>
-                <div className="mb-12 max-w-[40em] mx-auto">
-                    <p className="m-0 text-gray-500">프리미엄 프로필</p>
-                    <div className="pointer-events-none">
-                        <TeacherCard
-                            name={teacher.name}
-                            school={teacher.school}
-                            shortintroduction={teacher.shortintroduction}
-                            profile_picture={teacher.profile_picture || 'https://.../default.png'}
-                            badge="추천"
-                        />
-                        </div>
-                </div>
-            </ScrollFadeIn>
+                </ScrollFadeIn>
+            </div>
             </>
         )}
 

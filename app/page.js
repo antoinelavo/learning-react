@@ -52,9 +52,10 @@ export default function Home() {
             </div>
           </div>
 
+          
           <div
             id="heroSampleProfile"
-            className="relative w-[95dvw] max-w-[600px] h-[30dvh] max-h-[500px] my-0 md:my-auto mx-auto md:mx-0 block"
+            className="relative w-[95svw] max-w-[600px] h-[50svh] max-h-[500px] my-0 md:my-auto mx-auto md:mx-0 block"
           >
               <Image
                 src="/images/SampleProfiles.svg"

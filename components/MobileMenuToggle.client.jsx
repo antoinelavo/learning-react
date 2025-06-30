@@ -42,6 +42,7 @@ export default function MobileMenuToggle() {
             ['과외 찾기', '/find'],
             ['학원 추천', '/hagwons'],
             ['선생님 등록하기', '/apply'],
+            ['SAT 학원 추천', '/sat-hagwons']
           ].map(([label, href]) => (
             <li key={href} className="w-full text-center">
               <Link 

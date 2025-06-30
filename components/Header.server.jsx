@@ -23,6 +23,7 @@ export default function Header() {
               ['과외 찾기', '/find'],
               ['학원 추천', '/hagwons'],
               ['선생님 등록하기', '/apply'],
+              ['SAT 학원 추천', '/sat-hagwons']
             ].map(([label, href]) => (
               <li key={href} className="px-5">
                 <Link href={href} className="text-sm text-black font-normal hover:text-blue-500">

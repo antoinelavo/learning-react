@@ -35,10 +35,10 @@ export default function Home() {
       {/* Hero Section */}
       <div
           id="heroSection"
-          className="flex flex-row justify-center mx-auto bg-gradient-to-b from-[#32ade61a] to-gray-50 h-[60dvh]"
+          className="flex flex-col md:flex-row justify-center mx-auto bg-gradient-to-b from-[#32ade61a] to-gray-50 h-[40dvh] pt-[1em]"
         >
           <div className="flex flex-col justify-center text-left px-6 text-center md:text-left">
-            <h1 className="text-4xl font-bold mb-2 text-balance leading-relaxed">IB 과외 무료 매칭 플랫폼</h1>
+            <h1 className="text-4xl font-bold mb-2 text-balance leading-[1.2] sm:leading-relaxed">IB 과외 무료 매칭 플랫폼</h1>
             <p className="text-l font-normal text-gray-500 leading-[2em] mb-6 text-balance">
               국내 유일 수수료 0원 과외 플랫폼
             </p>
@@ -54,7 +54,7 @@ export default function Home() {
 
           <div
             id="heroSampleProfile"
-            className="relative w-[600px] h-[500px] my-auto hidden md:block"
+            className="relative w-[95dvw] max-w-[600px] h-[50dvh] max-h-[500px] my-auto mx-auto md:mx-0 block"
           >
               <Image
                 src="/images/SampleProfiles.svg"
@@ -69,7 +69,7 @@ export default function Home() {
 
 
       {/* Problem Quote */}
-      <section id="problemQuote" className="max-w-4xl mx-auto px-4 py-32 text-left space-y-28 mt-[15em]">
+      <section id="problemQuote" className="max-w-4xl mx-auto px-4 text-left space-y-28 mt-[15em]">
           <p className="text-2xl font-bold leading-relaxed max-w-[22em] text-balance">
             비싼 과외비를 내면 좋은 수업을 받을 줄 알았는데,
             알고 보니 <span className="text-blue-500">수업료의 25%가 플랫폼</span>으로 간다고?
@@ -96,7 +96,7 @@ export default function Home() {
         <p className="text-center text-black text-2xl font-bold px-8 text-balance leading-relaxed">선생님이 만든, 선생님과 학생을 위한 플랫폼</p>
         <div id="comparisonBlocks" className="mt-16 flex flex-col md:flex-row justify-center gap-20 max-w-5xl mx-auto">
           {/* 타 플랫폼 */}
-            <div className="flex flex-col gap-12 rounded-[2em] sm:rounded-[50px] p-8 shadow-[0_0_30px_rgba(0,0,0,0.1)] text-center mx-[10dvw] md:mx-0">
+            <div className="flex flex-col gap-12 p-8 text-center mx-[10dvw] md:mx-0 bg-white border border-solid border-gray-200 shadow rounded-3xl">
               <p className="text-[25px] font-bold text-gray-500">타 플랫폼</p>
               {[
                 "수업료의 일부분을 플랫폼이 가져감",
@@ -115,7 +115,7 @@ export default function Home() {
             </div>
 
             {/* IB Master */}
-            <div className="flex flex-col gap-12 rounded-[50px] p-8 shadow-[0_0_30px_rgba(0,0,0,0.1)] text-center mx-[10dvw] md:mx-0">
+            <div className="flex flex-col gap-12 p-8 text-center mx-[10dvw] md:mx-0 bg-white border border-solid border-gray-200 shadow rounded-3xl">
               <p className="text-[25px] font-bold text-black">
                 <span>IB </span>
                 <span className="text-blue-500">Master</span>
@@ -149,20 +149,20 @@ export default function Home() {
         <h2 className="text-3xl font-bold text-center text-black mb-10">FAQ</h2>
 
         <div className="space-y-4">
-          <details className="group bg-gray-50 p-6 rounded-lg shadow-md">
+          <details className="group p-6 bg-white border border-solid border-gray-200 shadow rounded-3xl">
             <summary className="cursor-pointer text-lg font-normal text-black group-open:text-blue-600 transition">
               프로필 게시 비용이 있나요?
             </summary>
-            <p className="mt-2 text-gray-700 leading-relaxed">
+            <p className="mt-[1em] mb-0 text-gray-700 leading-relaxed">
               없습니다! <strong>IB Master</strong>는 100% 수수료, 이용료 0원 사이트입니다.
             </p>
           </details>
 
-          <details className="group bg-gray-50 p-6 rounded-lg shadow-md">
+          <details className="group p-6 bg-white border border-solid border-gray-200 shadow rounded-3xl">
             <summary className="cursor-pointer text-lg font-normal text-black group-open:text-blue-600 transition">
               IB 학원은 어떻게 찾나요?
             </summary>
-            <p className="mt-2 text-gray-700 leading-relaxed">
+            <p className="mt-[1em] mb-0 text-gray-700 leading-relaxed">
               좋은 IB 전문 학원을 찾으려면 고급 정보를 가지고 많은 학원들을 비교해야 합니다.<br />
               <strong>IB Master</strong>는 국내 유수의 IB 학원을 한눈에 볼 수 있게 정리해 두었으니,{" "}
               <a href="/hagwons" className="text-blue-500 underline hover:text-blue-600">
@@ -172,11 +172,11 @@ export default function Home() {
             </p>
           </details>
 
-          <details className="group bg-gray-50 p-6 rounded-lg shadow-md">
+          <details className="group p-6 bg-white border border-solid border-gray-200 shadow rounded-3xl">
             <summary className="cursor-pointer text-lg font-normal text-black group-open:text-blue-600 transition">
               학생들에게 제 연락처를 공유해도 되나요?
             </summary>
-            <p className="mt-2 text-gray-700 leading-relaxed">
+            <p className="mt-[1em] mb-0 text-gray-700 leading-relaxed">
               네! 선생님 프로필 하단에 <strong>연락처 입력란</strong>이 있습니다!
             </p>
           </details>
@@ -185,7 +185,7 @@ export default function Home() {
 
       {/* Text */}
       
-      <section className="max-w-4xl mx-auto px-6">
+      <section className="max-w-4xl mx-[5dvw] sm:mx-auto mb-[3em] px-6 py-12 bg-white border border-solid border-gray-200 shadow rounded-3xl">
         <h2 className="text-3xl font-bold text-center text-black mb-8">IB 과외란?</h2>
         <div className="space-y-6 text-m leading-8 text-gray-500">
           <p>
@@ -207,7 +207,7 @@ export default function Home() {
       
       
       
-      <section className="max-w-4xl mx-auto px-6 py-24">
+      <section className="max-w-4xl mx-[5dvw] sm:mx-auto mb-[3em] px-6 py-12 bg-white border border-solid border-gray-200 shadow rounded-3xl">
         <h2 className="text-3xl font-bold text-center text-black mb-8">IB 과외가 필요한 이유</h2>
         <div className="space-y-6 text-m leading-8 text-gray-500">
           <p>
@@ -231,7 +231,7 @@ export default function Home() {
       
 
       
-      <section className="max-w-4xl mx-auto px-6 py-24">
+      <section className="max-w-4xl mx-[5dvw] sm:mx-auto px-6 py-12 bg-white border border-solid border-gray-200 shadow rounded-3xl">
         <h2 className="text-3xl font-bold text-center text-black mb-8">IB 과외 시급은 얼마인가요?</h2>
         <div className="space-y-6 text-m leading-8 text-gray-500">
           <p>

@@ -35,7 +35,7 @@ export default function Home() {
       {/* Hero Section */}
       <div
           id="heroSection"
-          className="flex flex-col md:flex-row justify-center mx-auto bg-gradient-to-b from-[#32ade61a] to-gray-50 h-[40dvh] pt-[1em]"
+          className="flex flex-col md:flex-row justify-center mx-auto bg-gradient-to-b from-[#32ade61a] to-gray-50 pt-[1em]"
         >
           <div className="flex flex-col justify-center text-left px-6 text-center md:text-left">
             <h1 className="text-4xl font-bold mb-2 text-balance leading-[1.2] sm:leading-relaxed">IB 과외 무료 매칭 플랫폼</h1>
@@ -54,7 +54,7 @@ export default function Home() {
 
           <div
             id="heroSampleProfile"
-            className="relative w-[95dvw] max-w-[600px] h-[50dvh] max-h-[500px] my-auto mx-auto md:mx-0 block"
+            className="relative w-[95dvw] max-w-[600px] h-[30dvh] max-h-[500px] my-0 md:my-auto mx-auto md:mx-0 block"
           >
               <Image
                 src="/images/SampleProfiles.svg"
@@ -109,7 +109,7 @@ export default function Home() {
                     <line x1="12" y1="12" x2="28" y2="28" stroke="#FF605D" strokeWidth="3" strokeLinecap="round" />
                     <line x1="28" y1="12" x2="12" y2="28" stroke="#FF605D" strokeWidth="3" strokeLinecap="round" />
                   </svg>
-                  <p className="font-bold text-black md:max-w-[10em]">{text}</p>
+                  <p className="font-bold text-black md:max-w-[10em] mb-0">{text}</p>
                 </div>
               ))}
             </div>
@@ -121,8 +121,8 @@ export default function Home() {
                 <span className="text-blue-500">Master</span>
               </p>
               {[
-                "수업료에서 중간 비용이 발생하지 않음",
-                "그 어떤 비용도 없음",
+                "수업료에서 중간 수수료가 발생하지 않음",
+                "등록 비용, 견적서 발송 비용 없음",
                 "IB 전문"
               ].map((text, i) => (
                 <div key={i} className="flex flex-row gap-4 items-center text-left justify-start">
@@ -137,7 +137,7 @@ export default function Home() {
                       fill="none"
                     />
                   </svg>
-                  <p className="font-bold text-black md:max-w-[10em]">{text}</p>
+                  <p className="font-bold text-black md:max-w-[10em] mb-0">{text}</p>
                 </div>
               ))}
             </div>
@@ -240,7 +240,7 @@ export default function Home() {
             특히 HL 과목이나 영어 네이티브 수업은 시급이 더 높을 수 있습니다.
           </p>
           <p>
-            <strong>IB Master</strong>에서는 중개 수수료가 없기 때문에,
+            <strong>IB Master</strong>에서는 매칭 수수료가 없기 때문에,
             다른 플랫폼과 달리 <strong>숨은 비용이 발생하지 않습니다.</strong>
             선생님과 학생이 직접 소통하고 조건을 조율할 수 있어,
             더 합리적인 시급으로 고퀄리티 과외를 받을 수 있습니다.

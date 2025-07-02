@@ -1,12 +1,12 @@
 const satHagwons = [
-  {
-    name: '세이지프렙 (SagePrep)',
-    region: '서울 신사',
-    lessonType: ['그룹'],
-    format: ['대면'],
-    services: ['IB', 'AP'],
-    url: "https://m.blog.naver.com/sageprep?tab=1",
-  },
+  // {
+  //   name: '세이지프렙 (SagePrep)',
+  //   region: '서울 신사',
+  //   lessonType: ['그룹'],
+  //   format: ['대면'],
+  //   services: ['IB', 'AP'],
+  //   url: "https://m.blog.naver.com/sageprep?tab=1",
+  // },
   {
     name: '샤인프렙 (ShinePrep)',
     region: '온라인',

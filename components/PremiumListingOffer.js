@@ -1,7 +1,11 @@
+'use client';
+import dynamic from 'next/dynamic';
 import { useState, useEffect, useRef } from 'react';
 import TeacherCard from '@/components/TeacherCard';
 import ScrollFadeIn from '@/components/ScrollFadeIn';
 import { supabase } from '@/lib/supabase';
+
+const Scroll = dynamic(() => import('quill/blots/scroll'), { ssr: false });
 
 
 const tiers = [
@@ -50,6 +54,36 @@ const tiers = [
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
+
+function PremiumCount(){
+  const [count, setCount] = useState(null)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    async function fetchCount() {
+      const { data, error } = await supabase
+        .from('teacher_premium')
+        .select('subject')          // fetch the subject arrays
+      if (error) {
+        console.error(error)
+        setError(error.message)
+        return
+      }
+      // sum up lengths of all subject arrays
+      const total = data.reduce((sum, row) => sum + row.subject.length, 0)
+      setCount(total)
+    }
+    fetchCount()
+  }, [])
+
+  if (error) return <p>오류 발생: {error}</p>
+  if (count === null) return <p>로딩 중…</p>
+
+  return(
+    <span>{count}</span>
+  )
+}
+
 
 function CountUp({ target, duration = 1500 }) {
     const ref = useRef();
@@ -257,6 +291,16 @@ export default function PremiumListingOffer({teacher}) {
           </div>
         ))}
       </div>
+
+      {/* <ScrollFadeIn>
+        <div>
+            <div className="max-w-xl mx-auto my-[15em] text-center space-y-4">
+                <div className="text-sm text-gray-500 font-medium mb-0">현재 등록된 프리미엄 프로필 개수</div>
+                <div className="text-5xl font-extrabold bg-gradient-to-r from-black to-blue-400 bg-clip-text text-transparent"><PremiumCount/>개</div>
+            </div>
+        </div>
+      </ScrollFadeIn> */}
+
       </ScrollFadeIn>
 
               {/* Subject Selector */}

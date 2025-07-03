@@ -53,7 +53,7 @@ export default async function HagwonsPage({ searchParams }) {
       <h1>IB 학원 29곳 추천 및 비교 [2025년 최신]</h1>
 
       <article>
-        <p><strong>최신 업데이트:</strong> 2025년 6월 16일</p>
+        <p><strong>최신 업데이트:</strong> 2025년 7월 3일</p>
         <p>IB 학원은 IB 과정을 이수 중이거나 준비 중인 학생들에게 집중적인 도움을 제공합니다. 본 페이지는 학부모와 학생들이 신뢰할 수 있는 IB 학원을 선택할 수 있도록 도움을 주는 것을 목적으로 하며, 학원 선택 시 고려해야 할 요소, 수업 구성, 과외와의 차이점 등을 상세히 안내합니다.</p>
       </article>
 

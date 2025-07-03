@@ -36,8 +36,14 @@ export default function LoginPage() {
             await supabase.auth.signOut();
             return;
           }
-          // redirect all valid roles to /find
-          router.replace('/find');
+
+          const { role } = userData;
+
+          if (role === 'teacher') {
+            router.replace('/dashboard');
+          } else {
+            router.replace('/find');
+          }
         }
       }
     );

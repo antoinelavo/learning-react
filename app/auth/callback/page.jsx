@@ -26,7 +26,30 @@ export default function AuthCallback() {
         router.replace('/login');
         return;
       }
+
+      // 1) 세션에서 user 추출  
+    const user = session.user;
+
+    // 2) DB에서 role 조회  
+    const { data: { role }, error: roleError } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+    if (roleError) {
+      console.error('롤 조회 실패:', roleError);
       router.replace('/find');
+      return;
+    }
+
+    // 3) role에 따라 분기  
+    if (role === 'teacher') {
+      router.replace('/dashboard');
+    } else {
+      router.replace('/find');
+    }
+
+    
     })();
   }, [router]);
 

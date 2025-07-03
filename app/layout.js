@@ -20,6 +20,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={notoSansKR.className}>
       <head>
+        <script
+         src="https://cdn.iamport.kr/v1/iamport.js"
+         defer
+       ></script>
         <Script
           strategy="afterInteractive"
           src="https://www.googletagmanager.com/gtag/js?id=G-ZT9SKBMMYE"

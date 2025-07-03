@@ -36,6 +36,7 @@ export default function AuthCallback() {
       .select('role')
       .eq('id', user.id)
       .single();
+      
     if (roleError) {
       console.error('롤 조회 실패:', roleError);
       router.replace('/find');
@@ -49,7 +50,7 @@ export default function AuthCallback() {
       router.replace('/find');
     }
 
-    
+
     })();
   }, [router]);
 

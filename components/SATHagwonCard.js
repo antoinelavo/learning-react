@@ -43,7 +43,7 @@ async function logContactClick({ hagwonName, contactType }) {
   }
 }
 
-export default function HagwonCard({ image, name, region, format, lessonType, services, description, address, url, }) {
+export default function HagwonCard({ image, name, region, format, lessonType, services, description, address, url, kakaotalk }) {
   const [showDetails, setShowDetails] = useState(false);
 
   return (
@@ -51,7 +51,7 @@ export default function HagwonCard({ image, name, region, format, lessonType, se
         <div className="flex flex-wrap justify-between flex-row items-start gap-y-[1em] sm:gap-y-[2em]">
           <div className="flex gap-[2em]">
             {/* Image */}
-            {/* <a href={url} onClick={() => logContactClick({ hagwonName: name, contactType: 'Website' })}>
+            <a href={url} onClick={() => logContactClick({ hagwonName: name, contactType: 'Website' })}>
               <div className="relative w-[3em] h-[3em] md:w-[3em] md:h-[3em]">
                 <img
                   src={image}
@@ -62,7 +62,7 @@ export default function HagwonCard({ image, name, region, format, lessonType, se
                   style={{ borderRadius: '8px' }}
                 />
               </div>
-            </a> */}
+            </a>
 
             {/* Name and Region */}
             <div className="w-fill md:w-fill">
@@ -124,11 +124,12 @@ export default function HagwonCard({ image, name, region, format, lessonType, se
 
             {/* Contact Buttons */}
             <div className="flex gap-3 flex-wrap">
-              <button className="cursor-pointer px-4 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg text-gray-900 flex items-center gap-2 hover:bg-gray-100 hover:border-gray-400"
-              onClick={() => logContactClick({ hagwonName: name, contactType: 'KakaoTalk' })}>
+              <a className="cursor-pointer px-4 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg text-gray-900 flex items-center gap-2 hover:bg-gray-100 hover:border-gray-400"
+              onClick={() => logContactClick({ hagwonName: name, contactType: 'KakaoTalk' })}
+              href={kakaotalk}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="icon" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12.003 2C6.478 2 2 5.858 2 10.527c0 2.486 1.379 4.693 3.548 6.197l-1.13 3.7a.5.5 0 0 0 .702.599l4.285-2.104a12.24 12.24 0 0 0 2.598.278c5.523 0 10.003-3.858 10.003-8.527S17.526 2 12.003 2Z"/></svg>
                 카카오톡
-              </button>
+              </a>
               <a target="_blank" rel="noopener noreferrer" className="cursor-pointer px-4 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg text-gray-900 hover:bg-gray-100 hover:border-gray-400"
               onClick={() => logContactClick({ hagwonName: name, contactType: 'Website' })}
               href={url}>

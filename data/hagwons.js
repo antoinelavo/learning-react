@@ -1,4 +1,23 @@
 const hagwons = [
+   {
+    "image": "/images/hagwons/small/sageprep.png",
+    "name":"세이지프렙",
+    "url":"https://blog.naver.com/sageprep",
+    "address":"신사동 591-3, 201-202호 ",
+    "region":"서울 강남",
+    "format":[
+      "온라인",
+      "대면"
+    ],
+    "lessonType":[
+      "그룹",
+      "개인"
+    ],
+    "ia_ee_tok":true,
+    "description": "SAGEPREP 컨설팅 / 미국·영국 대학 입시 전문 컨설팅 / 사립 명문 보딩스쿨 및 국제대회 맞춤 전략 제공 / 학생의 가능성을 여는 입시 파트너",
+    "kakaotalk": "https://open.kakao.com/o/gd4050Eh"
+    
+  },
  {
     "image": "/images/hagwons/small/ibsept.png",
     "name":"아이비셉트",

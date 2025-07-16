@@ -40,7 +40,7 @@ export default function RootLayout({ children }) {
             `,
           }}
         />
-
+      <meta name="google-site-verification" content="Hknak_CdA4t8EAfJu1IOPcLFJqwIS_Q59pseEIAqR_g" />
       </head>
       <body className="min-h-screen min-w-screen bg-gray-50">
         <Header />

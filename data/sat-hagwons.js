@@ -5,7 +5,7 @@ const satHagwons = [
     region: '온라인',
     lessonType: ['개인', '그룹'],
     format: ['온라인'],
-    services: ['IB', 'AP', 'TOEFL', "GCSE" ],
+    services: ['IB', 'AP', 'TOEFL', "IGCSE", "컨설팅" ],
     address:"온라인",
     description: "유학 관련 최고 학원 에듀스피어입니다.",
     url: "https://www.edusphere-gb.com/",

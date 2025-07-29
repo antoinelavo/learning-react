@@ -57,8 +57,25 @@ export async function GET() {
       }
     })
 
-    // For now, profile views are 0 (implement later when you add view tracking)
-    const profileViews = 0
+    // Get all impression events for this hagwon
+    const { data: impressions, error: impressionsError } = await supabase
+      .from('page_events')
+      .select('details, timestamp')
+      .eq('event_type', 'hagwon_impression')
+      .contains('details', { action: 'card_impression' })
+      .contains('details', { hagwon_name: hagwonName });
+
+    if (impressionsError) {
+      console.error('Supabase error (impressions):', impressionsError);
+      throw impressionsError;
+    }
+
+    console.log(`Found ${impressions.length} impressions for ${hagwonName}`);
+
+
+
+
+    const profileViews = impressions.length;
     
     // Calculate CTR (clicks/views * 100)
     const totalClicks = websiteClicks + kakaoClicks

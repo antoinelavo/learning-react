@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
 function getDeviceType() {
@@ -11,32 +11,42 @@ function getDeviceType() {
   return 'desktop';
 }
 
-async function isIncognito() {
-  return new Promise((resolve) => {
-    const fs = window.RequestFileSystem || window.webkitRequestFileSystem;
-    if (!fs) {
-      resolve(false); // API not supported, assume not incognito
-      return;
-    }
+async function logImpression(hagwonName) {
+  if (typeof window === 'undefined') return;
 
-    fs(
-      window.TEMPORARY,
-      100,
-      () => resolve(false), // Succeeded => not incognito
-      () => resolve(true)   // Failed => incognito
-    );
+  // Session ID
+  const sessionId = localStorage.getItem('user_session_id') || crypto.randomUUID();
+  localStorage.setItem('user_session_id', sessionId);
+
+  // Only log once per hagwon
+  const impressionKey = `impression-${hagwonName}`;
+  if (localStorage.getItem(impressionKey)) return;
+  localStorage.setItem(impressionKey, 'true');
+
+  const { error } = await supabase.from('page_events').insert({
+    page: 'hagwons',
+    event_type: 'hagwon_impression',
+    device_type: getDeviceType(),
+    timestamp: new Date().toISOString(),
+    user_session_id: sessionId,
+    details: {
+      action: 'card_impression',
+      hagwon_name: hagwonName,
+    },
   });
+
+  if (error) {
+    console.error('❌ Failed to insert impression event:', error);
+  } else {
+    console.log('👁️ Logged impression for:', hagwonName);
+  }
 }
+
 
 
 async function logContactClick({ hagwonName, contactType }) {
   if (typeof window === 'undefined') return;
 
-  const incognito = await isIncognito();
-  if (incognito) {
-    console.log('🕵️ Skipping log: user is in incognito mode');
-    return;
-  }
 
   // Generate or retrieve session ID (shared across tabs)
   const sessionId = localStorage.getItem('user_session_id') || crypto.randomUUID();
@@ -70,8 +80,30 @@ async function logContactClick({ hagwonName, contactType }) {
 export default function HagwonCard({ image, name, region, format, lessonType, ia_ee_tok, description, address, url, kakaotalk}) {
   const [showDetails, setShowDetails] = useState(false);
 
+    useEffect(() => {
+    const observer = new IntersectionObserver(
+      async ([entry]) => {
+        if (entry.isIntersecting) {
+          observer.disconnect(); // Only trigger once
+          await logImpression(name);
+        }
+      },
+      { threshold: 0.4 } // Customize: % of card visible before logging
+    );
+
+    const cardElement = document.querySelector(`[data-hagwon-name="${name}"]`);
+    if (cardElement) {
+      observer.observe(cardElement);
+    }
+
+    return () => observer.disconnect();
+  }, [name]);
+
+
   return (
-      <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 ">
+      <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 "
+      data-hagwon-name = {name}
+      >
         <div className="flex flex-wrap justify-between flex-row items-start gap-y-[1em] sm:gap-y-[2em]">
           {/* Image */}
           <div className="flex gap-[2em]">

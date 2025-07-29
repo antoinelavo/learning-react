@@ -11,32 +11,9 @@ function getDeviceType() {
   return 'desktop';
 }
 
-async function isIncognito() {
-  return new Promise((resolve) => {
-    const fs = window.RequestFileSystem || window.webkitRequestFileSystem;
-    if (!fs) {
-      resolve(false); // API not supported, assume not incognito
-      return;
-    }
-
-    fs(
-      window.TEMPORARY,
-      100,
-      () => resolve(false), // Succeeded => not incognito
-      () => resolve(true)   // Failed => incognito
-    );
-  });
-}
-
 async function logContactClick({ hagwonName, contactType }) {
   if (typeof window === 'undefined') return;
 
-    const incognito = await isIncognito();
-  if (incognito) {
-    console.log('🕵️ Skipping log: user is in incognito mode');
-    return;
-  }
-  
   // Generate or retrieve session ID (shared across tabs)
   const sessionId = localStorage.getItem('user_session_id') || crypto.randomUUID();
   localStorage.setItem('user_session_id', sessionId);

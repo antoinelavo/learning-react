@@ -1,32 +1,89 @@
 'use client';
 
-import { useState } from 'react';
-import { Eye, MousePointer, Smartphone, Monitor, TrendingUp, Calendar, Clock } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Eye, MousePointer, Smartphone, Monitor, TrendingUp, Calendar, Clock, Lock, LogOut } from 'lucide-react';
 
 const Dashboard = () => {
-  // Mock data - replace with actual data from your API
-  const [dashboardData] = useState({
-    profileViews: 310,
-    buttonClicks: {
-      homepage: 21,
-      click: 4
-    },
-    ctr: ((21+4)/310 *100).toFixed(2),
-    recentClicks: [
-      { id: 1, type: 'homepage', timestamp: '2025-06-30 14:30:25', device: 'mobile' },
-      { id: 2, type: 'click', timestamp: '2025-06-30 14:28:15', device: 'desktop' },
-      { id: 3, type: 'homepage', timestamp: '2025-06-30 14:25:10', device: 'mobile' },
-      { id: 4, type: 'click', timestamp: '2025-06-30 14:22:45', device: 'desktop' },
-      { id: 5, type: 'click', timestamp: '2025-06-30 14:20:30', device: 'mobile' },
-      { id: 6, type: 'homepage', timestamp: '2025-06-30 14:18:20', device: 'desktop' },
-      { id: 7, type: 'click', timestamp: '2025-06-30 14:15:10', device: 'mobile' },
-      { id: 8, type: 'homepage', timestamp: '2025-06-30 14:12:55', device: 'desktop' }
-    ],
-    deviceStats: {
-      mobile: 16,
-      desktop: 11
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Dashboard data state
+  const [dashboardData, setDashboardData] = useState(null);
+  const [dataLoading, setDataLoading] = useState(false);
+  const [dataError, setDataError] = useState('');
+
+  // Check authentication status on component mount
+  useEffect(() => {
+    const authStatus = localStorage.getItem('hagwon_dashboard_auth');
+    if (authStatus === 'authenticated') {
+      setIsAuthenticated(true);
     }
-  });
+    setIsLoading(false);
+  }, []);
+
+  // Fetch dashboard data when authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchDashboardData();
+    }
+  }, [isAuthenticated]);
+
+  const fetchDashboardData = async () => {
+    setDataLoading(true);
+    setDataError('');
+    
+    try {
+      // Fetch both stats and recent clicks in parallel
+      const [statsResponse, recentClicksResponse] = await Promise.all([
+        fetch('/api/dashboard/stats'),
+        fetch('/api/dashboard/recent-clicks')
+      ]);
+
+      if (!statsResponse.ok) {
+        throw new Error(`Stats API error! status: ${statsResponse.status}`);
+      }
+      
+      if (!recentClicksResponse.ok) {
+        throw new Error(`Recent clicks API error! status: ${recentClicksResponse.status}`);
+      }
+
+      const stats = await statsResponse.json();
+      const recentClicks = await recentClicksResponse.json();
+      
+      console.log('Fetched stats:', stats); // Debug log
+      console.log('Fetched recent clicks:', recentClicks.length, 'items'); // Debug log
+
+      // Combine all the data
+      setDashboardData({
+        ...stats,
+        recentClicks
+      });
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      setDataError('데이터를 불러오는데 실패했습니다.');
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
+  const handleLogin = () => {
+    if (password === 'admin123') {
+      setIsAuthenticated(true);
+      localStorage.setItem('hagwon_dashboard_auth', 'authenticated');
+      setError('');
+      setPassword('');
+    } else {
+      setError('잘못된 비밀번호입니다.');
+      setPassword('');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('hagwon_dashboard_auth');
+  };
 
   const colorClasses = {
     blue: {
@@ -96,12 +153,128 @@ const Dashboard = () => {
     return device === 'mobile' ? <Smartphone className="w-4 h-4" /> : <Monitor className="w-4 h-4" />;
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">로딩 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Login form
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full">
+          <div className="bg-white rounded-xl shadow-lg p-8">
+            <div className="text-center mb-8">
+              <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                <Lock className="w-8 h-8 text-blue-600" />
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">학원 관리자 대시보드</h1>
+              <p className="text-gray-600">접근하려면 비밀번호를 입력하세요.</p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                  비밀번호
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                  placeholder="비밀번호를 입력하세요"
+                />
+              </div>
+
+              {error && (
+                <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
+                  {error}
+                </div>
+              )}
+
+              <button
+                onClick={handleLogin}
+                className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 outline-none transition-colors font-medium"
+              >
+                로그인
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Dashboard content (when authenticated)
+  if (dataLoading || !dashboardData) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">대시보드 데이터를 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (dataError) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <p className="text-red-600 mb-4">{dataError}</p>
+          <button
+            onClick={fetchDashboardData}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            다시 시도
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">대시보드</h1>
+        {/* Header with Logout */}
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">대시보드</h1>
+            <p className="text-gray-600">실시간 클릭 데이터 및 분석</p>
+          </div>
+          <div className="flex space-x-3">
+            <button
+              onClick={fetchDashboardData}
+              disabled={dataLoading}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>새로고침</span>
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>로그아웃</span>
+            </button>
+          </div>
         </div>
 
         {/* Stats Grid */}
@@ -111,6 +284,7 @@ const Dashboard = () => {
             value={dashboardData.profileViews.toLocaleString()}
             icon={Eye}
             color="blue"
+            subtitle="곧 추가 예정"
           />
           
           <StatCard
@@ -237,31 +411,39 @@ const Dashboard = () => {
             
             {/* Device percentage bars */}
             <div className="mt-6 space-y-3">
-              <div>
-                <div className="flex justify-between text-sm text-gray-600 mb-1">
-                  <span>모바일</span>
-                  <span>{((dashboardData.deviceStats.mobile / (dashboardData.deviceStats.mobile + dashboardData.deviceStats.desktop)) * 100).toFixed(1)}%</span>
+              {(dashboardData.deviceStats.mobile + dashboardData.deviceStats.desktop) > 0 ? (
+                <>
+                  <div>
+                    <div className="flex justify-between text-sm text-gray-600 mb-1">
+                      <span>모바일</span>
+                      <span>{((dashboardData.deviceStats.mobile / (dashboardData.deviceStats.mobile + dashboardData.deviceStats.desktop)) * 100).toFixed(1)}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-blue-600 h-2 rounded-full" 
+                        style={{ width: `${(dashboardData.deviceStats.mobile / (dashboardData.deviceStats.mobile + dashboardData.deviceStats.desktop)) * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="flex justify-between text-sm text-gray-600 mb-1">
+                      <span>컴퓨터</span>
+                      <span>{((dashboardData.deviceStats.desktop / (dashboardData.deviceStats.mobile + dashboardData.deviceStats.desktop)) * 100).toFixed(1)}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-gray-600 h-2 rounded-full" 
+                        style={{ width: `${(dashboardData.deviceStats.desktop / (dashboardData.deviceStats.mobile + dashboardData.deviceStats.desktop)) * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center text-gray-500 py-4">
+                  <p>아직 클릭 데이터가 없습니다</p>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-blue-600 h-2 rounded-full" 
-                    style={{ width: `${(dashboardData.deviceStats.mobile / (dashboardData.deviceStats.mobile + dashboardData.deviceStats.desktop)) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
-              
-              <div>
-                <div className="flex justify-between text-sm text-gray-600 mb-1">
-                  <span>컴퓨터</span>
-                  <span>{((dashboardData.deviceStats.desktop / (dashboardData.deviceStats.mobile + dashboardData.deviceStats.desktop)) * 100).toFixed(1)}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-gray-600 h-2 rounded-full" 
-                    style={{ width: `${(dashboardData.deviceStats.desktop / (dashboardData.deviceStats.mobile + dashboardData.deviceStats.desktop)) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
+              )}
             </div>
           </div>
 
@@ -269,37 +451,45 @@ const Dashboard = () => {
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">버튼별 클릭 비교</h3>
             <div className="space-y-4">
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium text-gray-900">홈페이지</span>
-                  <span className="text-lg font-bold text-green-600">{dashboardData.buttonClicks.homepage}</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
-                  <div 
-                    className="bg-green-600 h-3 rounded-full" 
-                    style={{ width: `${(dashboardData.buttonClicks.homepage / (dashboardData.buttonClicks.homepage + dashboardData.buttonClicks.click)) * 100}%` }}
-                  ></div>
-                </div>
-                <div className="text-sm text-gray-500 mt-1">
-                  {((dashboardData.buttonClicks.homepage / (dashboardData.buttonClicks.homepage + dashboardData.buttonClicks.click)) * 100).toFixed(1)}%
-                </div>
-              </div>
+              {(dashboardData.buttonClicks.homepage + dashboardData.buttonClicks.click) > 0 ? (
+                <>
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium text-gray-900">홈페이지</span>
+                      <span className="text-lg font-bold text-green-600">{dashboardData.buttonClicks.homepage}</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div 
+                        className="bg-green-600 h-3 rounded-full" 
+                        style={{ width: `${(dashboardData.buttonClicks.homepage / (dashboardData.buttonClicks.homepage + dashboardData.buttonClicks.click)) * 100}%` }}
+                      ></div>
+                    </div>
+                    <div className="text-sm text-gray-500 mt-1">
+                      {((dashboardData.buttonClicks.homepage / (dashboardData.buttonClicks.homepage + dashboardData.buttonClicks.click)) * 100).toFixed(1)}%
+                    </div>
+                  </div>
 
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium text-gray-900">카카오톡</span>
-                  <span className="text-lg font-bold text-purple-600">{dashboardData.buttonClicks.click}</span>
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium text-gray-900">카카오톡</span>
+                      <span className="text-lg font-bold text-purple-600">{dashboardData.buttonClicks.click}</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div 
+                        className="bg-purple-600 h-3 rounded-full" 
+                        style={{ width: `${(dashboardData.buttonClicks.click / (dashboardData.buttonClicks.homepage + dashboardData.buttonClicks.click)) * 100}%` }}
+                      ></div>
+                    </div>
+                    <div className="text-sm text-gray-500 mt-1">
+                      {((dashboardData.buttonClicks.click / (dashboardData.buttonClicks.homepage + dashboardData.buttonClicks.click)) * 100).toFixed(1)}%
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center text-gray-500 py-4">
+                  <p>아직 클릭 데이터가 없습니다</p>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
-                  <div 
-                    className="bg-purple-600 h-3 rounded-full" 
-                    style={{ width: `${(dashboardData.buttonClicks.click / (dashboardData.buttonClicks.homepage + dashboardData.buttonClicks.click)) * 100}%` }}
-                  ></div>
-                </div>
-                <div className="text-sm text-gray-500 mt-1">
-                  {((dashboardData.buttonClicks.click / (dashboardData.buttonClicks.homepage + dashboardData.buttonClicks.click)) * 100).toFixed(1)}%
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -322,40 +512,52 @@ const Dashboard = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {dashboardData.recentClicks.map((click) => {
-                  const { date, time } = formatTimestamp(click.timestamp);
-                  return (
-                    <tr key={click.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          click.type === 'homepage' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-purple-100 text-purple-800'
-                        }`}>
-                          {getButtonTypeLabel(click.type)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center text-sm text-gray-900">
-                          <Calendar className="w-4 h-4 mr-2 text-gray-500" />
-                          {date}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center text-sm text-gray-900">
-                          <Clock className="w-4 h-4 mr-2 text-gray-500" />
-                          {time}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center text-sm text-gray-900">
-                          {getDeviceIcon(click.device)}
-                          <span className="ml-2 capitalize">{click.device === 'mobile' ? '모바일' : '컴퓨터'}</span>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {dashboardData.recentClicks.length > 0 ? (
+                  dashboardData.recentClicks.map((click) => {
+                    const { date, time } = formatTimestamp(click.timestamp);
+                    return (
+                      <tr key={click.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            click.type === 'homepage' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-purple-100 text-purple-800'
+                          }`}>
+                            {getButtonTypeLabel(click.type)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center text-sm text-gray-900">
+                            <Calendar className="w-4 h-4 mr-2 text-gray-500" />
+                            {date}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center text-sm text-gray-900">
+                            <Clock className="w-4 h-4 mr-2 text-gray-500" />
+                            {time}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center text-sm text-gray-900">
+                            {getDeviceIcon(click.device)}
+                            <span className="ml-2 capitalize">{click.device === 'mobile' ? '모바일' : '컴퓨터'}</span>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan="4" className="px-6 py-8 text-center text-gray-500">
+                      <div className="flex flex-col items-center">
+                        <Clock className="w-8 h-8 text-gray-300 mb-2" />
+                        <p>최근 클릭 기록이 없습니다</p>
+                        <p className="text-sm text-gray-400 mt-1">클릭이 발생하면 여기에 표시됩니다</p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

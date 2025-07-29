@@ -12,16 +12,20 @@ function getDeviceType() {
 }
 
 async function isIncognito() {
-  if (typeof navigator.storage?.estimate === 'function') {
-    try {
-      const { quota } = await navigator.storage.estimate();
-      // In incognito mode, quota is usually very small (<120MB)
-      return quota < 120 * 1024 * 1024;
-    } catch (e) {
-      return false;
+  return new Promise((resolve) => {
+    const fs = window.RequestFileSystem || window.webkitRequestFileSystem;
+    if (!fs) {
+      resolve(false); // API not supported, assume not incognito
+      return;
     }
-  }
-  return false;
+
+    fs(
+      window.TEMPORARY,
+      100,
+      () => resolve(false), // Succeeded => not incognito
+      () => resolve(true)   // Failed => incognito
+    );
+  });
 }
 
 

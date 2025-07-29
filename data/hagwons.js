@@ -1,7 +1,7 @@
 const hagwons = [
      {
     "image": "/images/hagwons/small/edusphere.png",
-    "name":"에듀스피어",
+    "name":"에듀스피어 (Edusphere)",
     "url":"https://www.edusphere-gb.com/",
     "address":"온라인",
     "region":"온라인",

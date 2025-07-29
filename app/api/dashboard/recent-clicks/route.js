@@ -8,7 +8,7 @@ const supabase = createClient(
 
 export async function GET() {
   try {
-    const hagwonName = 'Edusphere'
+    const hagwonName = '에듀스피어 (Edusphere)'
     
     // Get recent click events for this hagwon, ordered by timestamp (newest first)
     const { data: clicks, error } = await supabase

@@ -11,8 +11,28 @@ function getDeviceType() {
   return 'desktop';
 }
 
+async function isIncognito() {
+  if (typeof navigator.storage?.estimate === 'function') {
+    try {
+      const { quota } = await navigator.storage.estimate();
+      // In incognito mode, quota is usually very small (<120MB)
+      return quota < 120 * 1024 * 1024;
+    } catch (e) {
+      return false;
+    }
+  }
+  return false;
+}
+
+
 async function logContactClick({ hagwonName, contactType }) {
   if (typeof window === 'undefined') return;
+
+  const incognito = await isIncognito();
+  if (incognito) {
+    console.log('🕵️ Skipping log: user is in incognito mode');
+    return;
+  }
 
   // Generate or retrieve session ID (shared across tabs)
   const sessionId = localStorage.getItem('user_session_id') || crypto.randomUUID();

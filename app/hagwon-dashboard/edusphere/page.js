@@ -336,9 +336,7 @@ const Dashboard = () => {
                   <p className="text-lg font-bold text-purple-700">{dashboardData.buttonClicks.click}회</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-purple-600">₩10,000 × {dashboardData.buttonClicks.click}</p>
                   <p className="text-lg font-bold text-purple-700">
-                    ₩{(dashboardData.buttonClicks.click * 10000).toLocaleString()}
                   </p>
                 </div>
               </div>
@@ -354,7 +352,7 @@ const Dashboard = () => {
                 <div className="border-t border-gray-200 pt-2 mt-2">
                   <p className="text-sm text-gray-600">총 청구 금액</p>
                   <p className="text-xl font-bold text-gray-800">
-                    ₩{((dashboardData.buttonClicks.click * 10000) + (dashboardData.buttonClicks.homepage * 2000)).toLocaleString()}
+                    ₩{((dashboardData.buttonClicks.homepage * 2000)).toLocaleString()} + 오픈채팅방 비용
                   </p>
                 </div>
               </div>
@@ -370,7 +368,7 @@ const Dashboard = () => {
               </div>
               <div className="ml-3">
                 <p className="text-sm text-blue-800 m-0">
-                  <strong>요금 안내:</strong> 홈페이지 클릭은 클릭당 2,000원, 카카오톡 클릭은 클릭당 10,000원이 청구됩니다.
+                  <strong>요금 안내:</strong> 홈페이지 클릭당 2,000원, 카카오톡 오픈채팅방 입장자 당 10,000원이 청구됩니다.
                 </p>
               </div>
             </div>

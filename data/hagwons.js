@@ -1,4 +1,22 @@
 const hagwons = [
+     {
+    "image": "/images/hagwons/small/edusphere.png",
+    "name":"에듀스피어",
+    "url":"https://www.edusphere-gb.com/",
+    "address":"온라인",
+    "region":"온라인",
+    "format":[
+      "온라인"
+        ],
+    "lessonType":[
+      "그룹",
+      "개인"
+    ],
+    "ia_ee_tok":true,
+    "description": "IB 전문 학원 Edusphere입니다!",
+    "kakaotalk": "https://open.kakao.com/o/glaeGzJh"
+    
+  },
    {
     "image": "/images/hagwons/small/sageprep.png",
     "name":"세이지프렙",

@@ -8,7 +8,7 @@ const supabase = createClient(
 
 export async function GET() {
   try {
-    const hagwonName = 'Edusphere'
+    const hagwonName = '에듀스피어 (Edusphere)'
     
     // Get all click events for this hagwon using JSONB operators
     const { data: clicks, error: clicksError } = await supabase

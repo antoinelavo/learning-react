@@ -69,7 +69,7 @@ const Dashboard = () => {
   };
 
   const handleLogin = () => {
-    if (password === 'admin123') {
+    if (password === 'edusphere0729') {
       setIsAuthenticated(true);
       localStorage.setItem('hagwon_dashboard_auth', 'authenticated');
       setError('');

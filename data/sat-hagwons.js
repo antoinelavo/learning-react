@@ -7,7 +7,7 @@ const satHagwons = [
     format: ['온라인'],
     services: ['IB', 'AP', 'TOEFL', "IGCSE", "컨설팅" ],
     address:"온라인",
-    description: "유학 관련 최고 학원 에듀스피어입니다.",
+    description: "Edusphere는 전 세계 최상위 1% 엘리트를 육성하는 프리미엄 교육 플랫폼입니다. 우리는 단순한 과외를 넘어, 국제학교 커리큘럼 전 과목을 전문 멘토가 1:1로 지도하며, 대학 입학 이후에도 글로벌 무대에서 활약할 수 있도록 장기적인 커리어 성장을 지원합니다. 모든 멘토는 3년 이상의 경험과 엄격한 인터뷰를 거쳐 선발된 검증된 인재이며, 실력뿐 아니라 인성과 책임감까지 갖춘 진짜 롤모델입니다. Edusphere는 자녀의 성장을 함께 설계하며, 그 자체로 자부심이 되는 엘리트 커뮤니티를 만들어갑니다. ",
     url: "https://www.edusphere-gb.com/",
     kakaotalk: "https://open.kakao.com/o/glaeGzJh"
   },

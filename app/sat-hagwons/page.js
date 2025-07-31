@@ -2,6 +2,8 @@ import Link from 'next/link';
 import SATHagwonCard from '@/components/SATHagwonCard';
 import allHagwonsData from '@/data/sat-hagwons';
 import FilterLogic from './FilterLogic.client';
+import FeedbackPopup from './components/FeedbackPopup';
+
 
 export const revalidate = 3600; // rebuild every hour
 
@@ -74,6 +76,8 @@ export default async function HagwonsPage({ searchParams }) {
 
       {/* Hydrate client-side filtering logic */}
       <FilterLogic />
+      <FeedbackPopup />
+      
     </main>
   );
 }

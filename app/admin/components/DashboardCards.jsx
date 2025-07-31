@@ -58,14 +58,14 @@ export default function DashboardCards() {
   const cards = [
     { label: '선생님 계정 수', value: stats.teachers, color: 'bg-indigo-100' },
     { label: '학생 계정 수', value: stats.students, color: 'bg-sky-100' },
-    { label: '프로필 클릭 수', value: stats.profileClicks, color: 'bg-amber-100' },
-    { label: '블로그 버튼 클릭 수', value: stats.blogClicks, color: 'bg-rose-100' },
-    { label: '프로필 개수', value: stats.approvedProfiles, color: 'bg-amber-100' },
-    { label: "'과외 찾기' 조회수", value: stats.findViews, color: 'bg-green-100' },
-    { label: "'과외 찾기' 세션 수", value: stats.findSessions, color: 'bg-green-100' },
-    { label: "'학원 추천' 조회수", value: stats.hagwonViews, color: 'bg-fuchsia-100' },
-    { label: "'학원 추천' 세션 수", value: stats.hagwonSessions, color: 'bg-fuchsia-100' },
-    { label: '학원 CTA 클릭 수', value: stats.satClicks, color: 'bg-amber-100' },
+    // { label: '프로필 클릭 수', value: stats.profileClicks, color: 'bg-amber-100' },
+    // { label: '블로그 버튼 클릭 수', value: stats.blogClicks, color: 'bg-rose-100' },
+    { label: '프로필 개수', value: stats.approvedProfiles, color: 'bg-amber-100' }
+    // { label: "'과외 찾기' 조회수", value: stats.findViews, color: 'bg-green-100' },
+    // { label: "'과외 찾기' 세션 수", value: stats.findSessions, color: 'bg-green-100' },
+    // { label: "'학원 추천' 조회수", value: stats.hagwonViews, color: 'bg-fuchsia-100' },
+    // { label: "'학원 추천' 세션 수", value: stats.hagwonSessions, color: 'bg-fuchsia-100' },
+    // { label: '학원 CTA 클릭 수', value: stats.satClicks, color: 'bg-amber-100' },
   ];
 
   return (

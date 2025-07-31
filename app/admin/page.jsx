@@ -34,12 +34,12 @@ export default function AdminPage() {
   return (
     <div className="max-w-screen-lg mx-auto pt-20 px-4">
       <DashboardCards />
-      <section className="mt-10">
+      {/* <section className="mt-10">
         <h3 className="text-lg font-semibold mb-4">🔍 A/B Test Stats</h3>
         <ABTestTable />
-      </section>
+      </section> */}
       <TeacherList />
-      <FilterUsageTable />
+      {/* <FilterUsageTable /> */}
     </div>
   );
 }

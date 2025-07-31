@@ -180,9 +180,9 @@ export default function HagwonCard({ image, name, region, format, lessonType, se
             <div className="flex gap-3 flex-wrap">
               <a className="cursor-pointer px-4 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg text-gray-900 flex items-center gap-2 hover:bg-gray-100 hover:border-gray-400"
               onClick={() => logContactClick({ hagwonName: name, contactType: 'KakaoTalk' })}
-              href={kakaotalk}>
+              href={kakaotalk || "http://pf.kakao.com/_sYcxen/chat"}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="icon" width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12.003 2C6.478 2 2 5.858 2 10.527c0 2.486 1.379 4.693 3.548 6.197l-1.13 3.7a.5.5 0 0 0 .702.599l4.285-2.104a12.24 12.24 0 0 0 2.598.278c5.523 0 10.003-3.858 10.003-8.527S17.526 2 12.003 2Z"/></svg>
-                카카오톡
+                무료 상담하기
               </a>
               <a target="_blank" rel="noopener noreferrer" className="cursor-pointer px-4 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg text-gray-900 hover:bg-gray-100 hover:border-gray-400"
               onClick={() => logContactClick({ hagwonName: name, contactType: 'Website' })}

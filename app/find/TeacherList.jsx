@@ -14,8 +14,9 @@ function shuffle(array) {
 }
 
 export default function TeacherList({ initialTeachers = [] }) {
-  const [teachers, setTeachers] = useState((initialTeachers));
-  const [loading, setLoading] = useState(false);
+  const [allTeachers, setAllTeachers] = useState([]); // All teachers from DB
+  const [filteredTeachers, setFilteredTeachers] = useState([]); // Filtered results
+  const [loading, setLoading] = useState(true);
 
   // filters state
   const [filters, setFilters] = useState({
@@ -49,77 +50,93 @@ export default function TeacherList({ initialTeachers = [] }) {
     });
   }
 
-  // load distinct subjects
+  // Load ALL data once on component mount
   useEffect(() => {
-    async function loadSubjects() {
-      const { data, error } = await supabase
+    async function loadAllData() {
+      setLoading(true);
+      
+      // Single query to get all teachers
+      const { data: teachers, error } = await supabase
         .from('teachers')
-        .select('subjects')
-        .eq('status', 'approved')
-        .not('subjects', 'is', null);
+        .select('*')
+        .eq('status', 'approved');
+
       if (error) {
-        console.error(error);
+        console.error('Error loading teachers:', error);
+        setLoading(false);
         return;
       }
-      const all = data.flatMap(r => r.subjects || []);
-      setSubjectOptions(Array.from(new Set(all)).sort());
-    }
-    loadSubjects();
-  }, []);
 
-  // re-fetch when filters change
-  useEffect(() => {
-    async function fetchTeachers() {
-      setLoading(true);
-      let q = supabase.from('teachers').select('*').eq('status', 'approved');
+      // Single query to get all premium data
+      const today = new Date().toISOString().split('T')[0];
+      const { data: premiumData, error: premiumError } = await supabase
+        .from('teacher_premium')
+        .select('teacher_id, subject')
+        .lte('start_date', today)
+        .gte('end_date', today);
 
-      if (filters.subjects.length)
-        q = q.contains('subjects', filters.subjects);
-      if (filters.lessonTypes.length)
-        q = q.overlaps('lesson_type', filters.lessonTypes);
-      if (filters.genders.length)
-        q = q.in('gender', filters.genders);
-      if (filters.ib.length === 1) q = q.eq('IB', filters.ib[0]);
+      if (premiumError) console.error(premiumError);
 
-      const { data, error } = await q;
-      if (error) {console.error('Teacher fetch error:', error.message || error);}
+      // Process data once
+      const premiumIds = premiumData ? premiumData.map(p => p.teacher_id) : [];
+      const processedTeachers = teachers.map(t => ({
+        ...t,
+        isPremium: premiumIds.includes(t.id),
+      }));
 
-      else {
-        // 1) 오늘 기준 날짜
-        const today = new Date().toISOString().split('T')[0];
+      setAllTeachers(processedTeachers);
+      setFilteredTeachers(processedTeachers); // Initially show all
       
-        // 2) 선택된 과목 + 오늘 날짜 조건으로 premium 레코드 조회
+      // Extract subject options from loaded data
+      const allSubjects = teachers.flatMap(t => t.subjects || []);
+      setSubjectOptions(Array.from(new Set(allSubjects)).sort());
       
-        const { data: premiumData, error: premiumError } = await supabase
-          .from('teacher_premium')
-          .select('teacher_id')
-          .overlaps('subject', filters.subjects)
-          .lte('start_date', today)
-          .gte('end_date', today);
-        if (premiumError) console.error(premiumError);
-
-        // 3) premium 교사 ID 목록
-        const premiumIds = premiumData ? premiumData.map(p => p.teacher_id) : [];
-
-        // 4) isPremium 플래그 추가
-        const annotated = (data || []).map(t => ({
-          ...t,
-          isPremium: premiumIds.includes(t.id),
-        }));
-
-        // 5) premium / 일반 교사 분리 후 각 그룹 랜덤화
-        const premiumTeachers = shuffle(annotated.filter(t => t.isPremium));
-        const normalTeachers  = shuffle(annotated.filter(t => !t.isPremium));
-
-        // 6) premium 먼저, 그 다음 일반 교사
-        setTeachers([...premiumTeachers, ...normalTeachers]);
-      }
-
-setLoading(false);
       setLoading(false);
     }
-    fetchTeachers();
-  }, [filters]);
+
+    loadAllData();
+  }, []); // Only run once on mount
+
+  // Client-side filtering whenever filters change
+  useEffect(() => {
+    if (!allTeachers.length) return;
+
+    let filtered = allTeachers.filter(teacher => {
+      // Subject filter
+      if (filters.subjects.length > 0) {
+        const hasMatchingSubject = filters.subjects.some(subject => 
+          teacher.subjects?.includes(subject)
+        );
+        if (!hasMatchingSubject) return false;
+      }
+
+      // Lesson type filter
+      if (filters.lessonTypes.length > 0) {
+        const hasMatchingLessonType = filters.lessonTypes.some(type => 
+          teacher.lesson_type?.includes(type)
+        );
+        if (!hasMatchingLessonType) return false;
+      }
+
+      // Gender filter
+      if (filters.genders.length > 0) {
+        if (!filters.genders.includes(teacher.gender)) return false;
+      }
+
+      // IB filter
+      if (filters.ib.length > 0) {
+        if (!filters.ib.includes(teacher.IB)) return false;
+      }
+
+      return true;
+    });
+
+    // Apply premium sorting
+    const premiumTeachers = shuffle(filtered.filter(t => t.isPremium));
+    const normalTeachers = shuffle(filtered.filter(t => !t.isPremium));
+    
+    setFilteredTeachers([...premiumTeachers, ...normalTeachers]);
+  }, [filters, allTeachers]); // Run when filters change or data loads
 
   return (
     <>
@@ -243,20 +260,19 @@ setLoading(false);
 
       {/* Results Section */}
       <section className="flex-1">
-        {loading && !teachers.length ? (
+        {loading ? (
           <p className="text-center">불러오는 중…</p>
-        ) : !teachers.length ? (
+        ) : !filteredTeachers.length ? (
           <p className="text-center">조건에 맞는 선생님이 없습니다.</p>
         ) : (
           <div>
-            <p>총 검색된 선생님 수: {teachers.length}명</p>
+            <p>총 검색된 선생님 수: {filteredTeachers.length}명</p>
             <div className="grid grid-cols-1 bg-white border border-gray-200 rounded-xl divide-y divide-gray-200 overflow-hidden shadow-lg p-0">
-              {teachers.map((t, i) => (
+              {filteredTeachers.map((t, i) => (
                 <TeacherCard key={t.id} {...t} badge={t.isPremium ? '추천' : null} priority={i === 0} />
               ))}
             </div>
           </div>
-
         )}
       </section>
     </>

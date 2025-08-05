@@ -5,8 +5,6 @@ import FilterLogic from './FilterLogic.client';
 import FeedbackPopup from './components/FeedbackPopup';
 
 
-export const revalidate = 3600; // rebuild every hour
-
 export const metadata = {
   title: 'SAT 학원 29곳 추천 및 비교 [2025년 최신]',
   description: 'SAT 학원 추천, 비교, 선택 가이드 – 2025년 최신 업데이트',

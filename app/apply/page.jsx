@@ -433,7 +433,7 @@ export default function ApplyPage() {
         <label className="block mb-1 font-medium">소개 *</label>
         <div ref={longRef} className="h-40 bg-white border border-gray-300 mb-2 min-h-[20em]"></div>
         {errors.longintroduction && (
-            <p className="text-red-500 text-sm mt-1">소개를 입력해주세요.</p>
+            <p className="text-red-500 text-sm mt-1">소개를 입력해주세요. (연락처를 이곳에 기재하면 반려됩니다. 연락처는 아래 연락처란에 적어주세요.)</p>
         )}
         </div>
 
@@ -442,7 +442,7 @@ export default function ApplyPage() {
         <label className="block mb-1 font-medium">경력 *</label>
         <div ref={expRef} className="h-40 bg-white border border-gray-300 mb-2 min-h-[20em]"></div>
         {errors.experience && (
-            <p className="text-red-500 text-sm mt-1">경력을 입력해주세요.</p>
+            <p className="text-red-500 text-sm mt-1">경력을 입력해주세요. (연락처를 이곳에 기재하면 반려됩니다. 연락처는 아래 연락처란에 적어주세요.)</p>
         )}
         </div>
 

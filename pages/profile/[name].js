@@ -18,7 +18,7 @@ export async function getStaticPaths() {
 
   return {
     paths,
-    fallback: false,
+    fallback: 'blocking',
   };
 }
 
@@ -37,7 +37,7 @@ export async function getStaticProps({ params }) {
 
   return {
     props: { teacher },
-    revalidate: 86400,
+    revalidate: 60,
   };
 }
 

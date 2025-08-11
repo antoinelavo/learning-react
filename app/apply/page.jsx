@@ -173,6 +173,8 @@ export default function ApplyPage() {
         profilePictureUrl ||
         'https://scdoramzssnimcbsojml.supabase.co/storage/v1/object/public/profile-pictures/teachers/default.jpg',
       referral_source: formData.referral_source,
+      rate: formData.rate ? Number(formData.rate) : null, // ADDED
+      rate_description: formData.rate_description?.trim() || null, // ADDED
       status: 'pending',
     };
 
@@ -220,12 +222,14 @@ export default function ApplyPage() {
 // (only when isTeacher === true do we fall through to render the form)
 
   return (
-    <div className="max-w-2xl mx-auto p-6 mb-[20em]">
+  <div className="flex flex-col mt-6 p-[1em] bg-white border border-solid border-gray-200 shadow rounded-2xl max-w-4xl mx-auto mb-[3em]">
+
+    <div className="max-w-4xl mx-auto p-0 mb-[3em]">
       <h1 className="text-3xl font-bold mb-6 text-center">IB Master 선생님 지원하기</h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
         {/* 이름 */}
         <div>
-          <label htmlFor="name" className="block mb-1 font-medium">
+          <label htmlFor="name" className="block font-medium">
             사이트 기재용 이름 *
           </label>
           <input
@@ -233,7 +237,7 @@ export default function ApplyPage() {
             id="name"
             {...register('name', { required: true, maxLength: 10 })}
             placeholder="이름 혹은 아이디"
-            className="w-full border border-gray-300 rounded p-2"
+            className="w-full border border-gray-300 rounded-xl p-3 mt-2"
           />
           {errors.name && (
             <p className="text-red-500 text-sm mt-1">이름을 입력해주세요 (최대 10자).</p>
@@ -242,10 +246,10 @@ export default function ApplyPage() {
 
         {/* subjects */}
         <div>
-          <span className="block mb-1 font-medium">수업 과목 *</span>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <span className="block font-medium mb-3">수업 과목 *</span>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
             {subjectsList.map((subject) => (
-              <label key={subject} className="flex items-center space-x-2">
+              <label key={subject} className="flex items-center gap-1">
                 <input
                   type="checkbox"
                   value={subject}
@@ -263,7 +267,7 @@ export default function ApplyPage() {
 
         {/* extra subject */}
         <div>
-          <label htmlFor="extra_subject" className="block mb-1 font-medium">
+          <label htmlFor="extra_subject" className="block font-medium">
             위에 수업 과목명이 없는 경우, 여기에 수업 과목명을 적어주세요.
           </label>
           <input
@@ -271,7 +275,7 @@ export default function ApplyPage() {
             id="extra_subject"
             {...register('extra_subject')}
             placeholder="기타 과목명을 입력하세요"
-            className="w-full border border-gray-300 rounded p-2"
+            className="w-full border border-gray-300 rounded-xl p-3 mt-2"
           />
         </div>
 
@@ -446,6 +450,37 @@ export default function ApplyPage() {
         )}
         </div>
 
+        {/* rate */}
+        <div>
+          <label htmlFor="rate" className="block mb-1 font-medium">
+            수업료 (시급, 단위는 만 원) *
+          </label>
+          <input
+            type="number"
+            id="rate"
+            {...register('rate', { required: true })}
+            placeholder="예: 5"
+            className="w-full border border-gray-300 rounded p-2"
+          />
+          {errors.rate && (
+            <p className="text-red-500 text-sm mt-1">수업료를 입력해주세요.</p>
+          )}
+        </div>
+
+        {/* rate_description */}
+        <div>
+          <label htmlFor="rate_description" className="block mb-1 font-medium">
+            수업료 관련 설명 (선택)
+          </label>
+          <input
+            type="text"
+            id="rate_description"
+            {...register('rate_description')}
+            placeholder="예: EE는 시급 6만원 / 대면은 시급 +1만원"
+            className="w-full border border-gray-300 rounded p-2"
+          />
+        </div>
+
         {/* contact info */}
         <div>
           <label htmlFor="contact_information" className="block mb-1 font-medium">
@@ -508,5 +543,7 @@ export default function ApplyPage() {
         </button>
       </form>
     </div>
+
+  </div>
   );
 }

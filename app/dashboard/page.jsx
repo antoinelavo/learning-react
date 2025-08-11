@@ -193,6 +193,8 @@ export default function DashboardPage() {
       IB: form.querySelector('input[name="ib_status"]:checked')?.value === 'O',
       longintroduction: quillLongInstanceRef.current.root.innerHTML,
       experience:       quillExpInstanceRef.current.root.innerHTML,
+      rate: Number(form.rate.value) || null, 
+      rate_description: form.rate_description.value,
       last_updated: new Date().toISOString(),
       status: 'pending',
     };
@@ -347,6 +349,16 @@ export default function DashboardPage() {
                     ref={quillExpContainerRef}
                     className="bg-white min-h-[150px]"
                   />
+                </div>
+
+                <div>
+                  <label className="block font-medium">수업료 (시급, 단위는 만 원) *</label>
+                  <input name="rate" type="number" defaultValue={teacher.rate} className="w-full border border-gray-300 rounded-xl p-3 mt-2" />
+                </div>
+
+                <div>
+                  <label className="block font-medium">수업료 관련 설명 (선택)</label>
+                  <input name="rate_description" type="text" defaultValue={teacher.rate_description} className="w-full border border-gray-300 rounded-xl p-3 mt-2" />
                 </div>
 
                 <div>

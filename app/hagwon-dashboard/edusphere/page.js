@@ -284,7 +284,6 @@ const Dashboard = () => {
             value={dashboardData.profileViews.toLocaleString()}
             icon={Eye}
             color="blue"
-            subtitle="곧 추가 예정"
           />
           
           <StatCard

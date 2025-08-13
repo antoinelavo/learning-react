@@ -31,11 +31,11 @@ export const metadata = {
 export default function FindPage() {
   return (
     <ClientFind>
-      <main className="max-w-6xl mx-auto px-4 py-10 min-h-screen">
+      <main className="max-w-6xl mx-auto sm:px-4 px-2 py-2 min-h-screen">
         {/* Header */}
-        <div className="bg-white text-center border w-full h-fit mx-auto mb-6 py-6 px-4 border-gray-200 rounded-xl shadow-md">
-          <h1 className="text-2xl font-bold mb-4">IB 과외 선생님 찾기</h1>
-          <p className="text-md font-normal text-gray-500">
+        <div className="block sm:hidden bg-white text-center border w-full h-fit mx-auto p-2 mb-2 sm:mb-6 sm:py-6 sm:px-4 border-gray-200 rounded-xl shadow-md">
+          <h1 className="text-lg sm:text-2xl font-bold mb-4">IB 과외 선생님 찾기</h1>
+          <p className="text-sm sm:text-md font-normal text-gray-500">
             과외 글 게시, 열람 비용 없이 원하는 IB 과외 선생님을 찾아보세요.
           </p>
         </div>

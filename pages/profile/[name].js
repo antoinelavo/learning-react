@@ -116,6 +116,11 @@ export default function ProfilePage({ teacher }) {
                 </span>
               ))}
             </div>
+
+            <div className="mt-10">
+              <ContactButton teacherName={teacher.name} />
+            </div>
+
           </div>
         </div>
 
@@ -139,8 +144,6 @@ export default function ProfilePage({ teacher }) {
               }}
             />
           </section>
-
-          <ContactButton teacherName={teacher.name} />
         </div>
       </main>
     </>

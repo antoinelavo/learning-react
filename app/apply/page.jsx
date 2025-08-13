@@ -80,7 +80,7 @@ export default function ApplyPage() {
         setSubjectsList([]);
       } else {
         const allSubjects = teachers?.flatMap((t) => t.subjects) || [];
-        const uniqueSubjects = Array.from(new Set(allSubjects));
+        const uniqueSubjects = Array.from(new Set(allSubjects)).sort();
         setSubjectsList(uniqueSubjects);
       }
 

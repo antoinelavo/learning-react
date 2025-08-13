@@ -104,7 +104,7 @@ export default function TeacherList({ initialTeachers = [] }) {
     let filtered = allTeachers.filter(teacher => {
       // Subject filter
       if (filters.subjects.length > 0) {
-        const hasMatchingSubject = filters.subjects.some(subject => 
+        const hasMatchingSubject = filters.subjects.every(subject => 
           teacher.subjects?.includes(subject)
         );
         if (!hasMatchingSubject) return false;
@@ -112,7 +112,7 @@ export default function TeacherList({ initialTeachers = [] }) {
 
       // Lesson type filter
       if (filters.lessonTypes.length > 0) {
-        const hasMatchingLessonType = filters.lessonTypes.some(type => 
+        const hasMatchingLessonType = filters.lessonTypes.every(type => 
           teacher.lesson_type?.includes(type)
         );
         if (!hasMatchingLessonType) return false;
@@ -141,13 +141,22 @@ export default function TeacherList({ initialTeachers = [] }) {
   return (
     <>
       {/* Filters & UI */}
-      <aside className="md:w-1/4 h-fit md:sticky top-[5em] bg-white border border-gray-200 rounded-xl shadow-md p-6 mb-6 md:mb-0 md:mr-6">
+      <aside className="md:w-1/4 h-fit md:sticky top-[5em] bg-white border border-gray-200 rounded-xl shadow-md p-4 sm:p-6 mb-4 sm:mb-6 md:mb-0 md:mr-6">
+
+        {/* Header */}
+        <div className="mb-6 hidden sm:block">
+          <h1 className="text-lg sm:text-2xl font-bold mb-4 mt-0">IB 과외 선생님 찾기</h1>
+          <p className="text-sm sm:text-md font-normal text-gray-500">
+            과외 글 게시, 열람 비용 없이 원하는 IB 과외 선생님을 찾아보세요.
+          </p>
+        </div>
+
         {/* Subject Filter */}
         <div className="mb-6">
-          <div className="flex justify-between items-center">
-            <p className="font-semibold">과목</p>
+          <div className="flex justify-between items-baseline">
+            <p className="font-semibold leading-none">과목</p>
             <button
-              className="md:hidden text-blue-600 text-sm"
+              className="md:hidden text-blue-600 text-sm "
               onClick={() => toggleGroup('subjects')}
             >
               {openGroups.subjects ? '숨기기' : '보기'}
@@ -174,8 +183,8 @@ export default function TeacherList({ initialTeachers = [] }) {
 
         {/* Lesson Type Filter */}
         <div className="mb-6">
-          <div className="flex justify-between items-center">
-            <p className="font-semibold">수업 방식</p>
+          <div className="flex justify-between items-baseline">
+            <p className="font-semibold leading-none">수업 방식</p>
             <button
               className="md:hidden text-blue-600 text-sm"
               onClick={() => toggleGroup('lessonTypes')}
@@ -200,8 +209,8 @@ export default function TeacherList({ initialTeachers = [] }) {
 
         {/* Gender Filter */}
         <div className="mb-6">
-          <div className="flex justify-between items-center">
-            <p className="font-semibold">성별</p>
+          <div className="flex justify-between items-baseline">
+            <p className="font-semibold leading-none">성별</p>
             <button
               className="md:hidden text-blue-600 text-sm"
               onClick={() => toggleGroup('genders')}
@@ -225,9 +234,9 @@ export default function TeacherList({ initialTeachers = [] }) {
         </div>
 
         {/* IB Completion Filter */}
-        <div>
-          <div className="flex justify-between items-center">
-            <p className="font-semibold">IB 이수 여부</p>
+        <div className="mb-0">
+          <div className="flex justify-between items-baseline">
+            <p className="font-semibold leading-none">IB 이수 여부</p>
             <button
               className="md:hidden text-blue-600 text-sm"
               onClick={() => toggleGroup('ib')}
@@ -259,15 +268,15 @@ export default function TeacherList({ initialTeachers = [] }) {
       </aside>
 
       {/* Results Section */}
-      <section className="flex-1">
+      <section className="flex-1 mb-[10dvh]">
         {loading ? (
           <p className="text-center">불러오는 중…</p>
         ) : !filteredTeachers.length ? (
           <p className="text-center">조건에 맞는 선생님이 없습니다.</p>
         ) : (
           <div>
-            <p>총 검색된 선생님 수: {filteredTeachers.length}명</p>
-            <div className="grid grid-cols-1 bg-white border border-gray-200 rounded-xl divide-y divide-gray-200 overflow-hidden shadow-lg p-0">
+            <p className="text-sm sm:text-md sm:mt-5">총 검색된 선생님 수: {filteredTeachers.length}명</p>
+            <div className="flex flex-col bg-white border-t border-gray-200 sm:border sm:border-gray-200 sm:rounded-xl divide-y divide-gray-200 overflow-hidden sm:shadow-lg">
               {filteredTeachers.map((t, i) => (
                 <TeacherCard key={t.id} {...t} badge={t.isPremium ? '추천' : null} priority={i === 0} />
               ))}

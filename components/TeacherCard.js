@@ -20,8 +20,8 @@ export default function TeacherCard({
     >
 
       {/* ← Avatar + name/school */}
-      <div className="flex items-center flex-1 justify-between px-[1em] py-[1.25em] md:p-[2em] gap-[1em] md:gap-[2em]">
-        <div className="relative w-10 h-10 overflow-hidden rounded-xl flex-0">
+      <div className="flex items-center flex-1 justify-between p-[1em] sm:px-[1em] sm:py-[1.25em] md:px-[1.5em] md:py-[1.5em] gap-[1em] md:gap-[2em] m-0">
+        <div className="relative w-20 h-20  overflow-hidden rounded-lg flex-0 border border-gray-300">
           <img
             src={profile_picture}
             alt={`${name} 프로필 사진`}
@@ -31,30 +31,35 @@ export default function TeacherCard({
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex flex-row gap-[1em]">
-            <h2 className="text-lg font-bold text-gray-900 line-clamp-1 leading-1 m-0">
+            <h2 className="text-base sm:text-lg font-bold text-black line-clamp-1 leading-1 m-0">
               {name}
             </h2>
 
               {badge && (
-                <span className="inline-flex items-center justify-center bg-yellow-400 text-black hidden sm:flex sm:text-xs font-medium sm:px-2 sm:py-1 rounded leading-none ">
+                <span className="inline-flex items-center justify-center bg-yellow-400 text-bold flex text-xs font-medium px-2 py-1 rounded leading-none ">
                   추천
                 </span>
               )}
           </div>
 
-          <p className="text-sm text-gray-500 line-clamp-1 leading-1 m-0">
+          <p className="text-xs sm:text-sm text-gray-500 font-semibold sm:font-normal line-clamp-1 leading-1 my-1">
             {school}
+          </p>
+
+          <p className=" sm:hidden text-xs sm:text-sm text-gray-500 text-left line-clamp-2 leading-1 mt-2 mb-0">
+            {shortintroduction}
           </p>
         </div>
 
         {/* Short Introduction */}
-        <div className="flex-1 min-w-0">
-          <p className="text-sm text-gray-500 text-left line-clamp-2 h-full m-0">
+        <div className="hidden sm:block flex-1 min-w-0">
+          <p className="text-xs sm:text-sm text-gray-500 text-left line-clamp-2 leading-1 m-0">
             {shortintroduction}
           </p>
         </div>
         
       </div>
+      
 
 
     </Link>

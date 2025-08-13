@@ -2,7 +2,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 
 export default function MobileMenuToggle() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -45,13 +44,13 @@ export default function MobileMenuToggle() {
             ['SAT 학원 추천', '/sat-hagwons']
           ].map(([label, href]) => (
             <li key={href} className="w-full text-center">
-              <Link 
+              <a 
                 href={href}
                 className="block w-full py-4 text-sm text-black hover:text-blue-500"
                 onClick={() => setSidebarOpen(false)}
               >
                 {label}
-              </Link>
+              </a>
             </li>
           ))}
         </ul>

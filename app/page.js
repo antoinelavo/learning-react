@@ -1,6 +1,3 @@
-import Link from 'next/link';
-import Image from 'next/image';
-
 export const metadata = {
   title: '수수료 없는 IB 전문 과외 플랫폼 | IB Master',
   description: '선생, 학생 모두 수수료 없는 IB 과외 전문 플랫폼. IB 수학, 영어, 물리 과외를 믿고 맡길 수 있는 곳, IB Master',
@@ -43,12 +40,12 @@ export default function Home() {
               국내 유일 수수료 0원 과외 플랫폼
             </p>
             <div className="flex gap-4 justify-center md:justify-start">
-              <Link href="/find" className="bg-blue-500 text-white px-2 sm:px-6 py-2 rounded-lg hover:bg-blue-600 transition">
+              <a href="/find" className="bg-blue-500 text-white px-2 sm:px-6 py-2 rounded-lg hover:bg-blue-600 transition">
                 과외 찾기
-              </Link>
-              <Link href="/apply" className="border border-blue-500 text-blue-500 px-2 sm:px-6 py-2 rounded-lg bg-white hover:bg-blue-100 transition">
+              </a>
+              <a href="/apply" className="border border-blue-500 text-blue-500 px-2 sm:px-6 py-2 rounded-lg bg-white hover:bg-blue-100 transition">
                 선생님 등록하기
-              </Link>
+              </a>
             </div>
           </div>
 
@@ -57,14 +54,12 @@ export default function Home() {
             id="heroSampleProfile"
             className="relative w-[95svw] max-w-[600px] h-[50svh] max-h-[500px] my-0 md:my-auto mx-auto md:mx-0 block"
           >
-              <Image
-                src="/images/SampleProfiles.svg"
-                alt="샘플 프로필"
-                fill
-                priority={false}
-                placeholder="blur" 
-                blurDataURL="iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOs2fv/PwAHLgM5yEquVgAAAABJRU5ErkJggg=="
-              />
+            <img
+              src="/images/SampleProfiles.svg"
+              alt="샘플 프로필"
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
           </div>
         </div>
 
@@ -155,7 +150,7 @@ export default function Home() {
               프로필 게시 비용이 있나요?
             </summary>
             <p className="mt-[1em] mb-0 text-gray-700 leading-relaxed">
-              없습니다! <strong>IB Master</strong>는 100% 수수료, 이용료 0원 사이트입니다.
+              없습니다! <strong>IB Master</strong>는 수수료, 기본 이용료 0원 사이트입니다.
             </p>
           </details>
 
@@ -242,9 +237,9 @@ export default function Home() {
           </p>
           <p>
             <strong>IB Master</strong>에서는 매칭 수수료가 없기 때문에,
-            다른 플랫폼과 달리 <strong>숨은 비용이 발생하지 않습니다.</strong>
+            다른 플랫폼과 달리 <strong>비용이 발생하지 않습니다.</strong>
             선생님과 학생이 직접 소통하고 조건을 조율할 수 있어,
-            더 합리적인 시급으로 고퀄리티 과외를 받을 수 있습니다.
+            더 합리적인 비용으로 고퀄리티 과외를 받을 수 있습니다.
           </p>
           <div className="text-center pt-4">
             <a
@@ -257,23 +252,20 @@ export default function Home() {
         </div>
       </section>
       
-
-
-
       {/* Registration CTA */}
       <section className="flex flex-col sm:flex-row justify-center items-center gap-8 px-4 py-20 bg-gradient-to-t from-[#32ade61a] to-gray-50 h-[60dvh]">
-        <Link href="/login" className="no-underline">
+        <a href="/login" className="no-underline">
           <div className="w-[80dvw] h-[10em] sm:w-[15em] sm:h-[15em] bg-blue-300/80 rounded-2xl flex flex-col items-center justify-center text-center transform transition-transform duration-300 hover:scale-105">
             <p className="text-base text-black">회원 가입하고</p>
             <p className="text-2xl font-bold text-black">과외 선생님 찾기</p>
           </div>
-        </Link>
-        <Link href="/apply" className="no-underline">
+        </a>
+        <a href="/apply" className="no-underline">
           <div className="w-[80dvw] h-[10em] sm:w-[15em] sm:h-[15em] bg-blue-300/30 rounded-2xl flex flex-col items-center justify-center text-center transform transition-transform duration-300 hover:scale-105">
             <p className="text-base text-black">프로필 작성하고</p>
             <p className="text-2xl font-bold text-black">선생님 등록하기</p>
           </div>
-        </Link>
+        </a>
       </section>
     </div>
   );

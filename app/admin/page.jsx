@@ -32,7 +32,7 @@ export default function AdminPage() {
   if (!authorized) return null;
 
   return (
-    <div className="max-w-screen-lg mx-auto pt-20 px-4">
+    <div className="max-w-screen-lg mx-auto pt-20 px-4 mb-[20dvh]">
       <DashboardCards />
       {/* <section className="mt-10">
         <h3 className="text-lg font-semibold mb-4">🔍 A/B Test Stats</h3>

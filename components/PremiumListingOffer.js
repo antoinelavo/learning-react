@@ -1,12 +1,13 @@
 'use client';
 import dynamic from 'next/dynamic';
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import TeacherCard from '@/components/TeacherCard';
 import ScrollFadeIn from '@/components/ScrollFadeIn';
 import { supabase } from '@/lib/supabase';
+import PortOne from "@portone/browser-sdk/v2";
 
 const Scroll = dynamic(() => import('quill/blots/scroll'), { ssr: false });
-
 
 const tiers = [
   {
@@ -18,9 +19,21 @@ const tiers = [
       '프로필 순서 무작위',
       '기본 색상',
       '추천 뱃지 없음'
-
     ],
     featured: false,
+  },
+  {
+    name: '프리미엄 과목 3개',
+    id: 'tier-top',
+    priceMonthly: '\₩ 12,000',
+    description: '선생님 프로필이 선택한 3개 과목으로 상단 노출됩니다.',
+    features: [
+      '프로필 상단 고정',
+      '강조 색상',
+      '추천 뱃지 적용',
+      '과목당  \₩ 4,000'
+    ],
+    featured: true,
   },
   {
     name: '프리미엄 과목 1개',
@@ -33,22 +46,8 @@ const tiers = [
       '추천 뱃지 적용',
       '과목당  \₩ 5,000'
     ],
-    featured: true,
-  },
-     {
-    name: '프리미엄 과목 3개',
-    id: 'tier-top',
-    priceMonthly: '\₩ 12,000',
-    description: '선생님 프로필이 선택한 3개 과목으로 상단 노출됩니다.',
-    features: [
-      '프로필 상단 고정',
-      '강조 색상',
-      '추천 뱃지 적용',
-      '과목당  \₩ 4,000'
-    ],
     featured: false,
   }
-
 ];
 
 function classNames(...classes) {
@@ -63,13 +62,12 @@ function PremiumCount(){
     async function fetchCount() {
       const { data, error } = await supabase
         .from('teacher_premium')
-        .select('subject')          // fetch the subject arrays
+        .select('subject')
       if (error) {
         console.error(error)
         setError(error.message)
         return
       }
-      // sum up lengths of all subject arrays
       const total = data.reduce((sum, row) => sum + row.subject.length, 0)
       setCount(total)
     }
@@ -83,7 +81,6 @@ function PremiumCount(){
     <span>{count}</span>
   )
 }
-
 
 function CountUp({ target, duration = 1500 }) {
     const ref = useRef();
@@ -107,7 +104,7 @@ function CountUp({ target, duration = 1500 }) {
             };
 
             requestAnimationFrame(animate);
-            observer.disconnect(); // only animate once
+            observer.disconnect();
         }
         },
         { threshold: 0.5 }
@@ -118,19 +115,174 @@ function CountUp({ target, duration = 1500 }) {
     return () => observer.disconnect();
     }, [target, duration]);
 
-
   return <span ref={ref}>{count.toLocaleString()}</span>;
 }
 
+// Generate random payment ID (from PortOne docs)
+function randomId() {
+  return [...crypto.getRandomValues(new Uint32Array(2))]
+    .map((word) => word.toString(16).padStart(8, "0"))
+    .join("")
+}
+
+// Check premium spot availability
+async function checkPremiumSpotAvailability(subjects, supabase) {
+  const SPOTS_PER_SUBJECT = 5;
+  
+  try {
+    // Get all currently active premium subscriptions
+    const { data: activePremium, error } = await supabase
+      .from('teacher_premium')
+      .select('subject')
+      .gt('end_date', new Date().toISOString()); // Only active subscriptions
+
+    if (error) {
+      console.error('Error fetching active premium:', error);
+      throw error;
+    }
+
+    // Count how many teachers have premium for each subject
+    const subjectCounts = {};
+    
+    // Initialize counts for requested subjects
+    subjects.forEach(subject => {
+      subjectCounts[subject] = 0;
+    });
+
+    // Count active subscriptions per subject
+    activePremium.forEach(record => {
+      record.subject.forEach(subject => {
+        if (subjects.includes(subject)) {
+          subjectCounts[subject] = (subjectCounts[subject] || 0) + 1;
+        }
+      });
+    });
+
+    // Calculate availability for each subject
+    const availability = {};
+    subjects.forEach(subject => {
+      const used = subjectCounts[subject] || 0;
+      availability[subject] = {
+        used: used,
+        remaining: Math.max(0, SPOTS_PER_SUBJECT - used),
+        isFull: used >= SPOTS_PER_SUBJECT,
+        total: SPOTS_PER_SUBJECT
+      };
+    });
+
+    return {
+      success: true,
+      availability,
+      allAvailable: subjects.every(subject => !availability[subject].isFull)
+    };
+
+  } catch (error) {
+    console.error('Error checking premium availability:', error);
+    return {
+      success: false,
+      error: error.message,
+      availability: {},
+      allAvailable: false
+    };
+  }
+}
+
+async function countTeachersPerSubject(subjects, supabase) {
+  try {
+    // TODO: Update table name and column name based on your schema
+    const { data: allTeachers, error } = await supabase
+      .from('teachers') // ← Update this table name
+      .select('subjects'); // ← Update this column name
+
+    if (error) {
+      console.error('Error fetching teachers:', error);
+      throw error;
+    }
+
+    const subjectCounts = {};
+    
+    // Initialize counts for requested subjects
+    subjects.forEach(subject => {
+      subjectCounts[subject] = 0;
+    });
+
+    // Count teachers per subject
+    allTeachers.forEach(teacher => {
+      teacher.subjects?.forEach(subject => {
+        if (subjects.includes(subject)) {
+          subjectCounts[subject] = (subjectCounts[subject] || 0) + 1;
+        }
+      });
+    });
+
+    return {
+      success: true,
+      counts: subjectCounts
+    };
+
+  } catch (error) {
+    console.error('Error counting teachers per subject:', error);
+    return {
+      success: false,
+      error: error.message,
+      counts: {}
+    };
+  }
+}
 
 export default function PremiumListingOffer({teacher}) {
+  const router = useRouter();
+  const [teacherCounts, setTeacherCounts] = useState({});
   const [selectedSubjects, setSelectedSubjects] = useState([]);
-  const [showReceipt, setShowReceipt] = useState(false);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [subjectAvailability, setSubjectAvailability] = useState({});
+  const [availabilityLoading, setAvailabilityLoading] = useState(false);
+  const [showAccountNumber, setShowAccountNumber] = useState(false);
+  const [bankTransferRequested, setBankTransferRequested] = useState(false);
+
+
 
   const subjects = teacher?.subjects || [];
 
+  // Check premium spot availability
+const checkAvailability = async (subjectsToCheck) => {
+  if (subjectsToCheck.length === 0) return;
+  
+  setAvailabilityLoading(true);
+  try {
+    const [availabilityResult, teacherCountResult] = await Promise.all([
+      checkPremiumSpotAvailability(subjectsToCheck, supabase),
+      countTeachersPerSubject(subjectsToCheck, supabase)
+    ]);
+
+    if (availabilityResult.success) {
+      setSubjectAvailability(availabilityResult.availability);
+    }
+
+    if (teacherCountResult.success) {
+      setTeacherCounts(teacherCountResult.counts);
+    }
+  } catch (error) {
+    console.error('Failed to check availability:', error);
+  } finally {
+    setAvailabilityLoading(false);
+  }
+};
+
+  // Check availability when component loads
+  useEffect(() => {
+    if (subjects.length > 0) {
+      checkAvailability(subjects);
+    }
+  }, [subjects]);
 
   const handleToggleSubject = (subject) => {
+    // Don't allow selecting full subjects
+    if (subjectAvailability[subject]?.isFull) {
+      alert(`${subject}의 프리미엄 자리가 모두 찼습니다.`);
+      return;
+    }
+
     setSelectedSubjects((prev) =>
       prev.includes(subject)
         ? prev.filter((s) => s !== subject)
@@ -151,27 +303,205 @@ export default function PremiumListingOffer({teacher}) {
     else base = count * 4000;
 
     return base * duration;
-    };
+  };
 
-    const handlePaymentRequest = async () => {
-        const { error } = await supabase.from('payment_request').insert([
-            {
-            id: teacher.id,
-            name: teacher.name,
+  const handlePayment = async () => {
+    // Validation
+    if (selectedSubjects.length === 0) {
+      alert('과목을 선택해주세요.');
+      return;
+    }
+
+    if (!teacher?.id || !teacher?.name) {
+      alert('로그인이 필요합니다.');
+      router.push('/login');
+      return;
+    }
+
+    if (paymentProcessing) {
+      return;
+    }
+
+    setPaymentProcessing(true);
+
+    try {
+      // Generate unique payment ID
+      const paymentId = randomId();
+      const totalAmount = calculateTotal();
+
+      console.log('Requesting payment with ID:', paymentId);
+
+      // Log payment attempt to payment_request table (for tracking)
+      console.log('Attempting to log payment request:', {
+        teacher_id: teacher.id,
+        teacher_name: teacher.name,
+        subjects: selectedSubjects,
+        duration: duration,
+        amount: totalAmount
+      });
+
+      const { error: logError } = await supabase.from('payment_request').insert([
+        {
+          teacher_id: teacher.id,  // Changed from 'id' to 'teacher_id'
+          name: teacher.name,
+          subjects: selectedSubjects,
+          duration_months: duration,
+          amount: totalAmount,
+          requested_at: new Date().toISOString(),
+        },
+      ]);
+
+      if (logError) {
+        console.error('Failed to log payment request:', logError);
+        console.error('Full error details:', JSON.stringify(logError, null, 2));
+      } else {
+        console.log('Payment request logged successfully');
+      }
+
+      // Request payment using PortOne
+      const payment = await PortOne.requestPayment({
+        storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID,
+        channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY,
+        paymentId: paymentId,
+        orderName: `프리미엄 프로필 ${selectedSubjects.join(', ')} (${duration}개월)`,
+        totalAmount: totalAmount,
+        currency: "KRW",
+        payMethod: "CARD",
+        
+        // Customer info (from teacher)
+        customer: {
+          customerId: teacher.id.toString(),
+          fullName: teacher.name,
+          email: `teacher${teacher.id}@payments.yoursite.com`, // Generate valid dummy email
+          phoneNumber: '010-0000-0000', // Valid Korean phone format for KG Inicis
+        },
+        
+        // Custom data for verification (no Korean characters allowed)
+        customData: JSON.stringify({
+          teacherId: teacher.id,
+          subjectCount: selectedSubjects.length, // Use count instead of names
+          durationMonths: duration,
+          expectedAmount: totalAmount
+        }),
+
+        // Redirect URL for mobile
+        redirectUrl: `${window.location.origin}/dashboard`,
+      });
+
+      // Check if payment failed
+      if (payment.code !== undefined) {
+        console.error('Payment failed:', payment);
+        alert(`결제 실패: ${payment.message}`);
+        return;
+      }
+
+      console.log('Payment successful:', payment);
+
+      // Payment succeeded - now verify on server
+      console.log('Sending verification request with data:', {
+        paymentId: payment.paymentId,
+        teacherId: teacher.id,
+        teacherName: teacher.name,
+        subjects: selectedSubjects,
+        durationMonths: duration,
+        expectedAmount: totalAmount
+      });
+
+      const verificationResponse = await fetch('/api/premium/verify-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          paymentId: payment.paymentId,
+          teacherId: teacher.id,
+          teacherName: teacher.name,
+          subjects: selectedSubjects,
+          durationMonths: duration,
+          expectedAmount: totalAmount
+        }),
+      });
+
+      console.log('Verification response status:', verificationResponse.status);
+      console.log('Verification response headers:', verificationResponse.headers);
+
+      const verificationResult = await verificationResponse.json();
+
+      if (verificationResponse.ok) {
+        // Payment verified successfully
+        console.log('✅ Payment verified and premium activated');
+        alert('결제가 완료되었습니다! 프리미엄 기능이 활성화되었습니다.');
+        
+        // Redirect to dashboard
+        router.push('/dashboard');
+      } else {
+        throw new Error(verificationResult.error || 'Payment verification failed');
+      }
+
+    } catch (error) {
+      console.error('Payment error:', error);
+      alert('결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+    } finally {
+      setPaymentProcessing(false);
+    }
+  };
+
+  const handleBankTransfer = async () => {
+    // Validation
+    if (selectedSubjects.length === 0) {
+        alert('과목을 선택해주세요.');
+        return;
+    }
+
+    if (!teacher?.id || !teacher?.name) {
+        alert('로그인이 필요합니다.');
+        router.push('/login');
+        return;
+    }
+
+    if (bankTransferRequested) {
+        return; // Already requested
+    }
+
+    try {
+        // Show account number permanently
+        setShowAccountNumber(true);
+        setBankTransferRequested(true);
+
+        const totalAmount = calculateTotal();
+
+        // Log payment request to database
+        console.log('Logging bank transfer request:', {
+            teacher_id: teacher.id,
+            teacher_name: teacher.name,
             subjects: selectedSubjects,
-            duration_months: duration,
-            amount: calculateTotal(),
-            requested_at: new Date().toISOString(),
+            duration: duration,
+            amount: totalAmount
+        });
+
+        const { error: logError } = await supabase.from('payment_request').insert([
+            {
+                teacher_id: teacher.id,
+                name: teacher.name,
+                subjects: selectedSubjects,
+                duration_months: duration,
+                amount: totalAmount,
+                requested_at: new Date().toISOString(),
             },
         ]);
 
-        if (error) {
-            console.error('결제 요청 실패:', error);
-            alert('결제 요청에 실패했습니다.');
+        if (logError) {
+            console.error('Failed to log bank transfer request:', logError);
+            alert('요청 기록 중 오류가 발생했습니다.');
         } else {
-            alert(`₩${calculateTotal().toLocaleString()}원을 "신한은행 110 591 381671 박유진"으로 이체하시면 결제가 진행됩니다. 서비스는 결제 확인 후 진행됩니다.`);
+            console.log('Bank transfer request logged successfully');
         }
-    };
+
+    } catch (error) {
+        console.error('Bank transfer request error:', error);
+        alert('요청 처리 중 오류가 발생했습니다.');
+    }
+};
 
   return (
     <div className="bg-white border border-solid border-gray-200 shadow rounded-2xl relative isolate px-6 py-[5dvh] lg:px-8">
@@ -232,7 +562,6 @@ export default function PremiumListingOffer({teacher}) {
             </div>
         </ScrollFadeIn>
 
-
         <ScrollFadeIn>
       <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 gap-y-6 sm:mt-20 lg:max-w-4xl lg:grid-cols-3">
         {tiers.map((tier, tierIdx) => (
@@ -291,36 +620,74 @@ export default function PremiumListingOffer({teacher}) {
           </div>
         ))}
       </div>
-
-      {/* <ScrollFadeIn>
-        <div>
-            <div className="max-w-xl mx-auto my-[15em] text-center space-y-4">
-                <div className="text-sm text-gray-500 font-medium mb-0">현재 등록된 프리미엄 프로필 개수</div>
-                <div className="text-5xl font-extrabold bg-gradient-to-r from-black to-blue-400 bg-clip-text text-transparent"><PremiumCount/>개</div>
-            </div>
-        </div>
-      </ScrollFadeIn> */}
-
       </ScrollFadeIn>
 
               {/* Subject Selector */}
                 <div className="mx-auto mt-24 w-fill border rounded-3xl bg-white p-8 shadow-inner">
                     <h3 className="text-xl font-semibold text-gray-800 mb-4">프리미엄 과목 선택</h3>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {subjects.map((subject) => (
-                        <button
-                        key={subject}
-                        onClick={() => handleToggleSubject(subject)}
-                        className={classNames(
-                            'px-4 py-2 rounded-full text-sm font-medium border transition',
-                            selectedSubjects.includes(subject)
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        )}
-                        >
-                        {subject}
-                        </button>
-                    ))}
+                    {subjects.map((subject) => {
+                        const availability = subjectAvailability[subject];
+                        const isFull = availability?.isFull || false;
+                        const remaining = availability?.remaining || 0;
+                        const isSelected = selectedSubjects.includes(subject);
+                        const teacherCount = teacherCounts[subject] || 0;
+
+                        
+                        return (
+                        <div key={subject} className="relative">
+                            {/* Availability indicator */}
+                          <button
+                              onClick={() => handleToggleSubject(subject)}
+                              disabled={paymentProcessing || isFull}
+                              className={classNames(
+                                  'px-4 py-3 rounded-lg border transition w-full text-left',
+                                  isSelected && !isFull
+                                  ? 'bg-blue-600 text-white border-blue-600'
+                                  : isFull
+                                  ? 'bg-gray-300 text-gray-400 border-gray-300 cursor-not-allowed'
+                                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50',
+                                  paymentProcessing ? 'opacity-50 cursor-not-allowed' : ''
+                              )}
+                          >
+                              <div className={classNames(
+                                  "font-medium",
+                                  isSelected && !isFull ? "text-white" : "text-gray-800"
+                              )}>
+                                  {subject}
+                              </div>
+                              <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 justify-between items-left mt-1 text-xs">
+                                  <span className={classNames(
+                                      isSelected && !isFull ? "text-blue-100" : "text-gray-500"
+                                  )}>
+                                      {availabilityLoading ? "로딩중..." : `총 선생님 수: ${teacherCount}`}
+                                  </span>
+                                  <span>
+                                      {availabilityLoading ? (
+                                          <span className={classNames(
+                                              isSelected && !isFull ? "text-blue-100" : "text-gray-400"
+                                          )}>
+                                              확인중...
+                                          </span>
+                                      ) : isFull ? (
+                                          <span className="text-red-500 font-medium">마감</span>
+                                      ) : availability ? (
+                                          <span className={classNames(
+                                              "font-medium",
+                                              isSelected && !isFull ? "text-white" : 
+                                              remaining === 5 ? "text-green-600" : "text-yellow-600"
+                                          )}>
+                                              남은 자리: {remaining}
+                                          </span>
+                                      ) : null}
+                                  </span>
+                              </div>
+                          </button>
+
+
+                        </div>
+                        );
+                    })}
                     </div>
 
                     <div className="mt-6 text-center">
@@ -328,7 +695,8 @@ export default function PremiumListingOffer({teacher}) {
                         <select
                             value={duration}
                             onChange={(e) => setDuration(Number(e.target.value))}
-                            className="px-4 py-2 border rounded-md text-sm font-medium text-gray-700"
+                            disabled={paymentProcessing}
+                            className="px-4 py-2 border rounded-md text-sm font-medium text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
                             <option key={month} value={month}>
@@ -342,45 +710,47 @@ export default function PremiumListingOffer({teacher}) {
                     총 결제 금액: <span className="text-blue-600">₩ {calculateTotal().toLocaleString()}</span>
                     </div>
 
-                    <div className="mx-auto w-fill text-center">
+                    <div className="mx-auto text-center flex flex-col sm:flex-row justify-center gap-2">
                         <button
-                        onClick={() => setShowReceipt(true)}
-                        className="mt-6 bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition"
+                        onClick={handlePayment}
+                        disabled={paymentProcessing || selectedSubjects.length === 0}
+                        className={classNames(
+                            'mt-6 px-6 py-3 rounded-xl font-semibold transition',
+                            paymentProcessing || selectedSubjects.length === 0
+                            ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                            : 'bg-blue-600 text-white hover:bg-blue-700'
+                        )}
                         >
-                        결제하기
+                        {paymentProcessing ? '결제 진행 중...' : '결제하기 (카드)'}
                         </button>
-                    </div>
 
-                    {showReceipt && (
-                        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
-                            <div className="bg-white rounded-xl p-6 w-[90%] max-w-md shadow-lg relative">
-                            <h2 className="text-xl font-bold mb-4">최종 결제 내역</h2>
-                            <ul className="mb-4 text-gray-700 list-disc list-inside">
-                                {selectedSubjects.map((subj) => (
-                                <li key={subj}>{subj}</li>
-                                ))}
-                            </ul>
-                            <p className="text-right text-lg font-semibold">
-                                총 결제 금액: <span className="text-blue-600">₩{calculateTotal().toLocaleString()}</span>
-                            </p>
-                            <div className="mt-6 flex justify-end gap-2">
-                                <button
-                                onClick={() => setShowReceipt(false)}
-                                className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
-                                >
-                                닫기
-                                </button>
-                                <button
-                                onClick={handlePaymentRequest}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                >
-                                결제 진행
-                                </button>
+                        <div className="text-center">
+                            <button
+                              onClick={handleBankTransfer}
+                              disabled={bankTransferRequested || selectedSubjects.length === 0}
+                              className={classNames(
+                                  'mt-6 px-6 py-3 rounded-xl font-semibold transition w-full',
+                                  bankTransferRequested || selectedSubjects.length === 0
+                                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                              )}
+                            >
+                                {showAccountNumber ? '입금 확인 후 연락드리겠습니다' : '결제하기 (계좌이체)'}
+                            </button>
+                        </div>
+                    </div>
+                    {/* Account number text that appears/disappears */}
+                    {showAccountNumber && (
+                        <div className="mt-4 p-4 bg-gray-50 rounded-lg border text-center">
+                            <div className="text-sm text-gray-600 mb-1">입금 계좌</div>
+                            <div className="text-lg font-mono font-semibold text-gray-900">
+                                신한은행 110-591-381671
                             </div>
+                            <div className="text-sm text-gray-500 mt-1">
+                                예금주: 박유진
                             </div>
                         </div>
-                        )}
-
+                    )}
                 </div>
     </div>
   );

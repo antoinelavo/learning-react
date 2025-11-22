@@ -16,6 +16,7 @@ export default function DashboardPage() {
   const [subjectsList, setSubjectsList] = useState([]);
   const [statusInfo, setStatusInfo] = useState(null);
   const [quillReady, setQuillReady] = useState(false);
+  const [showExpediteAccount, setShowExpediteAccount] = useState(false);
 
   const formRef = useRef();
 
@@ -67,6 +68,7 @@ export default function DashboardPage() {
 
         setTeacher(profile);
         updateStatus(profile.status);
+        
 
         const { data: teachers, error: subjectsError } = await supabase
           .from('teachers')
@@ -144,7 +146,7 @@ export default function DashboardPage() {
 
   const updateStatus = (status) => {
     const statusMap = {
-      pending: ['계정 상태: 검토 중', 'bg-yellow-100 text-yellow-700'],
+      pending: ['계정 상태: 검토 중 - 예상 소요 시간: 21일', 'bg-yellow-100 text-yellow-700'],
       approved: ['계정 상태: 승인됨', 'bg-green-100 text-green-700'],
       rejected: ['계정 상태: 반려됨', 'bg-red-100 text-red-700'],
     };
@@ -217,7 +219,7 @@ export default function DashboardPage() {
       {/* Student Section */}
       {role === 'student' && 
       <div>
-        <h1 className="text-2xl font-bold mb-1">계정 정보</h1>
+        <h1 className="text-2xl font-bold mb-1 mt-0 leading-none">계정 정보</h1>
         {user && <p className="font-medium">계정 아이디: {user.email}</p>}
         <p>학생 계정으로 로그인하셨습니다.</p>
         <div className="mt-8 flex gap-4 w-full">
@@ -234,7 +236,7 @@ export default function DashboardPage() {
       {role === 'teacher' && teacher && (
         <>
 
-        <PremiumListingOffer teacher={teacher} />
+          {teacher.status === 'approved' && <PremiumListingOffer teacher={teacher} />}
 
         
         {/* Basic Header */}
@@ -250,10 +252,40 @@ export default function DashboardPage() {
               {statusInfo.text}
             </div>
           )}
-          <div className="mt-8 flex gap-4 w-full">
-            <button onClick={handleLogout} className="bg-blue-500 text-white w-1/2 px-[2em] py-[1em] rounded-lg">로그아웃</button>
-            <button onClick={handleDelete} className="bg-blue-900 text-white w-1/2 px-[2em] py-[1em] rounded-lg">탈퇴하기</button>
-          </div>
+
+                    {/* Offer paid services for pending teachers */}
+          {teacher.status === 'pending' && (
+            <div className="mt-6 p-8 bg-white border border-gray-200 shadow rounded-2xl text-center">
+            <h2 className="text-2xl font-bold mb-4">프로필 검토 중입니다</h2>
+            <p className="text-gray-600">현재 많은 선생님들의 지원으로 인해 프로필 검토에 약 3주 정도 소요되고 있습니다.</p>
+            <p className="text-gray-600 mb-4">9,000원을 입금하시면 1영업일 내로 프로필 검토를 완료해드립니다. </p>
+            <p className="text-xs text-gray-600 mb-4">*수익금은 사이트 운영 및 서비스 개선에 사용됩니다.</p>
+
+              <div className="max-w-md mx-auto">
+                
+                <button
+                  onClick={() => setShowExpediteAccount(!showExpediteAccount)}
+                  className="mt-6 px-6 py-3 rounded-xl font-semibold transition bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  {showExpediteAccount ? '계좌 정보 숨기기' : '빠른 검토 요청하기'}
+                </button>
+
+                {showExpediteAccount && (
+                  <div className="mt-4 p-4 bg-gray-50 rounded-lg border text-center">
+                    <div className="text-sm text-gray-600 mb-1">입금 계좌</div>
+                    <div className="text-lg font-mono font-semibold text-gray-900">
+                      신한은행 110-591-381671
+                    </div>
+                    <div className="text-sm text-gray-500 mt-1">
+                      예금주: 박유진
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) 
+          }
+
         </div>
         
         {/* Edit Profile */}
@@ -368,7 +400,12 @@ export default function DashboardPage() {
 
                 <button type="submit" className="bg-blue-500 text-white px-[2em] py-[1em] rounded-xl mx-auto">저장하기</button>
               </form>
+                        <div className="mt-8 flex gap-4 w-full">
+            <button onClick={handleLogout} className="bg-blue-500 text-white w-1/2 px-[2em] py-[1em] rounded-lg">로그아웃</button>
+            <button onClick={handleDelete} className="bg-blue-900 text-white w-1/2 px-[2em] py-[1em] rounded-lg">탈퇴하기</button>
+          </div>
       </>
+      
       )}
       
 

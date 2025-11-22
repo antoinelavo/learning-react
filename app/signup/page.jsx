@@ -81,7 +81,7 @@ export default function SignupPage() {
       setLoading(false);
     } else {
       // Redirect on success
-      router.push('/');
+        alert('계정 생성에 성공했습니다. 이메일 인증을 진행해주세요!');
     }
   };
 

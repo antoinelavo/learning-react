@@ -71,7 +71,7 @@ export default function SignupPage() {
       password,
       options: {
         data: { username, role },
-        emailRedirectTo: 'https://www.ibmaster.net/welcome',
+        emailRedirectTo: 'https://www.ibmaster.net/',
       },
     });
 
@@ -81,7 +81,7 @@ export default function SignupPage() {
       setLoading(false);
     } else {
       // Redirect on success
-      router.push('/welcome');
+      router.push('/');
     }
   };
 

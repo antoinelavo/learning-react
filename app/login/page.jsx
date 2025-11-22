@@ -41,7 +41,7 @@ export default function LoginPage() {
           const { role } = userData;
 
           if (role === 'teacher') {
-            router.replace('/dashboard');
+            router.replace('/apply');
           } else {
             router.replace('/find');
           }

@@ -39,7 +39,6 @@ export default function AuthCallback() {
       .single();
       
     if (roleError) {
-      console.error('롤 조회 실패:', roleError);
       router.replace('/find');
       return;
     }

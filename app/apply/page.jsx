@@ -65,7 +65,7 @@ export default function ApplyPage() {
         .eq('user_id', userId)
         .maybeSingle();
 
-      if (profileError) console.error('Error checking teacher profile:', profileError);
+      if (profileError) { /* profile check failed */ }
 
       if (existingProfile) {
         router.push('/dashboard');
@@ -76,7 +76,6 @@ export default function ApplyPage() {
         .from('teachers')
         .select('subjects');
       if (subjectsError) {
-        console.error('Error fetching subjects:', subjectsError);
         setSubjectsList([]);
       } else {
         const allSubjects = teachers?.flatMap((t) => t.subjects) || [];
@@ -136,20 +135,21 @@ export default function ApplyPage() {
     let profilePictureUrl = null;
     const file = formData.profile_picture?.[0];
     if (file) {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}.${fileExt}`;
-      const { error: uploadError } = await supabase.storage
-        .from('profile-pictures')
-        .upload(`teachers/${fileName}`, file);
-      if (uploadError) {
-        console.error('Image Upload Error:', uploadError);
+      const uploadForm = new FormData();
+      uploadForm.append('file', file);
+
+      const uploadRes = await fetch('/api/upload-profile-picture', {
+        method: 'POST',
+        body: uploadForm,
+      });
+
+      if (!uploadRes.ok) {
         alert('프로필 사진 업로드가 실패하였습니다. 파일 크기가 10MB 이하인지 확인해주세요.');
         return;
       }
-      const { data: publicUrl } = supabase.storage
-        .from('profile-pictures')
-        .getPublicUrl(`teachers/${fileName}`);
-      profilePictureUrl = publicUrl.publicUrl;
+
+      const { url } = await uploadRes.json();
+      profilePictureUrl = url;
     }
 
     // Build payload
@@ -171,7 +171,7 @@ export default function ApplyPage() {
       contact_information: formData.contact_information || null,
       profile_picture:
         profilePictureUrl ||
-        'https://scdoramzssnimcbsojml.supabase.co/storage/v1/object/public/profile-pictures/teachers/default.jpg',
+        `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/teachers/default.jpg`,
       referral_source: formData.referral_source,
       rate: formData.rate ? Number(formData.rate) : null, // ADDED
       rate_description: formData.rate_description?.trim() || null, // ADDED
@@ -185,7 +185,6 @@ export default function ApplyPage() {
       .eq('name', teacherData.name)
       .single();
     if (fetchError && fetchError.code !== 'PGRST116') {
-      console.error('Database Fetch Error:', fetchError);
       alert('서버 오류가 발생했습니다. 다시 시도해주세요.');
       return;
     }
@@ -197,7 +196,6 @@ export default function ApplyPage() {
     // Insert record
     const { error: dbError } = await supabase.from('teachers').insert([teacherData]);
     if (dbError) {
-      console.error('Database Insert Error:', dbError);
       alert('제출 실패했습니다.');
     } else {
       alert(

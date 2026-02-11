@@ -5,7 +5,7 @@ export default function TeacherCard({
   name,
   school,
   shortintroduction,
-  profile_picture = "https://.../default.png",
+  profile_picture = "https://ibmaster.antoinelavo.com/teachers/default.jpg",
   badge = null,
 
 }) {

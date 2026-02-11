@@ -69,7 +69,7 @@ export default function ProfilePage({ teacher }) {
           <div className="flex-1 bg-white rounded-xl shadow p-6 flex flex-col items-center">
             <div className="w-32 h-32 mb-4">
               <img
-                src={teacher.profile_picture || '/default-profile.png'}
+                src={teacher.profile_picture || 'https://ibmaster.antoinelavo.com/teachers/default.jpg'}
                 alt={`${teacher.name} 프로필 사진`}
                 className="object-cover rounded-xl w-full h-full"
               />

@@ -17,7 +17,7 @@ export default function AboutPage() {
             *현재 사이트는 사비로 운영되고 있습니다.<br></br>
             **선생님의 신원은 사용자(학생·학부모)가 검증해야합니다.<br></br><br></br>
                         
-            후원 계좌: 110 591 381671 신한은행 박유진<br></br><br></br>
+            후원 계좌: {process.env.NEXT_PUBLIC_BANK_ACCOUNT} {process.env.NEXT_PUBLIC_BANK_HOLDER}<br></br><br></br>
         </p>
         </div>
     </main>

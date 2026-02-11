@@ -101,9 +101,6 @@ export default function DashboardPage() {
         [{ list: 'ordered' }, { list: 'bullet' }],
         ['link'],
         ];
-        console.log('Long ref:', quillLongContainerRef.current);
-        console.log('Exp ref:', quillExpContainerRef.current);
-
         // 1) Start
         if (quillLongContainerRef.current && quillExpContainerRef.current) {
           quillLongInstanceRef.current = new Quill(
@@ -114,10 +111,6 @@ export default function DashboardPage() {
             quillExpContainerRef.current,
             { theme: 'snow', modules: { toolbar } }
           );
-
-        console.log('Loading longintroduction HTML:', teacher.longintroduction);
-        console.log('Loading experience HTML:',    teacher.experience);
-
 
         // Preload saved HTML
         if (teacher.longintroduction) {
@@ -274,10 +267,10 @@ export default function DashboardPage() {
                   <div className="mt-4 p-4 bg-gray-50 rounded-lg border text-center">
                     <div className="text-sm text-gray-600 mb-1">입금 계좌</div>
                     <div className="text-lg font-mono font-semibold text-gray-900">
-                      신한은행 110-591-381671
+                      {process.env.NEXT_PUBLIC_BANK_ACCOUNT || '계좌 정보를 불러올 수 없습니다'}
                     </div>
                     <div className="text-sm text-gray-500 mt-1">
-                      예금주: 박유진
+                      예금주: {process.env.NEXT_PUBLIC_BANK_HOLDER || ''}
                     </div>
                   </div>
                 )}

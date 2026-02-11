@@ -58,7 +58,7 @@ export default function TeacherList() {
     <div className="max-w-xl mx-auto mt-10 space-y-6">
       {visibleTeachers.map((teacher) => {
         const profilePicture =
-          teacher.profile_picture || 'https://.../default.png';
+          teacher.profile_picture || 'https://ibmaster.antoinelavo.com/teachers/default.jpg';
         const truncatedSchool = teacher.school?.slice(0, 20) + (teacher.school?.length > 20 ? '...' : '');
         const profileURL = `/profile/${encodeURIComponent(teacher.name)}`;
 

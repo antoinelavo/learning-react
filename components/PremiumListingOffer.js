@@ -64,7 +64,6 @@ function PremiumCount(){
         .from('teacher_premium')
         .select('subject')
       if (error) {
-        console.error(error)
         setError(error.message)
         return
       }
@@ -137,7 +136,6 @@ async function checkPremiumSpotAvailability(subjects, supabase) {
       .gt('end_date', new Date().toISOString()); // Only active subscriptions
 
     if (error) {
-      console.error('Error fetching active premium:', error);
       throw error;
     }
 
@@ -177,7 +175,6 @@ async function checkPremiumSpotAvailability(subjects, supabase) {
     };
 
   } catch (error) {
-    console.error('Error checking premium availability:', error);
     return {
       success: false,
       error: error.message,
@@ -195,7 +192,6 @@ async function countTeachersPerSubject(subjects, supabase) {
       .select('subjects'); // ← Update this column name
 
     if (error) {
-      console.error('Error fetching teachers:', error);
       throw error;
     }
 
@@ -221,7 +217,6 @@ async function countTeachersPerSubject(subjects, supabase) {
     };
 
   } catch (error) {
-    console.error('Error counting teachers per subject:', error);
     return {
       success: false,
       error: error.message,
@@ -263,7 +258,7 @@ const checkAvailability = async (subjectsToCheck) => {
       setTeacherCounts(teacherCountResult.counts);
     }
   } catch (error) {
-    console.error('Failed to check availability:', error);
+    // availability check failed
   } finally {
     setAvailabilityLoading(false);
   }
@@ -329,17 +324,6 @@ const checkAvailability = async (subjectsToCheck) => {
       const paymentId = randomId();
       const totalAmount = calculateTotal();
 
-      console.log('Requesting payment with ID:', paymentId);
-
-      // Log payment attempt to payment_request table (for tracking)
-      console.log('Attempting to log payment request:', {
-        teacher_id: teacher.id,
-        teacher_name: teacher.name,
-        subjects: selectedSubjects,
-        duration: duration,
-        amount: totalAmount
-      });
-
       const { error: logError } = await supabase.from('payment_request').insert([
         {
           teacher_id: teacher.id,  // Changed from 'id' to 'teacher_id'
@@ -352,10 +336,7 @@ const checkAvailability = async (subjectsToCheck) => {
       ]);
 
       if (logError) {
-        console.error('Failed to log payment request:', logError);
-        console.error('Full error details:', JSON.stringify(logError, null, 2));
-      } else {
-        console.log('Payment request logged successfully');
+        // payment request logging failed — non-blocking
       }
 
       // Request payment using PortOne
@@ -390,23 +371,11 @@ const checkAvailability = async (subjectsToCheck) => {
 
       // Check if payment failed
       if (payment.code !== undefined) {
-        console.error('Payment failed:', payment);
         alert(`결제 실패: ${payment.message}`);
         return;
       }
 
-      console.log('Payment successful:', payment);
-
       // Payment succeeded - now verify on server
-      console.log('Sending verification request with data:', {
-        paymentId: payment.paymentId,
-        teacherId: teacher.id,
-        teacherName: teacher.name,
-        subjects: selectedSubjects,
-        durationMonths: duration,
-        expectedAmount: totalAmount
-      });
-
       const verificationResponse = await fetch('/api/premium/verify-payment', {
         method: 'POST',
         headers: {
@@ -422,14 +391,10 @@ const checkAvailability = async (subjectsToCheck) => {
         }),
       });
 
-      console.log('Verification response status:', verificationResponse.status);
-      console.log('Verification response headers:', verificationResponse.headers);
-
       const verificationResult = await verificationResponse.json();
 
       if (verificationResponse.ok) {
         // Payment verified successfully
-        console.log('✅ Payment verified and premium activated');
         alert('결제가 완료되었습니다! 프리미엄 기능이 활성화되었습니다.');
         
         // Redirect to dashboard
@@ -439,7 +404,6 @@ const checkAvailability = async (subjectsToCheck) => {
       }
 
     } catch (error) {
-      console.error('Payment error:', error);
       alert('결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
     } finally {
       setPaymentProcessing(false);
@@ -470,15 +434,6 @@ const checkAvailability = async (subjectsToCheck) => {
 
         const totalAmount = calculateTotal();
 
-        // Log payment request to database
-        console.log('Logging bank transfer request:', {
-            teacher_id: teacher.id,
-            teacher_name: teacher.name,
-            subjects: selectedSubjects,
-            duration: duration,
-            amount: totalAmount
-        });
-
         const { error: logError } = await supabase.from('payment_request').insert([
             {
                 teacher_id: teacher.id,
@@ -491,14 +446,10 @@ const checkAvailability = async (subjectsToCheck) => {
         ]);
 
         if (logError) {
-            console.error('Failed to log bank transfer request:', logError);
             alert('요청 기록 중 오류가 발생했습니다.');
-        } else {
-            console.log('Bank transfer request logged successfully');
         }
 
     } catch (error) {
-        console.error('Bank transfer request error:', error);
         alert('요청 처리 중 오류가 발생했습니다.');
     }
 };
@@ -523,7 +474,7 @@ const checkAvailability = async (subjectsToCheck) => {
                                     name={teacher.name}
                                     school={teacher.school}
                                     shortintroduction={teacher.shortintroduction}
-                                    profile_picture={teacher.profile_picture || 'https://.../default.png'}
+                                    profile_picture={teacher.profile_picture || 'https://ibmaster.antoinelavo.com/teachers/default.jpg'}
                                 />
                             </div>
                         </div>
@@ -537,7 +488,7 @@ const checkAvailability = async (subjectsToCheck) => {
                                 name={teacher.name}
                                 school={teacher.school}
                                 shortintroduction={teacher.shortintroduction}
-                                profile_picture={teacher.profile_picture || 'https://.../default.png'}
+                                profile_picture={teacher.profile_picture || 'https://ibmaster.antoinelavo.com/teachers/default.jpg'}
                                 badge="추천"
                                 className="w-full h-full"
                             />
@@ -744,10 +695,10 @@ const checkAvailability = async (subjectsToCheck) => {
                         <div className="mt-4 p-4 bg-gray-50 rounded-lg border text-center">
                             <div className="text-sm text-gray-600 mb-1">입금 계좌</div>
                             <div className="text-lg font-mono font-semibold text-gray-900">
-                                신한은행 110-591-381671
+                                {process.env.NEXT_PUBLIC_BANK_ACCOUNT || '계좌 정보를 불러올 수 없습니다'}
                             </div>
                             <div className="text-sm text-gray-500 mt-1">
-                                예금주: 박유진
+                                예금주: {process.env.NEXT_PUBLIC_BANK_HOLDER || ''}
                             </div>
                         </div>
                     )}

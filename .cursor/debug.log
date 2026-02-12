@@ -1,0 +1,7 @@
+{"runId":"jobs_create_run1","hypothesisId":"H_insert","location":"app/jobs/new/JobsCreateClient.jsx:handleSubmit","message":"Supabase job insert error","data":{"hasError":true,"errorMessage":"Could not find the 'edit_password_hash' column of 'student_jobs' in the schema cache","errorCode":"PGRST204"},"timestamp":1770895949291}
+{"runId":"jobs_run1","hypothesisId":"H2","location":"app/jobs/JobsPageClient.jsx:loadJobs","message":"Supabase loadJobs success","data":{"count":2},"timestamp":1770896016326}
+{"runId":"jobs_run1","hypothesisId":"H2","location":"app/jobs/JobsPageClient.jsx:loadJobs","message":"Supabase loadJobs success","data":{"count":2},"timestamp":1770896016386}
+{"runId":"jobs_run1","hypothesisId":"H2","location":"app/jobs/JobsPageClient.jsx:loadJobs","message":"Supabase loadJobs success","data":{"count":2},"timestamp":1770896027002}
+{"runId":"jobs_run1","hypothesisId":"H2","location":"app/jobs/JobsPageClient.jsx:loadJobs","message":"Supabase loadJobs success","data":{"count":2},"timestamp":1770896027087}
+{"runId":"jobs_run1","hypothesisId":"H2","location":"app/jobs/JobsPageClient.jsx:loadJobs","message":"Supabase loadJobs success","data":{"count":2},"timestamp":1770896138214}
+{"runId":"jobs_run1","hypothesisId":"H2","location":"app/jobs/JobsPageClient.jsx:loadJobs","message":"Supabase loadJobs success","data":{"count":2},"timestamp":1770896138259}

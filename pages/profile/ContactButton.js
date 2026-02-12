@@ -7,24 +7,12 @@ const supabaseClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-export default function ContactButton({ teacherName }) {
+export default function ContactButton({ teacherName, contactInfo }) {
   const [showContact, setShowContact] = useState(false);
-  const [contactInfo, setContactInfo] = useState(null);
 
   const handleClick = async () => {
     if (!showContact) {
       setShowContact(true);
-
-      // Fetch contact info
-      const { data: fetched, error: fetchErr } = await supabaseClient
-        .from('teachers')
-        .select('contact_information')
-        .eq('name', teacherName)
-        .single();
-
-      if (!fetchErr && fetched?.contact_information) {
-        setContactInfo(fetched.contact_information);
-      }
 
       // Increment click count
       const { data: record, error: countErr } = await supabaseClient

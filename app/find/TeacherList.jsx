@@ -275,7 +275,10 @@ export default function TeacherList({ initialTeachers = [] }) {
           <p className="text-center">조건에 맞는 선생님이 없습니다.</p>
         ) : (
           <div>
-            <p className="text-sm sm:text-md sm:mt-5">총 검색된 선생님 수: {filteredTeachers.length}명</p>
+            <div className="flex flex-row items-center gap-4 mt-2 mb-4 sm:mt-5 sm:mb-4">
+              <p className="text-sm sm:text-md m-0">총 검색된 선생님 수: {filteredTeachers.length}명</p>
+              <p className="text-sm sm:text-md m-0 text-gray-400">지난달 조회수: {process.env.NEXT_PUBLIC_MONTHLY_VIEWS || '0'}회</p>
+            </div>
             <div className="flex flex-col bg-white border-t border-gray-200 sm:border sm:border-gray-200 sm:rounded-xl divide-y divide-gray-200 overflow-hidden sm:shadow-lg">
               {filteredTeachers.map((t, i) => (
                 <TeacherCard key={t.id} {...t} badge={t.isPremium ? '추천' : null} priority={i === 0} />

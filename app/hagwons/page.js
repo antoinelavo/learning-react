@@ -4,8 +4,8 @@ import FilterLinksClient from './FilterLogic.client';
 import FeedbackPopup from './components/FeedbackPopup';
 
 export const metadata = {
-  title: 'IB 학원 29곳 추천 및 비교 [2025년 최신]',
-  description: 'IB 학원 추천, 비교, 선택 가이드 – 2025년 최신 업데이트',
+  title: 'IB 학원 29곳 추천 및 비교 [2026년 최신]',
+  description: 'IB 학원 추천, 비교, 선택 가이드 – 2026년 최신 업데이트',
   robots: {
     index: true,
     follow: true,
@@ -22,8 +22,8 @@ export const metadata = {
   },
 
   openGraph: {
-    title: 'IB 학원 29곳 추천 및 비교 [2025년 최신]',
-    description: 'IB 학원 추천, 비교, 선택 가이드 – 2025년 최신 업데이트',
+    title: 'IB 학원 29곳 추천 및 비교 [2026년 최신]',
+    description: 'IB 학원 추천, 비교, 선택 가이드 – 2026년 최신 업데이트',
     url: 'https://ibmaster.net/hagwons',
     siteName: 'IB Master',
     locale: 'ko-KR',
@@ -34,10 +34,11 @@ export const metadata = {
 export default function HagwonsPage() {
   return (
     <main className="min-h-screen max-w-4xl mx-[5dvw] lg:mx-auto mb-[10em]">
-      <h1>IB 학원 29곳 추천 및 비교 [2025년 최신]</h1>
+      <h1>IB 학원 29곳 추천 및 비교 [2026년 최신]</h1>
 
       <article>
-        <p><strong>최신 업데이트:</strong> 2025년 7월 3일</p>
+        <p className="mb-0"><strong>최신 업데이트:</strong> 2026년 2월 12일</p>
+        <p className="mt-1 text-gray-400 text-sm">지난달 조회수: {process.env.NEXT_PUBLIC_HAGWONS_MONTHLY_VIEWS || '0'}회</p>
         <p>IB 학원은 IB 과정을 이수 중이거나 준비 중인 학생들에게 집중적인 도움을 제공합니다. 본 페이지는 학부모와 학생들이 신뢰할 수 있는 IB 학원을 선택할 수 있도록 도움을 주는 것을 목적으로 하며, 학원 선택 시 고려해야 할 요소, 수업 구성, 과외와의 차이점 등을 상세히 안내합니다.</p>
       </article>
 

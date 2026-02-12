@@ -20,7 +20,7 @@ const hagwons = [
    {
     "image": "/images/hagwons/small/sageprep.png",
     "name":"세이지프렙",
-    "url":"https://blog.naver.com/sageprep",
+    "url":"https://m.blog.naver.com/sageprep_academy",
     "address":"신사동 591-3, 201-202호 ",
     "region":"서울 강남",
     "format":[

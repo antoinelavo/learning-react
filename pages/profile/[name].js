@@ -118,7 +118,7 @@ export default function ProfilePage({ teacher }) {
             </div>
 
             <div className="mt-10">
-              <ContactButton teacherName={teacher.name} />
+              <ContactButton teacherName={teacher.name} contactInfo={teacher.contact_information} />
             </div>
 
           </div>

@@ -1,6 +1,5 @@
 // pages/profile/ContactButton.js
 import { useState } from 'react';
-import { useRouter } from 'next/router';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseClient = createClient(
@@ -11,18 +10,8 @@ const supabaseClient = createClient(
 export default function ContactButton({ teacherName }) {
   const [showContact, setShowContact] = useState(false);
   const [contactInfo, setContactInfo] = useState(null);
-  const router = useRouter();
 
   const handleClick = async () => {
-    const {
-      data: { user },
-    } = await supabaseClient.auth.getUser();
-
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-
     if (!showContact) {
       setShowContact(true);
 

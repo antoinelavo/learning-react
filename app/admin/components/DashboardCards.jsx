@@ -5,132 +5,173 @@ import { supabase } from '@/lib/supabase';
 
 export default function DashboardCards() {
   const [stats, setStats] = useState({
-    teachers: 0,
-    students: 0,
-    profileClicks: 0,
-    blogClicks: 0,
-    approvedProfiles: 0,
-    findViews: 0,
-    findSessions: 0,
-    hagwonViews: 0,
-    hagwonSessions: 0,
-    satClicks: 0,
+    // Teacher profiles
+    pendingProfiles: 0,
+
+    // Student requests
+    studentJobs: 0,
+    studentJobViews: 0,
+    studentNewsletterSubs: 0,
+    avgStudentViews: 0,
+
+    // Hagwon requests
+    hagwonRequests: 0,
+    hagwonRequestViews: 0,
+    hagwonNewsletterSubs: 0,
+    avgHagwonViews: 0,
   });
 
   useEffect(() => {
     async function fetchData() {
       const [
-        users,
-        profileClicks,
-        blogClicks,
-        pageEvents,
-        approvedCount,
-        satClicks,
+        pendingCount,
+        studentJobsData,
+        studentViewsData,
+        studentNewsData,
+        hagwonRequestsData,
+        hagwonViewsData,
+        hagwonNewsData,
       ] = await Promise.all([
-        getUserCounts(),
-        getTeacherClicks(),
-        getBlogClicks(),
-        getPageViewCounts(),
-        getApprovedProfileCount(),
-        getSATClickCount(),
+        getPendingProfileCount(),
+        getStudentJobsCount(),
+        getStudentJobViewsCount(),
+        getStudentNewsletterCount(),
+        getHagwonRequestsCount(),
+        getHagwonRequestViewsCount(),
+        getHagwonNewsletterCount(),
       ]);
 
-      const getCount = (page, type) =>
-        pageEvents.find((p) => p.page === page && p.event_type === type)?.count || 0;
+      const avgStudentViews = studentJobsData > 0
+        ? (studentViewsData / studentJobsData).toFixed(1)
+        : 0;
+
+      const avgHagwonViews = hagwonRequestsData > 0
+        ? (hagwonViewsData / hagwonRequestsData).toFixed(1)
+        : 0;
 
       setStats({
-        teachers: users.teachers,
-        students: users.students,
-        profileClicks,
-        blogClicks,
-        approvedProfiles: approvedCount,
-        findViews: getCount('find', 'page_view'),
-        findSessions: getCount('find', 'unique_page_view'),
-        hagwonViews: getCount('hagwons', 'page_view'),
-        hagwonSessions: getCount('hagwons', 'unique_page_view'),
-        satClicks,
+        pendingProfiles: pendingCount,
+        studentJobs: studentJobsData,
+        studentJobViews: studentViewsData,
+        studentNewsletterSubs: studentNewsData,
+        avgStudentViews: avgStudentViews,
+        hagwonRequests: hagwonRequestsData,
+        hagwonRequestViews: hagwonViewsData,
+        hagwonNewsletterSubs: hagwonNewsData,
+        avgHagwonViews: avgHagwonViews,
       });
     }
 
     fetchData();
   }, []);
 
-  const cards = [
-    { label: '선생님 계정 수', value: stats.teachers, color: 'bg-indigo-100' },
-    { label: '학생 계정 수', value: stats.students, color: 'bg-sky-100' },
-    // { label: '프로필 클릭 수', value: stats.profileClicks, color: 'bg-amber-100' },
-    // { label: '블로그 버튼 클릭 수', value: stats.blogClicks, color: 'bg-rose-100' },
-    { label: '프로필 개수', value: stats.approvedProfiles, color: 'bg-amber-100' }
-    // { label: "'과외 찾기' 조회수", value: stats.findViews, color: 'bg-green-100' },
-    // { label: "'과외 찾기' 세션 수", value: stats.findSessions, color: 'bg-green-100' },
-    // { label: "'학원 추천' 조회수", value: stats.hagwonViews, color: 'bg-fuchsia-100' },
-    // { label: "'학원 추천' 세션 수", value: stats.hagwonSessions, color: 'bg-fuchsia-100' },
-    // { label: '학원 CTA 클릭 수', value: stats.satClicks, color: 'bg-amber-100' },
-  ];
-
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {cards.map((card, i) => (
-        <div
-          key={i}
-          className={`rounded-xl shadow p-4 ${card.color} text-center`}
-        >
-          <div className="text-xl font-bold">{card.value.toLocaleString()}</div>
-          <div className="text-sm mt-1 text-gray-700">{card.label}</div>
+    <div className="space-y-8">
+      {/* Student Requests Section */}
+      <div>
+        <h2 className="text-lg font-semibold mb-3 text-gray-800">Student Requests</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="rounded-xl shadow p-5 bg-blue-50 border border-blue-200">
+            <div className="text-3xl font-bold text-blue-900">{stats.studentJobs.toLocaleString()}</div>
+            <div className="text-sm mt-1 text-blue-800">Total Student Requests</div>
+          </div>
+          <div className="rounded-xl shadow p-5 bg-blue-100 border border-blue-200">
+            <div className="text-3xl font-bold text-blue-900">{stats.studentJobViews.toLocaleString()}</div>
+            <div className="text-sm mt-1 text-blue-800">Unique Views</div>
+          </div>
+          <div className="rounded-xl shadow p-5 bg-blue-100 border border-blue-200">
+            <div className="text-3xl font-bold text-blue-900">{stats.avgStudentViews}</div>
+            <div className="text-sm mt-1 text-blue-800">Avg Views per Request</div>
+          </div>
+          <div className="rounded-xl shadow p-5 bg-blue-50 border border-blue-200">
+            <div className="text-3xl font-bold text-blue-900">{stats.studentNewsletterSubs.toLocaleString()}</div>
+            <div className="text-sm mt-1 text-blue-800">Newsletter Subscribers</div>
+          </div>
         </div>
-      ))}
+      </div>
+
+      {/* Hagwon Requests Section */}
+      <div>
+        <h2 className="text-lg font-semibold mb-3 text-gray-800">Hagwon Requests</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="rounded-xl shadow p-5 bg-purple-50 border border-purple-200">
+            <div className="text-3xl font-bold text-purple-900">{stats.hagwonRequests.toLocaleString()}</div>
+            <div className="text-sm mt-1 text-purple-800">Total Hagwon Requests</div>
+          </div>
+          <div className="rounded-xl shadow p-5 bg-purple-100 border border-purple-200">
+            <div className="text-3xl font-bold text-purple-900">{stats.hagwonRequestViews.toLocaleString()}</div>
+            <div className="text-sm mt-1 text-purple-800">Unique Views</div>
+          </div>
+          <div className="rounded-xl shadow p-5 bg-purple-100 border border-purple-200">
+            <div className="text-3xl font-bold text-purple-900">{stats.avgHagwonViews}</div>
+            <div className="text-sm mt-1 text-purple-800">Avg Views per Request</div>
+          </div>
+          <div className="rounded-xl shadow p-5 bg-purple-50 border border-purple-200">
+            <div className="text-3xl font-bold text-purple-900">{stats.hagwonNewsletterSubs.toLocaleString()}</div>
+            <div className="text-sm mt-1 text-purple-800">Newsletter Subscribers</div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
-async function getUserCounts() {
-  const { data, error } = await supabase.from('users').select('role');
-  if (error) return { teachers: 0, students: 0 };
-  const teachers = data.filter((u) => u.role === 'teacher').length;
-  const students = data.filter((u) => u.role === 'student').length;
-  return { teachers, students };
-}
-
-async function getTeacherClicks() {
-  const { data, error } = await supabase.from('teachers').select('profile_clicks');
-  if (error) return 0;
-  return data.reduce((sum, row) => sum + (row.profile_clicks || 0), 0);
-}
-
-async function getApprovedProfileCount() {
+// Teacher profiles
+async function getPendingProfileCount() {
   const { data, error } = await supabase
     .from('teachers')
     .select('id', { count: 'exact' })
-    .eq('status', 'approved');
+    .eq('status', 'pending');
   if (error) return 0;
   return data.length;
 }
 
-async function getBlogClicks() {
-  const { data, error } = await supabase.from('blog_posts').select('find_page_clicks');
-  if (error) return 0;
-  return data.reduce((sum, row) => sum + (row.find_page_clicks || 0), 0);
-}
-
-async function getPageViewCounts() {
-  const { data, error } = await supabase.from('page_events').select('page, event_type');
-  if (error) return [];
-  const counts = {};
-  data.forEach((row) => {
-    const key = `${row.page}-${row.event_type}`;
-    counts[key] = (counts[key] || 0) + 1;
-  });
-  return Object.entries(counts).map(([key, count]) => {
-    const [page, event_type] = key.split('-');
-    return { page, event_type, count };
-  });
-}
-
-async function getSATClickCount() {
+// Student requests functions
+async function getStudentJobsCount() {
   const { data, error } = await supabase
-    .from('page_events')
-    .select('id')
-    .eq('event_type', 'cta_click');
+    .from('student_jobs')
+    .select('id', { count: 'exact' });
+  if (error) return 0;
+  return data.length;
+}
+
+async function getStudentJobViewsCount() {
+  const { data, error } = await supabase
+    .from('student_job_views')
+    .select('id', { count: 'exact' });
+  if (error) return 0;
+  return data.length;
+}
+
+async function getStudentNewsletterCount() {
+  const { data, error } = await supabase
+    .from('newsletter_subscriptions')
+    .select('id', { count: 'exact' });
+  if (error) return 0;
+  return data.length;
+}
+
+// Hagwon requests functions
+async function getHagwonRequestsCount() {
+  const { data, error } = await supabase
+    .from('hagwon_requests')
+    .select('id', { count: 'exact' });
+  if (error) return 0;
+  return data.length;
+}
+
+async function getHagwonRequestViewsCount() {
+  const { data, error } = await supabase
+    .from('hagwon_request_views')
+    .select('id', { count: 'exact' });
+  if (error) return 0;
+  return data.length;
+}
+
+async function getHagwonNewsletterCount() {
+  const { data, error } = await supabase
+    .from('hagwon_newsletter_subscriptions')
+    .select('id', { count: 'exact' });
   if (error) return 0;
   return data.length;
 }

@@ -77,6 +77,14 @@ export default function DesktopNav() {
           <ul className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg py-2 min-w-[180px] z-[1001] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
             <li>
               <a
+                href="/hagwon-requests"
+                className="block px-4 py-2 text-sm text-black hover:bg-blue-50 hover:text-blue-500"
+              >
+                학원 찾기 게시판
+              </a>
+            </li>
+            <li>
+              <a
                 href="/hagwons"
                 className="block px-4 py-2 text-sm text-black hover:bg-blue-50 hover:text-blue-500"
               >

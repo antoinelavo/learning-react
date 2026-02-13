@@ -10,8 +10,8 @@ export default function LogoutPage() {
     };
 
     return (
-            <div className="mt-8 flex gap-4 w-full">
-                <button onClick={handleLogout} className="bg-blue-500 text-white w-1/2 px-[2em] py-[1em] rounded-lg">로그아웃</button>
+            <div className="mt-8 w-full mb-[60dvh] text-center">
+                <button onClick={handleLogout} className="bg-blue-500 text-white px-[2em] py-[1em] rounded-lg">로그아웃</button>
             </div>
 
     )

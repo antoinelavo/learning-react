@@ -148,6 +148,13 @@ export default function MobileMenuToggle() {
             {hagwonExpanded && (
               <div className="bg-gray-50">
                 <a
+                  href="/hagwon-requests"
+                  className="block w-full py-3 pl-12 pr-6 text-sm text-left text-gray-700 hover:text-blue-500 hover:bg-blue-50"
+                  onClick={handleClose}
+                >
+                  학원 찾기 게시판
+                </a>
+                <a
                   href="/hagwons"
                   className="block w-full py-3 pl-12 pr-6 text-sm text-left text-gray-700 hover:text-blue-500 hover:bg-blue-50"
                   onClick={handleClose}

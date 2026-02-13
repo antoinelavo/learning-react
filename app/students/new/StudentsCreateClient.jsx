@@ -73,56 +73,62 @@ export default function StudentsCreateClient() {
 
     setSubmitting(true);
 
-    const passwordHash = await hashPassword(form.password.trim());
-    const combinedSubject = [...selectedSubjects, form.subject.trim()]
-      .filter(Boolean)
-      .join(', ');
+    try {
+      const passwordHash = await hashPassword(form.password.trim());
+      const combinedSubject = [...selectedSubjects, form.subject.trim()]
+        .filter(Boolean)
+        .join(', ');
 
-    const { data, error: insertError } = await supabase
-      .from('student_jobs')
-      .insert({
-        title: selectedTitleOptions,
-        subject: combinedSubject,
-        level: form.level.trim() || null,
-        description: form.description.trim(),
-        format: form.format,
-        region: form.region.trim() || null,
-        email: form.email.trim(),
-        kakao_contact: form.kakaoContact.trim() || null,
-        hourly_rate_min: hourlyRate[0],
-        hourly_rate_max: hourlyRate[1],
-        status: 'OPEN',
-        edit_password_hash: passwordHash,
-      })
-      .select('*')
-      .single();
+      const { data, error: insertError } = await supabase
+        .from('student_jobs')
+        .insert({
+          title: selectedTitleOptions,
+          subject: combinedSubject,
+          level: form.level.trim() || null,
+          description: form.description.trim(),
+          format: form.format,
+          region: form.region.trim() || null,
+          email: form.email.trim(),
+          kakao_contact: form.kakaoContact.trim() || null,
+          hourly_rate_min: hourlyRate[0],
+          hourly_rate_max: hourlyRate[1],
+          status: 'OPEN',
+          edit_password_hash: passwordHash,
+        })
+        .select('*')
+        .single();
 
-    if (insertError) {
-      console.error('Error creating student request:', insertError);
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/a043678d-a737-45f3-96e4-d25e57b0c2af', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          runId: 'students_create_run1',
-          hypothesisId: 'H_insert',
-          location: 'app/students/new/StudentsCreateClient.jsx:handleSubmit',
-          message: 'Supabase student insert error',
-          data: {
-            hasError: true,
-            errorMessage: insertError?.message ?? null,
-            errorCode: insertError?.code ?? null,
-          },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-      // #endregion
-      setError('학생 요청을 저장하는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      if (insertError) {
+        console.error('Error creating student request:', insertError);
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/a043678d-a737-45f3-96e4-d25e57b0c2af', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            runId: 'students_create_run1',
+            hypothesisId: 'H_insert',
+            location: 'app/students/new/StudentsCreateClient.jsx:handleSubmit',
+            message: 'Supabase student insert error',
+            data: {
+              hasError: true,
+              errorMessage: insertError?.message ?? null,
+              errorCode: insertError?.code ?? null,
+            },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {});
+        // #endregion
+        setError('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+        setSubmitting(false);
+        return;
+      }
+
+      router.push(`/students/${data.id}`);
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      setError('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
       setSubmitting(false);
-      return;
     }
-
-    router.push(`/students/${data.id}`);
   }
 
   const totalSteps = 8;

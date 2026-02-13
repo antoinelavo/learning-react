@@ -18,6 +18,9 @@ export default function StudentsPageClient() {
   const [newStatus, setNewStatus] = useState('OPEN');
   const [modalError, setModalError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [showFeedbackQuestion, setShowFeedbackQuestion] = useState(false);
+  const [foundTeacher, setFoundTeacher] = useState(null);
+  const [viewedListings, setViewedListings] = useState(new Set());
 
   useEffect(() => {
     async function loadStudents() {
@@ -105,8 +108,38 @@ export default function StudentsPageClient() {
     loadRole();
   }, []);
 
-  const toggleStudentExpansion = (studentId) => {
-    setExpandedStudentId(expandedStudentId === studentId ? null : studentId);
+  const toggleStudentExpansion = async (studentId) => {
+    const willExpand = expandedStudentId !== studentId;
+    setExpandedStudentId(willExpand ? studentId : null);
+
+    // Track view if expanding and user is approved teacher and hasn't viewed this listing yet
+    if (willExpand && role === 'teacher' && teacherStatus === 'approved' && !viewedListings.has(studentId)) {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        // Try to insert view record (will fail silently if already exists due to UNIQUE constraint)
+        const { error: viewError } = await supabase
+          .from('student_job_views')
+          .insert({
+            student_job_id: studentId,
+            teacher_user_id: user.id,
+          });
+
+        // If insert succeeded (no error or duplicate error), increment the count
+        if (!viewError || viewError.code === '23505') { // 23505 = unique violation
+          // Only increment if this is a new view (no error)
+          if (!viewError) {
+            await supabase.rpc('increment_views_count', { job_id: studentId });
+          }
+          // Mark as viewed in local state
+          setViewedListings(prev => new Set(prev).add(studentId));
+        }
+      } catch (err) {
+        console.error('Error tracking view:', err);
+        // Fail silently - don't disrupt user experience
+      }
+    }
   };
 
   async function hashPassword(password) {
@@ -146,25 +179,64 @@ export default function StudentsPageClient() {
     setSaving(true);
     setModalError('');
 
-    const { error: updateError } = await supabase
-      .from('student_jobs')
-      .update({ status: newStatus })
-      .eq('id', editingStudentId);
+    const student = students.find(s => s.id === editingStudentId);
+    const isChangingToClosed = student?.status === 'OPEN' && newStatus === 'CLOSED';
 
-    if (updateError) {
-      console.error('Error updating status:', updateError);
-      setModalError('상태 변경 중 오류가 발생했습니다.');
+    try {
+      const { error: updateError } = await supabase
+        .from('student_jobs')
+        .update({ status: newStatus })
+        .eq('id', editingStudentId);
+
+      if (updateError) {
+        console.error('Error updating status:', updateError);
+        setModalError('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+        setSaving(false);
+        return;
+      }
+
+      // Update local state
+      setStudents(prev =>
+        prev.map(s => s.id === editingStudentId ? { ...s, status: newStatus } : s)
+      );
+
       setSaving(false);
-      return;
+
+      // If changing to CLOSED, show feedback question
+      if (isChangingToClosed) {
+        setPasswordVerified(false);
+        setShowFeedbackQuestion(true);
+      } else {
+        closeModal();
+      }
+    } catch (err) {
+      console.error('Error updating status:', err);
+      setModalError('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      setSaving(false);
+    }
+  }
+
+  async function handleFeedbackSubmit(answer) {
+    try {
+      const { error: updateError } = await supabase
+        .from('student_jobs')
+        .update({ found_teacher_through_platform: answer })
+        .eq('id', editingStudentId);
+
+      if (updateError) {
+        console.error('Error saving feedback:', updateError);
+        // Fail silently - don't disrupt user flow
+      }
+
+      // Update local state
+      setStudents(prev =>
+        prev.map(s => s.id === editingStudentId ? { ...s, found_teacher_through_platform: answer } : s)
+      );
+    } catch (err) {
+      console.error('Error saving feedback:', err);
+      // Fail silently
     }
 
-    // Update local state
-    setStudents(prev =>
-      prev.map(s => s.id === editingStudentId ? { ...s, status: newStatus } : s)
-    );
-
-    // Close modal with success
-    setSaving(false);
     closeModal();
   }
 
@@ -175,6 +247,8 @@ export default function StudentsPageClient() {
     setPasswordVerified(false);
     setNewStatus('OPEN');
     setModalError('');
+    setShowFeedbackQuestion(false);
+    setFoundTeacher(null);
   }
 
   return (
@@ -415,7 +489,39 @@ export default function StudentsPageClient() {
               </svg>
             </button>
 
-            {!passwordVerified ? (
+            {showFeedbackQuestion ? (
+              /* Feedback Question Step */
+              <>
+                <h3 className="text-lg font-semibold mb-4">과외 선생님을 찾으셨나요?</h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  저희 플랫폼을 통해 과외 선생님을 찾으셨다면 알려주세요!
+                </p>
+
+                <div className="space-y-2 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => handleFeedbackSubmit(true)}
+                    className="w-full text-left px-4 py-3 rounded-lg border-2 border-gray-200 bg-white hover:border-blue-500 hover:bg-blue-50 transition"
+                  >
+                    <span className="font-medium">네, 찾았어요!</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleFeedbackSubmit(false)}
+                    className="w-full text-left px-4 py-3 rounded-lg border-2 border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 transition"
+                  >
+                    <span className="font-medium">아니요</span>
+                  </button>
+                </div>
+
+                <button
+                  onClick={closeModal}
+                  className="w-full px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700"
+                >
+                  건너뛰기
+                </button>
+              </>
+            ) : !passwordVerified ? (
               /* Password Entry Step */
               <>
                 <h3 className="text-lg font-semibold mb-4">비밀번호 입력</h3>

@@ -25,6 +25,7 @@
     "next": "15.3.8",
     "next-mdx-remote": "^5.0.0",
     "quill": "^2.0.3",
+    "rc-slider": "^11.1.9",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.58.1",

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 const INITIAL_EDIT_FORM = {
-  title: '',
+  title: [],
   subject: '',
   level: '',
   description: '',
@@ -15,10 +15,10 @@ const INITIAL_EDIT_FORM = {
   kakaoContact: '',
 };
 
-export default function JobEditClient({ jobId }) {
+export default function StudentEditClient({ studentId }) {
   const router = useRouter();
 
-  const [job, setJob] = useState(null);
+  const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [step, setStep] = useState<'password' | 'form'>('password');
@@ -29,41 +29,53 @@ export default function JobEditClient({ jobId }) {
   const [saveMessage, setSaveMessage] = useState('');
 
   useEffect(() => {
-    async function loadJob() {
+    async function loadStudent() {
       setLoading(true);
       setError('');
 
-      const { data, error: jobError } = await supabase
+      const { data, error: studentError } = await supabase
         .from('student_jobs')
         .select('*')
-        .eq('id', jobId)
+        .eq('id', studentId)
         .single();
 
-      if (jobError) {
-        console.error('Error loading job for edit:', jobError);
-        setError('구인 글 정보를 불러오는 중 오류가 발생했습니다.');
+      if (studentError) {
+        console.error('Error loading student for edit:', studentError);
+        setError('학생 요청 정보를 불러오는 중 오류가 발생했습니다.');
         setLoading(false);
         return;
       }
 
       if (!data) {
-        setError('해당 구인 글을 찾을 수 없습니다.');
+        setError('해당 학생 요청을 찾을 수 없습니다.');
         setLoading(false);
         return;
       }
 
-      setJob(data);
+      setStudent(data);
       setLoading(false);
     }
 
-    if (jobId) {
-      loadJob();
+    if (studentId) {
+      loadStudent();
     }
-  }, [jobId]);
+  }, [studentId]);
 
   function handleFieldChange(e) {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
+  }
+
+  function toggleTitleOption(option) {
+    setForm(prev => {
+      const currentTitles = prev.title || [];
+      if (currentTitles.includes(option)) {
+        return { ...prev, title: currentTitles.filter(item => item !== option) };
+      } else if (currentTitles.length < 3) {
+        return { ...prev, title: [...currentTitles, option] };
+      }
+      return prev;
+    });
   }
 
   async function hashPassword(password) {
@@ -76,7 +88,7 @@ export default function JobEditClient({ jobId }) {
 
   async function handleVerifyPassword(e) {
     e.preventDefault();
-    if (!job) return;
+    if (!student) return;
     setError('');
 
     if (!passwordInput.trim()) {
@@ -84,15 +96,15 @@ export default function JobEditClient({ jobId }) {
       return;
     }
 
-    if (!job.edit_password_hash) {
-      setError('이 구인 글에는 비밀번호가 설정되어 있지 않습니다. 새 글을 작성해 주세요.');
+    if (!student.edit_password_hash) {
+      setError('이 학생 요청에는 비밀번호가 설정되어 있지 않습니다. 새 글을 작성해 주세요.');
       return;
     }
 
     setVerifying(true);
     const enteredHash = await hashPassword(passwordInput.trim());
 
-    if (enteredHash !== job.edit_password_hash) {
+    if (enteredHash !== student.edit_password_hash) {
       setError('비밀번호가 올바르지 않습니다.');
       setVerifying(false);
       return;
@@ -100,13 +112,13 @@ export default function JobEditClient({ jobId }) {
 
     // Password OK – hydrate edit form
     setForm({
-      title: job.title ?? '',
-      subject: job.subject ?? '',
-      level: job.level ?? '',
-      description: job.description ?? '',
-      format: job.format ?? 'online',
-      email: job.email ?? '',
-      kakaoContact: job.kakao_contact ?? '',
+      title: Array.isArray(student.title) ? student.title : (student.title ? [student.title] : []),
+      subject: student.subject ?? '',
+      level: student.level ?? '',
+      description: student.description ?? '',
+      format: student.format ?? 'online',
+      email: student.email ?? '',
+      kakaoContact: student.kakao_contact ?? '',
     });
     setStep('form');
     setVerifying(false);
@@ -114,12 +126,12 @@ export default function JobEditClient({ jobId }) {
 
   async function handleSave(e) {
     e.preventDefault();
-    if (!job) return;
+    if (!student) return;
     setError('');
     setSaveMessage('');
 
-    if (!form.title.trim() || !form.subject.trim() || !form.description.trim() || !form.email.trim()) {
-      setError('제목, 과목, 상세 내용, 이메일은 필수 항목입니다.');
+    if (!Array.isArray(form.title) || form.title.length === 0 || !form.subject.trim() || !form.description.trim() || !form.email.trim()) {
+      setError('과외 종류, 과목, 상세 내용, 이메일은 필수 항목입니다.');
       return;
     }
 
@@ -136,16 +148,16 @@ export default function JobEditClient({ jobId }) {
         email: form.email.trim(),
         kakao_contact: form.kakaoContact.trim() || null,
       })
-      .eq('id', job.id);
+      .eq('id', student.id);
 
     if (updateError) {
-      console.error('Error updating job:', updateError);
-      setError('구인 글을 저장하는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      console.error('Error updating student:', updateError);
+      setError('학생 요청을 저장하는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
       setSaving(false);
       return;
     }
 
-    setSaveMessage('구인 글이 수정되었습니다.');
+    setSaveMessage('학생 요청이 수정되었습니다.');
     setSaving(false);
   }
 
@@ -157,15 +169,15 @@ export default function JobEditClient({ jobId }) {
     );
   }
 
-  if (error && !job) {
+  if (error && !student) {
     return (
       <main className="max-w-3xl mx-auto px-4 py-10">
         <div className="bg-white border border-red-100 text-red-700 rounded-lg p-4 text-sm mb-4">
           {error}
         </div>
         <div className="mt-4 text-center">
-          <Link href="/jobs" className="text-sm text-blue-600 hover:underline">
-            구인 게시판으로 돌아가기
+          <Link href="/students" className="text-sm text-blue-600 hover:underline">
+            학생 게시판으로 돌아가기
           </Link>
         </div>
       </main>
@@ -175,16 +187,16 @@ export default function JobEditClient({ jobId }) {
   return (
     <main className="max-w-3xl mx-auto px-4 py-8 mb-[15dvh]">
       <div className="mb-4">
-        <Link href={`/jobs/${jobId}`} className="text-xs text-blue-600 hover:underline">
-          ← 구인 글 상세 페이지로 돌아가기
+        <Link href={`/students/${studentId}`} className="text-xs text-blue-600 hover:underline">
+          ← 학생 요청 상세 페이지로 돌아가기
         </Link>
       </div>
 
       <section className="bg-white border border-gray-200 rounded-xl shadow-md p-4 sm:p-6">
-        <h1 className="text-lg sm:text-xl font-semibold mb-3">구인 글 수정</h1>
-        {job && (
+        <h1 className="text-lg sm:text-xl font-semibold mb-3">학생 요청 수정</h1>
+        {student && (
           <p className="text-xs text-gray-500 mb-4">
-            제목: <span className="font-medium">{job.title}</span>
+            과외 종류: <span className="font-medium">{Array.isArray(student.title) ? student.title.join(' · ') : student.title}</span>
           </p>
         )}
 
@@ -202,7 +214,7 @@ export default function JobEditClient({ jobId }) {
         {step === 'password' && (
           <form onSubmit={handleVerifyPassword} className="space-y-3">
             <p className="text-xs text-gray-600">
-              이 구인 글을 수정하려면, 글을 작성할 때 설정하신 <span className="font-semibold">수정용 비밀번호</span>를 입력해 주세요.
+              이 학생 요청을 수정하려면, 글을 작성할 때 설정하신 <span className="font-semibold">수정용 비밀번호</span>를 입력해 주세요.
             </p>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -259,15 +271,40 @@ export default function JobEditClient({ jobId }) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                제목<span className="text-red-500 ml-0.5">*</span>
+                어떤 과외를 원하시나요? (최대 3개)<span className="text-red-500 ml-0.5">*</span>
               </label>
-              <input
-                type="text"
-                name="title"
-                value={form.title}
-                onChange={handleFieldChange}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
+              <div className="space-y-2 text-sm">
+                {[
+                  '기초 개념 다지기',
+                  'Final 집중 수업',
+                  '문제 풀이 위주 수업',
+                  '단기 속성 과외',
+                  '오랫동안 함께하실 분',
+                  'IA·EE·TOK 첨삭',
+                  '7점 만점 공략',
+                ].map(option => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => toggleTitleOption(option)}
+                    disabled={!form.title?.includes(option) && (form.title?.length || 0) >= 3}
+                    className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
+                      form.title?.includes(option)
+                        ? 'border-blue-500 bg-blue-50'
+                        : (form.title?.length || 0) >= 3
+                        ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                        : 'border-gray-200 bg-white hover:border-blue-300'
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+              {form.title && form.title.length > 0 && (
+                <p className="text-xs text-gray-500 mt-2">
+                  선택됨: {form.title.length}/3
+                </p>
+              )}
             </div>
 
             <div>
@@ -354,7 +391,7 @@ export default function JobEditClient({ jobId }) {
             <div className="flex items-center justify-between pt-2">
               <button
                 type="button"
-                onClick={() => router.push(`/jobs/${jobId}`)}
+                onClick={() => router.push(`/students/${studentId}`)}
                 className="px-3 py-2 rounded-md text-xs sm:text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200"
               >
                 취소

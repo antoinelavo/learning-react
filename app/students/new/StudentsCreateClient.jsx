@@ -3,9 +3,12 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import Slider from 'rc-slider';
+import 'rc-slider/assets/index.css';
 
 const INITIAL_FORM = {
   format: 'online',
+  region: '',
   subject: '',
   level: '',
   title: '',
@@ -16,7 +19,7 @@ const INITIAL_FORM = {
   passwordConfirm: '',
 };
 
-export default function JobsCreateClient() {
+export default function StudentsCreateClient() {
   const router = useRouter();
 
   const [form, setForm] = useState(INITIAL_FORM);
@@ -25,6 +28,9 @@ export default function JobsCreateClient() {
   const [error, setError] = useState('');
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [selectedLevelOption, setSelectedLevelOption] = useState('');
+  const [showScrollGradient, setShowScrollGradient] = useState(true);
+  const [selectedTitleOptions, setSelectedTitleOptions] = useState([]);
+  const [hourlyRate, setHourlyRate] = useState([4, 10]); // [min, max] in 만원
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -44,7 +50,8 @@ export default function JobsCreateClient() {
     setError('');
 
     const hasSubjects = selectedSubjects.length > 0 || form.subject.trim();
-    if (!hasSubjects || !form.title.trim() || !form.description.trim()) {
+    const hasTitles = selectedTitleOptions.length > 0;
+    if (!hasSubjects || !hasTitles || !form.description.trim()) {
       setError('필수 질문에 모두 답해 주세요.');
       return;
     }
@@ -74,13 +81,16 @@ export default function JobsCreateClient() {
     const { data, error: insertError } = await supabase
       .from('student_jobs')
       .insert({
-        title: form.title.trim(),
+        title: selectedTitleOptions,
         subject: combinedSubject,
         level: form.level.trim() || null,
         description: form.description.trim(),
         format: form.format,
+        region: form.region.trim() || null,
         email: form.email.trim(),
         kakao_contact: form.kakaoContact.trim() || null,
+        hourly_rate_min: hourlyRate[0],
+        hourly_rate_max: hourlyRate[1],
         status: 'OPEN',
         edit_password_hash: passwordHash,
       })
@@ -88,16 +98,16 @@ export default function JobsCreateClient() {
       .single();
 
     if (insertError) {
-      console.error('Error creating job:', insertError);
+      console.error('Error creating student request:', insertError);
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/a043678d-a737-45f3-96e4-d25e57b0c2af', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          runId: 'jobs_create_run1',
+          runId: 'students_create_run1',
           hypothesisId: 'H_insert',
-          location: 'app/jobs/new/JobsCreateClient.jsx:handleSubmit',
-          message: 'Supabase job insert error',
+          location: 'app/students/new/StudentsCreateClient.jsx:handleSubmit',
+          message: 'Supabase student insert error',
           data: {
             hasError: true,
             errorMessage: insertError?.message ?? null,
@@ -107,15 +117,15 @@ export default function JobsCreateClient() {
         }),
       }).catch(() => {});
       // #endregion
-      setError('구인 글을 저장하는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      setError('학생 요청을 저장하는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
       setSubmitting(false);
       return;
     }
 
-    router.push(`/jobs/${data.id}`);
+    router.push(`/students/${data.id}`);
   }
 
-  const totalSteps = 7;
+  const totalSteps = 8;
 
   const SUBJECT_OPTIONS = [
     'Biology HL',
@@ -171,8 +181,31 @@ export default function JobsCreateClient() {
     );
   }
 
+  function handleSubjectScroll(e) {
+    const element = e.target;
+    const isAtBottom = Math.abs(element.scrollHeight - element.clientHeight - element.scrollTop) < 5;
+    setShowScrollGradient(!isAtBottom);
+  }
+
+  function toggleTitleOption(option) {
+    setSelectedTitleOptions(prev => {
+      if (prev.includes(option)) {
+        return prev.filter(item => item !== option);
+      } else if (prev.length < 3) {
+        return [...prev, option];
+      }
+      return prev;
+    });
+  }
+
   function canGoNext(currentStep) {
     // Step-based validation for Next button
+    if (currentStep === 1) {
+      if ((form.format === 'offline' || form.format === 'either') && !form.region.trim()) {
+        setError('대면 수업을 위해 희망 지역을 입력해 주세요.');
+        return false;
+      }
+    }
     if (currentStep === 2) {
       const hasSubjects = selectedSubjects.length > 0 || form.subject.trim();
       if (!hasSubjects) {
@@ -181,8 +214,8 @@ export default function JobsCreateClient() {
       }
     }
     if (currentStep === 4) {
-      if (!form.title.trim()) {
-        setError('제목을 입력해 주세요.');
+      if (selectedTitleOptions.length === 0) {
+        setError('원하는 수업 종류를 한 개 이상 선택해 주세요.');
         return false;
       }
     }
@@ -192,7 +225,8 @@ export default function JobsCreateClient() {
         return false;
       }
     }
-    if (currentStep === 6) {
+    // Step 6 is hourly rate - no validation needed, has default values
+    if (currentStep === 7) {
       if (!form.email.trim() && !form.kakaoContact.trim()) {
         setError('이메일 또는 카카오톡 중 하나는 반드시 입력해 주세요.');
         return false;
@@ -204,12 +238,6 @@ export default function JobsCreateClient() {
 
   return (
     <main className="max-w-xl mx-auto px-4 py-10 min-h-[100dvh]">
-      <div className="mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold mb-1">학생 구인 글 작성</h1>
-        <p className="text-xs text-gray-500">
-          간단한 질문에 하나씩 답하면서 과외/수업 요청 글을 만들어 보세요.
-        </p>
-      </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
@@ -225,7 +253,7 @@ export default function JobsCreateClient() {
           />
         </div>
         <p className="text-[11px] text-gray-500 mb-1">
-          Step {step} / {totalSteps}
+          질문 {step} / {totalSteps}
         </p>
 
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 space-y-4">
@@ -246,7 +274,7 @@ export default function JobsCreateClient() {
                       : 'border-gray-200 bg-white'
                   }`}
                 >
-                  비대면(온라인)
+                  온라인
                 </button>
                 <button
                   type="button"
@@ -272,32 +300,56 @@ export default function JobsCreateClient() {
                       : 'border-gray-200 bg-white'
                   }`}
                 >
-                  상관없음
+                  온라인 + 대면
                 </button>
               </div>
+              {(form.format === 'offline' || form.format === 'either') && (
+                <div className="mt-3">
+                  <label className="block text-sm font-medium text-gray-800 mb-1">
+                    희망 지역을 입력해주세요
+                  </label>
+                  <input
+                    type="text"
+                    name="region"
+                    value={form.region}
+                    onChange={handleChange}
+                    placeholder="예: 서울시 강남구, 성남시 분당구 등"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+              )}
             </>
           )}
 
           {step === 2 && (
             <>
               <p className="text-sm font-medium text-gray-800 mb-2">
-                어떤 과목 도움을 받고 싶으신가요? <span className="text-red-500">*</span>
+                어떤 과목 도움을 받고 싶으신가요?
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto mb-3">
-                {SUBJECT_OPTIONS.map(option => (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => toggleSubject(option)}
-                    className={`text-left px-3 py-2 rounded-lg border text-xs ${
-                      selectedSubjects.includes(option)
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 bg-white'
-                    }`}
-                  >
-                    {option}
-                  </button>
-                ))}
+              <div className="relative mb-3">
+                <div
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto"
+                  onScroll={handleSubjectScroll}
+                >
+                  {SUBJECT_OPTIONS.map(option => (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => toggleSubject(option)}
+                      className={`text-left px-3 py-2 rounded-lg border text-xs ${
+                        selectedSubjects.includes(option)
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-200 bg-white'
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+                {/* Gradient overlay to indicate more content below */}
+                {showScrollGradient && (
+                  <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none transition-opacity duration-300" />
+                )}
               </div>
               <div>
                 <p className="text-xs text-gray-600 mb-1">위 목록에 없는 과목이 있다면 직접 입력해 주세요.</p>
@@ -347,7 +399,7 @@ export default function JobsCreateClient() {
                   name="level"
                   value={form.level}
                   onChange={handleChange}
-                  placeholder="예: Grade 10, 대학생, 성인 등"
+                  placeholder="예: Grade 10, 대학생, Primary 등"
                   className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               )}
@@ -357,30 +409,55 @@ export default function JobsCreateClient() {
           {step === 4 && (
             <>
               <p className="text-sm font-medium text-gray-800 mb-2">
-                한 줄로 어떤 과외를 원하시는지 적어 주세요. <span className="text-red-500">*</span>
+                어떤 수업을 원하시나요? (최대 3개)
               </p>
-              <input
-                type="text"
-                name="title"
-                value={form.title}
-                onChange={handleChange}
-                placeholder="예: 온라인 IB Math AA HL 과외 선생님을 찾습니다"
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
+              <div className="space-y-2 text-sm">
+                {[
+                  '개념 다지기',
+                  'Final 집중 수업',
+                  '문제 풀이 위주 수업',
+                  '단기 속성 과외',
+                  '오랫동안 함께하실 분',
+                  'IA·EE·TOK 첨삭',
+                  '7점 만점 공략',
+                ].map(option => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => toggleTitleOption(option)}
+                    disabled={!selectedTitleOptions.includes(option) && selectedTitleOptions.length >= 3}
+                    className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
+                      selectedTitleOptions.includes(option)
+                        ? 'border-blue-500 bg-blue-50'
+                        : selectedTitleOptions.length >= 3
+                        ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
+                        : 'border-gray-200 bg-white hover:border-blue-300'
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+              {selectedTitleOptions.length > 0 && (
+                <p className="text-xs text-gray-500 mt-2">
+                  선택됨: {selectedTitleOptions.length}/3
+                </p>
+              )}
+
             </>
           )}
 
           {step === 5 && (
             <>
               <p className="text-sm font-medium text-gray-800 mb-2">
-                어떤 도움이 필요하신지 간단히 적어 주세요. <span className="text-red-500">*</span>
+                어떤 도움이 필요하신지 간단히 적어 주세요.
               </p>
               <textarea
                 name="description"
                 value={form.description}
                 onChange={handleChange}
                 rows={4}
-                placeholder="예: IB Math AA HL 내신 5점, 최종 목표 7점. 주 2회, 평일 저녁 온라인 수업 희망 등"
+                placeholder="예: IB Math AA HL 현재 내신 5점, 최종 목표 7점. 주 2회, 평일 저녁 시간 희망합니다"
                 className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y"
               />
             </>
@@ -389,7 +466,47 @@ export default function JobsCreateClient() {
           {step === 6 && (
             <>
               <p className="text-sm font-medium text-gray-800 mb-2">
-                선생님이 어디로 연락하면 될까요? <span className="text-red-500">*</span>
+                희망하는 시급 범위를 알려주세요
+              </p>
+              <div className="px-2 py-6">
+                <Slider
+                  range
+                  min={1}
+                  max={20}
+                  step={1}
+                  value={hourlyRate}
+                  onChange={setHourlyRate}
+                  trackStyle={[{ backgroundColor: '#3b82f6' }]}
+                  handleStyle={[
+                    { borderColor: '#3b82f6', backgroundColor: '#fff' },
+                    { borderColor: '#3b82f6', backgroundColor: '#fff' },
+                  ]}
+                  railStyle={{ backgroundColor: '#e5e7eb' }}
+                />
+              </div>
+              <div className="flex justify-center items-center gap-4 sm:gap-8 mt-4">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-xs text-gray-500">최소</span>
+                  <span className="text-xl sm:text-xl font-bold text-blue-600">{hourlyRate[0]}만원</span>
+                  <span className="text-xs text-gray-400"><span className="text-[10px]">/시간</span></span>
+                </div>
+                <div className="text-gray-300">~</div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-xs text-gray-500">최대</span>
+                  <span className="text-xl sm:text-xl font-bold text-blue-600">{hourlyRate[1]}만원</span>
+                  <span className="text-xs text-gray-400"><span className="text-[10px]">/시간</span></span>
+                </div>
+              </div>
+              <p className="text-[11px] text-gray-500 mt-3 text-center">
+                슬라이더를 드래그하여 조정해주세요
+              </p>
+            </>
+          )}
+
+          {step === 7 && (
+            <>
+              <p className="text-sm font-medium text-gray-800 mb-2">
+                선생님이 어디로 연락하면 될까요?
               </p>
               <input
                 type="email"
@@ -408,12 +525,12 @@ export default function JobsCreateClient() {
                 className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
               <p className="text-[11px] text-gray-500 mt-2">
-                *연락처는 선생님 계정으로 로그인한 사용자에게만 공개됩니다.
+                *연락처는 검증된 선생님 계정으로 로그인한 사용자에게만 공개됩니다.
               </p>
             </>
           )}
 
-          {step === 7 && (
+          {step === 8 && (
             <>
               <p className="text-sm font-medium text-gray-800 mb-2">
                 나중에 이 글을 수정/삭제할 때 사용할 비밀번호를 정해 주세요. <span className="text-red-500">*</span>
@@ -444,7 +561,10 @@ export default function JobsCreateClient() {
         <div className="flex items-center justify-between pt-2 mt-4">
           <button
             type="button"
-            onClick={() => setStep(prev => Math.max(1, prev - 1))}
+            onClick={() => {
+              setError('');
+              setStep(prev => Math.max(1, prev - 1));
+            }}
             disabled={step === 1 || submitting}
             className="px-3 py-2 rounded-md text-xs sm:text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -456,6 +576,7 @@ export default function JobsCreateClient() {
               type="button"
               onClick={() => {
                 if (!canGoNext(step)) return;
+                setError('');
                 setStep(prev => Math.min(totalSteps, prev + 1));
               }}
               disabled={submitting}
@@ -469,7 +590,7 @@ export default function JobsCreateClient() {
               disabled={submitting}
               className="px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {submitting ? '작성 중...' : '구인 글 올리기'}
+              {submitting ? '작성 중...' : '요청 글 올리기'}
             </button>
           )}
         </div>

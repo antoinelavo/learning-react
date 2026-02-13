@@ -662,7 +662,7 @@ const checkAvailability = async (subjectsToCheck) => {
                     </div>
 
                     <div className="mx-auto text-center flex flex-col sm:flex-row justify-center gap-2">
-                        <button
+                        {/* <button
                         onClick={handlePayment}
                         disabled={paymentProcessing || selectedSubjects.length === 0}
                         className={classNames(
@@ -673,7 +673,7 @@ const checkAvailability = async (subjectsToCheck) => {
                         )}
                         >
                         {paymentProcessing ? '결제 진행 중...' : '결제하기 (카드)'}
-                        </button>
+                        </button> */}
 
                         <div className="text-center">
                             <button
@@ -686,7 +686,7 @@ const checkAvailability = async (subjectsToCheck) => {
                                   : 'bg-blue-600 text-white hover:bg-blue-700'
                               )}
                             >
-                                {showAccountNumber ? '입금 확인 후 연락드리겠습니다' : '결제하기 (계좌이체)'}
+                                {showAccountNumber ? '입금 후 1일 내 프리미엄 프로필이 적용됩니다.' : '결제하기 (계좌이체)'}
                             </button>
                         </div>
                     </div>

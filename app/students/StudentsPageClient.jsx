@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase, getUserRole, getTeacherStatus } from '@/lib/supabase';
 import Link from 'next/link';
+import NewsletterPopup from '@/components/NewsletterPopup';
 
 export default function StudentsPageClient() {
   const [students, setStudents] = useState([]);
@@ -252,12 +253,12 @@ export default function StudentsPageClient() {
   }
 
   return (
-    <main className="max-w-4xl mx-auto px-4 py-8 mb-[15dvh]">
+    <main className="max-w-4xl mx-auto px-4 py-8 mb-[50dvh]">
       <section className="bg-white border border-gray-200 rounded-xl shadow-md p-4 sm:p-6 mb-8 flex items-center justify-between gap-3">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold mb-1">학생 게시판</h1>
           <p className="text-sm text-gray-600">
-            학생들이 올린 과외/수업 요청 글을 확인하고, 관심 있는 학생에게 직접 연락해 보세요.
+            학생/학부모님께서 올린 수업 요청글을 확인하고, 직접 연락해 보세요.
           </p>
         </div>
         <div className="shrink-0">
@@ -265,7 +266,7 @@ export default function StudentsPageClient() {
             href="/students/new"
             className="inline-flex items-center px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
           >
-            요청하기
+            수업 요청글 작성하기
           </Link>
         </div>
       </section>
@@ -309,15 +310,16 @@ export default function StudentsPageClient() {
                         {Array.isArray(student.title) ? student.title.join(' · ') : student.title}
                       </h3>
                       <div className="flex items-center gap-2 shrink-0">
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium ${
-                            student.status === 'OPEN'
-                              ? 'bg-green-50 text-green-700 border border-green-100'
-                              : 'bg-gray-100 text-gray-500 border border-gray-200'
-                          }`}
-                        >
-                          {student.status === 'OPEN' ? '모집중' : '마감'}
-                        </span>
+                        {student.status === 'OPEN' ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-green-50 text-green-700 border border-green-300 animate-pulse shadow-sm shadow-green-200">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                            모집중
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 text-gray-500 border border-gray-200">
+                            마감
+                          </span>
+                        )}
                         <svg
                           className={`w-5 h-5 text-gray-400 transition-transform ${
                             isExpanded ? 'rotate-180' : ''
@@ -406,8 +408,8 @@ export default function StudentsPageClient() {
                       <div className="border-t border-gray-200 pt-4">
                         <h4 className="text-sm font-semibold mb-2">학생 연락처</h4>
                         {!canViewContact ? (
-                          <div className="text-xs text-gray-600 bg-white border border-dashed border-gray-300 rounded-md px-3 py-2">
-                            <p className="mb-1 text-sm">
+                          <div className="bg-white border border-dashed border-gray-300 rounded-md px-4 py-3">
+                            <p className="text-sm text-gray-600 text-center mb-0">
                               {student.status === 'CLOSED' ? (
                                 <>
                                   이 요청은 <span className="font-bold text-gray-700">마감되었습니다</span>. 마감된 요청의 연락처는 확인할 수 없습니다.
@@ -415,10 +417,18 @@ export default function StudentsPageClient() {
                               ) : !isApprovedTeacher ? (
                                 <>
                                   학생의 연락처는{' '}
-                                  <span className="font-bold text-blue-700">프로필이 검증된 선생님만</span> 확인할 수 있습니다. 선생님이시라면 등록한 후 다시 시도해 주세요.
+                                  <span className="font-bold text-blue-700">프로필이 검증된 선생님만</span> 확인할 수 있습니다.
                                 </>
                               ) : null}
                             </p>
+                            {student.status !== 'CLOSED' && !isApprovedTeacher && (
+                              <a
+                                href="/apply"
+                                className="block w-full text-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors"
+                              >
+                                선생님으로 등록하기
+                              </a>
+                            )}
                           </div>
                         ) : (
                           <div className="space-y-1 text-sm text-gray-800 rounded-md p-3">
@@ -456,7 +466,7 @@ export default function StudentsPageClient() {
                           }}
                           className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition"
                         >
-                          편집하기
+                          이 글 편집하기
                         </button>
                       </div>
                     </div>
@@ -641,6 +651,9 @@ export default function StudentsPageClient() {
           </div>
         </div>
       )}
+
+      {/* Newsletter Popup */}
+      <NewsletterPopup />
     </main>
   );
 }

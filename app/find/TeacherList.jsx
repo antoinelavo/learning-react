@@ -139,9 +139,34 @@ export default function TeacherList({ initialTeachers = [] }) {
   }, [filters, allTeachers]); // Run when filters change or data loads
 
   return (
-    <>
-      {/* Filters & UI */}
-      <aside className="md:w-1/4 h-fit md:sticky top-[5em] bg-white border border-gray-200 rounded-xl shadow-md p-4 sm:p-6 mb-4 sm:mb-6 md:mb-0 md:mr-6">
+    <main className="max-w-6xl mx-auto sm:px-4 px-2 py-2 min-h-screen">
+      {/* Top Banner */}
+      <div className="bg-white border border-gray-200 rounded-xl shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
+        <div className="text-center">
+          <p className="text-sm sm:text-base text-gray-700 mb-3">
+            간단한 질문 몇 개만 답하면, 선생님이 직접 연락드립니다. (약 30초 소요)
+          </p>
+          <a
+            href="/students/new"
+            className="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            질문 보기
+          </a>
+        </div>
+      </div>
+
+      {/* Mobile Header */}
+      <div className="block sm:hidden bg-white text-center border w-full h-fit mx-auto p-2 mb-2 sm:mb-6 sm:py-6 sm:px-4 border-gray-200 rounded-xl shadow-md">
+        <h1 className="text-lg sm:text-2xl font-bold mb-4">IB 과외 선생님 찾기</h1>
+        <p className="text-sm sm:text-md font-normal text-gray-500">
+          과외 글 게시, 열람 비용 없이 원하는 IB 과외 선생님을 찾아보세요.
+        </p>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex flex-col md:flex-row">
+        {/* Filters & UI */}
+        <aside className="md:w-1/4 h-fit md:sticky top-[5em] bg-white border border-gray-200 rounded-xl shadow-md p-4 sm:p-6 mb-4 sm:mb-6 md:mb-0 md:mr-6">
 
         {/* Header */}
         <div className="mb-6 hidden sm:block">
@@ -267,26 +292,46 @@ export default function TeacherList({ initialTeachers = [] }) {
         </div>
       </aside>
 
-      {/* Results Section */}
-      <section className="flex-1 mb-[10dvh]">
-        {loading ? (
-          <p className="text-center">불러오는 중…</p>
-        ) : !filteredTeachers.length ? (
-          <p className="text-center">조건에 맞는 선생님이 없습니다.</p>
-        ) : (
-          <div>
-            <div className="flex flex-row items-center gap-4 mt-2 mb-4 sm:mt-5 sm:mb-4">
-              <p className="text-sm sm:text-md m-0">총 검색된 선생님 수: {filteredTeachers.length}명</p>
-              <p className="text-sm sm:text-md m-0 text-gray-400">지난달 조회수: {process.env.NEXT_PUBLIC_MONTHLY_VIEWS || '0'}회</p>
+        {/* Results Section */}
+        <section className="flex-1 mb-[10dvh]">
+          {loading ? (
+            <p className="text-center">불러오는 중…</p>
+          ) : !filteredTeachers.length ? (
+            <p className="text-center">조건에 맞는 선생님이 없습니다.</p>
+          ) : (
+            <div>
+              <div className="flex flex-row items-center gap-4 mt-2 mb-4 sm:mt-5 sm:mb-4">
+                <p className="text-sm sm:text-md m-0">총 검색된 선생님 수: {filteredTeachers.length}명</p>
+                <p className="text-sm sm:text-md m-0 text-gray-400">지난달 조회수: {process.env.NEXT_PUBLIC_MONTHLY_VIEWS || '0'}회</p>
+              </div>
+              <div className="flex flex-col bg-white border-t border-gray-200 sm:border sm:border-gray-200 sm:rounded-xl divide-y divide-gray-200 overflow-hidden sm:shadow-lg">
+                {filteredTeachers.map((t, i) => (
+                  <div key={t.id}>
+                    <TeacherCard {...t} badge={t.isPremium ? '추천' : null} priority={i === 0} />
+
+                    {/* Inline CTA Card - Option 4 (after 6th teacher) */}
+                    {i === 5 && filteredTeachers.length > 6 && (
+                      <div className="p-6 sm:p-8 bg-blue-50 ">
+                        <div className="max-w-xl mx-auto text-center">
+                          <p className="text-sm sm:text-base text-gray-700 mb-4">
+                            간단한 질문 몇 개만 답하면, 선생님이 직접 연락드립니다. (약 30초 소요)
+                          </p>
+                          <a
+                            href="/students/new"
+                            className="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                          >
+                            질문 보기
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="flex flex-col bg-white border-t border-gray-200 sm:border sm:border-gray-200 sm:rounded-xl divide-y divide-gray-200 overflow-hidden sm:shadow-lg">
-              {filteredTeachers.map((t, i) => (
-                <TeacherCard key={t.id} {...t} badge={t.isPremium ? '추천' : null} priority={i === 0} />
-              ))}
-            </div>
-          </div>
-        )}
-      </section>
-    </>
+          )}
+        </section>
+      </div>
+    </main>
   );
 }

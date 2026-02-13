@@ -41,10 +41,10 @@ export default function Home() {
             </p>
             <div className="flex gap-4 justify-center md:justify-start">
               <a href="/find" className="bg-blue-500 text-white px-2 sm:px-6 py-2 rounded-lg hover:bg-blue-600 transition">
-                과외 찾기
+                선생님 찾기
               </a>
-              <a href="/apply" className="border border-blue-500 text-blue-500 px-2 sm:px-6 py-2 rounded-lg bg-white hover:bg-blue-100 transition">
-                선생님 등록하기
+              <a href="/students" className="border border-blue-500 text-blue-500 px-2 sm:px-6 py-2 rounded-lg bg-white hover:bg-blue-100 transition">
+                학생 찾기
               </a>
             </div>
           </div>
@@ -254,16 +254,16 @@ export default function Home() {
       
       {/* Registration CTA */}
       <section className="flex flex-col sm:flex-row justify-center items-center gap-8 px-4 py-20 bg-gradient-to-t from-[#32ade61a] to-gray-50 h-[60dvh]">
-        <a href="/login" className="no-underline">
+        <a href="/find" className="no-underline">
           <div className="w-[80dvw] h-[10em] sm:w-[15em] sm:h-[15em] bg-blue-300/80 rounded-2xl flex flex-col items-center justify-center text-center transform transition-transform duration-300 hover:scale-105">
-            <p className="text-base text-black">회원 가입하고</p>
+            <p className="text-base text-black">지금 바로</p>
             <p className="text-2xl font-bold text-black">과외 선생님 찾기</p>
           </div>
         </a>
-        <a href="/apply" className="no-underline">
+        <a href="/students" className="no-underline">
           <div className="w-[80dvw] h-[10em] sm:w-[15em] sm:h-[15em] bg-blue-300/30 rounded-2xl flex flex-col items-center justify-center text-center transform transition-transform duration-300 hover:scale-105">
             <p className="text-base text-black">프로필 작성하고</p>
-            <p className="text-2xl font-bold text-black">선생님 등록하기</p>
+            <p className="text-2xl font-bold text-black">학생 찾기</p>
           </div>
         </a>
       </section>

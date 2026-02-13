@@ -123,7 +123,7 @@ export default function StudentsCreateClient() {
         return;
       }
 
-      router.push(`/students/${data.id}`);
+      router.push('/students');
     } catch (err) {
       console.error('Unexpected error:', err);
       setError('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');

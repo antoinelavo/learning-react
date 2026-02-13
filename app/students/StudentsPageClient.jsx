@@ -259,6 +259,10 @@ export default function StudentsPageClient() {
           <h1 className="text-xl sm:text-2xl font-bold mb-1">학생 게시판</h1>
           <p className="text-sm text-gray-600">
             학생/학부모님께서 올린 수업 요청글을 확인하고, 직접 연락해 보세요.
+            
+          </p>
+          <p className="text-sm text-gray-400">
+            ( 오래된 게시글은 자동 삭제됩니다 )
           </p>
         </div>
         <div className="shrink-0">

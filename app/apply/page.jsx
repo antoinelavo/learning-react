@@ -168,7 +168,8 @@ export default function ApplyPage() {
       shortintroduction: formData.shortintroduction || null,
       longintroduction: formData.longintroduction || null,
       experience: formData.experience || null,
-      contact_information: formData.contact_information || null,
+      email: formData.email.trim() || null,
+      contact_information: formData.contact_information?.trim() || null,
       profile_picture:
         profilePictureUrl ||
         `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/teachers/default.jpg`,
@@ -479,21 +480,38 @@ export default function ApplyPage() {
           />
         </div>
 
-        {/* contact info */}
+        {/* email (required) */}
+        <div>
+          <label htmlFor="email" className="block mb-1 font-medium">
+            이메일 주소 *
+          </label>
+          <input
+            type="email"
+            id="email"
+            {...register('email', { required: true })}
+            placeholder="example@email.com"
+            className="w-full border border-gray-300 rounded p-2"
+          />
+          {errors.email && (
+            <p className="text-red-500 text-sm mt-1">이메일 주소를 입력해주세요.</p>
+          )}
+        </div>
+
+        {/* contact info (optional) */}
         <div>
           <label htmlFor="contact_information" className="block mb-1 font-medium">
-            이메일 주소 / 연락처 *
+            추가 연락처 (선택)
           </label>
           <input
             type="text"
             id="contact_information"
-            {...register('contact_information', { required: true })}
-            placeholder="이메일, 오픈카톡 링크 등"
+            {...register('contact_information')}
+            placeholder="카톡 링크, 전화번호 등"
             className="w-full border border-gray-300 rounded p-2"
           />
-          {errors.contact_information && (
-            <p className="text-red-500 text-sm mt-1">연락처를 입력해주세요.</p>
-          )}
+          <p className="text-xs text-gray-500 mt-1">
+            예: 오픈카톡 링크, 전화번호 등
+          </p>
         </div>
 
         {/* profile picture */}

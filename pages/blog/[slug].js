@@ -11,8 +11,52 @@ import remarkRehype from 'remark-rehype'
 import rehypeSlug from 'rehype-slug'
 import rehypeStringify from 'rehype-stringify'
 import { visit } from 'unist-util-visit'
+import { serialize } from 'next-mdx-remote/serialize'
+import { MDXRemote } from 'next-mdx-remote'
+import mdxComponents from '@/components/blog/mdx-components'
 
 const BLOG_DIR = path.join(process.cwd(), 'content/blog')
+
+// Posts created before the enhanced MDX upgrade use the old HTML pipeline
+const LEGACY_SLUGS = new Set([
+  '3-year-admission-program',
+  '3-year-admission-program-parents',
+  'IB-English',
+  'IB-English-hagwons',
+  'IB-Math',
+  'IB-Math-hagwons',
+  'IB-exam-schedule',
+  'IB-hagwon',
+  'IB-hagwon-directory',
+  'IB-in-Korea',
+  'IB-scores',
+  'IB-subject-choices',
+  'SAT-hagwon-guide',
+  'SAT-hagwon-rates',
+  'SAT-hagwons-apgujeong',
+  'SAT-hagwons-bundang',
+  'SAT-hagwons-busan',
+  'SAT-hagwons-gangnam',
+  'SAT-scores-by-university',
+  'SAT-tutoring-vs-SAT-hagwon',
+  'about-ib',
+  'about-tutoring-ib',
+  'choosing-ib-hagwons',
+  'daechi-IB-hagwon',
+  'hagwons-that-specialize-in-SAT',
+  'ib-hagwon-guide',
+  'ib-hagwon-rates',
+  'ib-hagwon-vs-tutoring',
+  'ib_hagwon_gangnam',
+  'korean-IB-schools',
+  'online-ib-hagwon',
+  'overseas-citizen',
+  'preparing-for-SAT',
+  'private-lesson',
+  'private-lesson-cost',
+  'sat_hagwon_necessity',
+  'universities-that-accept-IB',
+])
 
 function getHeadings(markdown) {
   const tree = unified()
@@ -51,30 +95,50 @@ export async function getStaticProps({ params }) {
   const source = fs.readFileSync(fullPath, 'utf8')
   const { data, content } = matter(source)
 
-  // 1. Turn markdown/MDX into an HTML string
-  const file = await unified()
-    .use(remarkParse)
-    .use(remarkGfm)
-    .use(remarkRehype)
-    .use(rehypeSlug)
-    .use(rehypeStringify)
-    .process(content)
-
-  const mdxHtml = String(file)
-
-  // 2. Extract H1/H2 for TOC
+  const isLegacy = LEGACY_SLUGS.has(params.slug)
   const toc = getHeadings(content)
+
+  if (isLegacy) {
+    // Old pipeline: markdown → HTML string
+    const file = await unified()
+      .use(remarkParse)
+      .use(remarkGfm)
+      .use(remarkRehype)
+      .use(rehypeSlug)
+      .use(rehypeStringify)
+      .process(content)
+
+    return {
+      props: {
+        frontmatter: data,
+        mdxHtml: String(file),
+        mdxSource: null,
+        toc,
+        isLegacy: true,
+      },
+    }
+  }
+
+  // New pipeline: MDX → serialized React components
+  const mdxSource = await serialize(content, {
+    mdxOptions: {
+      remarkPlugins: [remarkGfm],
+      rehypePlugins: [rehypeSlug],
+    },
+  })
 
   return {
     props: {
       frontmatter: data,
-      mdxHtml,
+      mdxHtml: null,
+      mdxSource,
       toc,
+      isLegacy: false,
     },
   }
 }
 
-export default function BlogPost({ frontmatter, mdxHtml, toc }) {
+export default function BlogPost({ frontmatter, mdxHtml, mdxSource, toc, isLegacy }) {
   return (
     <>
       <Head>
@@ -145,7 +209,7 @@ export default function BlogPost({ frontmatter, mdxHtml, toc }) {
             </time>
           </header>
 
-          {/* Rendered HTML */}
+          {/* Rendered content */}
           <div
             className="
               min-h-[80dvh]
@@ -175,8 +239,13 @@ export default function BlogPost({ frontmatter, mdxHtml, toc }) {
               prose-img:shadow-lg
               prose-img:border-solid
             "
-            dangerouslySetInnerHTML={{ __html: mdxHtml }}
-          />
+          >
+            {isLegacy ? (
+              <div dangerouslySetInnerHTML={{ __html: mdxHtml }} />
+            ) : (
+              <MDXRemote {...mdxSource} components={mdxComponents} />
+            )}
+          </div>
         </article>
 
         {/* — Sidebar */}

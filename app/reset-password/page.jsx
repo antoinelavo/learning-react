@@ -12,21 +12,39 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false);
   const [message, setMessage] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
-    // Supabase automatically picks up the recovery token from the URL hash
-    // and fires a PASSWORD_RECOVERY event when the session is established.
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (event) => {
-        if (event === 'PASSWORD_RECOVERY') {
+    // Parse the hash fragment to extract tokens and handle errors
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+
+    // Check for errors in the URL (e.g., expired link)
+    const error = params.get('error_description');
+    if (error) {
+      setErrorMsg(error);
+      return;
+    }
+
+    const accessToken = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
+    const type = params.get('type');
+
+    if (accessToken && refreshToken && type === 'recovery') {
+      // Manually set the session using the tokens from the URL hash
+      supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      }).then(({ error }) => {
+        if (error) {
+          setErrorMsg('세션 설정 실패: ' + error.message);
+        } else {
           setReady(true);
         }
-      }
-    );
-
-    return () => {
-      listener.subscription.unsubscribe();
-    };
+      });
+    } else {
+      setErrorMsg('유효한 비밀번호 재설정 링크가 아닙니다.');
+    }
   }, []);
 
   const handleSubmit = async (e) => {
@@ -57,16 +75,21 @@ export default function ResetPasswordPage() {
     setTimeout(() => router.replace('/login'), 2000);
   };
 
+  if (errorMsg) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 gap-4">
+        <p className="text-red-600">{errorMsg}</p>
+        <a href="/forgot-password" className="text-blue-600 hover:underline text-sm">
+          비밀번호 재설정 다시 요청하기
+        </a>
+      </div>
+    );
+  }
+
   if (!ready) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6 gap-4">
         <p>비밀번호 재설정 링크를 확인하는 중...</p>
-        <p className="text-sm text-gray-500">
-          이 페이지는 이메일의 비밀번호 재설정 링크를 통해 접근해야 합니다.
-        </p>
-        <a href="/login" className="text-blue-600 hover:underline text-sm">
-          로그인 페이지로 돌아가기
-        </a>
       </div>
     );
   }

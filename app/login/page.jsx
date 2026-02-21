@@ -130,6 +130,12 @@ export default function LoginPage() {
       </form>
 
       <p className="text-sm">
+        <a href="/forgot-password" className="text-blue-600 hover:underline">
+          비밀번호를 잊으셨나요?
+        </a>
+      </p>
+
+      <p className="text-sm">
         계정이 없으신가요?{' '}
         <a href="/signup" className="text-blue-600 hover:underline">
           계정 만들기

@@ -18,7 +18,7 @@ export default function DesktopNav() {
         .from('teachers')
         .select('id, status')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (teacher && teacher.status === 'approved') {
         setIsApprovedTeacher(true);

@@ -68,12 +68,12 @@ export default function TeacherList({ initialTeachers = [] }) {
       }
 
       // Single query to get all premium data
-      const today = new Date().toISOString().split('T')[0];
+      const now = new Date().toISOString();
       const { data: premiumData, error: premiumError } = await supabase
         .from('teacher_premium')
         .select('teacher_id, subject')
-        .lte('start_date', today)
-        .gte('end_date', today);
+        .lte('start_date', now)
+        .gte('end_date', now);
 
       if (premiumError) console.error(premiumError);
 

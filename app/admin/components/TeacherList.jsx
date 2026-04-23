@@ -14,10 +14,11 @@ export default function TeacherList() {
       const { data, error } = await supabase
         .from('teachers')
         .select('*')
-        .eq('status', 'pending');
+        .eq('status', 'pending')
+        .order('created_date', { ascending: false });
 
       if (!error && data) {
-        setTeachers(shuffleArray(data));
+        setTeachers(data);
         setCurrentIndex(0);
       }
     }
@@ -26,10 +27,6 @@ export default function TeacherList() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  function shuffleArray(array) {
-    return array.sort(() => Math.random() - 0.5);
-  }
 
   async function approveTeacher(id) {
     const today = new Date().toISOString().split('T')[0];
@@ -56,6 +53,7 @@ export default function TeacherList() {
 
   return (
     <div className="max-w-xl mx-auto mt-10 space-y-6">
+      <div className="text-sm font-medium text-gray-600">대기 중인 프로필: {teachers.length}개</div>
       {visibleTeachers.map((teacher) => {
         const profilePicture =
           teacher.profile_picture || 'https://ibmaster.antoinelavo.com/teachers/default.jpg';
@@ -79,7 +77,14 @@ export default function TeacherList() {
             </a>
             <div className="text-sm text-gray-700">
               <strong>추가 과목:</strong> {teacher.extra_subject || '없음'}<br />
-              <strong>연락처:</strong> {teacher.contact_information || '없음'}
+              <strong>연락처:</strong> {teacher.contact_information || '없음'}<br />
+              <strong>가입일:</strong> {teacher.created_date ? (() => {
+                const date = new Date(teacher.created_date);
+                const dateStr = date.toISOString().split('T')[0];
+                const days = Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60 * 24));
+                const timeAgo = days === 0 ? '오늘' : days < 7 ? `${days}일 전` : `${Math.floor(days / 7)}주 전`;
+                return `${dateStr} (${timeAgo})`;
+              })() : '없음'}
             </div>
             <button
               onClick={() => approveTeacher(teacher.id)}

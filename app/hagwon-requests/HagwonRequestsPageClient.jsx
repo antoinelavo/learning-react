@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase, getUserRole, getTeacherStatus } from '@/lib/supabase';
+import { supabase, getUserRole } from '@/lib/supabase';
 import Link from 'next/link';
 import HagwonNewsletterPopup from '@/components/HagwonNewsletterPopup';
 
@@ -11,7 +11,6 @@ export default function HagwonRequestsPageClient() {
   const [error, setError] = useState('');
   const [expandedRequestId, setExpandedRequestId] = useState(null);
   const [role, setRole] = useState(null);
-  const [teacherStatus, setTeacherStatus] = useState(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [editingRequestId, setEditingRequestId] = useState(null);
   const [passwordInput, setPasswordInput] = useState('');
@@ -58,15 +57,9 @@ export default function HagwonRequestsPageClient() {
       try {
         const userRole = await getUserRole();
         setRole(userRole);
-
-        if (userRole === 'teacher') {
-          const status = await getTeacherStatus();
-          setTeacherStatus(status);
-        }
       } catch (err) {
         console.error('Error checking user role:', err);
         setRole(null);
-        setTeacherStatus(null);
       }
     }
 
@@ -77,8 +70,8 @@ export default function HagwonRequestsPageClient() {
     const willExpand = expandedRequestId !== requestId;
     setExpandedRequestId(willExpand ? requestId : null);
 
-    // Track view if expanding and user is approved teacher and hasn't viewed this listing yet
-    if (willExpand && role === 'teacher' && teacherStatus === 'approved' && !viewedListings.has(requestId)) {
+    // Track view if expanding and user is a hagwon account and hasn't viewed this listing yet
+    if (willExpand && role === 'hagwon' && !viewedListings.has(requestId)) {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
@@ -248,8 +241,8 @@ export default function HagwonRequestsPageClient() {
           <div className="space-y-3">
             {requests.map(request => {
               const isExpanded = expandedRequestId === request.id;
-              const isApprovedTeacher = role === 'teacher' && teacherStatus === 'approved';
-              const canViewContact = isApprovedTeacher && request.status === 'OPEN';
+              const isHagwon = role === 'hagwon';
+              const canViewContact = isHagwon && request.status === 'OPEN';
 
               // Parse program types
               const programTypes = Array.isArray(request.program_type)
@@ -393,14 +386,14 @@ export default function HagwonRequestsPageClient() {
                                 <>
                                   이 요청은 <span className="font-bold text-gray-700">마감되었습니다</span>. 마감된 요청의 연락처는 확인할 수 없습니다.
                                 </>
-                              ) : !isApprovedTeacher ? (
+                              ) : !isHagwon ? (
                                 <>
                                   학생의 연락처는{' '}
-                                  <span className="font-bold text-blue-700">프로필이 검증된 학원 관계자분만</span> 확인할 수 있습니다.
+                                  <span className="font-bold text-blue-700">등록된 학원 계정만</span> 확인할 수 있습니다.
                                 </>
                               ) : null}
                             </p>
-                            {request.status !== 'CLOSED' && !isApprovedTeacher && (
+                            {request.status !== 'CLOSED' && !isHagwon && (
                               <button
                                 onClick={() => setShowContactModal(true)}
                                 className="block w-full text-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors mt-3"

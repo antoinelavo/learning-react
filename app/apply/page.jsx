@@ -216,7 +216,7 @@ export default function ApplyPage() {
         선생님 계정만 열람 가능합니다. 선생님 계정으로 로그인 해주세요. 
         <br></br>
         <br></br>
-        <button onclick="window.location.href='/logout';">
+        <button onClick="window.location.href='/logout';">
           로그아웃하기
         </button>
         </div>

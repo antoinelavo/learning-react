@@ -77,7 +77,7 @@ async function logContactClick({ hagwonName, contactType }) {
   }
 }
 
-export default function HagwonCard({ image, name, region, format, lessonType, ia_ee_tok, description, address, url, kakaotalk}) {
+export default function HagwonCard({ image, name, region, format, lessonType, ia_ee_tok, description, address, url, kakaotalk, isFeatured, featuredReason, featuredPitch, youtubeId, courses, programs}) {
   const [showDetails, setShowDetails] = useState(false);
 
     useEffect(() => {
@@ -101,7 +101,7 @@ export default function HagwonCard({ image, name, region, format, lessonType, ia
 
 
   return (
-      <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 "
+      <div className={`bg-white p-6 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 ${isFeatured ? 'border-2 border-blue-400 ring-1 ring-blue-100' : 'border border-gray-200'}`}
       data-hagwon-name = {name}
       >
         <div className="flex flex-wrap justify-between flex-row items-start gap-y-[1em] sm:gap-y-[2em]">
@@ -122,9 +122,14 @@ export default function HagwonCard({ image, name, region, format, lessonType, ia
 
             {/* Name and Region */}
             <div className="w-fill md:w-[11em]">
-              <a href={url} onClick={() => logContactClick({ hagwonName: name, contactType: 'Website' })}>
-                <h2 className="text-[1.1em] font-bold mb-2 text-[#111] m-0">{name}</h2>
-              </a>
+              <div className="flex items-center gap-2">
+                <a href={url} onClick={() => logContactClick({ hagwonName: name, contactType: 'Website' })}>
+                  <h2 className="text-[1.1em] font-bold mb-2 text-[#111] m-0">{name}</h2>
+                </a>
+                {isFeatured && (
+                  <span className="text-[0.65em] font-semibold px-2 py-0.5 bg-blue-50 text-blue-600 border border-blue-200 rounded-full whitespace-nowrap mb-1.5">추천</span>
+                )}
+              </div>
               <p className="text-sm text-gray-600 m-0">📍 {region}</p>
             </div>
           </div>
@@ -173,6 +178,56 @@ export default function HagwonCard({ image, name, region, format, lessonType, ia
             
             {/* Description */}
             <p className="my-4 text-sm leading-[1.8em]">{description}</p>
+
+            {/* Programs Timeline */}
+            {programs && programs.length > 0 && (
+              <div className="mb-4 bg-gray-50 border border-gray-200 rounded-xl p-4">
+                <h3 className="text-sm font-bold text-gray-800 mb-3">수업 안내</h3>
+                <div className="flex items-center gap-3">
+                  {programs.map((program, i) => (
+                    <div key={i} className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="flex-1 text-center rounded-lg border border-gray-200 bg-white p-3">
+                        <p className="text-base font-bold text-gray-900 m-0 mb-1">{program.label}</p>
+                        <p className="text-[0.7em] text-gray-500 m-0">{program.schedule}</p>
+                      </div>
+                      {i < programs.length - 1 && (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><path d="m9 18 6-6-6-6"/></svg>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Featured Pitch */}
+            {featuredPitch && (
+              <div className="mb-4 bg-gray-50 border border-gray-200 rounded-xl p-4">
+                <p className="text-sm font-bold text-gray-900 m-0 mb-2">{featuredPitch.hook}</p>
+                <p className="text-sm text-gray-600 m-0 mb-2">{featuredPitch.body}</p>
+                <ul className="list-disc pl-5 mb-2 space-y-1">
+                  {featuredPitch.painPoints.map((point, i) => (
+                    <li key={i} className="text-sm text-gray-600">{point}</li>
+                  ))}
+                </ul>
+                <p className="text-sm font-semibold text-gray-800 m-0">{featuredPitch.conclusion}</p>
+              </div>
+            )}
+
+            {/* YouTube Sample Lesson */}
+            {youtubeId && (
+              <div className="mb-4">
+                <h3 className="text-sm font-bold text-gray-800 mb-2">샘플 수업</h3>
+                <div className="relative w-full rounded-xl overflow-hidden" style={{ paddingBottom: '56.25%' }}>
+                  <iframe
+                    className="absolute inset-0 w-full h-full"
+                    src={`https://www.youtube.com/embed/${youtubeId}`}
+                    title="샘플 수업"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Address */}
             <p className="mb-4 text-sm leading-[1.8em]">주소: {address}</p>

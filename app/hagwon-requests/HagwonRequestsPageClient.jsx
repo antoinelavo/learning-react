@@ -403,7 +403,7 @@ export default function HagwonRequestsPageClient() {
                             )}
                           </div>
                         ) : (
-                          <div className="space-y-1 text-sm text-gray-800 rounded-md p-3">
+                          <div className="space-y-3 text-sm text-gray-800 rounded-md p-3">
                             <p>
                               <span className="font-medium">이메일:</span>{' '}
                               <a href={`mailto:${request.email}`} className="text-blue-600 hover:underline">
@@ -419,6 +419,14 @@ export default function HagwonRequestsPageClient() {
                                 >
                                   {request.kakao_contact}
                                 </a>
+                              </p>
+                            )}
+                            {request.created_at && (
+                              <p>
+                                <span className="font-medium">작성일:</span>{' '}
+                                <span className="text-gray-600">
+                                  {new Date(request.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                </span>
                               </p>
                             )}
                             <p className="text-xs text-gray-500 pt-1">

@@ -1,4 +1,16 @@
 const satHagwons = [
+  {
+    image: "/images/hagwons/small/PrestigeOnTutoring.png",
+    name: '프레스티지온 튜터링 (PrestigeOn Tutoring)',
+    region: '온라인',
+    lessonType: ['1:1', '그룹'],
+    format: ['온라인'],
+    services: ['AP', 'ACT', 'TOEFL', '컨설팅'],
+    address: "온라인",
+    description: "프레스티지온 튜터링은 국내외 국제·외국인학교 및 해외 보딩스쿨 학생들을 위한 프리미엄 1:1 맞춤형 교육 브랜드입니다. SAT·AP·TOEFL 고득점 완성 및 GPA관리를 검증된 최정예 강사진의 밀착 케어와 전략적인 학습 로드맵을 통해 학생의 잠재력을 결과로 증명해 드립니다.\n\n[학습 상담]\n★ 유선: 02-518-0587\n★ 카톡채널: http://pf.kakao.com/_sBHln\n★ 홈페이지: prestigeon-tutoring.com",
+    url: "https://prestigeon-tutoring.com",
+    kakaotalk: "http://pf.kakao.com/_sBHln"
+  },
     {
     image: "/images/hagwons/small/edusphere.png",
     name: '에듀스피어 (Edusphere)',

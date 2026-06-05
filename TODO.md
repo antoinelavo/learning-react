@@ -6,6 +6,10 @@
   - File: supabase/migrations/20260605_create_posts.sql
   - Run in Supabase dashboard → SQL Editor
 
+- Add 커뮤니티 to the navigation menu when ready to launch
+  - Link is already built and commented out in DesktopNav.client.jsx and MobileMenuToggle.client.jsx
+  - Just uncomment the relevant blocks to make it visible
+
 - Implement post engagement features
   - View count tracking (increment on each post visit)
   - Likes / upvotes on posts

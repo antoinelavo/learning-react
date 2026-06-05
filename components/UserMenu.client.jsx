@@ -24,51 +24,52 @@ export default function UserMenu() {
     window.location.href = '/';
   };
 
-  if (loading) {
-    return <div className="hidden lg:block w-[72px]" />;
-  }
-
-  if (!user) {
-    return (
-      <a
-        href="/login"
-        className="hidden lg:inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors ml-4"
-      >
-        로그인
-      </a>
-    );
-  }
-
-  const initial = (user.user_metadata?.full_name?.[0] || user.email?.[0] || '?').toUpperCase();
+  const initial = user
+    ? (user.user_metadata?.full_name?.[0] || user.email?.[0] || '?').toUpperCase()
+    : null;
 
   return (
-    <div className="hidden lg:block relative ml-4" ref={menuRef}>
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-9 h-9 rounded-full bg-blue-500 text-white text-sm font-semibold flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer"
-      >
-        {initial}
-      </button>
-
-      {open && (
-        <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-[1001]">
-          <div className="px-4 py-2 border-b border-gray-100">
-            <p className="text-xs text-gray-500 truncate">{user.email}</p>
-          </div>
-          <a
-            href="/dashboard"
-            className="block px-4 py-2 text-sm text-black hover:bg-blue-50 hover:text-blue-500"
-            onClick={() => setOpen(false)}
-          >
-            내 정보
-          </a>
+    <div className="hidden lg:flex items-center justify-end ml-4 w-[72px] relative" ref={menuRef}>
+      {loading ? (
+        /* Invisible placeholder — same size as the login button */
+        <div className="w-9 h-9 rounded-full bg-gray-200 animate-pulse" />
+      ) : !user ? (
+        <a
+          href="/login"
+          className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors whitespace-nowrap"
+        >
+          로그인
+        </a>
+      ) : (
+        <>
           <button
-            onClick={handleLogout}
-            className="block w-full px-4 py-2 text-sm text-red-500 hover:bg-red-50 cursor-pointer"
+            onClick={() => setOpen(!open)}
+            className="w-9 h-9 rounded-full bg-blue-500 text-white text-sm font-semibold flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer"
           >
-            로그아웃
+            {initial}
           </button>
-        </div>
+
+          {open && (
+            <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-[1001]">
+              <div className="px-4 py-2 border-b border-gray-100">
+                <p className="text-xs text-gray-500 truncate">{user.email}</p>
+              </div>
+              <a
+                href="/dashboard"
+                className="block px-4 py-2 text-sm text-black hover:bg-blue-50 hover:text-blue-500"
+                onClick={() => setOpen(false)}
+              >
+                내 정보
+              </a>
+              <button
+                onClick={handleLogout}
+                className="block w-full px-4 py-2 text-sm text-red-500 hover:bg-red-50 cursor-pointer"
+              >
+                로그아웃
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

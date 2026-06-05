@@ -28,3 +28,5 @@
 
 - Add SEO sitemap entries for /community posts
 - Notifications (e.g. notify user when someone replies to their post)
+- Update the footer
+- Fix formatting issues on the /aboutus page

@@ -154,41 +154,36 @@ export default function MobileMenuToggle() {
             )}
           </div>
 
-          {/* Login / Logout */}
-          <div className="mt-auto border-t border-gray-100">
-            {user ? (
-              <>
-                <div className="px-6 py-3 text-xs text-gray-500 truncate">
-                  {user.email}
-                </div>
-                <a
-                  href="/dashboard"
-                  className="block w-full py-4 px-6 text-base text-left text-black hover:text-blue-500 hover:bg-blue-50 border-b border-gray-100"
-                  onClick={handleClose}
-                >
-                  내 정보
-                </a>
-                <button
-                  onClick={async () => {
-                    await signOut();
-                    handleClose();
-                    window.location.href = '/';
-                  }}
-                  className="block w-full py-4 px-6 text-base text-left text-red-500 hover:bg-red-50 cursor-pointer"
-                >
-                  로그아웃
-                </button>
-              </>
-            ) : (
+          {/* Login / Logout / Account */}
+          {user ? (
+            <>
               <a
-                href="/login"
-                className="block w-full py-4 px-6 text-base text-left text-blue-500 font-medium hover:bg-blue-50"
+                href="/dashboard"
+                className="block w-full py-4 px-6 text-base text-left text-black hover:text-blue-500 hover:bg-blue-50 border-b border-gray-100"
                 onClick={handleClose}
               >
-                로그인
+                내 정보
               </a>
-            )}
-          </div>
+              <button
+                onClick={async () => {
+                  await signOut();
+                  handleClose();
+                  window.location.href = '/';
+                }}
+                className="block w-full py-4 px-6 text-base text-left text-red-500 hover:bg-red-50 border-b border-gray-100 cursor-pointer"
+              >
+                로그아웃
+              </button>
+            </>
+          ) : (
+            <a
+              href="/login"
+              className="block w-full py-4 px-6 text-base text-left text-blue-500 font-medium hover:bg-blue-50 border-b border-gray-100"
+              onClick={handleClose}
+            >
+              로그인
+            </a>
+          )}
         </nav>
       </div>
     </>

@@ -11,7 +11,7 @@ import TeacherCard from '@/components/TeacherCard';
 export default function DashboardPage() {
 
   const router = useRouter();
-  const { user, role, loading: authLoading, signOut } = useAuth();
+  const { user, role, teacherStatus, loading: authLoading, signOut } = useAuth();
   const [teacher, setTeacher] = useState(null);
   const [subjectsList, setSubjectsList] = useState([]);
   const [statusInfo, setStatusInfo] = useState(null);
@@ -32,6 +32,12 @@ export default function DashboardPage() {
 
     if (!user) {
       router.push('/login');
+      return;
+    }
+
+    // Teachers who haven't submitted a profile yet go to the apply page
+    if (role === 'teacher' && !teacherStatus) {
+      router.replace('/apply');
       return;
     }
 
@@ -66,7 +72,7 @@ export default function DashboardPage() {
     };
 
     loadTeacherProfile();
-  }, [authLoading, user, role]);
+  }, [authLoading, user, role, teacherStatus]);
 
     useEffect(() => {
 

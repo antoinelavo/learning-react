@@ -13,6 +13,13 @@ export default function DesktopNav() {
   return (
     <nav className="flex justify-center">
       <ul className="menu_items flex gap-[30px] items-center">
+        {/* 커뮤니티 */}
+        <li className="px-5">
+          <a href="/community" className="text-sm text-black font-normal hover:text-blue-500">
+            커뮤니티
+          </a>
+        </li>
+
         {/* 선생님 찾기 */}
         <li className="px-5">
           <a href="/find" className="text-sm text-black font-normal hover:text-blue-500">

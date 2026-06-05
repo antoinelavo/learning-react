@@ -72,6 +72,16 @@ export default function MobileMenuToggle() {
 
         {/* Menu items */}
         <nav className="flex-1 flex flex-col">
+          {/* 커뮤니티 — hidden until launch
+          <a
+            href="/blog"
+            className="block w-full py-4 px-6 text-base text-left text-black hover:text-blue-500 hover:bg-blue-50 border-b border-gray-100"
+            onClick={handleClose}
+          >
+            커뮤니티
+          </a>
+          */}
+
           {/* 선생님 찾기 */}
           <a
             href="/find"

@@ -22,8 +22,11 @@ export default function RootLayout({ children }) {
     <html lang="en" className={notoSansKR.className}>
       <head>
         {/* Google Adsense */}
-       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6915654460353407"
-     crossorigin="anonymous"></script>
+        <Script
+          strategy="afterInteractive"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6915654460353407"
+          crossOrigin="anonymous"
+        />
      
         <Script
           strategy="afterInteractive"

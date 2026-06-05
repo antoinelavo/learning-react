@@ -4,7 +4,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
 import { useForm } from 'react-hook-form';
-import 'quill/dist/quill.snow.css';
 
 export default function ApplyPage() {
   const router = useRouter();

@@ -31,31 +31,24 @@ export function AuthProvider({ children }) {
 
     setUser(supabaseUser);
 
-    // Fetch role from users table
-    const { data: userData } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', supabaseUser.id)
-      .single();
-
-    const userRole = userData?.role ?? null;
-    setRole(userRole);
-
-    // Fetch teacher info if applicable
-    if (userRole === 'teacher') {
-      const { data: teacher } = await supabase
+    // Fetch role and teacher info in parallel
+    const [{ data: userData }, { data: teacher }] = await Promise.all([
+      supabase
+        .from('users')
+        .select('role')
+        .eq('id', supabaseUser.id)
+        .single(),
+      supabase
         .from('teachers')
         .select('id, status')
         .eq('user_id', supabaseUser.id)
-        .maybeSingle();
+        .maybeSingle(),
+    ]);
 
-      setTeacherStatus(teacher?.status ?? null);
-      setTeacherId(teacher?.id ?? null);
-    } else {
-      setTeacherStatus(null);
-      setTeacherId(null);
-    }
-
+    const userRole = userData?.role ?? null;
+    setRole(userRole);
+    setTeacherStatus(teacher?.status ?? null);
+    setTeacherId(teacher?.id ?? null);
     setLoading(false);
   }
 
@@ -80,6 +73,8 @@ export function AuthProvider({ children }) {
     // onAuthStateChange will clear state
   };
 
+  // Always render children immediately — auth loading only affects
+  // components that check the `loading` flag (header, nav).
   return (
     <AuthContext.Provider
       value={{

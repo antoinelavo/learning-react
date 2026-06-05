@@ -4,7 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 
-const CATEGORIES = ['전체', 'IB', 'SAT', '특례입학', '일반'];
+const SORT_OPTIONS = ['최신순', '인기글'];
+const CATEGORY_LIST = ['IB', 'SAT', '특례입학', '일반'];
 
 const CATEGORY_COLORS = {
   IB:     'bg-blue-100 text-blue-700',
@@ -22,19 +23,30 @@ function CategoryBadge({ category }) {
 }
 
 export default function CommunityBoard({ featured, regular }) {
-  const [activeCategory, setActiveCategory] = useState('전체');
+  const [sortMode, setSortMode] = useState('최신순');
+  const [activeCategories, setActiveCategories] = useState(new Set());
   const { user } = useAuth();
 
-  const allPosts = [...featured, ...regular];
+  function toggleCategory(cat) {
+    setActiveCategories(prev => {
+      const next = new Set(prev);
+      next.has(cat) ? next.delete(cat) : next.add(cat);
+      return next;
+    });
+  }
 
-  const filtered = activeCategory === '전체'
+  const allPosts = sortMode === '인기글'
+    ? featured
+    : [...featured, ...regular].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const filtered = activeCategories.size === 0
     ? allPosts
-    : allPosts.filter(p => p.category === activeCategory);
+    : allPosts.filter(p => activeCategories.has(p.category));
 
   return (
     <main className="max-w-3xl mx-auto px-3 py-4 mb-16">
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-4">
         <h1 className="text-lg font-bold text-gray-900">국제학교 입시 커뮤니티</h1>
         {user && (
           <Link
@@ -46,21 +58,38 @@ export default function CommunityBoard({ featured, regular }) {
         )}
       </div>
 
-      {/* Category tabs */}
-      <div className="flex gap-0.5 mb-2 border-b border-gray-200 overflow-x-auto">
-        {CATEGORIES.map(cat => (
-          <button
-            key={cat}
-            onClick={() => setActiveCategory(cat)}
-            className={`px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap -mb-px ${
-              activeCategory === cat
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {cat}
-          </button>
-        ))}
+      {/* Controls row */}
+      <div className="flex items-start gap-3 mb-4 flex-wrap">
+        {/* Sort dropdown */}
+        <select
+          value={sortMode}
+          onChange={e => setSortMode(e.target.value)}
+          className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 shrink-0"
+        >
+          {SORT_OPTIONS.map(opt => (
+            <option key={opt} value={opt}>{opt}</option>
+          ))}
+        </select>
+
+        {/* Category pills */}
+        <div className="flex gap-2 flex-wrap">
+          {CATEGORY_LIST.map(cat => {
+            const active = activeCategories.has(cat);
+            return (
+              <button
+                key={cat}
+                onClick={() => toggleCategory(cat)}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
+                  active
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white text-gray-600 border-gray-300 hover:border-blue-400 hover:text-blue-600'
+                }`}
+              >
+                {cat}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Post list */}
@@ -74,19 +103,18 @@ export default function CommunityBoard({ featured, regular }) {
           )}
         </div>
       ) : (
-        <ul className="divide-y divide-gray-100">
+        <ul className="divide-y divide-gray-200">
           {filtered.map(post => (
-            <li key={post.slug} className={post.featured ? 'bg-blue-50/60' : ''}>
+            <li key={post.slug}>
               <Link
                 href={post.url}
-                className="flex items-start justify-between gap-3 px-2 py-2.5 hover:bg-gray-50 transition-colors"
+                className="flex items-start justify-between gap-3 px-2 py-4 hover:bg-gray-50 transition-colors"
               >
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-gray-900 leading-snug line-clamp-2">
-                    {post.featured && <span className="mr-1">📌</span>}
                     {post.title}
                   </p>
-                  <div className="flex items-center gap-1.5 mt-1">
+                  <div className="flex items-center gap-1.5 mt-1.5">
                     <CategoryBadge category={post.category} />
                     <time className="text-xs text-gray-400">{post.date}</time>
                   </div>

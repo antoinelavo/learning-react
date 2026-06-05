@@ -5,9 +5,12 @@ import { supabase } from '@/lib/supabase';
 
 const batchSize = 10;
 
+const THREE_WEEKS_MS = 21 * 24 * 60 * 60 * 1000;
+
 export default function TeacherList() {
   const [teachers, setTeachers] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState('recent');
 
   useEffect(() => {
     async function loadTeachers() {
@@ -49,11 +52,46 @@ export default function TeacherList() {
     }
   }
 
-  const visibleTeachers = teachers.slice(0, currentIndex + batchSize);
+  const now = Date.now();
+  const recentTeachers = teachers.filter(t => {
+    const created = new Date(t.created_date).getTime();
+    return now - created < THREE_WEEKS_MS;
+  });
+  const olderTeachers = teachers.filter(t => {
+    const created = new Date(t.created_date).getTime();
+    return now - created >= THREE_WEEKS_MS;
+  });
+
+  const filteredTeachers = activeTab === 'recent' ? recentTeachers : olderTeachers;
+  const visibleTeachers = filteredTeachers.slice(0, currentIndex + batchSize);
 
   return (
     <div className="max-w-xl mx-auto mt-10 space-y-6">
       <div className="text-sm font-medium text-gray-600">대기 중인 프로필: {teachers.length}개</div>
+
+      <div className="flex gap-2">
+        <button
+          onClick={() => { setActiveTab('recent'); setCurrentIndex(0); }}
+          className={`px-4 py-2 text-sm font-medium rounded-lg transition ${
+            activeTab === 'recent'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          3주 미만 ({recentTeachers.length})
+        </button>
+        <button
+          onClick={() => { setActiveTab('older'); setCurrentIndex(0); }}
+          className={`px-4 py-2 text-sm font-medium rounded-lg transition ${
+            activeTab === 'older'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          3주 이상 ({olderTeachers.length})
+        </button>
+      </div>
+
       {visibleTeachers.map((teacher) => {
         const profilePicture =
           teacher.profile_picture || 'https://ibmaster.antoinelavo.com/teachers/default.jpg';

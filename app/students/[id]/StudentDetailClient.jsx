@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase, getUserRole, getTeacherStatus } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -10,8 +11,7 @@ export default function StudentDetailClient({ studentId }) {
 
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState(null);
-  const [teacherStatus, setTeacherStatus] = useState(null);
+  const { role, teacherStatus } = useAuth();
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -47,26 +47,7 @@ export default function StudentDetailClient({ studentId }) {
     }
   }, [studentId]);
 
-  useEffect(() => {
-    async function loadRole() {
-      try {
-        const userRole = await getUserRole();
-        setRole(userRole);
-
-        // If user is a teacher, also get their status
-        if (userRole === 'teacher') {
-          const status = await getTeacherStatus();
-          setTeacherStatus(status);
-        }
-      } catch (err) {
-        console.error('Error checking user role:', err);
-        setRole(null);
-        setTeacherStatus(null);
-      }
-    }
-
-    loadRole();
-  }, []);
+  // role and teacherStatus now come from useAuth() context
 
   if (loading) {
     return (

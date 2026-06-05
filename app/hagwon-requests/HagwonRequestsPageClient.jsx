@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase, getUserRole } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import HagwonNewsletterPopup from '@/components/HagwonNewsletterPopup';
 
@@ -10,7 +11,7 @@ export default function HagwonRequestsPageClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [expandedRequestId, setExpandedRequestId] = useState(null);
-  const [role, setRole] = useState(null);
+  const { user, role } = useAuth();
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [editingRequestId, setEditingRequestId] = useState(null);
   const [passwordInput, setPasswordInput] = useState('');
@@ -52,19 +53,7 @@ export default function HagwonRequestsPageClient() {
     loadRequests();
   }, []);
 
-  useEffect(() => {
-    async function loadRole() {
-      try {
-        const userRole = await getUserRole();
-        setRole(userRole);
-      } catch (err) {
-        console.error('Error checking user role:', err);
-        setRole(null);
-      }
-    }
-
-    loadRole();
-  }, []);
+  // role now comes from useAuth() context
 
   const toggleRequestExpansion = async (requestId) => {
     const willExpand = expandedRequestId !== requestId;
@@ -73,7 +62,6 @@ export default function HagwonRequestsPageClient() {
     // Track view if expanding and user is a hagwon account and hasn't viewed this listing yet
     if (willExpand && role === 'hagwon' && !viewedListings.has(requestId)) {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
         const { error: viewError } = await supabase

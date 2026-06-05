@@ -123,6 +123,13 @@ export default function StudentsCreateClient() {
         return;
       }
 
+      // Notify subscribers (fire-and-forget)
+      fetch('/api/notify-subscribers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'student', post: data }),
+      }).catch(() => {});
+
       router.push('/students');
     } catch (err) {
       console.error('Unexpected error:', err);

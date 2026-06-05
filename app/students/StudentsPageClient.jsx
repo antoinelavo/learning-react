@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase, getUserRole, getTeacherStatus } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import NewsletterPopup from '@/components/NewsletterPopup';
 
@@ -10,8 +11,7 @@ export default function StudentsPageClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [expandedStudentId, setExpandedStudentId] = useState(null);
-  const [role, setRole] = useState(null);
-  const [teacherStatus, setTeacherStatus] = useState(null);
+  const { user, role, teacherStatus } = useAuth();
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [editingStudentId, setEditingStudentId] = useState(null);
   const [passwordInput, setPasswordInput] = useState('');
@@ -88,26 +88,7 @@ export default function StudentsPageClient() {
     loadStudents();
   }, []);
 
-  useEffect(() => {
-    async function loadRole() {
-      try {
-        const userRole = await getUserRole();
-        setRole(userRole);
-
-        // If user is a teacher, also get their status
-        if (userRole === 'teacher') {
-          const status = await getTeacherStatus();
-          setTeacherStatus(status);
-        }
-      } catch (err) {
-        console.error('Error checking user role:', err);
-        setRole(null);
-        setTeacherStatus(null);
-      }
-    }
-
-    loadRole();
-  }, []);
+  // role and teacherStatus now come from useAuth() context
 
   const toggleStudentExpansion = async (studentId) => {
     const willExpand = expandedStudentId !== studentId;
@@ -116,7 +97,6 @@ export default function StudentsPageClient() {
     // Track view if expanding and user is approved teacher and hasn't viewed this listing yet
     if (willExpand && role === 'teacher' && teacherStatus === 'approved' && !viewedListings.has(studentId)) {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
         // Try to insert view record (will fail silently if already exists due to UNIQUE constraint)

@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 import PremiumListingOffer from '@/components/PremiumListingOffer';
 import TeacherCard from '@/components/TeacherCard';
 
@@ -10,8 +11,7 @@ import TeacherCard from '@/components/TeacherCard';
 export default function DashboardPage() {
 
   const router = useRouter();
-  const [user, setUser] = useState(null);
-  const [role, setRole] = useState(null);
+  const { user, role, loading: authLoading, signOut } = useAuth();
   const [teacher, setTeacher] = useState(null);
   const [subjectsList, setSubjectsList] = useState([]);
   const [statusInfo, setStatusInfo] = useState(null);
@@ -28,33 +28,15 @@ export default function DashboardPage() {
   const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
-    const init = async () => {
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
+    if (authLoading) return;
 
-      if (error || !user) {
-        router.push('/login');
-        return;
-      }
+    if (!user) {
+      router.push('/login');
+      return;
+    }
 
-      setUser(user);
-
-      const { data: userData, error: roleError } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single();
-
-      if (roleError || !userData) {
-        alert('사용자 권한을 불러오지 못했습니다.');
-        return;
-      }
-
-      setRole(userData.role);
-
-      if (userData.role === 'teacher') {
+    const loadTeacherProfile = async () => {
+      if (role === 'teacher') {
         const { data: profile, error: teacherError } = await supabase
           .from('teachers')
           .select('*')
@@ -68,7 +50,6 @@ export default function DashboardPage() {
 
         setTeacher(profile);
         updateStatus(profile.status);
-        
 
         const { data: teachers, error: subjectsError } = await supabase
           .from('teachers')
@@ -84,8 +65,8 @@ export default function DashboardPage() {
       }
     };
 
-    init();
-  }, []);
+    loadTeacherProfile();
+  }, [authLoading, user, role]);
 
     useEffect(() => {
 
@@ -148,7 +129,7 @@ export default function DashboardPage() {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await signOut();
     alert('로그아웃되었습니다.');
     router.push('/find');
   };

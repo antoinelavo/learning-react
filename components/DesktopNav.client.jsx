@@ -1,36 +1,17 @@
 // components/DesktopNav.client.jsx
 'use client';
 
-import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function DesktopNav() {
   const [showHagwonDropdown, setShowHagwonDropdown] = useState(false);
-  const [isApprovedTeacher, setIsApprovedTeacher] = useState(false);
-  const [teacherId, setTeacherId] = useState(null);
+  const { teacherStatus, teacherId } = useAuth();
 
-  useEffect(() => {
-    async function checkTeacherStatus() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: teacher } = await supabase
-        .from('teachers')
-        .select('id, status')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (teacher && teacher.status === 'approved') {
-        setIsApprovedTeacher(true);
-        setTeacherId(teacher.id);
-      }
-    }
-
-    checkTeacherStatus();
-  }, []);
+  const isApprovedTeacher = teacherStatus === 'approved';
 
   return (
-    <nav className="hidden lg:flex justify-center">
+    <nav className="flex justify-center">
       <ul className="menu_items flex gap-[30px] items-center">
         {/* 선생님 찾기 */}
         <li className="px-5">

@@ -2,32 +2,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getUserRole, getTeacherStatus } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function MobileMenuToggle() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [hagwonExpanded, setHagwonExpanded] = useState(false);
-  const [role, setRole] = useState(null);
-  const [teacherStatus, setTeacherStatus] = useState(null);
-
-  // Load user info
-  useEffect(() => {
-    async function loadUserInfo() {
-      try {
-        const userRole = await getUserRole();
-        setRole(userRole);
-
-        if (userRole === 'teacher') {
-          const status = await getTeacherStatus();
-          setTeacherStatus(status);
-        }
-      } catch (err) {
-        console.error('Error loading user info:', err);
-      }
-    }
-
-    loadUserInfo();
-  }, []);
+  const { user, role, teacherStatus, signOut } = useAuth();
 
   // Prevent body scroll when sidebar is open
   useEffect(() => {
@@ -45,6 +25,8 @@ export default function MobileMenuToggle() {
     setSidebarOpen(false);
     setHagwonExpanded(false);
   };
+
+  const isApprovedTeacher = role === 'teacher' && teacherStatus === 'approved';
 
   return (
     <>
@@ -89,7 +71,7 @@ export default function MobileMenuToggle() {
         </div>
 
         {/* Menu items */}
-        <nav className="flex-1">
+        <nav className="flex-1 flex flex-col">
           {/* 선생님 찾기 */}
           <a
             href="/find"
@@ -109,7 +91,7 @@ export default function MobileMenuToggle() {
           </a>
 
           {/* 선생님 등록하기 OR 내 프로필 보기 */}
-          {role === 'teacher' && teacherStatus === 'approved' ? (
+          {isApprovedTeacher ? (
             <a
               href="/dashboard"
               className="block w-full py-4 px-6 text-base text-left text-black hover:text-blue-500 hover:bg-blue-50 border-b border-gray-100"
@@ -169,6 +151,42 @@ export default function MobileMenuToggle() {
                   SAT 학원 추천
                 </a>
               </div>
+            )}
+          </div>
+
+          {/* Login / Logout */}
+          <div className="mt-auto border-t border-gray-100">
+            {user ? (
+              <>
+                <div className="px-6 py-3 text-xs text-gray-500 truncate">
+                  {user.email}
+                </div>
+                <a
+                  href="/dashboard"
+                  className="block w-full py-4 px-6 text-base text-left text-black hover:text-blue-500 hover:bg-blue-50 border-b border-gray-100"
+                  onClick={handleClose}
+                >
+                  내 정보
+                </a>
+                <button
+                  onClick={async () => {
+                    await signOut();
+                    handleClose();
+                    window.location.href = '/';
+                  }}
+                  className="block w-full py-4 px-6 text-base text-left text-red-500 hover:bg-red-50 cursor-pointer"
+                >
+                  로그아웃
+                </button>
+              </>
+            ) : (
+              <a
+                href="/login"
+                className="block w-full py-4 px-6 text-base text-left text-blue-500 font-medium hover:bg-blue-50"
+                onClick={handleClose}
+              >
+                로그인
+              </a>
             )}
           </div>
         </nav>

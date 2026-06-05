@@ -134,6 +134,13 @@ export default function HagwonRequestsCreateClient() {
         return;
       }
 
+      // Notify subscribers (fire-and-forget)
+      fetch('/api/notify-subscribers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'hagwon', post: data }),
+      }).catch(() => {});
+
       router.push('/hagwon-requests');
     } catch (err) {
       console.error('Unexpected error:', err);

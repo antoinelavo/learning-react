@@ -1,6 +1,7 @@
 // components/Header.server.jsx
 import MobileMenuToggle from './MobileMenuToggle.client';
 import DesktopNav from './DesktopNav.client';
+import UserMenu from './UserMenu.client';
 
 export default function Header() {
   return (
@@ -16,8 +17,11 @@ export default function Header() {
           />
         </a>
 
-        {/* Desktop nav */}
-        <DesktopNav />
+        {/* Desktop nav + user menu */}
+        <div className="hidden lg:flex items-center">
+          <DesktopNav />
+          <UserMenu />
+        </div>
 
         {/* Mobile toggle/sidebar */}
         <MobileMenuToggle />

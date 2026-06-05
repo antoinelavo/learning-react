@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { supabase, getUserRole } from '@/lib/supabase';
+import { useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import DashboardCards from './components/DashboardCards';
 import TeacherList from './components/TeacherList';
 import ABTestTable from './components/ABTestTable';
@@ -9,24 +9,16 @@ import FilterUsageTable from './components/FilterUsageTable';
 import { useRouter } from 'next/navigation';
 
 export default function AdminPage() {
-  const [loading, setLoading] = useState(true);
-  const [authorized, setAuthorized] = useState(false);
+  const { role, loading } = useAuth();
   const router = useRouter();
+  const authorized = role === 'admin';
 
   useEffect(() => {
-    async function checkRole() {
-      const role = await getUserRole();
-      if (role !== 'admin') {
-        alert('Access denied: Admins only.');
-        router.push('/');
-      } else {
-        setAuthorized(true);
-      }
-      setLoading(false);
+    if (!loading && role !== 'admin') {
+      alert('Access denied: Admins only.');
+      router.push('/');
     }
-
-    checkRole();
-  }, []);
+  }, [loading, role]);
 
   if (loading) return <div className="text-center mt-20">Loading...</div>;
   if (!authorized) return null;

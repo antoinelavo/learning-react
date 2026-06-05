@@ -1,5 +1,6 @@
 import Header from '@/components/Header.server';
 import Footer from '@/components/Footer.server';
+import Providers from '@/components/Providers.client';
 import '@/styles/globals.css';
 import { Noto_Sans_KR } from "next/font/google";
 import Script from 'next/script'
@@ -43,9 +44,11 @@ export default function RootLayout({ children }) {
       <meta name="google-site-verification" content="Hknak_CdA4t8EAfJu1IOPcLFJqwIS_Q59pseEIAqR_g" />
       </head>
       <body className="min-h-screen min-w-screen bg-gray-50">
-        <Header />
-        {children}
-        <Footer />
+        <Providers>
+          <Header />
+          {children}
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

@@ -13,12 +13,18 @@ export default function DashboardCards() {
     studentJobViews: 0,
     studentNewsletterSubs: 0,
     avgStudentViews: 0,
+    studentNewThisWeek: 0,
+    studentOpen: 0,
+    studentClosed: 0,
 
     // Hagwon requests
     hagwonRequests: 0,
     hagwonRequestViews: 0,
     hagwonNewsletterSubs: 0,
     avgHagwonViews: 0,
+    hagwonNewThisWeek: 0,
+    hagwonOpen: 0,
+    hagwonClosed: 0,
   });
 
   useEffect(() => {
@@ -31,6 +37,12 @@ export default function DashboardCards() {
         hagwonRequestsData,
         hagwonViewsData,
         hagwonNewsData,
+        studentNewThisWeek,
+        studentOpen,
+        studentClosed,
+        hagwonNewThisWeek,
+        hagwonOpen,
+        hagwonClosed,
       ] = await Promise.all([
         getPendingProfileCount(),
         getStudentJobsCount(),
@@ -39,6 +51,12 @@ export default function DashboardCards() {
         getHagwonRequestsCount(),
         getHagwonRequestViewsCount(),
         getHagwonNewsletterCount(),
+        getStudentNewThisWeek(),
+        getStudentStatusCount('OPEN'),
+        getStudentStatusCount('CLOSED'),
+        getHagwonNewThisWeek(),
+        getHagwonStatusCount('OPEN'),
+        getHagwonStatusCount('CLOSED'),
       ]);
 
       const avgStudentViews = studentJobsData > 0
@@ -55,10 +73,16 @@ export default function DashboardCards() {
         studentJobViews: studentViewsData,
         studentNewsletterSubs: studentNewsData,
         avgStudentViews: avgStudentViews,
+        studentNewThisWeek,
+        studentOpen,
+        studentClosed,
         hagwonRequests: hagwonRequestsData,
         hagwonRequestViews: hagwonViewsData,
         hagwonNewsletterSubs: hagwonNewsData,
         avgHagwonViews: avgHagwonViews,
+        hagwonNewThisWeek,
+        hagwonOpen,
+        hagwonClosed,
       });
     }
 
@@ -74,6 +98,18 @@ export default function DashboardCards() {
           <div className="rounded-xl shadow p-5 bg-blue-50 border border-blue-200">
             <div className="text-3xl font-bold text-blue-900">{stats.studentJobs.toLocaleString()}</div>
             <div className="text-sm mt-1 text-blue-800">Total Student Requests</div>
+          </div>
+          <div className="rounded-xl shadow p-5 bg-blue-50 border border-blue-200">
+            <div className="text-3xl font-bold text-blue-900">{stats.studentNewThisWeek.toLocaleString()}</div>
+            <div className="text-sm mt-1 text-blue-800">New This Week</div>
+          </div>
+          <div className="rounded-xl shadow p-5 bg-green-50 border border-green-200">
+            <div className="text-3xl font-bold text-green-900">{stats.studentOpen.toLocaleString()}</div>
+            <div className="text-sm mt-1 text-green-800">모집중</div>
+          </div>
+          <div className="rounded-xl shadow p-5 bg-gray-50 border border-gray-200">
+            <div className="text-3xl font-bold text-gray-700">{stats.studentClosed.toLocaleString()}</div>
+            <div className="text-sm mt-1 text-gray-500">마감</div>
           </div>
           <div className="rounded-xl shadow p-5 bg-blue-100 border border-blue-200">
             <div className="text-3xl font-bold text-blue-900">{stats.studentJobViews.toLocaleString()}</div>
@@ -97,6 +133,18 @@ export default function DashboardCards() {
           <div className="rounded-xl shadow p-5 bg-purple-50 border border-purple-200">
             <div className="text-3xl font-bold text-purple-900">{stats.hagwonRequests.toLocaleString()}</div>
             <div className="text-sm mt-1 text-purple-800">Total Hagwon Requests</div>
+          </div>
+          <div className="rounded-xl shadow p-5 bg-purple-50 border border-purple-200">
+            <div className="text-3xl font-bold text-purple-900">{stats.hagwonNewThisWeek.toLocaleString()}</div>
+            <div className="text-sm mt-1 text-purple-800">New This Week</div>
+          </div>
+          <div className="rounded-xl shadow p-5 bg-green-50 border border-green-200">
+            <div className="text-3xl font-bold text-green-900">{stats.hagwonOpen.toLocaleString()}</div>
+            <div className="text-sm mt-1 text-green-800">모집중</div>
+          </div>
+          <div className="rounded-xl shadow p-5 bg-gray-50 border border-gray-200">
+            <div className="text-3xl font-bold text-gray-700">{stats.hagwonClosed.toLocaleString()}</div>
+            <div className="text-sm mt-1 text-gray-500">마감</div>
           </div>
           <div className="rounded-xl shadow p-5 bg-purple-100 border border-purple-200">
             <div className="text-3xl font-bold text-purple-900">{stats.hagwonRequestViews.toLocaleString()}</div>
@@ -161,17 +209,57 @@ async function getHagwonRequestsCount() {
 }
 
 async function getHagwonRequestViewsCount() {
-  const { data, error } = await supabase
+  const { count, error } = await supabase
     .from('hagwon_request_views')
-    .select('id', { count: 'exact' });
+    .select('*', { count: 'exact', head: true });
   if (error) return 0;
-  return data.length;
+  return count ?? 0;
 }
 
 async function getHagwonNewsletterCount() {
   const { data, error } = await supabase
     .from('hagwon_newsletter_subscriptions')
     .select('id', { count: 'exact' });
+  if (error) return 0;
+  return data.length;
+}
+
+async function getStudentNewThisWeek() {
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+  const { data, error } = await supabase
+    .from('student_jobs')
+    .select('id', { count: 'exact' })
+    .gte('created_at', oneWeekAgo.toISOString());
+  if (error) return 0;
+  return data.length;
+}
+
+async function getStudentStatusCount(status) {
+  const { data, error } = await supabase
+    .from('student_jobs')
+    .select('id', { count: 'exact' })
+    .eq('status', status);
+  if (error) return 0;
+  return data.length;
+}
+
+async function getHagwonNewThisWeek() {
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+  const { data, error } = await supabase
+    .from('hagwon_requests')
+    .select('id', { count: 'exact' })
+    .gte('created_at', oneWeekAgo.toISOString());
+  if (error) return 0;
+  return data.length;
+}
+
+async function getHagwonStatusCount(status) {
+  const { data, error } = await supabase
+    .from('hagwon_requests')
+    .select('id', { count: 'exact' })
+    .eq('status', status);
   if (error) return 0;
   return data.length;
 }

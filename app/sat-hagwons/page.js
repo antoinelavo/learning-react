@@ -37,7 +37,7 @@ export default function HagwonsPage() {
       <h1>SAT 학원 29곳 추천 및 비교 [2026년 최신]</h1>
 
       <article>
-        <p className="mb-0"><strong>최신 업데이트:</strong> 2026년 2월 12일</p>
+        <p className="mb-0"><strong>최신 업데이트:</strong> 2026년 6월 5일</p>
         <p className="mt-1 text-gray-400 text-sm">지난달 조회수: {process.env.NEXT_PUBLIC_SAT_HAGWONS_MONTHLY_VIEWS || '0'}회</p>
         <p>SAT 학원은 SAT 시험을 준비 중인 학생들에게 집중적인 도움을 제공합니다. 본 페이지는 학부모와 학생들이 신뢰할 수 있는 SAT 학원을 선택할 수 있도록 도움을 주는 것을 목적으로 하며, 학원 선택 시 고려해야 할 요소, 수업 구성, 과외와의 차이점 등을 상세히 안내합니다.</p>
       </article>

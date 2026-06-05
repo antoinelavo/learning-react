@@ -43,6 +43,7 @@ const satHagwons = [
     format: ['온라인'],
     services: ['IB', 'AP', '컨설팅'],
     url: "https://www.shineprep.org/",
+    description: "저희 학원에서는 단순히 학생을 가르치기만 하지 않습니다. 저희는 학생의 공부 습관부터, 태도, 가치관, 목표 이 모든 것에 관여합니다. 학생을 위한 최선의 선택이 무엇인지 같이 고민하고, 학생의 입시에서 최선의 결과가 나올 수 있도록 최선을 다합니다.",
     kakaotalk: ""
   },
   {
@@ -53,6 +54,7 @@ const satHagwons = [
     format: ['대면'],
     services: ['IB'],
     url: "https://blog.naver.com/paretoprep",
+    description: "국제학교 학생을 위한 프리미엄 학습·입시 전략 센터, 파레토프렙 • SAT & AP 전문 센터 운영 • 평균 10년 이상의 전문 강사진 • 디지털 기반 진단·분석 시스템 ▶︎ Pareto Humanities SAT R&W, 영어 기반 사고력, 인문·어학 영역 전문 관리 ▶︎ Pareto STEM 미국식 수학·과학, AP, STEM 대회, 이공계 심화 학습 전문 관리", 
     kakaotalk: ""
 
   },
@@ -64,6 +66,7 @@ const satHagwons = [
     format: ['대면'],
     services: ['TOEFL'],
     url: "https://interprep.co.kr/",
+    description: "Interprep provides the optimal education service and counseling for students preparing for overseas university admission", 
     kakaotalk: ""
 
   },
@@ -75,6 +78,7 @@ const satHagwons = [
     format: ['대면'],
     services: ['AP', '컨설팅'],
     url: "https://sat.hackers.ac/",
+    description: "해커스 교육그룹은 지식의 불평등을 해소하고 우수한 강의와 컨텐츠를 제공함으로써 올바른 교육 확대를 위해 더욱 노력합니다.", 
     kakaotalk: ""
 
   },
@@ -86,6 +90,7 @@ const satHagwons = [
     format: ['온라인'],
     services: ['AP'],
     url: "https://www.acmeacademy.co.kr/",
+    description: "아크메 아카데미의 능동적 학습 학생들이 가장 어려워하는 리딩/라이팅 영역에 쉽게 접근할 수 있는 방법을 제시합니다. 스스로 critical thinking을 하고 다른 학생들과 토론을 통해 생각을 더 깊이 있고 단단하게 만드는 과정을 통해 thinking process를 심화 시킬 수 있게 해주는 수업 방식입니다. 지문의 올바른 해석을 바탕으로 출제자의 의도, 질문이 가진 의도를 파악하여 가장 이상적인 정답을 찾아내는 스킬을 쌓아줍니다. 점수 상승 이라는 결과물을 통해 학생 스스로가 성취감을 느낄 수 있게 만드는 티칭 패러다임입니다.",
     kakaotalk: ""
 
 
@@ -108,6 +113,7 @@ const satHagwons = [
     format: ['대면'],
     services: ['AP', '컨설팅'],
     url: "https://paulacademy.net/sat_class",
+    description: "디지털SAT/ AP/ 특례&해외대학 컨설팅 전문 폴아카데미 블로그입니다. 2014년 대치동에 개원한 이후 국내 첫 SAT/ ACT 교재 출간 등 여러 수험생을 직간접적으로 도와 왔습니다. 국내외 국제학교 특화 교육기업! 폴아카데미! 여러분의 곁에 있습니다.", 
     kakaotalk: ""
 
 
@@ -120,6 +126,7 @@ const satHagwons = [
     format: ['대면'],
     services: ['AP'],
     url: "https://www.starprep.com/",
+    description: "STARPREP, the preferred study abroad and college entrance exam academy among top-tier elite students, began in Back Bay, Boston, MA. For the past 25 years, we have specialized in guiding students through the SAT, ACT, AP, and GPA, educating over 6,000 international students. As a leader not only in South Korea but also in the United States, we provide the optimal educational environment and professional guidance to help students maximize their potential.",
     kakaotalk: ""
 
 
@@ -132,6 +139,7 @@ const satHagwons = [
     format: ['대면'],
     services: ['컨설팅'],
     url: "https://www.theiprep.com/theicollege/main_college.php",
+    description: "디아이프렙(The I Prep)은 지난 10여년 간에 걸쳐 강남 압구정, 대치동 일대에서 수천 명의 유학생들의 성공적인 대학진학을 이끌어 온 맥스 원장이 Top Ivy League 출신 선생님과 함께 새롭게 출발하는 학원입니다. 디아이프렙(The I Prep)은 Top 클래스 아이비리그 선생님들로만 구성되어 있습니다. 아이비리그 “급” 강사 한두명을 얼굴마담으로 내세우고 나머지는 모두 파트타임 강사가 가르치는 여타 학원들과 다릅니다. 학생이 수업에서 만나는 모든 선생님은 하버드, 콜럼비아, 옥스포드, 스탠포드, 시카고 등 전 세계 Top School 출신입니다. 디아이프렙(The I Prep)은 단순히 정보만 제공하지 않습니다. 자신의 미래를 생생히 그릴 수 있는 환경 속에서 가장 효율적인 시험공략법을 체득합니다. 디아이프렙(The I Prep)은 정직한 방법으로 학생들에게 공부하는 방법을 지도하는 학원입니다. 디아이프렙(The I Prep)은 그 어떠한 유형의 불법시험유출 관련 활동을 안 하여도 학생들이 즐기면서 자기 주도적으로 충분히 원하는 점수를 얻을 수 있도록 지도하는 솔직한 학원입니다. 디아이프렙(The I Prep)은 사명감을 가지고 학생들과 함께 하겠습니다. 학생들의 꿈과 현실이 디아이프렙(The I Prep)의 꿈과 현실이 될 수 있도록 최선을 다하는 학원입니다.",
     kakaotalk: ""
 
 
@@ -144,6 +152,7 @@ const satHagwons = [
     format: ['대면'],
     services: ['AP'],
     url: "https://www.ableprepedu.com/",
+    description: "저희 에이블 프렙 어학원은 압구정에서 10년 이상 SAT AP를 가르쳐온 전문강사들을 주축으로 공식 시험대비와 내신 관련 학업의 매니지먼트에 성공적인 대학입시의 결과를 이끌어 왔습니다. 학생들의 레벨에 맞춘 오픈 강의와 소수밀착 케어 프로그램으로 단기간에 확실한 점수상승의 결과를 가져오고 있습니다. 에이블프렙의 학생이 최고의 성과를 거두어 빛나는 세계 인재로 자리매김하도록 지금처럼 최선을 다할 것을 약속드립니다.", 
     kakaotalk: ""
 
 
@@ -156,6 +165,7 @@ const satHagwons = [
     format: ['대면'],
     services: ['IB', 'TOEFL'],
     url: "https://pf.kakao.com/_lwgxoV",
+    description: "", 
     kakaotalk: ""
 
 

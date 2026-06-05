@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function FilterLinksClient() {
   const [selected, setSelected] = useState({
@@ -10,6 +10,8 @@ export default function FilterLinksClient() {
     service: [],
   });
 
+  const [openDropdown, setOpenDropdown] = useState(null);
+
   const filterGroups = [
     { title: '지역', param: 'region', options: ['전체', '강남', '서초', '제주', '부산', '해외'] },
     { title: '수업 방식', param: 'lessonType', options: ['개인', '그룹'] },
@@ -17,35 +19,34 @@ export default function FilterLinksClient() {
     { title: '추가 과목', param: 'service', options: ['IA', 'EE', 'TOK'] },
   ];
 
+  useEffect(() => {
+    function handleClick(e) {
+      if (!e.target.closest('.filter-dropdown')) setOpenDropdown(null);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
   const handleFilterChange = (param, option) => {
     const allOpts = filterGroups.find(g => g.param === param)?.options.filter(opt => opt !== '전체') || [];
     const values = selected[param] || [];
     const isAllSelected = values.length === 0 || values.length === allOpts.length;
 
     let updatedValues = [];
-
     if (option === '전체') {
-      // 전체 selects all or clears
       updatedValues = isAllSelected ? [] : allOpts;
     } else {
-      // toggle this option
       updatedValues = values.includes(option)
         ? values.filter(v => v !== option)
         : [...values, option];
     }
 
-    setSelected(prev => ({
-      ...prev,
-      [param]: updatedValues
-    }));
-
-    // Apply filters immediately
+    setSelected(prev => ({ ...prev, [param]: updatedValues }));
     applyFilters({ ...selected, [param]: updatedValues });
   };
 
   const applyFilters = (filters) => {
     const cards = Array.from(document.querySelectorAll('[data-hagwon]'));
-    
     cards.forEach(card => {
       const cardRegion = card.dataset.region || '';
       const cardLessonType = card.dataset.lessontype?.split(',') || [];
@@ -63,59 +64,53 @@ export default function FilterLinksClient() {
   };
 
   return (
-    <section className="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm flex flex-wrap gap-x-[4em] gap-y-[3em] justify-center md:justify-start my-[1em]">
+    <div className="flex items-center gap-2 flex-wrap my-3">
       {filterGroups.map(({ title, param, options }) => {
         const allOpts = options.filter(opt => opt !== '전체');
         const values = selected[param] || [];
         const isAllSelected = values.length === 0 || values.length === allOpts.length;
-        
-        return (
-          <div key={param}>
-            <h3 className="font-bold text-sm text-gray-800 mb-[1em] md:mb-[0.5em]">{title}</h3>
-            <div className="flex flex-col md:flex-row gap-y-[0.75em] md:gap-x-[0.25em] min-w-[5em]">
-              {options.map(option => {
-                // Determine active styling
-                const isActive =
-                  option === '전체' ? isAllSelected : values.includes(option);
+        const activeCount = isAllSelected ? 0 : values.length;
+        const isOpen = openDropdown === param;
 
-                return (
-                  <button
-                    key={`${param}-${option}`}
-                    onClick={() => handleFilterChange(param, option)}
-                    className={`text-sm px-3 py-1.5 rounded-full border transition font-medium shadow-sm whitespace-nowrap flex items-center gap-1 ${
-                      isActive
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'text-gray-600 border-gray-300 hover:bg-gray-100 hover:border-gray-400'
-                    }`}
-                  >
-                    {isActive ? (
-                      // Active
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="12"
-                        height="12"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="lucide lucide-check-icon mr-[0.25em]"
-                      >
-                        <path d="M20 6 9 17l-5-5" />
-                      </svg>
-                    ) : (
-                      // Inactive
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-circle-icon lucide-circle mr-[0.25em]"><circle cx="12" cy="12" r="10"/></svg>
-                    )}
-                    {option}
-                  </button>
-                );
-              })}
-            </div>
+        return (
+          <div key={param} className="relative filter-dropdown">
+            <button
+              onClick={() => setOpenDropdown(isOpen ? null : param)}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors ${
+                !isAllSelected
+                  ? 'border-blue-500 bg-blue-50 text-blue-700'
+                  : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+              }`}
+            >
+              {title}{!isAllSelected ? ` (${activeCount})` : ''}
+              <svg className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {isOpen && (
+              <div className="absolute z-20 top-full left-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg p-2 flex flex-wrap gap-1.5 filter-dropdown min-w-[120px]">
+                {options.map(option => {
+                  const isActive = option === '전체' ? isAllSelected : values.includes(option);
+                  return (
+                    <button
+                      key={option}
+                      onClick={() => handleFilterChange(param, option)}
+                      className={`px-3 py-1 text-sm rounded-full border transition-colors whitespace-nowrap ${
+                        isActive
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:text-blue-600'
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         );
       })}
-    </section>
+    </div>
   );
 }

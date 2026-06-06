@@ -10,7 +10,7 @@ export default function BlogImage({ src, alt, width, height, ...props }) {
         height={height || undefined}
         loading="lazy"
         decoding="async"
-        className="rounded-xl shadow-lg border-solid mx-auto w-full h-auto"
+        className={`rounded-xl shadow-lg border-solid mx-auto h-auto ${width ? '' : 'w-full'}`}
         {...props}
       />
     </span>

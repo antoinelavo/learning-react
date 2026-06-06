@@ -264,7 +264,7 @@ export default function BlogPost({ frontmatter, mdxHtml, mdxSource, toc, isLegac
               </div>
             )}
 
-          <nav className="sticky top-[18em] space-y-2 border-l pl-4">
+          <nav className="sticky top-[20rem] space-y-2 border-l pl-4">
             <h2 className="text-lg font-semibold mb-2">목차</h2>
             <ul className="space-y-4 text-sm text-gray-700 dark:text-gray-300">
               {toc.map(({ text, depth, id }) => (

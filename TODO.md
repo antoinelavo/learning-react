@@ -30,3 +30,8 @@
 - Notifications (e.g. notify user when someone replies to their post)
 - Update the footer
 - Fix formatting issues on the /aboutus page
+
+## Email / Mailing Lists
+
+- Add unsubscribe feature for the hagwon-requests mailing list
+- Add unsubscribe feature for the students mailing list subscription

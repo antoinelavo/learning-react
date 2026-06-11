@@ -126,7 +126,7 @@ export default function DashboardPage() {
 
   const updateStatus = (status) => {
     const statusMap = {
-      pending: ['계정 상태: 검토 중 - 예상 소요 시간: 21일', 'bg-yellow-100 text-yellow-700'],
+      pending: ['계정 상태: 검토 중 - 예상 소요 시간: 7일', 'bg-yellow-100 text-yellow-700'],
       approved: ['계정 상태: 승인됨', 'bg-green-100 text-green-700'],
       rejected: ['계정 상태: 반려됨', 'bg-red-100 text-red-700'],
     };
@@ -216,7 +216,9 @@ export default function DashboardPage() {
       {role === 'teacher' && teacher && (
         <>
 
+          {/* Premium listing service temporarily disabled
           {teacher.status === 'approved' && <PremiumListingOffer teacher={teacher} />}
+          */}
 
         
         {/* Basic Header */}
@@ -233,16 +235,16 @@ export default function DashboardPage() {
             </div>
           )}
 
-                    {/* Offer paid services for pending teachers */}
+                    {/* Express profile verification service temporarily disabled
           {teacher.status === 'pending' && (
             <div className="mt-6 p-8 bg-white border border-gray-200 shadow rounded-2xl text-center">
             <h2 className="text-2xl font-bold mb-4">프로필 검토 중입니다</h2>
-            <p className="text-gray-600">현재 많은 선생님들의 지원으로 인해 프로필 검토에 약 3주 정도 소요되고 있습니다.</p>
+            <p className="text-gray-600">현재 많은 선생님들의 지원으로 인해 프로필 검토에 약 1주 정도 소요되고 있습니다.</p>
             <p className="text-gray-600 mb-4">9,000원을 입금하시면 1영업일 내로 프로필 검토를 완료해드립니다. </p>
             <p className="text-xs text-gray-600 mb-4">*수익금은 사이트 운영 및 서비스 개선에 사용됩니다.</p>
 
               <div className="max-w-md mx-auto">
-                
+
                 <button
                   onClick={() => setShowExpediteAccount(!showExpediteAccount)}
                   className="mt-6 px-6 py-3 rounded-xl font-semibold transition bg-blue-600 text-white hover:bg-blue-700"
@@ -263,8 +265,9 @@ export default function DashboardPage() {
                 )}
               </div>
             </div>
-          ) 
+          )
           }
+          */}
 
         </div>
         

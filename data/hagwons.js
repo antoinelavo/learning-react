@@ -16,6 +16,23 @@ const hagwons = [
     "description": "프레스티지온 튜터링은 국내외 국제·외국인학교 및 해외 보딩스쿨 학생들을 위한 프리미엄 1:1 맞춤형 교육 브랜드입니다. SAT·AP·TOEFL 고득점 완성 및 GPA관리를 검증된 최정예 강사진의 밀착 케어와 전략적인 학습 로드맵을 통해 학생의 잠재력을 결과로 증명해 드립니다.\n\n[학습 상담]\n★ 유선: 02-518-0587\n★ 카톡채널: http://pf.kakao.com/_sBHln\n★ 홈페이지: prestigeon-tutoring.com",
     "kakaotalk": "http://pf.kakao.com/_sBHln"
   },
+  {
+    "image": "/images/hagwons/small/ibsolution.png",
+    "name": "아이비솔루션 (IBSOLUTION)",
+    "url": "https://www.ibsolutions.kr/",
+    "address": "서울 강남구 신사동 566-23 jc빌딩 2층",
+    "region": "서울 강남",
+    "format": [
+      "온라인",
+      "대면"
+    ],
+    "lessonType": [
+      "그룹",
+      "인강"
+    ],
+    "ia_ee_tok": true,
+    "description": "IB 이과(수학·물리·화학·생물) 전 과목에 특화된 전문 학원. Imperial College London·UCL·서울대 출신 강사진이 단체반·개인수업과 IA/EE/TOK·내신·시험 대비를 지도합니다."
+  },
      {
     "image": "/images/hagwons/small/edusphere.png",
     "name":"에듀스피어 (Edusphere)",
@@ -468,23 +485,6 @@ const hagwons = [
     ],
     "ia_ee_tok":true,
     "description": "안녕하세요? BEC 에듀클래스를 찾아주셔서 감사합니다. 저희 BEC 에듀는 1995년부터 국제학교와 영국 현지 초, 중, 고등학교 학생들에게 맞춤형 교육을 제공하고 학생들의 학업 능력을 분석하여 최고의 내신점수를 받을 수 있도록 최고의 강사진들이 차별화된 프로그램으로 학생의 명문대 입시를 책임지고 있습니다. 수백 명의 학생들을 영국의 명문 사립학교와 미국과 영국 명문대학교에 진학시키고 있습니다. 학생들이 조금이라도 더 좋은 학교에 갈 수만 있다면 교육에 한해서는 타협하지 않는 자세로 노력해 온 진정성과 영국/미국 교육 전문가들의 오랜 경력을 통해 만들어진 노하우가 있어서 가능하다고 생각합니다. BEC 에듀는 글로벌 인재 육성을 목표로 성공적인 대학 입시를 위한 차별화된 교육 프로그램과 유익한 정보를 안내하는 교육 전문 학원으로써 학생의 내신관리부터 대학입시 컨설팅까지 모두 아울러 관리하는 원스톱 토털 교육 서비스를 제공하고 있습니다. 정통성, 전문성, 안전성, 신속성, 투명성 이 5가지 관리 철칙으로 학생들을 케어 하고 있으며 미국/영국 명문대 출신의 우수한 강사진들이 제공하는 품격 높은 수업들이 학생을 기다리고 있습니다. 학생 개개인이 본인의 역량을 발휘할 수 있도록 효율적인 자기계발 촉진을 유도하고 참된 인성으로 글로벌 사회에 기여할 수 있는 엘리트들을 양성하기 위해 오늘도 최선을 다하고 있습니다. BEC에듀는 최적화된 학습 시스템을 갖추고 있으며, 강사진 모두가 학생들의 실력과 성적 향상을 목표로 최선을 다하고 있습니다."
-  },
-  {
-    "image": "/images/hagwons/small/ibsolution.png",
-    "name": "아이비솔루션 (IBSOLUTION)",
-    "url": "https://www.ibsolutions.kr/",
-    "address": "서울 강남구 신사동 566-23 jc빌딩 2층",
-    "region": "서울 강남",
-    "format": [
-      "온라인",
-      "대면"
-    ],
-    "lessonType": [
-      "그룹",
-      "인강"
-    ],
-    "ia_ee_tok": true,
-    "description": "IB 이과(수학·물리·화학·생물) 전 과목에 특화된 전문 학원. Imperial College London·UCL·서울대 출신 강사진이 단체반·개인수업과 IA/EE/TOK·내신·시험 대비를 지도합니다."
   }
 ];
 

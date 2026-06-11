@@ -16,6 +16,23 @@ const hagwons = [
     "description": "프레스티지온 튜터링은 국내외 국제·외국인학교 및 해외 보딩스쿨 학생들을 위한 프리미엄 1:1 맞춤형 교육 브랜드입니다. SAT·AP·TOEFL 고득점 완성 및 GPA관리를 검증된 최정예 강사진의 밀착 케어와 전략적인 학습 로드맵을 통해 학생의 잠재력을 결과로 증명해 드립니다.\n\n[학습 상담]\n★ 유선: 02-518-0587\n★ 카톡채널: http://pf.kakao.com/_sBHln\n★ 홈페이지: prestigeon-tutoring.com",
     "kakaotalk": "http://pf.kakao.com/_sBHln"
   },
+  {
+    "image": "/images/hagwons/small/ibsolution.png",
+    "name": "아이비솔루션 (IBSOLUTION)",
+    "url": "https://www.ibsolutions.kr/",
+    "address": "서울 강남구 신사동 566-23 jc빌딩 2층",
+    "region": "서울 강남",
+    "format": [
+      "온라인",
+      "대면"
+    ],
+    "lessonType": [
+      "그룹",
+      "인강"
+    ],
+    "ia_ee_tok": true,
+    "description": "IB 이과(수학·물리·화학·생물) 전 과목에 특화된 전문 학원. Imperial College London·UCL·서울대 출신 강사진이 단체반·개인수업과 IA/EE/TOK·내신·시험 대비를 지도합니다."
+  },
      {
     "image": "/images/hagwons/small/edusphere.png",
     "name":"에듀스피어 (Edusphere)",

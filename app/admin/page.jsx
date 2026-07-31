@@ -7,6 +7,7 @@ import TeacherList from './components/TeacherList';
 import ABTestTable from './components/ABTestTable';
 import FilterUsageTable from './components/FilterUsageTable';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function AdminPage() {
   const { role, loading } = useAuth();
@@ -25,6 +26,14 @@ export default function AdminPage() {
 
   return (
     <div className="max-w-screen-lg mx-auto pt-20 px-4 mb-[20dvh]">
+      <div className="flex justify-end mb-4">
+        <Link
+          href="/admin/teachers"
+          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+        >
+          선생님 검색 →
+        </Link>
+      </div>
       <DashboardCards />
       {/* <section className="mt-10">
         <h3 className="text-lg font-semibold mb-4">🔍 A/B Test Stats</h3>

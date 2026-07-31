@@ -3,15 +3,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
-const SEARCH_COLUMNS = [
-  { value: 'name', label: 'Name' },
-  { value: 'school', label: 'School' },
-  { value: 'status', label: 'Status' },
-  { value: 'contact_information', label: 'Contact Info' },
-  { value: 'subjects', label: 'Subjects' },
-  { value: 'extra_subject', label: 'Extra Subject' },
-];
-
 const STATUS_STYLES = {
   approved: 'bg-green-100 text-green-700',
   pending: 'bg-yellow-100 text-yellow-700',
@@ -24,6 +15,20 @@ function StatusBadge({ status }) {
       {status || '없음'}
     </span>
   );
+}
+
+function formatColumnLabel(column) {
+  return column
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function formatValue(value) {
+  if (value === null || value === undefined || value === '') return '—';
+  if (Array.isArray(value)) return value.length ? value.join(', ') : '—';
+  if (typeof value === 'boolean') return value ? '예' : '아니오';
+  if (typeof value === 'object') return JSON.stringify(value);
+  return String(value);
 }
 
 export default function TeachersTable() {
@@ -41,12 +46,24 @@ export default function TeachersTable() {
 
       if (!error && data) {
         setTeachers(data);
+        if (data.length > 0 && !data[0].hasOwnProperty('name')) {
+          setSearchColumn(Object.keys(data[0])[0]);
+        }
       }
       setLoading(false);
     }
 
     loadTeachers();
   }, []);
+
+  // Derive the full column list straight from whatever Supabase returns,
+  // so every column in the teachers table shows up automatically.
+  const columns = Array.from(
+    teachers.reduce((set, t) => {
+      Object.keys(t).forEach((k) => set.add(k));
+      return set;
+    }, new Set())
+  );
 
   const query = searchQuery.trim().toLowerCase();
   const filteredTeachers = teachers.filter((t) => {
@@ -66,9 +83,9 @@ export default function TeachersTable() {
           onChange={(e) => setSearchColumn(e.target.value)}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm sm:w-48"
         >
-          {SEARCH_COLUMNS.map((col) => (
-            <option key={col.value} value={col.value}>
-              {col.label}
+          {columns.map((col) => (
+            <option key={col} value={col}>
+              {formatColumnLabel(col)}
             </option>
           ))}
         </select>
@@ -76,7 +93,7 @@ export default function TeachersTable() {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder={`${SEARCH_COLUMNS.find((c) => c.value === searchColumn)?.label} 검색...`}
+          placeholder={`${formatColumnLabel(searchColumn)} 검색...`}
           className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
         />
       </div>
@@ -93,18 +110,16 @@ export default function TeachersTable() {
         </div>
       ) : (
         <>
-          {/* Table view (sm and up) */}
+          {/* Table view (sm and up) — one column per teachers table column */}
           <div className="hidden sm:block bg-white border border-gray-200 rounded-xl overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-gray-50 border-b text-xs font-medium text-gray-500">
-                  <th className="text-left px-4 py-3">Name</th>
-                  <th className="text-left px-4 py-3">School</th>
-                  <th className="text-left px-4 py-3">Status</th>
-                  <th className="text-left px-4 py-3">Subjects</th>
-                  <th className="text-left px-4 py-3">Contact</th>
-                  <th className="text-left px-4 py-3">Extra Subject</th>
-                  <th className="text-left px-4 py-3">Created</th>
+                  {columns.map((col) => (
+                    <th key={col} className="text-left px-4 py-3 whitespace-nowrap">
+                      {formatColumnLabel(col)}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
@@ -113,31 +128,35 @@ export default function TeachersTable() {
                     key={teacher.id}
                     className={i !== filteredTeachers.length - 1 ? 'border-b border-gray-100' : ''}
                   >
-                    <td className="px-4 py-3 font-medium text-gray-900">
-                      <a
-                        href={`/profile/${encodeURIComponent(teacher.name)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="hover:underline"
+                    {columns.map((col) => (
+                      <td
+                        key={col}
+                        className="px-4 py-3 text-gray-600 max-w-[220px] truncate"
+                        title={formatValue(teacher[col])}
                       >
-                        {teacher.name}
-                      </a>
-                    </td>
-                    <td className="px-4 py-3 text-gray-600">{teacher.school || '없음'}</td>
-                    <td className="px-4 py-3"><StatusBadge status={teacher.status} /></td>
-                    <td className="px-4 py-3 text-gray-600">
-                      {Array.isArray(teacher.subjects) ? teacher.subjects.join(', ') : (teacher.subjects || '없음')}
-                    </td>
-                    <td className="px-4 py-3 text-gray-600">{teacher.contact_information || '없음'}</td>
-                    <td className="px-4 py-3 text-gray-600">{teacher.extra_subject || '없음'}</td>
-                    <td className="px-4 py-3 text-gray-500">{teacher.created_date || '없음'}</td>
+                        {col === 'name' ? (
+                          <a
+                            href={`/profile/${encodeURIComponent(teacher.name)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-medium text-gray-900 hover:underline"
+                          >
+                            {teacher.name}
+                          </a>
+                        ) : col === 'status' ? (
+                          <StatusBadge status={teacher.status} />
+                        ) : (
+                          formatValue(teacher[col])
+                        )}
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          {/* Card list view (below sm) */}
+          {/* Card list view (below sm) — every column listed per teacher */}
           <div className="sm:hidden space-y-3">
             {filteredTeachers.map((teacher) => (
               <div key={teacher.id} className="bg-white p-4 rounded-xl shadow space-y-2">
@@ -148,20 +167,18 @@ export default function TeachersTable() {
                     rel="noopener noreferrer"
                     className="font-bold hover:underline"
                   >
-                    {teacher.name}
+                    {teacher.name || '없음'}
                   </a>
                   <StatusBadge status={teacher.status} />
                 </div>
-                <div className="text-gray-500 text-sm">{teacher.school || '없음'}</div>
-                <div className="text-sm text-gray-700">
-                  <strong>과목:</strong>{' '}
-                  {Array.isArray(teacher.subjects) ? teacher.subjects.join(', ') : (teacher.subjects || '없음')}
-                  <br />
-                  <strong>추가 과목:</strong> {teacher.extra_subject || '없음'}
-                  <br />
-                  <strong>연락처:</strong> {teacher.contact_information || '없음'}
-                  <br />
-                  <strong>가입일:</strong> {teacher.created_date || '없음'}
+                <div className="text-sm text-gray-700 space-y-1">
+                  {columns
+                    .filter((col) => col !== 'name' && col !== 'status')
+                    .map((col) => (
+                      <div key={col}>
+                        <strong>{formatColumnLabel(col)}:</strong> {formatValue(teacher[col])}
+                      </div>
+                    ))}
                 </div>
               </div>
             ))}

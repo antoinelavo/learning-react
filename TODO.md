@@ -26,6 +26,7 @@
 
 ## General
 
+- Update find page view count
 - Add SEO sitemap entries for /community posts
 - Notifications (e.g. notify user when someone replies to their post)
 - Update the footer

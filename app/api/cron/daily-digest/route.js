@@ -49,10 +49,10 @@ export async function GET(request) {
     // Fetch subscribers
     const [studentSubs, hagwonSubs] = await Promise.all([
       newStudentJobs.length > 0
-        ? supabase.from('newsletter_subscriptions').select('email')
+        ? supabase.from('newsletter_subscriptions').select('email, unsubscribe_token')
         : { data: [] },
       newHagwonRequests.length > 0
-        ? supabase.from('hagwon_newsletter_subscriptions').select('email')
+        ? supabase.from('hagwon_newsletter_subscriptions').select('email, unsubscribe_token')
         : { data: [] },
     ]);
 
@@ -62,38 +62,40 @@ export async function GET(request) {
 
     // Send student digest
     if (newStudentJobs.length > 0 && studentSubs.data?.length > 0) {
-      const studentEmails = TEST_OVERRIDE_EMAIL
-        ? [TEST_OVERRIDE_EMAIL]
-        : studentSubs.data.map((s) => s.email);
-      const studentHtml = buildStudentDigestHtml(newStudentJobs);
+      const studentRecipients = TEST_OVERRIDE_EMAIL
+        ? studentSubs.data.map((s) => ({ ...s, email: TEST_OVERRIDE_EMAIL }))
+        : studentSubs.data;
 
-      for (const email of studentEmails) {
+      for (const sub of studentRecipients) {
+        const unsubscribeUrl = `${SITE_URL}/unsubscribe?token=${sub.unsubscribe_token}&list=student`;
+        const studentHtml = buildStudentDigestHtml(newStudentJobs, unsubscribeUrl);
         const { data, error } = await resend.emails.send({
           from: FROM_EMAIL,
-          to: email,
+          to: sub.email,
           subject: `[IBMaster] 오늘의 새 학생 요청 ${newStudentJobs.length}건`,
           html: studentHtml,
         });
-        results.push({ type: 'student', email, success: !error, error: error?.message });
+        results.push({ type: 'student', email: sub.email, success: !error, error: error?.message });
         await delay(600);
       }
     }
 
     // Send hagwon digest
     if (newHagwonRequests.length > 0 && hagwonSubs.data?.length > 0) {
-      const hagwonEmails = TEST_OVERRIDE_EMAIL
-        ? [TEST_OVERRIDE_EMAIL]
-        : hagwonSubs.data.map((s) => s.email);
-      const hagwonHtml = buildHagwonDigestHtml(newHagwonRequests);
+      const hagwonRecipients = TEST_OVERRIDE_EMAIL
+        ? hagwonSubs.data.map((s) => ({ ...s, email: TEST_OVERRIDE_EMAIL }))
+        : hagwonSubs.data;
 
-      for (const email of hagwonEmails) {
+      for (const sub of hagwonRecipients) {
+        const unsubscribeUrl = `${SITE_URL}/unsubscribe?token=${sub.unsubscribe_token}&list=hagwon`;
+        const hagwonHtml = buildHagwonDigestHtml(newHagwonRequests, unsubscribeUrl);
         const { data, error } = await resend.emails.send({
           from: FROM_EMAIL,
-          to: email,
+          to: sub.email,
           subject: `[IBMaster] 오늘의 새 학원 요청 ${newHagwonRequests.length}건`,
           html: hagwonHtml,
         });
-        results.push({ type: 'hagwon', email, success: !error, error: error?.message });
+        results.push({ type: 'hagwon', email: sub.email, success: !error, error: error?.message });
         await delay(600);
       }
     }
@@ -127,7 +129,7 @@ function pill(text, bg, color, border) {
   return `<span style="display: inline-block; padding: 2px 8px; background: ${bg}; color: ${color}; border: 1px solid ${border}; border-radius: 9999px; font-size: 11px; line-height: 18px; margin: 0 4px 4px 0; white-space: nowrap;">${text}</span>`;
 }
 
-function buildStudentDigestHtml(jobs) {
+function buildStudentDigestHtml(jobs, unsubscribeUrl) {
   const cards = jobs
     .map(
       (job) => {
@@ -170,11 +172,12 @@ function buildStudentDigestHtml(jobs) {
     '학생 게시판',
     `오늘 새로 올라온 학생 요청 <strong>${jobs.length}건</strong>을 확인하세요.`,
     cards,
-    `${SITE_URL}/students`
+    `${SITE_URL}/students`,
+    unsubscribeUrl
   );
 }
 
-function buildHagwonDigestHtml(requests) {
+function buildHagwonDigestHtml(requests, unsubscribeUrl) {
   const cards = requests
     .map(
       (req) => {
@@ -223,11 +226,12 @@ function buildHagwonDigestHtml(requests) {
     '학원 요청 게시판',
     `오늘 새로 올라온 학원 요청 <strong>${requests.length}건</strong>을 확인하세요.`,
     cards,
-    `${SITE_URL}/hagwon-requests`
+    `${SITE_URL}/hagwon-requests`,
+    unsubscribeUrl
   );
 }
 
-function wrapInLayout(heading, subtitle, cards, ctaUrl) {
+function wrapInLayout(heading, subtitle, cards, ctaUrl, unsubscribeUrl) {
   return `
 <!DOCTYPE html>
 <html>
@@ -264,7 +268,7 @@ function wrapInLayout(heading, subtitle, cards, ctaUrl) {
       <tr>
         <td align="center" style="padding: 16px 0 0; color: #9ca3af; font-size: 12px;">
           <p style="margin: 0 0 4px;">IBMaster · ibmaster.net</p>
-          <p style="margin: 0;">이 이메일은 IBMaster 알림 구독자에게 발송됩니다.</p>
+          <p style="margin: 0;">이 이메일은 IBMaster 알림 구독자에게 발송됩니다. <a href="${unsubscribeUrl}" style="color: #9ca3af; text-decoration: underline;">수신거부</a></p>
         </td>
       </tr>
     </table>

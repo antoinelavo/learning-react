@@ -26,32 +26,37 @@ export async function POST(request) {
 
     const { data: subscribers, error: subError } = await supabase
       .from(subscriberTable)
-      .select('email'); // THIS IS WHERE I ADD 'email' TO ACTIVATE IT
+      .select('email, unsubscribe_token');
 
     if (subError || !subscribers?.length) {
       return NextResponse.json({ message: 'No subscribers found', subscriberCount: 0 });
     }
 
     const TEST_OVERRIDE_EMAIL = process.env.TEST_OVERRIDE_EMAIL;
-    const emailList = TEST_OVERRIDE_EMAIL ? [TEST_OVERRIDE_EMAIL] : subscribers.map((s) => s.email);
+    const recipients = TEST_OVERRIDE_EMAIL
+      ? subscribers.map((s) => ({ ...s, email: TEST_OVERRIDE_EMAIL }))
+      : subscribers;
 
     const subject = isStudent
       ? `[IBMaster] 새로운 학생 요청이 도착했습니다.`
       : `[IBMaster] 새로운 학생 요청이 도착했습니다.`;
 
-    const html = isStudent ? buildStudentEmailHtml(post) : buildHagwonEmailHtml(post);
-
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     const results = [];
 
-    for (const email of emailList) {
+    for (const sub of recipients) {
+      const unsubscribeUrl = `${SITE_URL}/unsubscribe?token=${sub.unsubscribe_token}&list=${isStudent ? 'student' : 'hagwon'}`;
+      const html = isStudent
+        ? buildStudentEmailHtml(post, unsubscribeUrl)
+        : buildHagwonEmailHtml(post, unsubscribeUrl);
+
       const { data, error } = await resend.emails.send({
         from: FROM_EMAIL,
-        to: email,
+        to: sub.email,
         subject,
         html,
       });
-      results.push({ email, success: !error, error: error?.message });
+      results.push({ email: sub.email, success: !error, error: error?.message });
       await delay(600);
     }
 
@@ -77,7 +82,7 @@ function formatFormat(format, region) {
   return region && format !== 'online' ? `${label} · ${region}` : label;
 }
 
-function buildStudentEmailHtml(post) {
+function buildStudentEmailHtml(post, unsubscribeUrl) {
   const pills = [];
   if (post.subject) {
     post.subject.split(', ').forEach((s) => pills.push(pill(s, '#eff6ff', '#1d4ed8', '#bfdbfe')));
@@ -90,11 +95,12 @@ function buildStudentEmailHtml(post) {
 
   return wrapInLayout(
     '새로운 학생 요청이 도착했습니다.',
-    buildPostCard(post, pills, `${SITE_URL}/students`)
+    buildPostCard(post, pills, `${SITE_URL}/students`),
+    unsubscribeUrl
   );
 }
 
-function buildHagwonEmailHtml(post) {
+function buildHagwonEmailHtml(post, unsubscribeUrl) {
   const pills = [];
   if (post.program_type) {
     post.program_type.split(', ').forEach((t) => pills.push(pill(t === 'both' ? 'IB + SAT' : t, '#faf5ff', '#7e22ce', '#e9d5ff')));
@@ -113,7 +119,8 @@ function buildHagwonEmailHtml(post) {
 
   return wrapInLayout(
     '새 학원 요청이 올라왔습니다',
-    buildPostCard(post, pills, `${SITE_URL}/hagwon-requests`)
+    buildPostCard(post, pills, `${SITE_URL}/hagwon-requests`),
+    unsubscribeUrl
   );
 }
 
@@ -141,7 +148,7 @@ function buildPostCard(post, pills, linkUrl) {
     </table>`;
 }
 
-function wrapInLayout(heading, cardHtml) {
+function wrapInLayout(heading, cardHtml, unsubscribeUrl) {
   return `
 <!DOCTYPE html>
 <html>
@@ -166,7 +173,7 @@ function wrapInLayout(heading, cardHtml) {
       <tr>
         <td align="center" style="padding: 16px 0 0; color: #9ca3af; font-size: 12px;">
           <p style="margin: 0 0 4px;">IBMaster · ibmaster.net</p>
-          <p style="margin: 0;">이 이메일은 IBMaster 알림 구독자에게 발송됩니다.</p>
+          <p style="margin: 0;">이 이메일은 IBMaster 알림 구독자에게 발송됩니다. <a href="${unsubscribeUrl}" style="color: #9ca3af; text-decoration: underline;">수신거부</a></p>
         </td>
       </tr>
     </table>

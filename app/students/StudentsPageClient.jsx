@@ -39,6 +39,13 @@ export default function StudentsPageClient() {
         return a.status === 'OPEN' ? -1 : 1;
       });
 
+      // Hide requests older than 1 month
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+      const recentData = sortedData?.filter(
+        (s) => new Date(s.created_at) >= oneMonthAgo
+      );
+
       if (dbError) {
         console.error('Error loading students:', dbError);
         // #region agent log
@@ -81,7 +88,7 @@ export default function StudentsPageClient() {
       }).catch(() => {});
       // #endregion
 
-      setStudents(sortedData || []);
+      setStudents(recentData || []);
       setLoading(false);
     }
 
@@ -242,7 +249,7 @@ export default function StudentsPageClient() {
             
           </p>
           <p className="text-sm text-gray-400">
-            ( 오래된 게시글은 자동 삭제됩니다 )
+            ( 최근 1개월에 올라온 요청글만 표시됩니다 )
           </p>
         </div>
         <div className="shrink-0">
@@ -355,6 +362,15 @@ export default function StudentsPageClient() {
                           : `대면/온라인${student.region ? ` · ${student.region}` : ''}`}
                       </span>
                     </div>
+                    {student.created_at && (
+                      <p className="text-xs text-gray-400 mt-2">
+                        등록일: {new Date(student.created_at).toLocaleDateString('ko-KR', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      </p>
+                    )}
                   </button>
 
                   {isExpanded && (

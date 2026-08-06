@@ -43,10 +43,7 @@ function UnsubscribeContent() {
         )}
 
         {status === 'done' && (
-          <>
-            <h1 className="text-xl font-semibold text-gray-900 mb-2">구독이 취소되었습니다</h1>
-            <p className="text-sm text-gray-600">앞으로 이 메일링 리스트로 알림을 보내드리지 않습니다.</p>
-          </>
+          <h1 className="text-xl font-semibold text-gray-900 mb-2">구독이 취소되었습니다</h1>
         )}
 
         {status === 'invalid' && (

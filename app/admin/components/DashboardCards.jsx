@@ -166,46 +166,46 @@ export default function DashboardCards() {
 
 // Teacher profiles
 async function getPendingProfileCount() {
-  const { data, error } = await supabase
+  const { count, error } = await supabase
     .from('teachers')
-    .select('id', { count: 'exact' })
+    .select('id', { count: 'exact', head: true })
     .eq('status', 'pending');
   if (error) return 0;
-  return data.length;
+  return count ?? 0;
 }
 
 // Student requests functions
 async function getStudentJobsCount() {
-  const { data, error } = await supabase
+  const { count, error } = await supabase
     .from('student_jobs')
-    .select('id', { count: 'exact' });
+    .select('id', { count: 'exact', head: true });
   if (error) return 0;
-  return data.length;
+  return count ?? 0;
 }
 
 async function getStudentJobViewsCount() {
-  const { data, error } = await supabase
+  const { count, error } = await supabase
     .from('student_job_views')
-    .select('id', { count: 'exact' });
+    .select('id', { count: 'exact', head: true });
   if (error) return 0;
-  return data.length;
+  return count ?? 0;
 }
 
 async function getStudentNewsletterCount() {
-  const { data, error } = await supabase
+  const { count, error } = await supabase
     .from('newsletter_subscriptions')
-    .select('id', { count: 'exact' });
+    .select('id', { count: 'exact', head: true });
   if (error) return 0;
-  return data.length;
+  return count ?? 0;
 }
 
 // Hagwon requests functions
 async function getHagwonRequestsCount() {
-  const { data, error } = await supabase
+  const { count, error } = await supabase
     .from('hagwon_requests')
-    .select('id', { count: 'exact' });
+    .select('id', { count: 'exact', head: true });
   if (error) return 0;
-  return data.length;
+  return count ?? 0;
 }
 
 async function getHagwonRequestViewsCount() {
@@ -217,49 +217,49 @@ async function getHagwonRequestViewsCount() {
 }
 
 async function getHagwonNewsletterCount() {
-  const { data, error } = await supabase
+  const { count, error } = await supabase
     .from('hagwon_newsletter_subscriptions')
-    .select('id', { count: 'exact' });
+    .select('id', { count: 'exact', head: true });
   if (error) return 0;
-  return data.length;
+  return count ?? 0;
 }
 
 async function getStudentNewThisWeek() {
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-  const { data, error } = await supabase
+  const { count, error } = await supabase
     .from('student_jobs')
-    .select('id', { count: 'exact' })
+    .select('id', { count: 'exact', head: true })
     .gte('created_at', oneWeekAgo.toISOString());
   if (error) return 0;
-  return data.length;
+  return count ?? 0;
 }
 
 async function getStudentStatusCount(status) {
-  const { data, error } = await supabase
+  const { count, error } = await supabase
     .from('student_jobs')
-    .select('id', { count: 'exact' })
+    .select('id', { count: 'exact', head: true })
     .eq('status', status);
   if (error) return 0;
-  return data.length;
+  return count ?? 0;
 }
 
 async function getHagwonNewThisWeek() {
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-  const { data, error } = await supabase
+  const { count, error } = await supabase
     .from('hagwon_requests')
-    .select('id', { count: 'exact' })
+    .select('id', { count: 'exact', head: true })
     .gte('created_at', oneWeekAgo.toISOString());
   if (error) return 0;
-  return data.length;
+  return count ?? 0;
 }
 
 async function getHagwonStatusCount(status) {
-  const { data, error } = await supabase
+  const { count, error } = await supabase
     .from('hagwon_requests')
-    .select('id', { count: 'exact' })
+    .select('id', { count: 'exact', head: true })
     .eq('status', status);
   if (error) return 0;
-  return data.length;
+  return count ?? 0;
 }

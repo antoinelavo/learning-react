@@ -259,7 +259,10 @@ export default function DashboardPage() {
         alert(result.error || '결제 확인 중 오류가 발생했습니다.');
       }
     } catch (error) {
-      alert('결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+      // Surface the underlying message while we're debugging this flow, since
+      // it's the only way to see what actually failed on a phone with no
+      // console access. TODO: revert to a plain friendly message once verified working.
+      alert(`결제 처리 중 오류가 발생했습니다: ${error?.message || error}`);
     } finally {
       setExpediteProcessing(false);
     }

@@ -6,7 +6,16 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import PremiumListingOffer from '@/components/PremiumListingOffer';
 import TeacherCard from '@/components/TeacherCard';
+import PortOne from '@portone/browser-sdk/v2';
 
+const EXPEDITE_AMOUNT = 9000; // KRW — must match the server-side constant in app/api/expedite/verify-payment/route.js
+
+// Generate random payment ID (from PortOne docs)
+function randomId() {
+  return [...crypto.getRandomValues(new Uint32Array(2))]
+    .map((word) => word.toString(16).padStart(8, "0"))
+    .join("")
+}
 
 export default function DashboardPage() {
 
@@ -17,6 +26,8 @@ export default function DashboardPage() {
   const [statusInfo, setStatusInfo] = useState(null);
   const [quillReady, setQuillReady] = useState(false);
   const [showExpediteAccount, setShowExpediteAccount] = useState(false);
+  const [expediteProcessing, setExpediteProcessing] = useState(false);
+  const [expediteBankRequested, setExpediteBankRequested] = useState(false);
 
   const formRef = useRef();
 
@@ -193,6 +204,90 @@ export default function DashboardPage() {
     }
   };
 
+  const handleExpediteCardPayment = async () => {
+    if (!teacher?.id || !teacher?.name || expediteProcessing) return;
+    setExpediteProcessing(true);
+
+    try {
+      const paymentId = randomId();
+
+      const payment = await PortOne.requestPayment({
+        storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID,
+        channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY,
+        paymentId,
+        orderName: '프로필 빠른 검토 서비스',
+        totalAmount: EXPEDITE_AMOUNT,
+        currency: "KRW",
+        payMethod: "CARD",
+        customer: {
+          customerId: teacher.id.toString(),
+          fullName: teacher.name,
+          email: `teacher${teacher.id}@payments.yoursite.com`,
+          phoneNumber: '010-0000-0000',
+        },
+        customData: JSON.stringify({ teacherId: teacher.id }), // informational only — the server never trusts this
+        redirectUrl: `${window.location.origin}/dashboard`,
+      });
+
+      if (payment.code !== undefined) {
+        alert(`결제 실패: ${payment.message}`);
+        return;
+      }
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+        return;
+      }
+
+      const res = await fetch('/api/expedite/verify-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ paymentId: payment.paymentId }),
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        alert('결제가 완료되었습니다! 프로필이 승인되었습니다.');
+        setTeacher((prev) => ({ ...prev, status: 'approved' }));
+        updateStatus('approved');
+      } else {
+        alert(result.error || '결제 확인 중 오류가 발생했습니다.');
+      }
+    } catch (error) {
+      alert('결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+    } finally {
+      setExpediteProcessing(false);
+    }
+  };
+
+  const handleExpediteBankTransfer = async () => {
+    if (!teacher?.id || expediteBankRequested) return;
+
+    try {
+      setShowExpediteAccount(true);
+      setExpediteBankRequested(true);
+
+      const { error } = await supabase.from('expedite_payments').insert([{
+        teacher_id: teacher.id,
+        method: 'bank_transfer',
+        amount: EXPEDITE_AMOUNT,
+        status: 'pending',
+        requested_at: new Date().toISOString(),
+      }]);
+
+      if (error) {
+        alert('요청 기록 중 오류가 발생했습니다.');
+      }
+    } catch (error) {
+      alert('요청 처리 중 오류가 발생했습니다.');
+    }
+  };
+
   return (
     <div className="max-w-[1025px] mx-auto py-12 px-4 min-h-screen">
 
@@ -235,22 +330,41 @@ export default function DashboardPage() {
             </div>
           )}
 
-                    {/* Express profile verification service temporarily disabled
           {teacher.status === 'pending' && (
             <div className="mt-6 p-8 bg-white border border-gray-200 shadow rounded-2xl text-center">
             <h2 className="text-2xl font-bold mb-4">프로필 검토 중입니다</h2>
             <p className="text-gray-600">현재 많은 선생님들의 지원으로 인해 프로필 검토에 약 1주 정도 소요되고 있습니다.</p>
-            <p className="text-gray-600 mb-4">9,000원을 입금하시면 1영업일 내로 프로필 검토를 완료해드립니다. </p>
+            <p className="text-gray-600">9,000원을 결제하시면 아래 방법에 따라 프로필 검토를 빠르게 진행해드립니다.</p>
+            <p className="text-gray-600 mb-4">· 카드 결제 시 <strong>즉시 자동으로</strong> 프로필이 승인됩니다.<br />· 계좌이체는 입금 확인 후 1영업일 내로 검토가 진행됩니다 (자동 승인이 아닌 관리자 확인 후 승인).</p>
             <p className="text-xs text-gray-600 mb-4">*수익금은 사이트 운영 및 서비스 개선에 사용됩니다.</p>
 
               <div className="max-w-md mx-auto">
 
-                <button
-                  onClick={() => setShowExpediteAccount(!showExpediteAccount)}
-                  className="mt-6 px-6 py-3 rounded-xl font-semibold transition bg-blue-600 text-white hover:bg-blue-700"
-                >
-                  {showExpediteAccount ? '계좌 정보 숨기기' : '빠른 검토 요청하기'}
-                </button>
+                <div className="flex flex-col sm:flex-row justify-center gap-2">
+                  <button
+                    onClick={handleExpediteCardPayment}
+                    disabled={expediteProcessing}
+                    className={`mt-6 px-6 py-3 rounded-xl font-semibold transition w-full ${
+                      expediteProcessing
+                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
+                  >
+                    {expediteProcessing ? '결제 진행 중...' : '카드로 즉시 승인받기'}
+                  </button>
+
+                  <button
+                    onClick={handleExpediteBankTransfer}
+                    disabled={expediteBankRequested}
+                    className={`mt-6 px-6 py-3 rounded-xl font-semibold transition w-full ${
+                      expediteBankRequested
+                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
+                  >
+                    {expediteBankRequested ? '계좌 정보 확인' : '계좌이체로 요청하기'}
+                  </button>
+                </div>
 
                 {showExpediteAccount && (
                   <div className="mt-4 p-4 bg-gray-50 rounded-lg border text-center">
@@ -265,9 +379,7 @@ export default function DashboardPage() {
                 )}
               </div>
             </div>
-          )
-          }
-          */}
+          )}
 
         </div>
         

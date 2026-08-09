@@ -16,7 +16,9 @@ create table if not exists expedite_payments (
 alter table expedite_payments enable row level security;
 
 -- Teachers can read their own expedite payment history.
+-- teachers.user_id is stored as text in this database, so auth.uid() (uuid)
+-- needs an explicit cast to compare against it.
 create policy "teacher_read_own" on expedite_payments
   for select using (
-    teacher_id in (select id from teachers where user_id = auth.uid())
+    teacher_id in (select id from teachers where user_id = auth.uid()::text)
   );

@@ -400,8 +400,8 @@ export default function DashboardPage() {
 
           {teacher.status === 'pending' && isPaidExpediteUser && (
             <div className="mt-6 p-5 sm:p-8 bg-white border border-gray-200 shadow rounded-2xl text-center">
-              <h2 className="text-2xl font-bold mb-4">프로필을 빠르게 재검토 중입니다</h2>
-              <p className="text-gray-600">유료회원이신 선생님은 프로필 수정 후에도 <strong>약 1일 이내</strong>로 우선 검토해드립니다.</p>
+              <h2 className="text-2xl font-bold mb-4">프로필을 검토중입니다.</h2>
+              <p className="text-gray-600">유료회원은 프로필 수정 후 약 1일 내 검토해드립니다.</p>
             </div>
           )}
 

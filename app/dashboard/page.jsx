@@ -416,29 +416,29 @@ export default function DashboardPage() {
 
               <div className="max-w-md mx-auto">
 
-                <div className="flex flex-col sm:flex-row justify-center gap-2">
+                <div className="flex flex-row justify-center gap-2">
                   <button
                     onClick={handleExpediteCardPayment}
                     disabled={expediteProcessing}
-                    className={`mt-6 px-6 py-3 rounded-xl font-semibold transition w-full ${
+                    className={`mt-6 px-4 py-2 text-sm rounded-xl font-semibold transition w-full ${
                       expediteProcessing
                         ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                         : 'bg-blue-600 text-white hover:bg-blue-700'
                     }`}
                   >
-                    {expediteProcessing ? '결제 진행 중...' : '카드로 즉시 승인받기'}
+                    {expediteProcessing ? '결제 진행 중...' : '일반 결제'}
                   </button>
 
                   <button
                     onClick={handleExpediteBankTransfer}
                     disabled={expediteBankRequested}
-                    className={`mt-6 px-6 py-3 rounded-xl font-semibold transition w-full ${
+                    className={`mt-6 px-4 py-2 text-sm rounded-xl font-semibold transition w-full ${
                       expediteBankRequested
                         ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                         : 'bg-blue-600 text-white hover:bg-blue-700'
                     }`}
                   >
-                    {expediteBankRequested ? '계좌 정보 확인' : '계좌이체로 요청하기'}
+                    {expediteBankRequested ? '계좌 정보 확인' : '계좌이체'}
                   </button>
                 </div>
 

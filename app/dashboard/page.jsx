@@ -85,6 +85,23 @@ export default function DashboardPage() {
     loadTeacherProfile();
   }, [authLoading, user, role, teacherStatus]);
 
+  // Mobile PortOne payments finish with a full-page redirect back to this
+  // page (see redirectUrl in handleExpediteCardPayment) instead of resolving
+  // the requestPayment() call in place like desktop does. Pick up the result
+  // from the URL if we were just sent back from a payment.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const paymentId = params.get('paymentId') || params.get('payment_id');
+    if (!paymentId) return;
+
+    // Strip the query string immediately so refreshing the page doesn't
+    // re-trigger verification for the same payment.
+    router.replace('/dashboard');
+
+    verifyExpeditePayment(paymentId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount only
+  }, []);
+
     useEffect(() => {
 
 
@@ -204,15 +221,52 @@ export default function DashboardPage() {
     }
   };
 
+  // Confirms a payment with our server and, on success, approves the profile
+  // and updates the UI. Called both right after PortOne.requestPayment()
+  // resolves in-page (desktop) and from the redirect-detection effect below
+  // (mobile flows, which do a full-page redirect instead of resolving that
+  // call in the original page).
+  const verifyExpeditePayment = async (paymentId) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+        return;
+      }
+
+      const res = await fetch('/api/expedite/verify-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ paymentId }),
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        alert('결제가 완료되었습니다! 프로필이 승인되었습니다.');
+        setTeacher((prev) => (prev ? { ...prev, status: 'approved' } : prev));
+        updateStatus('approved');
+      } else {
+        alert(result.error || '결제 확인 중 오류가 발생했습니다.');
+      }
+    } catch (error) {
+      // Surface the underlying message while we're still debugging this flow,
+      // since it's the only way to see what actually failed on a phone with
+      // no console access. TODO: revert to a plain friendly message once
+      // verified working end-to-end.
+      alert(`결제 확인 중 오류가 발생했습니다: ${error?.message || error}`);
+    }
+  };
+
   const handleExpediteCardPayment = async () => {
     if (!teacher?.id || !teacher?.name || expediteProcessing) return;
     setExpediteProcessing(true);
 
     try {
       const paymentId = randomId();
-
-      // TEMPORARY debug check — remove once the env vars are confirmed working.
-      alert(`[디버그] storeId: ${process.env.NEXT_PUBLIC_PORTONE_STORE_ID}\n[디버그] channelKey: ${process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY}`);
 
       const payment = await PortOne.requestPayment({
         storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID,
@@ -232,39 +286,18 @@ export default function DashboardPage() {
         redirectUrl: `${window.location.origin}/dashboard`,
       });
 
-      if (payment.code !== undefined) {
+      // On mobile, PortOne does a full-page redirect back to redirectUrl
+      // instead of resolving this call, so `payment` here will only ever be
+      // defined on flows that stayed on the same page (mainly desktop).
+      if (payment?.code !== undefined) {
         alert(`결제 실패: ${payment.message}`);
         return;
       }
 
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-        return;
-      }
-
-      const res = await fetch('/api/expedite/verify-payment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({ paymentId: payment.paymentId }),
-      });
-
-      const result = await res.json();
-
-      if (res.ok) {
-        alert('결제가 완료되었습니다! 프로필이 승인되었습니다.');
-        setTeacher((prev) => ({ ...prev, status: 'approved' }));
-        updateStatus('approved');
-      } else {
-        alert(result.error || '결제 확인 중 오류가 발생했습니다.');
+      if (payment?.paymentId) {
+        await verifyExpeditePayment(payment.paymentId);
       }
     } catch (error) {
-      // Surface the underlying message while we're debugging this flow, since
-      // it's the only way to see what actually failed on a phone with no
-      // console access. TODO: revert to a plain friendly message once verified working.
       alert(`결제 처리 중 오류가 발생했습니다: ${error?.message || error}`);
     } finally {
       setExpediteProcessing(false);

@@ -28,6 +28,7 @@ export default function DashboardPage() {
   const [showExpediteAccount, setShowExpediteAccount] = useState(false);
   const [expediteProcessing, setExpediteProcessing] = useState(false);
   const [expediteBankRequested, setExpediteBankRequested] = useState(false);
+  const [isPaidExpediteUser, setIsPaidExpediteUser] = useState(false);
 
   const formRef = useRef();
 
@@ -65,8 +66,20 @@ export default function DashboardPage() {
           return;
         }
 
+        // A teacher who has ever completed an expedite payment (card,
+        // auto-marked 'paid'; or bank transfer, marked 'paid' once an admin
+        // confirms the deposit) gets fast-tracked review on future edits too.
+        const { data: paidPayments } = await supabase
+          .from('expedite_payments')
+          .select('id')
+          .eq('teacher_id', profile.id)
+          .eq('status', 'paid')
+          .limit(1);
+        const isPaid = (paidPayments?.length ?? 0) > 0;
+
         setTeacher(profile);
-        updateStatus(profile.status);
+        setIsPaidExpediteUser(isPaid);
+        updateStatus(profile.status, isPaid);
 
         const { data: teachers, error: subjectsError } = await supabase
           .from('teachers')
@@ -152,9 +165,11 @@ export default function DashboardPage() {
     return () => clearTimeout(timer);
     }    }, [teacher]);
 
-  const updateStatus = (status) => {
+  const updateStatus = (status, isPaid = isPaidExpediteUser) => {
     const statusMap = {
-      pending: ['계정 상태: 검토 중 - 예상 소요 시간: 7일', 'bg-yellow-100 text-yellow-700'],
+      pending: isPaid
+        ? ['계정 상태: 검토 중 (유료회원) - 예상 소요 시간: 1일', 'bg-yellow-100 text-yellow-700']
+        : ['계정 상태: 검토 중 - 예상 소요 시간: 21일', 'bg-yellow-100 text-yellow-700'],
       approved: ['계정 상태: 승인됨', 'bg-green-100 text-green-700'],
       rejected: ['계정 상태: 반려됨', 'bg-red-100 text-red-700'],
     };
@@ -248,7 +263,8 @@ export default function DashboardPage() {
       if (res.ok) {
         alert('결제가 완료되었습니다! 프로필이 승인되었습니다.');
         setTeacher((prev) => (prev ? { ...prev, status: 'approved' } : prev));
-        updateStatus('approved');
+        setIsPaidExpediteUser(true);
+        updateStatus('approved', true);
       } else {
         alert(result.error || '결제 확인 중 오류가 발생했습니다.');
       }
@@ -328,7 +344,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="max-w-[1025px] mx-auto py-12 px-4 min-h-screen">
+    <div className="max-w-[1025px] mx-auto py-6 px-4 sm:py-12 min-h-screen">
 
       {/* Student Section */}
       {role === 'student' && 
@@ -337,8 +353,8 @@ export default function DashboardPage() {
         {user && <p className="font-medium">계정 아이디: {user.email}</p>}
         <p>학생 계정으로 로그인하셨습니다.</p>
         <div className="mt-8 flex gap-4 w-full">
-          <button onClick={handleLogout} className="bg-blue-500 text-white w-1/2 px-[2em] py-[1em] rounded-lg">로그아웃</button>
-          <button onClick={handleDelete} className="bg-blue-900 text-white w-1/2 px-[2em] py-[1em] rounded-lg">탈퇴하기</button>
+          <button onClick={handleLogout} className="bg-blue-500 text-white w-1/2 px-6 py-3 sm:px-8 sm:py-4 rounded-lg">로그아웃</button>
+          <button onClick={handleDelete} className="bg-blue-900 text-white w-1/2 px-6 py-3 sm:px-8 sm:py-4 rounded-lg">탈퇴하기</button>
         </div>
       </div>
       }
@@ -356,26 +372,47 @@ export default function DashboardPage() {
 
         
         {/* Basic Header */}
-        <div className="flex flex-col mt-6 p-[3em] bg-white border border-solid border-gray-200 shadow rounded-2xl">
+        <div className="flex flex-col mt-6 p-6 sm:p-12 bg-white border border-solid border-gray-200 shadow rounded-2xl">
           <h1 className="text-2xl font-bold mb-1">계정 정보</h1>
           {user && <p className="font-medium">계정 아이디: {user.email}</p>}
 
           {role === 'teacher' && teacher && statusInfo && (
-            <div
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold w-fit ${statusInfo.classes}`}
-            >
-              <span className="w-2 h-2 rounded-full bg-current inline-block"></span>
-              {statusInfo.text}
+            <div className="flex flex-wrap items-center gap-2">
+              <div
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold w-fit ${statusInfo.classes}`}
+              >
+                <span className="w-2 h-2 rounded-full bg-current inline-block"></span>
+                {statusInfo.text}
+              </div>
+              {isPaidExpediteUser && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 w-fit">
+                  유료회원
+                </span>
+              )}
             </div>
           )}
 
-          {teacher.status === 'pending' && (
-            <div className="mt-6 p-8 bg-white border border-gray-200 shadow rounded-2xl text-center">
+          {teacher.status === 'approved' && (
+            <p className="text-xs text-gray-500 mt-3">
+              ※ 부적절한 내용이 발견될 경우 프로필이 사전 안내 없이 비공개 처리될 수 있습니다.
+            </p>
+          )}
+
+          {teacher.status === 'pending' && isPaidExpediteUser && (
+            <div className="mt-6 p-5 sm:p-8 bg-white border border-gray-200 shadow rounded-2xl text-center">
+              <h2 className="text-2xl font-bold mb-4">프로필을 빠르게 재검토 중입니다</h2>
+              <p className="text-gray-600">유료회원이신 선생님은 프로필 수정 후에도 <strong>약 1일 이내</strong>로 우선 검토해드립니다.</p>
+            </div>
+          )}
+
+          {teacher.status === 'pending' && !isPaidExpediteUser && (
+            <div className="mt-6 p-5 sm:p-8 bg-white border border-gray-200 shadow rounded-2xl text-center">
             <h2 className="text-2xl font-bold mb-4">프로필 검토 중입니다</h2>
-            <p className="text-gray-600">현재 많은 선생님들의 지원으로 인해 프로필 검토에 약 1주 정도 소요되고 있습니다.</p>
+            <p className="text-gray-600">현재 많은 선생님들의 지원으로 인해 프로필 검토에 약 3주 정도 소요되고 있습니다.</p>
             <p className="text-gray-600">9,000원을 결제하시면 아래 방법에 따라 프로필 검토를 빠르게 진행해드립니다.</p>
             <p className="text-gray-600 mb-4">· 카드 결제 시 <strong>즉시 자동으로</strong> 프로필이 승인됩니다.<br />· 계좌이체는 입금 확인 후 1영업일 내로 검토가 진행됩니다 (자동 승인이 아닌 관리자 확인 후 승인).</p>
             <p className="text-xs text-gray-600 mb-4">*수익금은 사이트 운영 및 서비스 개선에 사용됩니다.</p>
+            <p className="text-xs text-gray-500 mb-4">부적절하거나 허위의 내용을 게시하실 경우, 사전 안내 없이 프로필이 비공개 처리될 수 있는 점 양해 부탁드립니다.</p>
 
               <div className="max-w-md mx-auto">
 
@@ -423,7 +460,7 @@ export default function DashboardPage() {
         </div>
         
         {/* Edit Profile */}
-              <form ref={formRef} onSubmit={handleSubmit} className="space-y-4 mt-6 p-[3em] bg-white border border-solid border-gray-200 shadow rounded-2xl">
+              <form ref={formRef} onSubmit={handleSubmit} className="space-y-4 mt-6 p-6 sm:p-12 bg-white border border-solid border-gray-200 shadow rounded-2xl">
                 <h2 className="text-center">프로필 편집하기</h2>
                 <br></br>
                   <p className="text-sm mt-4">※ 정보 수정을 원하시면 아래 정보를 수정 후 <strong>저장하기</strong>를 눌러주세요.</p>
@@ -532,11 +569,11 @@ export default function DashboardPage() {
                   <input name="contact_information" type="text" defaultValue={teacher.contact_information} required className="w-full border border-gray-300 rounded-xl p-3 mt-2" />
                 </div>
 
-                <button type="submit" className="bg-blue-500 text-white px-[2em] py-[1em] rounded-xl mx-auto">저장하기</button>
+                <button type="submit" className="bg-blue-500 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl mx-auto">저장하기</button>
               </form>
                         <div className="mt-8 flex gap-4 w-full">
-            <button onClick={handleLogout} className="bg-blue-500 text-white w-1/2 px-[2em] py-[1em] rounded-lg">로그아웃</button>
-            <button onClick={handleDelete} className="bg-blue-900 text-white w-1/2 px-[2em] py-[1em] rounded-lg">탈퇴하기</button>
+            <button onClick={handleLogout} className="bg-blue-500 text-white w-1/2 px-6 py-3 sm:px-8 sm:py-4 rounded-lg">로그아웃</button>
+            <button onClick={handleDelete} className="bg-blue-900 text-white w-1/2 px-6 py-3 sm:px-8 sm:py-4 rounded-lg">탈퇴하기</button>
           </div>
       </>
       

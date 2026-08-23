@@ -9,6 +9,7 @@ const THREE_WEEKS_MS = 21 * 24 * 60 * 60 * 1000;
 
 export default function TeacherList() {
   const [teachers, setTeachers] = useState([]);
+  const [paidTeacherIds, setPaidTeacherIds] = useState(new Set());
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeTab, setActiveTab] = useState('recent');
 
@@ -21,7 +22,24 @@ export default function TeacherList() {
         .order('created_date', { ascending: false });
 
       if (!error && data) {
-        setTeachers(data);
+        // Paid expedite-approval teachers (card, or bank transfer once
+        // confirmed via ExpeditePaymentRequests) get bumped to the front so
+        // the promised ~1-day turnaround is actually actionable.
+        const { data: paidRows } = await supabase
+          .from('expedite_payments')
+          .select('teacher_id')
+          .eq('status', 'paid');
+        const paidIds = new Set((paidRows || []).map((r) => r.teacher_id));
+
+        const sorted = [...data].sort((a, b) => {
+          const aPaid = paidIds.has(a.id);
+          const bPaid = paidIds.has(b.id);
+          if (aPaid === bPaid) return 0;
+          return aPaid ? -1 : 1;
+        });
+
+        setTeachers(sorted);
+        setPaidTeacherIds(paidIds);
         setCurrentIndex(0);
       }
     }
@@ -108,7 +126,14 @@ export default function TeacherList() {
                 className="rounded-full object-cover"
               />
               <div className="flex-1">
-                <div className="font-bold">{teacher.name}</div>
+                <div className="flex items-center gap-2">
+                  <div className="font-bold">{teacher.name}</div>
+                  {paidTeacherIds.has(teacher.id) && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                      유료 · 빠른 처리
+                    </span>
+                  )}
+                </div>
                 <div className="text-gray-500 text-sm">{truncatedSchool}</div>
                 <div className="text-sm mt-1">{teacher.shortintroduction}</div>
               </div>

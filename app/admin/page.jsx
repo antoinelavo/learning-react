@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardCards from './components/DashboardCards';
 import TeacherList from './components/TeacherList';
+import ExpeditePaymentRequests from './components/ExpeditePaymentRequests';
 import ABTestTable from './components/ABTestTable';
 import FilterUsageTable from './components/FilterUsageTable';
 import { useRouter } from 'next/navigation';
@@ -39,6 +40,7 @@ export default function AdminPage() {
         <h3 className="text-lg font-semibold mb-4">🔍 A/B Test Stats</h3>
         <ABTestTable />
       </section> */}
+      <ExpeditePaymentRequests />
       <TeacherList />
       {/* <FilterUsageTable /> */}
     </div>

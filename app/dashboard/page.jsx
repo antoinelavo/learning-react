@@ -284,6 +284,9 @@ export default function DashboardPage() {
     try {
       const paymentId = randomId();
 
+      // TEMPORARY debug check — remove once the live channel key is confirmed working.
+      alert(`[디버그] channelKey: ${process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY}`);
+
       const payment = await PortOne.requestPayment({
         storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID,
         channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY,

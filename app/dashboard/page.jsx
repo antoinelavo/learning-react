@@ -104,12 +104,6 @@ export default function DashboardPage() {
   // from the URL if we were just sent back from a payment.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-
-    // TEMPORARY debug check — remove once the live redirect flow is confirmed working.
-    if (params.toString()) {
-      alert(`[디버그] redirect params: ${params.toString()}`);
-    }
-
     const paymentId = params.get('paymentId') || params.get('payment_id');
     if (!paymentId) return;
 

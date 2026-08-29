@@ -6,7 +6,16 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import PremiumListingOffer from '@/components/PremiumListingOffer';
 import TeacherCard from '@/components/TeacherCard';
+import PortOne from '@portone/browser-sdk/v2';
 
+const EXPEDITE_AMOUNT = 9000; // KRW — must match the server-side constant in app/api/expedite/verify-payment/route.js
+
+// Generate random payment ID (from PortOne docs)
+function randomId() {
+  return [...crypto.getRandomValues(new Uint32Array(2))]
+    .map((word) => word.toString(16).padStart(8, "0"))
+    .join("")
+}
 
 export default function DashboardPage() {
 
@@ -17,6 +26,9 @@ export default function DashboardPage() {
   const [statusInfo, setStatusInfo] = useState(null);
   const [quillReady, setQuillReady] = useState(false);
   const [showExpediteAccount, setShowExpediteAccount] = useState(false);
+  const [expediteProcessing, setExpediteProcessing] = useState(false);
+  const [expediteBankRequested, setExpediteBankRequested] = useState(false);
+  const [isPaidExpediteUser, setIsPaidExpediteUser] = useState(false);
 
   const formRef = useRef();
 
@@ -54,8 +66,20 @@ export default function DashboardPage() {
           return;
         }
 
+        // A teacher who has ever completed an expedite payment (card,
+        // auto-marked 'paid'; or bank transfer, marked 'paid' once an admin
+        // confirms the deposit) gets fast-tracked review on future edits too.
+        const { data: paidPayments } = await supabase
+          .from('expedite_payments')
+          .select('id')
+          .eq('teacher_id', profile.id)
+          .eq('status', 'paid')
+          .limit(1);
+        const isPaid = (paidPayments?.length ?? 0) > 0;
+
         setTeacher(profile);
-        updateStatus(profile.status);
+        setIsPaidExpediteUser(isPaid);
+        updateStatus(profile.status, isPaid);
 
         const { data: teachers, error: subjectsError } = await supabase
           .from('teachers')
@@ -73,6 +97,23 @@ export default function DashboardPage() {
 
     loadTeacherProfile();
   }, [authLoading, user, role, teacherStatus]);
+
+  // Mobile PortOne payments finish with a full-page redirect back to this
+  // page (see redirectUrl in handleExpediteCardPayment) instead of resolving
+  // the requestPayment() call in place like desktop does. Pick up the result
+  // from the URL if we were just sent back from a payment.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const paymentId = params.get('paymentId') || params.get('payment_id');
+    if (!paymentId) return;
+
+    // Strip the query string immediately so refreshing the page doesn't
+    // re-trigger verification for the same payment.
+    router.replace('/dashboard');
+
+    verifyExpeditePayment(paymentId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount only
+  }, []);
 
     useEffect(() => {
 
@@ -124,9 +165,11 @@ export default function DashboardPage() {
     return () => clearTimeout(timer);
     }    }, [teacher]);
 
-  const updateStatus = (status) => {
+  const updateStatus = (status, isPaid = isPaidExpediteUser) => {
     const statusMap = {
-      pending: ['계정 상태: 검토 중 - 예상 소요 시간: 7일', 'bg-yellow-100 text-yellow-700'],
+      pending: isPaid
+        ? ['계정 상태: 검토 중 (유료회원) - 예상 소요 시간: 1일', 'bg-yellow-100 text-yellow-700']
+        : ['계정 상태: 검토 중 - 예상 소요 시간: 21일', 'bg-yellow-100 text-yellow-700'],
       approved: ['계정 상태: 승인됨', 'bg-green-100 text-green-700'],
       rejected: ['계정 상태: 반려됨', 'bg-red-100 text-red-700'],
     };
@@ -193,8 +236,115 @@ export default function DashboardPage() {
     }
   };
 
+  // Confirms a payment with our server and, on success, approves the profile
+  // and updates the UI. Called both right after PortOne.requestPayment()
+  // resolves in-page (desktop) and from the redirect-detection effect below
+  // (mobile flows, which do a full-page redirect instead of resolving that
+  // call in the original page).
+  const verifyExpeditePayment = async (paymentId) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+        return;
+      }
+
+      const res = await fetch('/api/expedite/verify-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ paymentId }),
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        alert('결제가 완료되었습니다! 프로필이 승인되었습니다.');
+        setTeacher((prev) => (prev ? { ...prev, status: 'approved' } : prev));
+        setIsPaidExpediteUser(true);
+        updateStatus('approved', true);
+      } else {
+        alert(result.error || '결제 확인 중 오류가 발생했습니다.');
+      }
+    } catch (error) {
+      // Surface the underlying message while we're still debugging this flow,
+      // since it's the only way to see what actually failed on a phone with
+      // no console access. TODO: revert to a plain friendly message once
+      // verified working end-to-end.
+      alert(`결제 확인 중 오류가 발생했습니다: ${error?.message || error}`);
+    }
+  };
+
+  const handleExpediteCardPayment = async () => {
+    if (!teacher?.id || !teacher?.name || expediteProcessing) return;
+    setExpediteProcessing(true);
+
+    try {
+      const paymentId = randomId();
+
+      const payment = await PortOne.requestPayment({
+        storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID,
+        channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY,
+        paymentId,
+        orderName: '프로필 빠른 검토 서비스',
+        totalAmount: EXPEDITE_AMOUNT,
+        currency: "KRW",
+        payMethod: "CARD",
+        customer: {
+          customerId: teacher.id.toString(),
+          fullName: teacher.name,
+          email: `teacher${teacher.id}@payments.yoursite.com`,
+          phoneNumber: '010-0000-0000',
+        },
+        customData: JSON.stringify({ teacherId: teacher.id }), // informational only — the server never trusts this
+        redirectUrl: `${window.location.origin}/dashboard`,
+      });
+
+      // On mobile, PortOne does a full-page redirect back to redirectUrl
+      // instead of resolving this call, so `payment` here will only ever be
+      // defined on flows that stayed on the same page (mainly desktop).
+      if (payment?.code !== undefined) {
+        alert(`결제 실패: ${payment.message}`);
+        return;
+      }
+
+      if (payment?.paymentId) {
+        await verifyExpeditePayment(payment.paymentId);
+      }
+    } catch (error) {
+      alert(`결제 처리 중 오류가 발생했습니다: ${error?.message || error}`);
+    } finally {
+      setExpediteProcessing(false);
+    }
+  };
+
+  const handleExpediteBankTransfer = async () => {
+    if (!teacher?.id || expediteBankRequested) return;
+
+    try {
+      setShowExpediteAccount(true);
+      setExpediteBankRequested(true);
+
+      const { error } = await supabase.from('expedite_payments').insert([{
+        teacher_id: teacher.id,
+        method: 'bank_transfer',
+        amount: EXPEDITE_AMOUNT,
+        status: 'pending',
+        requested_at: new Date().toISOString(),
+      }]);
+
+      if (error) {
+        alert('요청 기록 중 오류가 발생했습니다.');
+      }
+    } catch (error) {
+      alert('요청 처리 중 오류가 발생했습니다.');
+    }
+  };
+
   return (
-    <div className="max-w-[1025px] mx-auto py-12 px-4 min-h-screen">
+    <div className="max-w-[1025px] mx-auto py-6 px-4 sm:py-12 min-h-screen">
 
       {/* Student Section */}
       {role === 'student' && 
@@ -203,8 +353,8 @@ export default function DashboardPage() {
         {user && <p className="font-medium">계정 아이디: {user.email}</p>}
         <p>학생 계정으로 로그인하셨습니다.</p>
         <div className="mt-8 flex gap-4 w-full">
-          <button onClick={handleLogout} className="bg-blue-500 text-white w-1/2 px-[2em] py-[1em] rounded-lg">로그아웃</button>
-          <button onClick={handleDelete} className="bg-blue-900 text-white w-1/2 px-[2em] py-[1em] rounded-lg">탈퇴하기</button>
+          <button onClick={handleLogout} className="bg-blue-500 text-white w-1/2 px-6 py-3 sm:px-8 sm:py-4 rounded-lg">로그아웃</button>
+          <button onClick={handleDelete} className="bg-blue-900 text-white w-1/2 px-6 py-3 sm:px-8 sm:py-4 rounded-lg">탈퇴하기</button>
         </div>
       </div>
       }
@@ -222,35 +372,75 @@ export default function DashboardPage() {
 
         
         {/* Basic Header */}
-        <div className="flex flex-col mt-6 p-[3em] bg-white border border-solid border-gray-200 shadow rounded-2xl">
+        <div className="flex flex-col mt-6 p-6 sm:p-12 bg-white border border-solid border-gray-200 shadow rounded-2xl">
           <h1 className="text-2xl font-bold mb-1">계정 정보</h1>
           {user && <p className="font-medium">계정 아이디: {user.email}</p>}
 
           {role === 'teacher' && teacher && statusInfo && (
-            <div
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold w-fit ${statusInfo.classes}`}
-            >
-              <span className="w-2 h-2 rounded-full bg-current inline-block"></span>
-              {statusInfo.text}
+            <div className="flex flex-wrap items-center gap-2">
+              <div
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold w-fit ${statusInfo.classes}`}
+              >
+                <span className="w-2 h-2 rounded-full bg-current inline-block"></span>
+                {statusInfo.text}
+              </div>
+              {isPaidExpediteUser && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 w-fit">
+                  유료회원
+                </span>
+              )}
             </div>
           )}
 
-                    {/* Express profile verification service temporarily disabled
-          {teacher.status === 'pending' && (
-            <div className="mt-6 p-8 bg-white border border-gray-200 shadow rounded-2xl text-center">
+          {teacher.status === 'approved' && (
+            <p className="text-xs text-gray-500 mt-3">
+              ※ 부적절한 내용이 발견될 경우 프로필이 사전 안내 없이 비공개 처리될 수 있습니다.
+            </p>
+          )}
+
+          {teacher.status === 'pending' && isPaidExpediteUser && (
+            <div className="mt-6 p-5 sm:p-8 bg-white border border-gray-200 shadow rounded-2xl text-center">
+              <h2 className="text-2xl font-bold mb-4">프로필을 검토중입니다.</h2>
+              <p className="text-gray-600">유료회원은 프로필 수정 후 약 1일 내 검토해드립니다.</p>
+            </div>
+          )}
+
+          {teacher.status === 'pending' && !isPaidExpediteUser && (
+            <div className="mt-6 p-5 sm:p-8 bg-white border border-gray-200 shadow rounded-2xl text-center">
             <h2 className="text-2xl font-bold mb-4">프로필 검토 중입니다</h2>
-            <p className="text-gray-600">현재 많은 선생님들의 지원으로 인해 프로필 검토에 약 1주 정도 소요되고 있습니다.</p>
-            <p className="text-gray-600 mb-4">9,000원을 입금하시면 1영업일 내로 프로필 검토를 완료해드립니다. </p>
+            <p className="text-gray-600">현재 많은 선생님들의 지원으로 인해 프로필 검토에 약 3주 정도 소요되고 있습니다.</p>
+            <p className="text-gray-600">9,000원을 결제하시면 아래 방법에 따라 프로필 검토를 빠르게 진행해드립니다.</p>
+            <p className="text-gray-600 mb-4">· 카드 결제 시 <strong>즉시 자동으로</strong> 프로필이 승인됩니다.<br />· 계좌이체는 입금 확인 후 1영업일 내로 검토가 진행됩니다 (자동 승인이 아닌 관리자 확인 후 승인).</p>
             <p className="text-xs text-gray-600 mb-4">*수익금은 사이트 운영 및 서비스 개선에 사용됩니다.</p>
+            <p className="text-xs text-gray-500 mb-4">부적절하거나 허위의 내용을 게시하실 경우, 사전 안내 없이 프로필이 비공개 처리될 수 있는 점 양해 부탁드립니다.</p>
 
               <div className="max-w-md mx-auto">
 
-                <button
-                  onClick={() => setShowExpediteAccount(!showExpediteAccount)}
-                  className="mt-6 px-6 py-3 rounded-xl font-semibold transition bg-blue-600 text-white hover:bg-blue-700"
-                >
-                  {showExpediteAccount ? '계좌 정보 숨기기' : '빠른 검토 요청하기'}
-                </button>
+                <div className="flex flex-row justify-center gap-2">
+                  <button
+                    onClick={handleExpediteCardPayment}
+                    disabled={expediteProcessing}
+                    className={`mt-6 px-4 py-2 text-sm rounded-xl font-semibold transition w-full ${
+                      expediteProcessing
+                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
+                  >
+                    {expediteProcessing ? '결제 진행 중...' : '일반 결제'}
+                  </button>
+
+                  <button
+                    onClick={handleExpediteBankTransfer}
+                    disabled={expediteBankRequested}
+                    className={`mt-6 px-4 py-2 text-sm rounded-xl font-semibold transition w-full ${
+                      expediteBankRequested
+                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
+                  >
+                    {expediteBankRequested ? '계좌 정보 확인' : '계좌이체'}
+                  </button>
+                </div>
 
                 {showExpediteAccount && (
                   <div className="mt-4 p-4 bg-gray-50 rounded-lg border text-center">
@@ -265,14 +455,12 @@ export default function DashboardPage() {
                 )}
               </div>
             </div>
-          )
-          }
-          */}
+          )}
 
         </div>
         
         {/* Edit Profile */}
-              <form ref={formRef} onSubmit={handleSubmit} className="space-y-4 mt-6 p-[3em] bg-white border border-solid border-gray-200 shadow rounded-2xl">
+              <form ref={formRef} onSubmit={handleSubmit} className="space-y-4 mt-6 p-6 sm:p-12 bg-white border border-solid border-gray-200 shadow rounded-2xl">
                 <h2 className="text-center">프로필 편집하기</h2>
                 <br></br>
                   <p className="text-sm mt-4">※ 정보 수정을 원하시면 아래 정보를 수정 후 <strong>저장하기</strong>를 눌러주세요.</p>
@@ -381,11 +569,11 @@ export default function DashboardPage() {
                   <input name="contact_information" type="text" defaultValue={teacher.contact_information} required className="w-full border border-gray-300 rounded-xl p-3 mt-2" />
                 </div>
 
-                <button type="submit" className="bg-blue-500 text-white px-[2em] py-[1em] rounded-xl mx-auto">저장하기</button>
+                <button type="submit" className="bg-blue-500 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl mx-auto">저장하기</button>
               </form>
                         <div className="mt-8 flex gap-4 w-full">
-            <button onClick={handleLogout} className="bg-blue-500 text-white w-1/2 px-[2em] py-[1em] rounded-lg">로그아웃</button>
-            <button onClick={handleDelete} className="bg-blue-900 text-white w-1/2 px-[2em] py-[1em] rounded-lg">탈퇴하기</button>
+            <button onClick={handleLogout} className="bg-blue-500 text-white w-1/2 px-6 py-3 sm:px-8 sm:py-4 rounded-lg">로그아웃</button>
+            <button onClick={handleDelete} className="bg-blue-900 text-white w-1/2 px-6 py-3 sm:px-8 sm:py-4 rounded-lg">탈퇴하기</button>
           </div>
       </>
       

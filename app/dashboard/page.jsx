@@ -37,6 +37,12 @@ export default function DashboardPage() {
       return;
     }
 
+    // Admins don't have a teacher/student dashboard — send them to admin.
+    if (role === 'admin') {
+      router.replace('/admin');
+      return;
+    }
+
     // Teachers who haven't submitted a profile yet go to the apply page
     if (role === 'teacher' && !teacherStatus) {
       router.replace('/apply');

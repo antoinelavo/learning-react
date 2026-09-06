@@ -40,6 +40,18 @@ export default function TeacherList() {
 
     if (!error) {
       setTeachers((prev) => prev.filter((t) => t.id !== id));
+
+      // Best-effort notification email — must never block/undo the
+      // approval itself if this fails (e.g. teacher has no email on file).
+      try {
+        await fetch('/api/teachers/notify-approved', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ teacherId: id }),
+        });
+      } catch (notifyError) {
+        console.error('승인 알림 이메일 전송 실패:', notifyError);
+      }
     } else {
       alert('❌ 승인 중 오류가 발생했습니다.');
       console.error(error);

@@ -21,7 +21,21 @@ export default function TeacherList() {
         .order('created_date', { ascending: false });
 
       if (!error && data) {
-        setTeachers(data);
+        // Look up each teacher's login email so we can flag ones missing
+        // an email (the approval notification email can't reach them).
+        const userIds = Array.from(new Set(data.map((t) => t.user_id).filter(Boolean)));
+        let emailByUserId = {};
+        if (userIds.length > 0) {
+          const { data: users, error: usersError } = await supabase
+            .from('users')
+            .select('id, email')
+            .in('id', userIds);
+          if (!usersError && users) {
+            emailByUserId = Object.fromEntries(users.map((u) => [u.id, u.email]));
+          }
+        }
+
+        setTeachers(data.map((t) => ({ ...t, loginEmail: emailByUserId[t.user_id] || null })));
         setCurrentIndex(0);
       }
     }
@@ -120,12 +134,29 @@ export default function TeacherList() {
                 className="rounded-full object-cover"
               />
               <div className="flex-1">
-                <div className="font-bold">{teacher.name}</div>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold">{teacher.name}</span>
+                  {!teacher.loginEmail && (
+                    <span
+                      title="이메일 정보가 없어 승인 알림을 보낼 수 없습니다."
+                      className="text-xs px-2 py-0.5 rounded-full font-medium bg-red-100 text-red-700"
+                    >
+                      ⚠️ 이메일 없음
+                    </span>
+                  )}
+                </div>
                 <div className="text-gray-500 text-sm">{truncatedSchool}</div>
                 <div className="text-sm mt-1">{teacher.shortintroduction}</div>
               </div>
             </a>
             <div className="text-sm text-gray-700">
+              <strong>가입 이메일:</strong>{' '}
+              {teacher.loginEmail ? (
+                <span className="text-gray-700">{teacher.loginEmail}</span>
+              ) : (
+                <span className="text-red-600 font-medium">없음 (승인 알림 발송 불가)</span>
+              )}
+              <br />
               <strong>추가 과목:</strong> {teacher.extra_subject || '없음'}<br />
               <strong>연락처:</strong> {teacher.contact_information || '없음'}<br />
               <strong>가입일:</strong> {teacher.created_date ? (() => {

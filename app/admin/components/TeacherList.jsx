@@ -35,7 +35,7 @@ export default function TeacherList() {
           }
         }
 
-        setTeachers(data.map((t) => ({ ...t, hasEmail: Boolean(emailByUserId[t.user_id]) })));
+        setTeachers(data.map((t) => ({ ...t, loginEmail: emailByUserId[t.user_id] || null })));
         setCurrentIndex(0);
       }
     }
@@ -136,7 +136,7 @@ export default function TeacherList() {
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <span className="font-bold">{teacher.name}</span>
-                  {!teacher.hasEmail && (
+                  {!teacher.loginEmail && (
                     <span
                       title="이메일 정보가 없어 승인 알림을 보낼 수 없습니다."
                       className="text-xs px-2 py-0.5 rounded-full font-medium bg-red-100 text-red-700"
@@ -150,6 +150,13 @@ export default function TeacherList() {
               </div>
             </a>
             <div className="text-sm text-gray-700">
+              <strong>가입 이메일:</strong>{' '}
+              {teacher.loginEmail ? (
+                <span className="text-gray-700">{teacher.loginEmail}</span>
+              ) : (
+                <span className="text-red-600 font-medium">없음 (승인 알림 발송 불가)</span>
+              )}
+              <br />
               <strong>추가 과목:</strong> {teacher.extra_subject || '없음'}<br />
               <strong>연락처:</strong> {teacher.contact_information || '없음'}<br />
               <strong>가입일:</strong> {teacher.created_date ? (() => {

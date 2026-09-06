@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Script from 'next/script';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import PremiumListingOffer from '@/components/PremiumListingOffer';
@@ -17,6 +18,7 @@ export default function DashboardPage() {
   const [statusInfo, setStatusInfo] = useState(null);
   const [quillReady, setQuillReady] = useState(false);
   const [showExpediteAccount, setShowExpediteAccount] = useState(false);
+  const [expediteProcessing, setExpediteProcessing] = useState(false);
 
   const formRef = useRef();
 
@@ -73,6 +75,74 @@ export default function DashboardPage() {
 
     loadTeacherProfile();
   }, [authLoading, user, role, teacherStatus]);
+
+  // NicePay confirms the expedite-review payment via a server-side
+  // redirect back to this page (?expedite=success|failed), not a JS
+  // callback — surface the result here.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const expedite = params.get('expedite');
+    if (!expedite) return;
+
+    if (expedite === 'success') {
+      alert('결제가 완료되었습니다! 빠른 검토 요청이 접수되었습니다.');
+    } else if (expedite === 'failed') {
+      alert('결제에 실패했습니다. 다시 시도해주세요.');
+    }
+
+    router.replace(window.location.pathname);
+  }, []);
+
+  const handleExpeditePayment = async () => {
+    if (!teacher?.id) return;
+    if (expediteProcessing) return;
+
+    if (typeof window === 'undefined' || typeof window.AUTHNICE === 'undefined') {
+      alert('결제 모듈을 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.');
+      return;
+    }
+
+    setExpediteProcessing(true);
+
+    try {
+      const orderId = `expedite-${crypto.randomUUID()}`;
+      const amount = 9000;
+
+      const { error: logError } = await supabase.from('expedite_requests').insert([
+        {
+          order_id: orderId,
+          teacher_id: teacher.id,
+          amount,
+          requested_at: new Date().toISOString(),
+        },
+      ]);
+
+      if (logError) {
+        alert('요청 준비 중 오류가 발생했습니다. 다시 시도해주세요.');
+        setExpediteProcessing(false);
+        return;
+      }
+
+      window.AUTHNICE.requestPay({
+        clientId: process.env.NEXT_PUBLIC_NICEPAY_CLIENT_KEY,
+        method: 'card',
+        orderId,
+        amount,
+        goodsName: '프로필 우선 검토 서비스',
+        returnUrl: `${window.location.origin}/api/nicepay/expedite-return`,
+        buyerName: teacher.name,
+        buyerTel: '01000000000',
+        buyerEmail: `teacher${teacher.id}@payments.yoursite.com`,
+        fnError: function (result) {
+          alert(`결제 실패: ${result?.errorMsg || result?.resultMsg || '알 수 없는 오류'}`);
+          setExpediteProcessing(false);
+        },
+      });
+    } catch (error) {
+      alert('결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+      setExpediteProcessing(false);
+    }
+  };
 
     useEffect(() => {
 
@@ -215,12 +285,13 @@ export default function DashboardPage() {
           
       {role === 'teacher' && teacher && (
         <>
+        <Script src="https://pay.nicepay.co.kr/v1/js/" strategy="afterInteractive" />
 
           {/* Premium listing service temporarily disabled
           {teacher.status === 'approved' && <PremiumListingOffer teacher={teacher} />}
           */}
 
-        
+
         {/* Basic Header */}
         <div className="flex flex-col mt-6 p-[3em] bg-white border border-solid border-gray-200 shadow rounded-2xl">
           <h1 className="text-2xl font-bold mb-1">계정 정보</h1>
@@ -235,39 +306,50 @@ export default function DashboardPage() {
             </div>
           )}
 
-                    {/* Express profile verification service temporarily disabled
           {teacher.status === 'pending' && (
             <div className="mt-6 p-8 bg-white border border-gray-200 shadow rounded-2xl text-center">
             <h2 className="text-2xl font-bold mb-4">프로필 검토 중입니다</h2>
             <p className="text-gray-600">현재 많은 선생님들의 지원으로 인해 프로필 검토에 약 1주 정도 소요되고 있습니다.</p>
-            <p className="text-gray-600 mb-4">9,000원을 입금하시면 1영업일 내로 프로필 검토를 완료해드립니다. </p>
+            <p className="text-gray-600 mb-4">9,000원을 결제하시면 1영업일 내로 프로필 검토를 완료해드립니다. </p>
             <p className="text-xs text-gray-600 mb-4">*수익금은 사이트 운영 및 서비스 개선에 사용됩니다.</p>
 
-              <div className="max-w-md mx-auto">
+              <div className="max-w-md mx-auto flex flex-col sm:flex-row justify-center gap-2">
 
                 <button
-                  onClick={() => setShowExpediteAccount(!showExpediteAccount)}
-                  className="mt-6 px-6 py-3 rounded-xl font-semibold transition bg-blue-600 text-white hover:bg-blue-700"
+                  onClick={handleExpeditePayment}
+                  disabled={expediteProcessing}
+                  className={`mt-6 px-6 py-3 rounded-xl font-semibold transition w-full ${
+                    expediteProcessing
+                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
                 >
-                  {showExpediteAccount ? '계좌 정보 숨기기' : '빠른 검토 요청하기'}
+                  {expediteProcessing ? '결제 진행 중...' : '빠른 검토 신청하기 (카드결제)'}
                 </button>
 
-                {showExpediteAccount && (
-                  <div className="mt-4 p-4 bg-gray-50 rounded-lg border text-center">
-                    <div className="text-sm text-gray-600 mb-1">입금 계좌</div>
-                    <div className="text-lg font-mono font-semibold text-gray-900">
-                      {process.env.NEXT_PUBLIC_BANK_ACCOUNT || '계좌 정보를 불러올 수 없습니다'}
+                <div className="text-center w-full">
+                  <button
+                    onClick={() => setShowExpediteAccount(!showExpediteAccount)}
+                    className="mt-6 px-6 py-3 rounded-xl font-semibold transition w-full bg-blue-600 text-white hover:bg-blue-700"
+                  >
+                    {showExpediteAccount ? '계좌 정보 숨기기' : '빠른 검토 요청하기 (계좌이체)'}
+                  </button>
+
+                  {showExpediteAccount && (
+                    <div className="mt-4 p-4 bg-gray-50 rounded-lg border text-center">
+                      <div className="text-sm text-gray-600 mb-1">입금 계좌</div>
+                      <div className="text-lg font-mono font-semibold text-gray-900">
+                        {process.env.NEXT_PUBLIC_BANK_ACCOUNT || '계좌 정보를 불러올 수 없습니다'}
+                      </div>
+                      <div className="text-sm text-gray-500 mt-1">
+                        예금주: {process.env.NEXT_PUBLIC_BANK_HOLDER || ''}
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-500 mt-1">
-                      예금주: {process.env.NEXT_PUBLIC_BANK_HOLDER || ''}
-                    </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
-          )
-          }
-          */}
+          )}
 
         </div>
         

@@ -3,7 +3,7 @@
 // NicePay's returnUrl callback for the "expedite profile review" payment.
 // Same server-POST/redirect model as app/api/nicepay/return/route.js
 // (see that file for the full explanation) — order context is looked up
-// by orderId from expedite_requests instead of payment_request.
+// by orderId (== expedite_payments.id) instead of payment_request.
 import { NextResponse } from 'next/server';
 import { verifyAuthResultSignature, approvePayment } from '@/lib/nicepay';
 import { activateExpediteRequest, getExpediteRequestByOrderId } from '@/lib/expediteActivation';

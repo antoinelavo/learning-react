@@ -105,14 +105,19 @@ export default function DashboardPage() {
     setExpediteProcessing(true);
 
     try {
-      const orderId = `expedite-${crypto.randomUUID()}`;
+      // expedite_payments has no separate order_id column, so this row's
+      // own id (client-generated here) doubles as the NicePay orderId —
+      // that's how the server-side return/webhook handlers look it up.
+      const orderId = crypto.randomUUID();
       const amount = 9000;
 
-      const { error: logError } = await supabase.from('expedite_requests').insert([
+      const { error: logError } = await supabase.from('expedite_payments').insert([
         {
-          order_id: orderId,
+          id: orderId,
           teacher_id: teacher.id,
+          method: 'card',
           amount,
+          status: 'pending',
           requested_at: new Date().toISOString(),
         },
       ]);

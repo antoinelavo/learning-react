@@ -128,9 +128,6 @@ export default function DashboardPage() {
         return;
       }
 
-      // TEMP DEBUG — remove once the clientId issue is confirmed fixed.
-      alert('[nicepay debug] clientId being sent: ' + JSON.stringify(process.env.NEXT_PUBLIC_NICEPAY_CLIENT_KEY));
-
       window.AUTHNICE.requestPay({
         clientId: process.env.NEXT_PUBLIC_NICEPAY_CLIENT_KEY,
         method: 'card',
@@ -323,6 +320,7 @@ export default function DashboardPage() {
 
               <div className="max-w-md mx-auto flex flex-col sm:flex-row justify-center gap-2">
 
+                {/* Card payment temporarily disabled — waiting on NicePay merchant verification.
                 <button
                   onClick={handleExpeditePayment}
                   disabled={expediteProcessing}
@@ -334,6 +332,7 @@ export default function DashboardPage() {
                 >
                   {expediteProcessing ? '결제 진행 중...' : '빠른 검토 신청하기 (카드결제)'}
                 </button>
+                */}
 
                 <div className="text-center w-full">
                   <button
@@ -351,6 +350,9 @@ export default function DashboardPage() {
                       </div>
                       <div className="text-sm text-gray-500 mt-1">
                         예금주: {process.env.NEXT_PUBLIC_BANK_HOLDER || ''}
+                      </div>
+                      <div className="text-sm text-red-600 mt-2 font-medium">
+                        ※ 입금자명은 반드시 회원님의 아이디({teacher.name})와 동일하게 입력해주세요.
                       </div>
                     </div>
                   )}

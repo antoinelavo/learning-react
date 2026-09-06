@@ -298,16 +298,23 @@ export default function DashboardPage() {
 
 
         {/* Basic Header */}
-        <div className="flex flex-col mt-6 p-[3em] bg-white border border-solid border-gray-200 shadow rounded-2xl">
-          <h1 className="text-2xl font-bold mb-1">계정 정보</h1>
-          {user && <p className="font-medium">계정 아이디: {user.email}</p>}
+        <div className="flex flex-col p-[3em] bg-white border border-solid border-gray-200 shadow rounded-2xl">
+          <h1 className="text-2xl font-bold mb-3">계정 정보</h1>
+          {user && <p className="font-medium mb-3">계정 아이디: {user.email}</p>}
 
           {role === 'teacher' && teacher && statusInfo && (
-            <div
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold w-fit ${statusInfo.classes}`}
-            >
-              <span className="w-2 h-2 rounded-full bg-current inline-block"></span>
-              {statusInfo.text}
+            <div>
+              <div
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold w-fit ${statusInfo.classes}`}
+              >
+                <span className="w-2 h-2 rounded-full bg-current inline-block"></span>
+                {statusInfo.text}
+              </div>
+              {teacher.status === 'pending' && (
+                <p className="text-xs text-gray-400 mt-2">
+                  (한 번 승인된 적이 있는 회원은 3일 이내로 빠르게 재검토됩니다)
+                </p>
+              )}
             </div>
           )}
 

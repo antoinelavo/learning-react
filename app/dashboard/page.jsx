@@ -128,6 +128,9 @@ export default function DashboardPage() {
         return;
       }
 
+      // TEMP DEBUG — remove once the clientId issue is confirmed fixed.
+      console.log('[nicepay debug] clientId being sent:', JSON.stringify(process.env.NEXT_PUBLIC_NICEPAY_CLIENT_KEY));
+
       window.AUTHNICE.requestPay({
         clientId: process.env.NEXT_PUBLIC_NICEPAY_CLIENT_KEY,
         method: 'card',

@@ -56,6 +56,23 @@ export default function TeachersTable() {
     loadTeachers();
   }, []);
 
+  async function unapproveTeacher(id) {
+    const confirmed = window.confirm('이 선생님의 프로필을 승인 취소(검토 중 상태로 변경)하시겠습니까?');
+    if (!confirmed) return;
+
+    const { error } = await supabase
+      .from('teachers')
+      .update({ status: 'pending' })
+      .eq('id', id);
+
+    if (!error) {
+      setTeachers((prev) => prev.map((t) => (t.id === id ? { ...t, status: 'pending' } : t)));
+    } else {
+      alert('❌ 승인 취소 중 오류가 발생했습니다.');
+      console.error(error);
+    }
+  }
+
   // Derive the full column list straight from whatever Supabase returns,
   // so every column in the teachers table shows up automatically.
   const columns = Array.from(
@@ -120,6 +137,7 @@ export default function TeachersTable() {
                       {formatColumnLabel(col)}
                     </th>
                   ))}
+                  <th className="text-left px-4 py-3 whitespace-nowrap">관리</th>
                 </tr>
               </thead>
               <tbody>
@@ -150,6 +168,16 @@ export default function TeachersTable() {
                         )}
                       </td>
                     ))}
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      {teacher.status === 'approved' && (
+                        <button
+                          onClick={() => unapproveTeacher(teacher.id)}
+                          className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 font-medium hover:bg-red-100"
+                        >
+                          승인 취소
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -171,6 +199,14 @@ export default function TeachersTable() {
                   </a>
                   <StatusBadge status={teacher.status} />
                 </div>
+                {teacher.status === 'approved' && (
+                  <button
+                    onClick={() => unapproveTeacher(teacher.id)}
+                    className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 font-medium hover:bg-red-100"
+                  >
+                    승인 취소
+                  </button>
+                )}
                 <div className="text-sm text-gray-700 space-y-1">
                   {columns
                     .filter((col) => col !== 'name' && col !== 'status')

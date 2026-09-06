@@ -66,7 +66,7 @@ export default function TeacherList() {
   const visibleTeachers = filteredTeachers.slice(0, currentIndex + batchSize);
 
   return (
-    <div className="max-w-xl mx-auto mt-10 space-y-6">
+    <div className="max-w-xl mx-auto mt-6 space-y-6">
       <div className="text-sm font-medium text-gray-600">대기 중인 프로필: {teachers.length}개</div>
 
       <div className="flex gap-2">

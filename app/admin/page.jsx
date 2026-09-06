@@ -25,8 +25,8 @@ export default function AdminPage() {
   if (!authorized) return null;
 
   return (
-    <div className="max-w-screen-lg mx-auto pt-20 px-4 mb-[20dvh]">
-      <div className="flex justify-end mb-4">
+    <div className="max-w-screen-lg mx-auto pt-6 sm:pt-8 px-4 mb-[20dvh]">
+      <div className="flex justify-end mb-3">
         <Link
           href="/admin/teachers"
           className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"

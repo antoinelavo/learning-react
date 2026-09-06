@@ -89,77 +89,40 @@ export default function DashboardCards() {
     fetchData();
   }, []);
 
-  return (
-    <div className="space-y-8">
-      {/* Student Requests Section */}
-      <div>
-        <h2 className="text-lg font-semibold mb-3 text-gray-800">Student Requests</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="rounded-xl shadow p-5 bg-blue-50 border border-blue-200">
-            <div className="text-3xl font-bold text-blue-900">{stats.studentJobs.toLocaleString()}</div>
-            <div className="text-sm mt-1 text-blue-800">Total Student Requests</div>
-          </div>
-          <div className="rounded-xl shadow p-5 bg-blue-50 border border-blue-200">
-            <div className="text-3xl font-bold text-blue-900">{stats.studentNewThisWeek.toLocaleString()}</div>
-            <div className="text-sm mt-1 text-blue-800">New This Week</div>
-          </div>
-          <div className="rounded-xl shadow p-5 bg-green-50 border border-green-200">
-            <div className="text-3xl font-bold text-green-900">{stats.studentOpen.toLocaleString()}</div>
-            <div className="text-sm mt-1 text-green-800">모집중</div>
-          </div>
-          <div className="rounded-xl shadow p-5 bg-gray-50 border border-gray-200">
-            <div className="text-3xl font-bold text-gray-700">{stats.studentClosed.toLocaleString()}</div>
-            <div className="text-sm mt-1 text-gray-500">마감</div>
-          </div>
-          <div className="rounded-xl shadow p-5 bg-blue-100 border border-blue-200">
-            <div className="text-3xl font-bold text-blue-900">{stats.studentJobViews.toLocaleString()}</div>
-            <div className="text-sm mt-1 text-blue-800">Unique Views</div>
-          </div>
-          <div className="rounded-xl shadow p-5 bg-blue-100 border border-blue-200">
-            <div className="text-3xl font-bold text-blue-900">{stats.avgStudentViews}</div>
-            <div className="text-sm mt-1 text-blue-800">Avg Views per Request</div>
-          </div>
-          <div className="rounded-xl shadow p-5 bg-blue-50 border border-blue-200">
-            <div className="text-3xl font-bold text-blue-900">{stats.studentNewsletterSubs.toLocaleString()}</div>
-            <div className="text-sm mt-1 text-blue-800">Newsletter Subscribers</div>
-          </div>
-        </div>
-      </div>
+  const rows = [
+    { label: '전체 요청', student: stats.studentJobs, hagwon: stats.hagwonRequests },
+    { label: '이번 주 신규', student: stats.studentNewThisWeek, hagwon: stats.hagwonNewThisWeek },
+    { label: '모집중', student: stats.studentOpen, hagwon: stats.hagwonOpen },
+    { label: '마감', student: stats.studentClosed, hagwon: stats.hagwonClosed },
+    { label: '조회수', student: stats.studentJobViews, hagwon: stats.hagwonRequestViews },
+    { label: '평균 조회수', student: stats.avgStudentViews, hagwon: stats.avgHagwonViews },
+    { label: '뉴스레터 구독자', student: stats.studentNewsletterSubs, hagwon: stats.hagwonNewsletterSubs },
+  ];
 
-      {/* Hagwon Requests Section */}
-      <div>
-        <h2 className="text-lg font-semibold mb-3 text-gray-800">Hagwon Requests</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="rounded-xl shadow p-5 bg-purple-50 border border-purple-200">
-            <div className="text-3xl font-bold text-purple-900">{stats.hagwonRequests.toLocaleString()}</div>
-            <div className="text-sm mt-1 text-purple-800">Total Hagwon Requests</div>
-          </div>
-          <div className="rounded-xl shadow p-5 bg-purple-50 border border-purple-200">
-            <div className="text-3xl font-bold text-purple-900">{stats.hagwonNewThisWeek.toLocaleString()}</div>
-            <div className="text-sm mt-1 text-purple-800">New This Week</div>
-          </div>
-          <div className="rounded-xl shadow p-5 bg-green-50 border border-green-200">
-            <div className="text-3xl font-bold text-green-900">{stats.hagwonOpen.toLocaleString()}</div>
-            <div className="text-sm mt-1 text-green-800">모집중</div>
-          </div>
-          <div className="rounded-xl shadow p-5 bg-gray-50 border border-gray-200">
-            <div className="text-3xl font-bold text-gray-700">{stats.hagwonClosed.toLocaleString()}</div>
-            <div className="text-sm mt-1 text-gray-500">마감</div>
-          </div>
-          <div className="rounded-xl shadow p-5 bg-purple-100 border border-purple-200">
-            <div className="text-3xl font-bold text-purple-900">{stats.hagwonRequestViews.toLocaleString()}</div>
-            <div className="text-sm mt-1 text-purple-800">Unique Views</div>
-          </div>
-          <div className="rounded-xl shadow p-5 bg-purple-100 border border-purple-200">
-            <div className="text-3xl font-bold text-purple-900">{stats.avgHagwonViews}</div>
-            <div className="text-sm mt-1 text-purple-800">Avg Views per Request</div>
-          </div>
-          <div className="rounded-xl shadow p-5 bg-purple-50 border border-purple-200">
-            <div className="text-3xl font-bold text-purple-900">{stats.hagwonNewsletterSubs.toLocaleString()}</div>
-            <div className="text-sm mt-1 text-purple-800">Newsletter Subscribers</div>
-          </div>
-        </div>
-      </div>
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="bg-gray-50 border-b text-xs font-medium text-gray-500">
+            <th className="text-left px-3 py-2">요청 현황</th>
+            <th className="text-right px-3 py-2 text-blue-700">학생</th>
+            <th className="text-right px-3 py-2 text-purple-700">학원</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, i) => (
+            <tr key={row.label} className={i !== rows.length - 1 ? 'border-b border-gray-100' : ''}>
+              <td className="px-3 py-2 text-gray-600 whitespace-nowrap">{row.label}</td>
+              <td className="px-3 py-2 text-right font-semibold text-blue-900">
+                {Number(row.student).toLocaleString()}
+              </td>
+              <td className="px-3 py-2 text-right font-semibold text-purple-900">
+                {Number(row.hagwon).toLocaleString()}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

@@ -58,9 +58,7 @@ export async function POST(request) {
 
     if (sendError) {
       console.error('notify-approved: resend error', sendError);
-      // TEMP DEBUG: surfacing Resend's actual error detail in the response
-      // so it's visible via the mobile debug alert — remove once diagnosed.
-      return NextResponse.json({ ok: false, error: 'send_failed', detail: sendError });
+      return NextResponse.json({ ok: false, error: 'send_failed' });
     }
 
     return NextResponse.json({ ok: true });

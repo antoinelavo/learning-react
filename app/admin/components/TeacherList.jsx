@@ -58,13 +58,17 @@ export default function TeacherList() {
       // Best-effort notification email — must never block/undo the
       // approval itself if this fails (e.g. teacher has no email on file).
       try {
-        await fetch('/api/teachers/notify-approved', {
+        const notifyRes = await fetch('/api/teachers/notify-approved', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ teacherId: id }),
         });
+        const notifyBody = await notifyRes.text();
+        // TEMP DEBUG — remove once the notify-approved issue is confirmed fixed.
+        alert(`[notify-approved debug]\nstatus: ${notifyRes.status}\nbody: ${notifyBody}`);
       } catch (notifyError) {
         console.error('승인 알림 이메일 전송 실패:', notifyError);
+        alert(`[notify-approved debug] fetch threw: ${notifyError.message}`);
       }
     } else {
       alert('❌ 승인 중 오류가 발생했습니다.');

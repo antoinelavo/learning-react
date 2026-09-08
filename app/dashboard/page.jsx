@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import PremiumListingOffer from '@/components/PremiumListingOffer';
 import TeacherCard from '@/components/TeacherCard';
+import EmailNotificationToggle from '@/components/chat/EmailNotificationToggle.client';
 
 
 export default function DashboardPage() {
@@ -283,6 +284,9 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold mb-1 mt-0 leading-none">계정 정보</h1>
         {user && <p className="font-medium">계정 아이디: {user.email}</p>}
         <p>학생 계정으로 로그인하셨습니다.</p>
+        <div className="mt-4">
+          <EmailNotificationToggle userId={user.id} />
+        </div>
         <div className="mt-8 flex gap-4 w-full">
           <button onClick={handleLogout} className="bg-blue-500 text-white w-1/2 px-[2em] py-[1em] rounded-lg">로그아웃</button>
           <button onClick={handleDelete} className="bg-blue-900 text-white w-1/2 px-[2em] py-[1em] rounded-lg">탈퇴하기</button>
@@ -323,6 +327,10 @@ export default function DashboardPage() {
               )}
             </div>
           )}
+
+          <div className="mt-3">
+            <EmailNotificationToggle userId={user.id} />
+          </div>
 
           {teacher.status === 'pending' && (
             <div className="mt-6 p-8 bg-white border border-gray-200 shadow rounded-2xl text-center">

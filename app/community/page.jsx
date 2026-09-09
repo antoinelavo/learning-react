@@ -27,47 +27,39 @@ export default async function CommunityPage() {
       return {
         slug: file.replace(/\.mdx$/, ''),
         title: data.title || '',
-        description: data.description || '',
         date: data.date || '',
         category: data.category || '일반',
         featured: data.featured || false,
-        type: 'mdx',
-        views: 0,
         url: `/blog/${file.replace(/\.mdx$/, '')}`,
       }
     })
 
-  // --- Supabase posts (admin + user) ---
-  let supabasePosts = []
+  // --- Admin-authored announcements (legacy `posts` table, type='admin') ---
+  let adminPosts = []
   try {
     const { data } = await supabase
       .from('posts')
-      .select('slug, title, description, category, type, featured, date, created_at, views')
+      .select('slug, title, category, featured, date, created_at')
       .eq('published', true)
+      .eq('type', 'admin')
       .order('created_at', { ascending: false })
+      .limit(10)
 
-    supabasePosts = (data || []).map(p => ({
+    adminPosts = (data || []).map(p => ({
       slug: p.slug,
       title: p.title,
-      description: p.description || '',
       date: p.date || p.created_at?.slice(0, 10) || '',
       category: p.category || '일반',
       featured: p.featured || false,
-      type: p.type,
-      views: p.views || 0,
       url: `/community/${p.slug}`,
     }))
   } catch {
-    // posts table not yet created — degrade gracefully
+    // legacy posts table not available — degrade gracefully
   }
 
-  // Merge and sort by date desc
-  const allPosts = [...supabasePosts, ...mdxPosts].sort(
-    (a, b) => new Date(b.date) - new Date(a.date)
-  )
+  const announcements = [...adminPosts, ...mdxPosts]
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 6)
 
-  const featured = allPosts.filter(p => p.featured)
-  const regular = allPosts.filter(p => !p.featured)
-
-  return <CommunityBoard featured={featured} regular={regular} />
+  return <CommunityBoard announcements={announcements} />
 }

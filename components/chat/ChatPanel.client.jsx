@@ -51,19 +51,20 @@ export default function ChatPanel() {
     };
   }, [activeConversationId, user?.id]);
 
-  if (!user) return null;
+  if (!user || !isPanelOpen) return null;
 
+  // NOTE: this used to be always-mounted with a CSS transform/translate-x
+  // slide animation, toggled via isPanelOpen. Removed that in favor of
+  // simple conditional mounting — position:fixed + a transform ancestor +
+  // a scrollable input area is exactly the combination known to break
+  // keyboard/focus handling in some mobile in-app browsers (e.g.
+  // KakaoTalk's). No slide-in animation now, but a working keyboard
+  // matters more.
   return (
     <>
-      {isPanelOpen && (
-        <div className="fixed inset-0 bg-black/30 z-[998] touch-none" onClick={closePanel} />
-      )}
+      <div className="fixed inset-0 bg-black/30 z-[998] touch-none" onClick={closePanel} />
 
-      <div
-        className={`fixed top-0 right-0 h-[100dvh] w-full sm:w-[380px] bg-white shadow-xl flex flex-col z-[999] overscroll-contain transform transition-transform duration-300 ${
-          isPanelOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
+      <div className="fixed top-0 right-0 h-[100dvh] w-full sm:w-[380px] bg-white shadow-xl flex flex-col z-[999] overscroll-contain">
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 flex-shrink-0">
           {selected ? (
             <button

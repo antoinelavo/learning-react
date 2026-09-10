@@ -79,7 +79,7 @@ export default function MessageThread({ conversation }) {
     <div className="flex flex-col h-full">
       {conversation.otherIsTeacher && <TeacherSummaryCard teacherUserId={conversation.otherUserId} />}
 
-      <div className="flex-1 overflow-y-auto p-3 space-y-2">
+      <div className="flex-1 overflow-y-auto overscroll-contain p-3 space-y-2">
         {messages.map((m) => {
           const mine = m.sender_id === user.id;
           return (

@@ -16,29 +16,16 @@ export default function ChatPanel() {
   const { isPanelOpen, closePanel, activeConversationId, listVersion } = useChat();
   const [selected, setSelected] = useState(null);
 
-  // `overflow: hidden` alone doesn't reliably stop the page from scrolling
-  // behind a fixed panel on iOS Safari, especially once an <input> inside
-  // it is focused (Safari scrolls the whole document to bring it into
-  // view). Pinning the body via `position: fixed` at its current scroll
-  // offset is the standard fix, restoring the scroll position on close.
+  // NOTE: pinning body with position:fixed (the more "thorough" iOS
+  // scroll-lock technique) was tried here and reverted — it broke keyboard
+  // focus entirely on some mobile browsers (notably in-app webviews like
+  // KakaoTalk's), which is a worse bug than background scroll bleed-through.
+  // Plain overflow:hidden plus overscroll-behavior on the panel's own
+  // scrollable areas (below) is the safer trade-off.
   useEffect(() => {
-    if (!isPanelOpen) return;
-
-    const scrollY = window.scrollY;
-    const { body } = document;
-    body.style.position = 'fixed';
-    body.style.top = `-${scrollY}px`;
-    body.style.left = '0';
-    body.style.right = '0';
-    body.style.overflow = 'hidden';
-
+    document.body.style.overflow = isPanelOpen ? 'hidden' : 'unset';
     return () => {
-      body.style.position = '';
-      body.style.top = '';
-      body.style.left = '';
-      body.style.right = '';
-      body.style.overflow = '';
-      window.scrollTo(0, scrollY);
+      document.body.style.overflow = 'unset';
     };
   }, [isPanelOpen]);
 
@@ -68,10 +55,12 @@ export default function ChatPanel() {
 
   return (
     <>
-      {isPanelOpen && <div className="fixed inset-0 bg-black/30 z-[998]" onClick={closePanel} />}
+      {isPanelOpen && (
+        <div className="fixed inset-0 bg-black/30 z-[998] touch-none" onClick={closePanel} />
+      )}
 
       <div
-        className={`fixed top-0 right-0 h-[100dvh] w-full sm:w-[380px] bg-white shadow-xl flex flex-col z-[999] transform transition-transform duration-300 ${
+        className={`fixed top-0 right-0 h-[100dvh] w-full sm:w-[380px] bg-white shadow-xl flex flex-col z-[999] overscroll-contain transform transition-transform duration-300 ${
           isPanelOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -95,7 +84,7 @@ export default function ChatPanel() {
           {selected ? (
             <MessageThread conversation={selected} />
           ) : (
-            <div className="h-full overflow-y-auto">
+            <div className="h-full overflow-y-auto overscroll-contain">
               <ConversationList userId={user.id} refreshKey={listVersion} onSelect={setSelected} />
             </div>
           )}

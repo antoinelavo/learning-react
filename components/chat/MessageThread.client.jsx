@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useChat } from '@/contexts/ChatContext';
 import { getMessages, sendMessage, markRead, subscribeToConversation } from '@/lib/chat/chatClient';
 import TeacherSummaryCard from './TeacherSummaryCard.client';
+import ChatInputBar from './ChatInputBar.client';
 
 function formatTime(iso) {
   return new Date(iso).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
@@ -14,7 +15,6 @@ export default function MessageThread({ conversation }) {
   const { user } = useAuth();
   const { decrementUnread } = useChat();
   const [messages, setMessages] = useState([]);
-  const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const bottomRef = useRef(null);
 
@@ -49,13 +49,10 @@ export default function MessageThread({ conversation }) {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages.length]);
 
-  const handleSend = async (e) => {
-    e.preventDefault();
-    const body = draft.trim();
-    if (!body || sending) return;
+  const handleSend = async (body) => {
+    if (sending) return;
 
     setSending(true);
-    setDraft('');
     try {
       const message = await sendMessage({
         conversationId: conversation.id,
@@ -69,7 +66,6 @@ export default function MessageThread({ conversation }) {
     } catch (err) {
       console.error('메시지 전송 실패:', err);
       alert('메시지 전송에 실패했습니다. 다시 시도해주세요.');
-      setDraft(body);
     } finally {
       setSending(false);
     }
@@ -100,22 +96,7 @@ export default function MessageThread({ conversation }) {
         <div ref={bottomRef} />
       </div>
 
-      <form onSubmit={handleSend} className="flex items-center gap-2 p-3 border-t border-gray-100">
-        <input
-          type="text"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder="메시지를 입력하세요..."
-          className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
-        <button
-          type="submit"
-          disabled={!draft.trim() || sending}
-          className="px-4 py-2 rounded-full bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          전송
-        </button>
-      </form>
+      <ChatInputBar onSend={handleSend} disabled={sending} />
     </div>
   );
 }

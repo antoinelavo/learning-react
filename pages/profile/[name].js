@@ -63,7 +63,15 @@ export default function ProfilePage({ teacher }) {
       await openChatWithTeacher(teacher.user_id);
     } catch (err) {
       console.error(err);
-      alert('학생 계정으로 로그인해야 메시지를 보낼 수 있습니다.');
+      // TEMP DEBUG — surfaces the real Supabase/RPC error so we can tell
+      // whether this is actually a role check failing, a missing
+      // teachers/users row, or something else entirely (e.g. the RPC not
+      // existing yet). Remove once diagnosed.
+      alert(
+        `[chat debug]\ncode: ${err?.code ?? 'none'}\nmessage: ${err?.message ?? String(err)}\ndetails: ${
+          err?.details ?? 'none'
+        }\nhint: ${err?.hint ?? 'none'}`
+      );
     }
   };
 

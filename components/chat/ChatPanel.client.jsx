@@ -16,10 +16,29 @@ export default function ChatPanel() {
   const { isPanelOpen, closePanel, activeConversationId, listVersion } = useChat();
   const [selected, setSelected] = useState(null);
 
+  // `overflow: hidden` alone doesn't reliably stop the page from scrolling
+  // behind a fixed panel on iOS Safari, especially once an <input> inside
+  // it is focused (Safari scrolls the whole document to bring it into
+  // view). Pinning the body via `position: fixed` at its current scroll
+  // offset is the standard fix, restoring the scroll position on close.
   useEffect(() => {
-    document.body.style.overflow = isPanelOpen ? 'hidden' : 'unset';
+    if (!isPanelOpen) return;
+
+    const scrollY = window.scrollY;
+    const { body } = document;
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.left = '0';
+    body.style.right = '0';
+    body.style.overflow = 'hidden';
+
     return () => {
-      document.body.style.overflow = 'unset';
+      body.style.position = '';
+      body.style.top = '';
+      body.style.left = '';
+      body.style.right = '';
+      body.style.overflow = '';
+      window.scrollTo(0, scrollY);
     };
   }, [isPanelOpen]);
 
@@ -52,7 +71,7 @@ export default function ChatPanel() {
       {isPanelOpen && <div className="fixed inset-0 bg-black/30 z-[998]" onClick={closePanel} />}
 
       <div
-        className={`fixed top-0 right-0 h-screen w-full sm:w-[380px] bg-white shadow-xl flex flex-col z-[999] transform transition-transform duration-300 ${
+        className={`fixed top-0 right-0 h-[100dvh] w-full sm:w-[380px] bg-white shadow-xl flex flex-col z-[999] transform transition-transform duration-300 ${
           isPanelOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >

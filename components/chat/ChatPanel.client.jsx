@@ -64,7 +64,11 @@ export default function ChatPanel() {
     <>
       <div className="fixed inset-0 bg-black/30 z-[998] touch-none" onClick={closePanel} />
 
-      <div className="fixed top-0 right-0 h-[100dvh] w-full sm:w-[380px] bg-white shadow-xl flex flex-col z-[999] overscroll-contain">
+      {/* text-left: this panel is rendered inside Header.server.jsx's
+          <header>, which has text-center — text-align is inherited
+          regardless of position:fixed, so without this override every
+          name/timestamp inside the panel would render centered. */}
+      <div className="fixed top-0 right-0 h-[100dvh] w-full sm:w-[380px] bg-white shadow-xl flex flex-col z-[999] overscroll-contain text-left">
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 flex-shrink-0">
           {selected ? (
             <button

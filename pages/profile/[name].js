@@ -9,12 +9,19 @@ import { useChat } from '@/contexts/ChatContext';
 
 // 1) Build‐time: pre-render every approved teacher
 export async function getStaticPaths() {
-  const { data: teachers = [] } = await supabase
+  // Supabase returns data: null (not undefined) on a query error, so a
+  // `= []` default in the destructure never kicks in — guard explicitly,
+  // or a transient query error crashes the entire production build.
+  const { data, error } = await supabase
     .from('teachers')
     .select('name')
     .eq('status', 'approved');
 
-  const paths = teachers.map((t) => ({
+  if (error) {
+    console.error('getStaticPaths: failed to fetch approved teachers', error);
+  }
+
+  const paths = (data || []).map((t) => ({
     params: { name: encodeURIComponent(t.name) },
   }));
 

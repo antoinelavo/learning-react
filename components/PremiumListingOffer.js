@@ -659,7 +659,9 @@ const checkAvailability = async (subjectsToCheck) => {
                             : 'bg-blue-600 text-white hover:bg-blue-700'
                         )}
                         >
-                        {paymentProcessing ? '결제 진행 중...' : '결제하기 (카드)'}
+                        {paymentProcessing
+                          ? '결제 진행 중...'
+                          : '결제하기 (카드 - 현재 테스트 중입니다. 실결제로 이어지지 않습니다)'}
                         </button>
 
                         <div className="text-center">

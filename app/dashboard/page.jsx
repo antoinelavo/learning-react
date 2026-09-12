@@ -342,6 +342,9 @@ export default function DashboardPage() {
 
               <div className="max-w-md mx-auto flex flex-col sm:flex-row justify-center gap-2">
 
+                {/* Card payment temporarily disabled — Toss's merchant
+                    review is focused on the premium listing product for
+                    now; re-enable once that's settled.
                 <button
                   onClick={handleExpeditePayment}
                   disabled={expediteProcessing}
@@ -353,6 +356,7 @@ export default function DashboardPage() {
                 >
                   {expediteProcessing ? '결제 진행 중...' : '빠른 검토 신청하기 (카드결제)'}
                 </button>
+                */}
 
                 <div className="text-center w-full">
                   <button

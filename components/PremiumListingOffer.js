@@ -117,7 +117,7 @@ function CountUp({ target, duration = 1500 }) {
   return <span ref={ref}>{count.toLocaleString()}</span>;
 }
 
-// Generate a random order ID to hand to NicePay's payment window.
+// Generate a random order ID to hand to Toss's payment window.
 function randomId() {
   return [...crypto.getRandomValues(new Uint32Array(2))]
     .map((word) => word.toString(16).padStart(8, "0"))
@@ -271,7 +271,7 @@ const checkAvailability = async (subjectsToCheck) => {
     }
   }, [subjects]);
 
-  // NicePay confirms payment via a server-side redirect back to this page
+  // Toss confirms payment via a server-side redirect back to this page
   // (?payment=success|failed), not a JS callback — surface the result here.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -334,7 +334,7 @@ const checkAvailability = async (subjectsToCheck) => {
       return;
     }
 
-    if (typeof window === 'undefined' || typeof window.AUTHNICE === 'undefined') {
+    if (typeof window === 'undefined' || typeof window.TossPayments === 'undefined') {
       alert('결제 모듈을 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.');
       return;
     }
@@ -359,32 +359,37 @@ const checkAvailability = async (subjectsToCheck) => {
       ]);
 
       if (logError) {
-        // Without this row the returnUrl callback can't look up who paid —
-        // don't send the buyer into NicePay's payment window for nothing.
+        // Without this row the successUrl callback can't look up who paid —
+        // don't send the buyer into Toss's payment window for nothing.
         alert('결제 준비 중 오류가 발생했습니다. 다시 시도해주세요.');
         setPaymentProcessing(false);
         return;
       }
 
-      // Hand off to NicePay's payment window. There is no success callback
-      // here — NicePay POSTs the auth result straight to returnUrl on the
-      // server, then redirects the browser to /dashboard?payment=success|failed.
-      // fnError only covers failures that happen before that handoff.
-      window.AUTHNICE.requestPay({
-        clientId: process.env.NEXT_PUBLIC_NICEPAY_CLIENT_KEY,
-        method: 'card',
-        orderId,
-        amount: totalAmount,
-        goodsName: `프리미엄 프로필 ${selectedSubjects.join(', ')} (${duration}개월)`,
-        returnUrl: `${window.location.origin}/api/nicepay/return`,
-        buyerName: teacher.name,
-        buyerTel: '01000000000',
-        buyerEmail: `teacher${teacher.id}@payments.yoursite.com`,
-        fnError: function (result) {
-          alert(`결제 실패: ${result?.errorMsg || result?.resultMsg || '알 수 없는 오류'}`);
+      // Hand off to Toss's payment window. There is no success callback
+      // here — Toss redirects the browser straight to successUrl/failUrl,
+      // which confirm/activate premium server-side before landing on
+      // /dashboard?payment=success|failed. The promise below only rejects
+      // for failures that happen before that handoff (e.g. the buyer
+      // closing the window).
+      const tossPayments = window.TossPayments(process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY);
+      tossPayments
+        .requestPayment('CARD', {
+          amount: totalAmount,
+          orderId,
+          orderName: `프리미엄 프로필 ${selectedSubjects.join(', ')} (${duration}개월)`,
+          customerName: teacher.name,
+          successUrl: `${window.location.origin}/api/toss/success`,
+          failUrl: `${window.location.origin}/api/toss/fail`,
+        })
+        .catch((result) => {
+          if (result?.code === 'USER_CANCEL') {
+            setPaymentProcessing(false);
+            return;
+          }
+          alert(`결제 실패: ${result?.message || '알 수 없는 오류'}`);
           setPaymentProcessing(false);
-        },
-      });
+        });
     } catch (error) {
       alert('결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
       setPaymentProcessing(false);
@@ -437,7 +442,7 @@ const checkAvailability = async (subjectsToCheck) => {
 
   return (
     <div className="bg-white border border-solid border-gray-200 shadow rounded-2xl relative isolate px-6 py-[5dvh] lg:px-8">
-        <Script src="https://pay.nicepay.co.kr/v1/js/" strategy="afterInteractive" />
+        <Script src="https://js.tosspayments.com/v1/payment" strategy="afterInteractive" />
 
         <h2 className="text-base font-semibold text-center bg-gradient-to-r from-blue-800 to-blue-400 bg-clip-text text-transparent">프리미엄 프로필</h2>
         <p className="mt-2 text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl text-center mb-[2em]">
@@ -654,7 +659,9 @@ const checkAvailability = async (subjectsToCheck) => {
                             : 'bg-blue-600 text-white hover:bg-blue-700'
                         )}
                         >
-                        {paymentProcessing ? '결제 진행 중...' : '결제하기 (카드)'}
+                        {paymentProcessing
+                          ? '결제 진행 중...'
+                          : '결제하기 (카드 - 현재 테스트 중입니다. 실결제로 이어지지 않습니다)'}
                         </button>
 
                         <div className="text-center">

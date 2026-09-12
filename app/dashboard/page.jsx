@@ -83,9 +83,9 @@ export default function DashboardPage() {
     loadTeacherProfile();
   }, [authLoading, user, role, teacherStatus]);
 
-  // NicePay confirms the expedite-review payment via a server-side
-  // redirect back to this page (?expedite=success|failed), not a JS
-  // callback — surface the result here.
+  // Toss confirms the expedite-review payment via a server-side redirect
+  // back to this page (?expedite=success|failed), not a JS callback —
+  // surface the result here.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const expedite = params.get('expedite');
@@ -104,7 +104,7 @@ export default function DashboardPage() {
     if (!teacher?.id) return;
     if (expediteProcessing) return;
 
-    if (typeof window === 'undefined' || typeof window.AUTHNICE === 'undefined') {
+    if (typeof window === 'undefined' || typeof window.TossPayments === 'undefined') {
       alert('결제 모듈을 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.');
       return;
     }
@@ -113,8 +113,8 @@ export default function DashboardPage() {
 
     try {
       // expedite_payments has no separate order_id column, so this row's
-      // own id (client-generated here) doubles as the NicePay orderId —
-      // that's how the server-side return/webhook handlers look it up.
+      // own id (client-generated here) doubles as the Toss orderId —
+      // that's how the server-side success/webhook handlers look it up.
       const orderId = crypto.randomUUID();
       const amount = 9000;
 
@@ -135,21 +135,24 @@ export default function DashboardPage() {
         return;
       }
 
-      window.AUTHNICE.requestPay({
-        clientId: process.env.NEXT_PUBLIC_NICEPAY_CLIENT_KEY,
-        method: 'card',
-        orderId,
-        amount,
-        goodsName: '프로필 우선 검토 서비스',
-        returnUrl: `${window.location.origin}/api/nicepay/expedite-return`,
-        buyerName: teacher.name,
-        buyerTel: '01000000000',
-        buyerEmail: `teacher${teacher.id}@payments.yoursite.com`,
-        fnError: function (result) {
-          alert(`결제 실패: ${result?.errorMsg || result?.resultMsg || '알 수 없는 오류'}`);
+      const tossPayments = window.TossPayments(process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY);
+      tossPayments
+        .requestPayment('CARD', {
+          amount,
+          orderId,
+          orderName: '프로필 우선 검토 서비스',
+          customerName: teacher.name,
+          successUrl: `${window.location.origin}/api/toss/expedite-success`,
+          failUrl: `${window.location.origin}/api/toss/expedite-fail`,
+        })
+        .catch((result) => {
+          if (result?.code === 'USER_CANCEL') {
+            setExpediteProcessing(false);
+            return;
+          }
+          alert(`결제 실패: ${result?.message || '알 수 없는 오류'}`);
           setExpediteProcessing(false);
-        },
-      });
+        });
     } catch (error) {
       alert('결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
       setExpediteProcessing(false);
@@ -300,11 +303,9 @@ export default function DashboardPage() {
           
       {role === 'teacher' && teacher && (
         <>
-        <Script src="https://pay.nicepay.co.kr/v1/js/" strategy="afterInteractive" />
+        <Script src="https://js.tosspayments.com/v1/payment" strategy="afterInteractive" />
 
-          {/* Premium listing service temporarily disabled
           {teacher.status === 'approved' && <PremiumListingOffer teacher={teacher} />}
-          */}
 
 
         {/* Basic Header */}
@@ -341,7 +342,9 @@ export default function DashboardPage() {
 
               <div className="max-w-md mx-auto flex flex-col sm:flex-row justify-center gap-2">
 
-                {/* Card payment temporarily disabled — waiting on NicePay merchant verification.
+                {/* Card payment temporarily disabled — Toss's merchant
+                    review is focused on the premium listing product for
+                    now; re-enable once that's settled.
                 <button
                   onClick={handleExpeditePayment}
                   disabled={expediteProcessing}

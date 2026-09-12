@@ -4,11 +4,17 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
+// Nav items are role-specific: a student has no reason to browse other
+// students or register as a teacher, and a teacher has no reason to browse
+// other teachers, apply again, or see 학원 추천 (a student/parent concern).
+// Logged-out visitors and admins (role is neither 'student' nor 'teacher')
+// get the full generic menu, since they haven't declared a role yet.
 export default function DesktopNav() {
   const [showHagwonDropdown, setShowHagwonDropdown] = useState(false);
-  const { teacherStatus, teacherId } = useAuth();
+  const { role } = useAuth();
 
-  const isApprovedTeacher = teacherStatus === 'approved';
+  const isStudent = role === 'student';
+  const isTeacher = role === 'teacher';
 
   return (
     <nav className="flex justify-center">
@@ -21,75 +27,79 @@ export default function DesktopNav() {
         </li>
         */}
 
-        {/* 선생님 찾기 */}
-        <li className="px-5">
-          <a href="/find" className="text-sm text-black font-normal hover:text-blue-500">
-            선생님 찾기
-          </a>
-        </li>
-
-        {/* 학생 찾기 */}
-        <li className="px-5">
-          <a href="/students" className="text-sm text-black font-normal hover:text-blue-500">
-            학생 찾기
-          </a>
-        </li>
-
-        {/* 선생님 등록하기 / 내 프로필 보기 */}
-        <li className="px-5">
-          {isApprovedTeacher ? (
-            <a href={`/dashboard`} className="text-sm text-black font-normal hover:text-blue-500">
-              내 프로필 보기
+        {/* 선생님 찾기 — not for teachers */}
+        {!isTeacher && (
+          <li className="px-5">
+            <a href="/find" className="text-sm text-black font-normal hover:text-blue-500">
+              선생님 찾기
             </a>
-          ) : (
+          </li>
+        )}
+
+        {/* 학생 찾기 — not for students */}
+        {!isStudent && (
+          <li className="px-5">
+            <a href="/students" className="text-sm text-black font-normal hover:text-blue-500">
+              학생 찾기
+            </a>
+          </li>
+        )}
+
+        {/* 선생님 등록하기 — only for visitors/admins deciding whether to
+            sign up as a teacher; students and teachers both have no use
+            for it (내 정보 already routes an unapproved teacher to /apply). */}
+        {!isStudent && !isTeacher && (
+          <li className="px-5">
             <a href="/apply" className="text-sm text-black font-normal hover:text-blue-500">
               선생님 등록하기
             </a>
-          )}
-        </li>
+          </li>
+        )}
 
-        {/* 학원 추천 (with dropdown) */}
-        <li className="px-5 relative group">
-          <button className="text-sm text-black font-normal hover:text-blue-500 flex items-center gap-1">
-            학원 추천
-            <svg
-              className={`w-4 h-4 transition-transform ${showHagwonDropdown ? 'rotate-180' : ''}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
+        {/* 학원 추천 (with dropdown) — not for teachers */}
+        {!isTeacher && (
+          <li className="px-5 relative group">
+            <button className="text-sm text-black font-normal hover:text-blue-500 flex items-center gap-1">
+              학원 추천
+              <svg
+                className={`w-4 h-4 transition-transform ${showHagwonDropdown ? 'rotate-180' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
 
-          {/* Dropdown menu */}
-          <ul className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg py-2 min-w-[180px] z-[1001] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-            <li>
-              <a
-                href="/hagwon-requests"
-                className="block px-4 py-2 text-sm text-black hover:bg-blue-50 hover:text-blue-500"
-              >
-                학원 찾기 게시판
-              </a>
-            </li>
-            <li>
-              <a
-                href="/hagwons"
-                className="block px-4 py-2 text-sm text-black hover:bg-blue-50 hover:text-blue-500"
-              >
-                IB 학원 추천
-              </a>
-            </li>
-            <li>
-              <a
-                href="/sat-hagwons"
-                className="block px-4 py-2 text-sm text-black hover:bg-blue-50 hover:text-blue-500"
-              >
-                SAT 학원 추천
-              </a>
-            </li>
-          </ul>
-        </li>
+            {/* Dropdown menu */}
+            <ul className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg py-2 min-w-[180px] z-[1001] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+              <li>
+                <a
+                  href="/hagwon-requests"
+                  className="block px-4 py-2 text-sm text-black hover:bg-blue-50 hover:text-blue-500"
+                >
+                  학원 찾기 게시판
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/hagwons"
+                  className="block px-4 py-2 text-sm text-black hover:bg-blue-50 hover:text-blue-500"
+                >
+                  IB 학원 추천
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/sat-hagwons"
+                  className="block px-4 py-2 text-sm text-black hover:bg-blue-50 hover:text-blue-500"
+                >
+                  SAT 학원 추천
+                </a>
+              </li>
+            </ul>
+          </li>
+        )}
       </ul>
     </nav>
   );

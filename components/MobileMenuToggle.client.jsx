@@ -8,8 +8,11 @@ import { useChat } from '@/contexts/ChatContext';
 export default function MobileMenuToggle() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [hagwonExpanded, setHagwonExpanded] = useState(false);
-  const { user, role, teacherStatus, signOut } = useAuth();
+  const { user, role, signOut } = useAuth();
   const { unreadCount, openPanel } = useChat();
+
+  const isStudent = role === 'student';
+  const isTeacher = role === 'teacher';
 
   // Prevent body scroll when sidebar is open
   useEffect(() => {
@@ -27,8 +30,6 @@ export default function MobileMenuToggle() {
     setSidebarOpen(false);
     setHagwonExpanded(false);
   };
-
-  const isApprovedTeacher = role === 'teacher' && teacherStatus === 'approved';
 
   return (
     <>
@@ -84,34 +85,32 @@ export default function MobileMenuToggle() {
           </a>
           */}
 
-          {/* 선생님 찾기 */}
-          <a
-            href="/find"
-            className="block w-full py-4 px-6 text-base text-left text-black hover:text-blue-500 hover:bg-blue-50 border-b border-gray-100"
-            onClick={handleClose}
-          >
-            선생님 찾기
-          </a>
-
-          {/* 학생 찾기 */}
-          <a
-            href="/students"
-            className="block w-full py-4 px-6 text-base text-left text-black hover:text-blue-500 hover:bg-blue-50 border-b border-gray-100"
-            onClick={handleClose}
-          >
-            학생 찾기
-          </a>
-
-          {/* 선생님 등록하기 OR 내 프로필 보기 */}
-          {isApprovedTeacher ? (
+          {/* 선생님 찾기 — not for teachers */}
+          {!isTeacher && (
             <a
-              href="/dashboard"
+              href="/find"
               className="block w-full py-4 px-6 text-base text-left text-black hover:text-blue-500 hover:bg-blue-50 border-b border-gray-100"
               onClick={handleClose}
             >
-              내 프로필 보기
+              선생님 찾기
             </a>
-          ) : (
+          )}
+
+          {/* 학생 찾기 — not for students */}
+          {!isStudent && (
+            <a
+              href="/students"
+              className="block w-full py-4 px-6 text-base text-left text-black hover:text-blue-500 hover:bg-blue-50 border-b border-gray-100"
+              onClick={handleClose}
+            >
+              학생 찾기
+            </a>
+          )}
+
+          {/* 선생님 등록하기 — only for visitors/admins; students and
+              teachers both have no use for it (내 정보 already routes an
+              unapproved teacher to /apply). */}
+          {!isStudent && !isTeacher && (
             <a
               href="/apply"
               className="block w-full py-4 px-6 text-base text-left text-black hover:text-blue-500 hover:bg-blue-50 border-b border-gray-100"
@@ -139,50 +138,52 @@ export default function MobileMenuToggle() {
             </button>
           )}
 
-          {/* 학원 추천 (expandable) */}
-          <div className="border-b border-gray-100">
-            <button
-              onClick={() => setHagwonExpanded(!hagwonExpanded)}
-              className="flex items-center justify-between w-full py-4 px-6 text-base text-left text-black hover:text-blue-500 hover:bg-blue-50"
-            >
-              <span>학원 추천</span>
-              <svg
-                className={`w-5 h-5 transition-transform ${hagwonExpanded ? 'rotate-180' : ''}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+          {/* 학원 추천 (expandable) — not for teachers */}
+          {!isTeacher && (
+            <div className="border-b border-gray-100">
+              <button
+                onClick={() => setHagwonExpanded(!hagwonExpanded)}
+                className="flex items-center justify-between w-full py-4 px-6 text-base text-left text-black hover:text-blue-500 hover:bg-blue-50"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
+                <span>학원 추천</span>
+                <svg
+                  className={`w-5 h-5 transition-transform ${hagwonExpanded ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
 
-            {/* Sub-items */}
-            {hagwonExpanded && (
-              <div className="bg-gray-50">
-                <a
-                  href="/hagwon-requests"
-                  className="block w-full py-3 pl-12 pr-6 text-sm text-left text-gray-700 hover:text-blue-500 hover:bg-blue-50"
-                  onClick={handleClose}
-                >
-                  학원 찾기 게시판
-                </a>
-                <a
-                  href="/hagwons"
-                  className="block w-full py-3 pl-12 pr-6 text-sm text-left text-gray-700 hover:text-blue-500 hover:bg-blue-50"
-                  onClick={handleClose}
-                >
-                  IB 학원 추천
-                </a>
-                <a
-                  href="/sat-hagwons"
-                  className="block w-full py-3 pl-12 pr-6 text-sm text-left text-gray-700 hover:text-blue-500 hover:bg-blue-50"
-                  onClick={handleClose}
-                >
-                  SAT 학원 추천
-                </a>
-              </div>
-            )}
-          </div>
+              {/* Sub-items */}
+              {hagwonExpanded && (
+                <div className="bg-gray-50">
+                  <a
+                    href="/hagwon-requests"
+                    className="block w-full py-3 pl-12 pr-6 text-sm text-left text-gray-700 hover:text-blue-500 hover:bg-blue-50"
+                    onClick={handleClose}
+                  >
+                    학원 찾기 게시판
+                  </a>
+                  <a
+                    href="/hagwons"
+                    className="block w-full py-3 pl-12 pr-6 text-sm text-left text-gray-700 hover:text-blue-500 hover:bg-blue-50"
+                    onClick={handleClose}
+                  >
+                    IB 학원 추천
+                  </a>
+                  <a
+                    href="/sat-hagwons"
+                    className="block w-full py-3 pl-12 pr-6 text-sm text-left text-gray-700 hover:text-blue-500 hover:bg-blue-50"
+                    onClick={handleClose}
+                  >
+                    SAT 학원 추천
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Login / Logout / Account */}
           {user ? (

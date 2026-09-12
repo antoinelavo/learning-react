@@ -305,11 +305,7 @@ export default function DashboardPage() {
         <>
         <Script src="https://js.tosspayments.com/v1/payment" strategy="afterInteractive" />
 
-          {/* Premium listing service temporarily disabled — pending a signed
-              Toss Payments merchant contract; safe to re-enable for
-              internal/mock testing with Toss test keys before then.
           {teacher.status === 'approved' && <PremiumListingOffer teacher={teacher} />}
-          */}
 
 
         {/* Basic Header */}
@@ -346,9 +342,6 @@ export default function DashboardPage() {
 
               <div className="max-w-md mx-auto flex flex-col sm:flex-row justify-center gap-2">
 
-                {/* Card payment temporarily disabled — pending a signed Toss
-                    Payments merchant contract; safe to re-enable for
-                    internal/mock testing with Toss test keys before then.
                 <button
                   onClick={handleExpeditePayment}
                   disabled={expediteProcessing}
@@ -360,7 +353,6 @@ export default function DashboardPage() {
                 >
                   {expediteProcessing ? '결제 진행 중...' : '빠른 검토 신청하기 (카드결제)'}
                 </button>
-                */}
 
                 <div className="text-center w-full">
                   <button

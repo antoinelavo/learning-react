@@ -3,11 +3,13 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useChat } from '@/contexts/ChatContext';
 
 export default function MobileMenuToggle() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [hagwonExpanded, setHagwonExpanded] = useState(false);
   const { user, role, teacherStatus, signOut } = useAuth();
+  const { unreadCount, openPanel } = useChat();
 
   // Prevent body scroll when sidebar is open
   useEffect(() => {
@@ -117,6 +119,24 @@ export default function MobileMenuToggle() {
             >
               선생님 등록하기
             </a>
+          )}
+
+          {/* 채팅 */}
+          {user && (
+            <button
+              onClick={() => {
+                openPanel();
+                handleClose();
+              }}
+              className="flex items-center justify-between w-full py-4 px-6 text-base text-left text-black hover:text-blue-500 hover:bg-blue-50 border-b border-gray-100"
+            >
+              <span>채팅</span>
+              {unreadCount > 0 && (
+                <span className="h-5 min-w-[20px] px-1 rounded-full bg-red-500 text-white text-xs font-semibold flex items-center justify-center">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
           )}
 
           {/* 학원 추천 (expandable) */}

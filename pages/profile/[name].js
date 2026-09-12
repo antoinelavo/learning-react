@@ -4,6 +4,8 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import ContactButton from './ContactButton';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+import { useChat } from '@/contexts/ChatContext';
 
 // 1) Build‐time: pre-render every approved teacher
 export async function getStaticPaths() {
@@ -43,9 +45,27 @@ export async function getStaticProps({ params }) {
 
 export default function ProfilePage({ teacher }) {
   const router = useRouter();
+  const { user, role } = useAuth();
+  const { openChatWithTeacher } = useChat();
+
   if (router.isFallback) {
     return <p className="text-center p-6">로딩 중…</p>;
   }
+
+  const isOwnProfile = user?.id === teacher.user_id;
+
+  const handleMessage = async () => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    try {
+      await openChatWithTeacher(teacher.user_id);
+    } catch (err) {
+      console.error(err);
+      alert('메시지를 시작할 수 없습니다. 잠시 후 다시 시도해주세요.');
+    }
+  };
 
   const description =
     teacher.shortintroduction || '이 선생님의 프로필을 확인하세요.';
@@ -117,8 +137,16 @@ export default function ProfilePage({ teacher }) {
               ))}
             </div>
 
-            <div className="mt-10">
+            <div className="mt-10 flex flex-col sm:flex-row gap-2">
               <ContactButton teacherName={teacher.name} contactInfo={teacher.contact_information} />
+              {!isOwnProfile && role !== 'teacher' && (
+                <button
+                  onClick={handleMessage}
+                  className="px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 transition-colors"
+                >
+                  메시지 보내기
+                </button>
+              )}
             </div>
 
           </div>

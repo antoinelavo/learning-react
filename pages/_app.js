@@ -1,5 +1,6 @@
 import Header from '@/components/Header.server';
 import Footer from '@/components/Footer.server';
+import Providers from '@/components/Providers.client';
 import '@/styles/globals.css';
 import { Noto_Sans_KR } from "next/font/google";
 
@@ -18,9 +19,11 @@ export default function RootLayout({ Component, pageProps }) {
   return (
     <html lang="en" className={notoSansKR.className}>
       <body className="min-h-screen min-w-screen bg-gray-50">
-        <Header />
-        <Component {...pageProps} />
-        <Footer />
+        <Providers>
+          <Header />
+          <Component {...pageProps} />
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

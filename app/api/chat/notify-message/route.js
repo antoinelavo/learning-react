@@ -44,20 +44,21 @@ export async function POST(request) {
       return NextResponse.json({ ok: true, skipped: 'opted_out' });
     }
 
-    // Throttle: only email on the first unread message since the recipient
-    // last read this conversation — a rapid back-and-forth shouldn't send
-    // one email per message.
-    const { count: unreadCount, error: countError } = await supabase
-      .from('messages')
-      .select('id', { count: 'exact', head: true })
-      .eq('conversation_id', conversationId)
-      .eq('recipient_id', recipientId)
-      .is('read_at', null);
+    // Throttle: at most one email per recipient per conversation every
+    // COOLDOWN_MINUTES, regardless of read state. An unread-count check
+    // alone doesn't work here — in a normal back-and-forth the recipient
+    // reads each message as it arrives, so unread count never climbs above
+    // 1 and every message would otherwise trigger its own email.
+    const { data: shouldNotify, error: throttleError } = await supabase.rpc('should_notify_chat_message', {
+      p_conversation_id: conversationId,
+      p_recipient_id: recipientId,
+      p_cooldown_minutes: 5,
+    });
 
-    if (countError) {
-      console.error('chat notify-message: unread count failed', countError);
-    } else if ((unreadCount || 0) > 1) {
-      return NextResponse.json({ ok: true, skipped: 'already_notified' });
+    if (throttleError) {
+      console.error('chat notify-message: cooldown check failed', throttleError);
+    } else if (!shouldNotify) {
+      return NextResponse.json({ ok: true, skipped: 'cooldown' });
     }
 
     const { data: senderUser } = await supabase.from('users').select('role').eq('id', senderId).single();

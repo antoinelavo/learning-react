@@ -63,15 +63,7 @@ export default function ProfilePage({ teacher }) {
       await openChatWithTeacher(teacher.user_id);
     } catch (err) {
       console.error(err);
-      // TEMP DEBUG — surfaces the real Supabase/RPC error so we can tell
-      // whether this is actually a role check failing, a missing
-      // teachers/users row, or something else entirely (e.g. the RPC not
-      // existing yet). Remove once diagnosed.
-      alert(
-        `[chat debug]\ncode: ${err?.code ?? 'none'}\nmessage: ${err?.message ?? String(err)}\ndetails: ${
-          err?.details ?? 'none'
-        }\nhint: ${err?.hint ?? 'none'}`
-      );
+      alert('메시지를 시작할 수 없습니다. 잠시 후 다시 시도해주세요.');
     }
   };
 

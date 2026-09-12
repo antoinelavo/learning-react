@@ -33,10 +33,12 @@ export default function MobileMenuToggle() {
 
   return (
     <>
-      {/* Hamburger button (only on mobile) */}
+      {/* Hamburger button (only on mobile) — a plain dot rather than a
+          count, since unlike the header's chat icon this button also opens
+          non-chat menu items, so "unread messages" isn't its sole meaning. */}
       <button
         onClick={() => setSidebarOpen(true)}
-        className="lg:hidden cursor-pointer p-2"
+        className="relative lg:hidden cursor-pointer p-2"
         aria-label="Open menu"
       >
         <svg viewBox="0 0 100 100" width="30" height="30" xmlns="http://www.w3.org/2000/svg">
@@ -44,6 +46,9 @@ export default function MobileMenuToggle() {
           <path d="M20 60 H80" stroke="#000" strokeWidth="4" strokeLinecap="round" />
           <path d="M20 80 H80" stroke="#000" strokeWidth="4" strokeLinecap="round" />
         </svg>
+        {unreadCount > 0 && (
+          <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-red-500" />
+        )}
       </button>
 
       {/* Backdrop */}

@@ -93,26 +93,28 @@ export default function ProfilePage({ teacher }) {
       <main className="max-w-3xl mx-auto px-4 py-10 space-y-8">
         {/* Profile header */}
         <div className="flex flex-col md:flex-row gap-6">
-          <div className="flex-1 bg-white rounded-xl shadow p-6 flex flex-col items-center">
-            <div className="w-32 h-32 mb-4">
+          <div className="flex-1 bg-white rounded-xl shadow p-4 md:p-6 flex flex-row md:flex-col items-center gap-4 md:gap-0">
+            <div className="w-20 h-20 md:w-32 md:h-32 md:mb-4 flex-shrink-0">
               <img
                 src={teacher.profile_picture || 'https://ibmaster.antoinelavo.com/teachers/default.jpg'}
                 alt={`${teacher.name} 프로필 사진`}
                 className="object-cover rounded-xl w-full h-full"
               />
             </div>
-            <h1 className="text-2xl font-bold m-0 mb-1">{teacher.name}</h1>
-            <h2 className="text-lg text-blue-500 text-center m-0 mb-1 text-balance">{teacher.school}</h2>
-            <div className="flex flex-wrap gap-2 mt-3">
-              {teacher.gender && (
-                <span className="m-0 bg-gray-100 rounded-xl px-[8px] py-[2px]">{teacher.gender}</span>
-              )}
-              {teacher.age && <span className="m-0 bg-gray-100 rounded-xl px-[8px] py-[2px]">{teacher.age}세</span>}
-              {teacher.lesson_type?.map((type) => (
-                <span key={type} className="m-0 bg-gray-100 rounded-xl px-[8px] py-[2px]">
-                  {type}
-                </span>
-              ))}
+            <div className="flex flex-col items-start md:items-center min-w-0 flex-1">
+              <h1 className="text-lg md:text-2xl font-bold m-0 mb-1 truncate max-w-full">{teacher.name}</h1>
+              <h2 className="text-sm md:text-lg text-blue-500 md:text-center m-0 mb-1 text-balance">{teacher.school}</h2>
+              <div className="flex flex-wrap gap-1.5 md:gap-2 mt-2 md:mt-3">
+                {teacher.gender && (
+                  <span className="m-0 bg-gray-100 rounded-xl px-[8px] py-[2px] text-xs md:text-sm">{teacher.gender}</span>
+                )}
+                {teacher.age && <span className="m-0 bg-gray-100 rounded-xl px-[8px] py-[2px] text-xs md:text-sm">{teacher.age}세</span>}
+                {teacher.lesson_type?.map((type) => (
+                  <span key={type} className="m-0 bg-gray-100 rounded-xl px-[8px] py-[2px] text-xs md:text-sm">
+                    {type}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -149,7 +151,7 @@ export default function ProfilePage({ teacher }) {
               {!isOwnProfile && role !== 'teacher' && (
                 <button
                   onClick={handleMessage}
-                  className="px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 transition-colors"
+                  className="self-start px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 transition-colors"
                 >
                   메시지 보내기
                 </button>

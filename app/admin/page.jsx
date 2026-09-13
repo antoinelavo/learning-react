@@ -40,10 +40,22 @@ export default function AdminPage() {
           신고 관리
         </Link>
         <Link
+          href="/admin/conversations"
+          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+        >
+          채팅 대화 →
+        </Link>
+        <Link
           href="/admin/teachers"
           className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
         >
           선생님 검색 →
+        </Link>
+        <Link
+          href="/admin/statistics"
+          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+        >
+          통계 →
         </Link>
       </div>
       <DashboardCards />

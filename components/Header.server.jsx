@@ -2,6 +2,8 @@
 import MobileMenuToggle from './MobileMenuToggle.client';
 import DesktopNav from './DesktopNav.client';
 import UserMenu from './UserMenu.client';
+import ChatButton from './chat/ChatButton.client';
+import ChatPanel from './chat/ChatPanel.client';
 
 export default function Header() {
   return (
@@ -20,12 +22,18 @@ export default function Header() {
         {/* Desktop nav + user menu */}
         <div className="hidden lg:flex items-center">
           <DesktopNav />
+          <ChatButton />
           <UserMenu />
         </div>
 
         {/* Mobile toggle/sidebar */}
         <MobileMenuToggle />
       </div>
+
+      {/* Chat drawer — mounted once, opened from ChatButton (desktop) or
+          the mobile sidebar's chat item, and from any "메시지 보내기" entry
+          point via ChatContext. */}
+      <ChatPanel />
     </header>
   );
 }

@@ -73,8 +73,9 @@ function PostCard({ post }) {
   );
 }
 
-export default function CommunityBoard({ announcements }) {
+export default function CommunityBoard({ announcements, debug }) {
   const { user } = useAuth();
+  const [clientMountedAt] = useState(() => new Date().toISOString());
   const [category, setCategory] = useState('전체');
   const [sortMode, setSortMode] = useState('latest');
   const [searchInput, setSearchInput] = useState('');
@@ -116,6 +117,18 @@ export default function CommunityBoard({ announcements }) {
 
   return (
     <main className="max-w-3xl mx-auto px-3 py-4 mb-24 relative">
+      {/* TEMPORARY debug panel — remove once diagnosed */}
+      {debug && (
+        <div className="mb-4 p-3 rounded-lg bg-yellow-50 border border-yellow-300 text-[11px] font-mono text-yellow-900 whitespace-pre-wrap break-all">
+          {'[DEBUG] server rendered: ' + debug.renderedAt + '\n'}
+          {'[DEBUG] client mounted:  ' + clientMountedAt + '\n'}
+          {'[DEBUG] adminPostsFound: ' + debug.adminPostsFound + ' (raw count from query: ' + debug.adminPostsRawCount + ')\n'}
+          {'[DEBUG] mdxPostsFound:   ' + debug.mdxPostsFound + '\n'}
+          {'[DEBUG] announcements shown: ' + debug.announcementsShown + '\n'}
+          {'[DEBUG] error: ' + (debug.error || 'none')}
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-lg font-bold text-gray-900">국제학교 입시 커뮤니티</h1>

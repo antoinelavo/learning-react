@@ -40,14 +40,19 @@ export default async function CommunityPage() {
 
   // --- Admin-authored announcements (legacy `posts` table, type='admin') ---
   let adminPosts = []
+  let debugError = null
+  let debugRawCount = null
   try {
-    const { data } = await supabase
+    const { data, error, count } = await supabase
       .from('posts')
-      .select('slug, title, category, featured, date, created_at')
+      .select('slug, title, category, featured, date, created_at', { count: 'exact' })
       .eq('published', true)
       .eq('type', 'admin')
       .order('created_at', { ascending: false })
       .limit(10)
+
+    if (error) debugError = error.message
+    debugRawCount = count
 
     adminPosts = (data || []).map(p => ({
       slug: p.slug,
@@ -57,13 +62,25 @@ export default async function CommunityPage() {
       featured: p.featured || false,
       url: `/community/${p.slug}`,
     }))
-  } catch {
+  } catch (err) {
     // legacy posts table not available — degrade gracefully
+    debugError = err?.message || String(err)
   }
 
   const announcements = [...adminPosts, ...mdxPosts]
     .sort((a, b) => new Date(b.date) - new Date(a.date))
     .slice(0, 6)
 
-  return <CommunityBoard announcements={announcements} />
+  // TEMPORARY debug info — remove once the "posts don't load on first visit"
+  // issue is diagnosed. Shows exactly what this specific server render saw.
+  const debug = {
+    renderedAt: new Date().toISOString(),
+    adminPostsFound: adminPosts.length,
+    adminPostsRawCount: debugRawCount,
+    mdxPostsFound: mdxPosts.length,
+    announcementsShown: announcements.length,
+    error: debugError,
+  }
+
+  return <CommunityBoard announcements={announcements} debug={debug} />
 }

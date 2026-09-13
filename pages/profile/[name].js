@@ -1,11 +1,14 @@
 // pages/profile/[name].js
 
 import Head from 'next/head';
+import { useState } from 'react';
 import { useRouter } from 'next/router';
 import ContactButton from './ContactButton';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChat } from '@/contexts/ChatContext';
+
+const MOBILE_SUBJECT_LIMIT = 6;
 
 // 1) Build‐time: pre-render every approved teacher
 export async function getStaticPaths() {
@@ -54,12 +57,17 @@ export default function ProfilePage({ teacher }) {
   const router = useRouter();
   const { user, role } = useAuth();
   const { openChatWithTeacher } = useChat();
+  const [showAllSubjects, setShowAllSubjects] = useState(false);
 
   if (router.isFallback) {
     return <p className="text-center p-6">로딩 중…</p>;
   }
 
   const isOwnProfile = user?.id === teacher.user_id;
+  const canMessage = !isOwnProfile && role !== 'teacher';
+  const subjects = teacher.subjects || [];
+  const visibleMobileSubjects = showAllSubjects ? subjects : subjects.slice(0, MOBILE_SUBJECT_LIMIT);
+  const hiddenSubjectCount = subjects.length - visibleMobileSubjects.length;
 
   const handleMessage = async () => {
     if (!user) {
@@ -90,34 +98,36 @@ export default function ProfilePage({ teacher }) {
         <link rel="icon" href="/images/favicon.ico" />
       </Head>
 
-      <main className="max-w-3xl mx-auto px-4 py-10 space-y-8">
-        {/* Profile header */}
-        <div className="flex flex-col md:flex-row gap-6">
-          <div className="flex-1 bg-white rounded-xl shadow p-6 flex flex-col items-center">
-            <div className="w-32 h-32 mb-4">
+      <main className="max-w-3xl mx-auto px-4 pt-6 md:pt-10 pb-24 md:pb-10 space-y-6 md:space-y-8">
+        {/* Profile header — one merged card on mobile, two side-by-side cards on desktop */}
+        <div className="flex flex-col md:flex-row gap-0 md:gap-6 bg-white md:bg-transparent rounded-xl md:rounded-none shadow md:shadow-none">
+          <div className="flex-1 p-4 md:p-6 md:bg-white md:rounded-xl md:shadow flex flex-row md:flex-col items-center gap-4 md:gap-0">
+            <div className="w-20 h-20 md:w-32 md:h-32 md:mb-4 flex-shrink-0">
               <img
                 src={teacher.profile_picture || 'https://ibmaster.antoinelavo.com/teachers/default.jpg'}
                 alt={`${teacher.name} 프로필 사진`}
                 className="object-cover rounded-xl w-full h-full"
               />
             </div>
-            <h1 className="text-2xl font-bold m-0 mb-1">{teacher.name}</h1>
-            <h2 className="text-lg text-blue-500 text-center m-0 mb-1 text-balance">{teacher.school}</h2>
-            <div className="flex flex-wrap gap-2 mt-3">
-              {teacher.gender && (
-                <span className="m-0 bg-gray-100 rounded-xl px-[8px] py-[2px]">{teacher.gender}</span>
-              )}
-              {teacher.age && <span className="m-0 bg-gray-100 rounded-xl px-[8px] py-[2px]">{teacher.age}세</span>}
-              {teacher.lesson_type?.map((type) => (
-                <span key={type} className="m-0 bg-gray-100 rounded-xl px-[8px] py-[2px]">
-                  {type}
-                </span>
-              ))}
+            <div className="flex flex-col items-start md:items-center min-w-0 flex-1">
+              <h1 className="text-lg md:text-2xl font-bold m-0 mb-1 truncate max-w-full">{teacher.name}</h1>
+              <h2 className="text-sm md:text-lg text-blue-500 md:text-center m-0 mb-1 text-balance">{teacher.school}</h2>
+              <div className="flex flex-wrap gap-1.5 md:gap-2 mt-2 md:mt-3">
+                {teacher.gender && (
+                  <span className="m-0 bg-gray-100 rounded-xl px-[8px] py-[2px] text-xs md:text-sm">{teacher.gender}</span>
+                )}
+                {teacher.age && <span className="m-0 bg-gray-100 rounded-xl px-[8px] py-[2px] text-xs md:text-sm">{teacher.age}세</span>}
+                {teacher.lesson_type?.map((type) => (
+                  <span key={type} className="m-0 bg-gray-100 rounded-xl px-[8px] py-[2px] text-xs md:text-sm">
+                    {type}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
 
-          <div className="flex-1 bg-white rounded-xl shadow p-6">
-            <div className="mb-4 flex items-center w-fit gap-2 bg-gray-100 rounded-xl px-[8px] py-[2px]">
+          <div className="flex-1 p-4 md:p-6 md:bg-white md:rounded-xl md:shadow border-t border-gray-100 md:border-0">
+            <div className="mb-2 md:mb-4 flex items-center w-fit gap-2 bg-gray-100 rounded-xl px-[8px] py-[2px] text-sm">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -136,20 +146,38 @@ export default function ProfilePage({ teacher }) {
               </svg>
               {teacher.preferred_lesson_time}
             </div>
-            <div className="flex flex-wrap gap-2">
-              {teacher.subjects?.map((subj) => (
+
+            {/* Mobile: capped list with a show-more toggle so long subject lists don't push the buttons down */}
+            <div className="md:hidden flex flex-wrap gap-1.5">
+              {visibleMobileSubjects.map((subj) => (
+                <span key={subj} className="bg-gray-100 rounded-full px-[8px] py-[2px] text-sm">
+                  {subj}
+                </span>
+              ))}
+              {hiddenSubjectCount > 0 && (
+                <button
+                  onClick={() => setShowAllSubjects(true)}
+                  className="text-blue-600 font-medium text-sm px-[8px] py-[2px]"
+                >
+                  +{hiddenSubjectCount}개 더보기
+                </button>
+              )}
+            </div>
+            {/* Desktop: full list, no collapsing */}
+            <div className="hidden md:flex flex-wrap gap-2">
+              {subjects.map((subj) => (
                 <span key={subj} className="bg-gray-100 rounded-full px-[8px] py-[2px]">
                   {subj}
                 </span>
               ))}
             </div>
 
-            <div className="mt-10 flex flex-col sm:flex-row gap-2">
+            <div className="mt-4 md:mt-10 flex flex-col sm:flex-row gap-2">
               <ContactButton teacherName={teacher.name} contactInfo={teacher.contact_information} />
-              {!isOwnProfile && role !== 'teacher' && (
+              {canMessage && (
                 <button
                   onClick={handleMessage}
-                  className="px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 transition-colors"
+                  className="hidden md:inline-block self-start px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 transition-colors"
                 >
                   메시지 보내기
                 </button>
@@ -160,7 +188,7 @@ export default function ProfilePage({ teacher }) {
         </div>
 
         {/* Introduction & Experience */}
-        <div className="space-y-8 bg-white rounded-xl shadow p-6">
+        <div className="richtext-mobile-tight space-y-6 md:space-y-8 bg-white rounded-xl shadow p-4 md:p-6">
           <section>
             <h2 className="text-xl font-bold mb-2">소개</h2>
             <div
@@ -181,6 +209,21 @@ export default function ProfilePage({ teacher }) {
           </section>
         </div>
       </main>
+
+      {/* Mobile-only sticky message CTA — the inline button above is hidden on mobile in favor of this */}
+      {canMessage && (
+        <div
+          className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-gray-200 p-3"
+          style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+        >
+          <button
+            onClick={handleMessage}
+            className="w-full px-4 py-3 rounded-lg bg-blue-500 text-white text-sm font-semibold hover:bg-blue-600 transition-colors"
+          >
+            메시지 보내기
+          </button>
+        </div>
+      )}
     </>
   );
 }

@@ -30,10 +30,32 @@ h2 {
 }
 
 p {
-  font-size: 1rem;           
-  line-height: 1.6;            
-  color: #444;                  
-  margin: 0 0 1rem;             
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #444;
+  margin: 0 0 1rem;
   text-underline-offset: 2px;
 
+}
+
+/* Tightens teacher-authored rich text (소개/경력, from the Quill editor)
+   on mobile so its default heading/paragraph spacing doesn't push
+   content further down the page than it needs to. Desktop is untouched. */
+@media (max-width: 767px) {
+  .richtext-mobile-tight :where(h1, h2, h3) {
+    margin: 0.5rem 0 0.375rem;
+    font-size: 1.125rem;
+    line-height: 1.4;
+  }
+
+  .richtext-mobile-tight :where(p) {
+    margin: 0 0 0.5rem;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  .richtext-mobile-tight :where(ul, ol) {
+    margin: 0 0 0.5rem;
+    padding-left: 1.25rem;
+  }
 }

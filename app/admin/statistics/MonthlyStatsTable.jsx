@@ -24,11 +24,13 @@ export default function MonthlyStatsTable() {
 
   useEffect(() => {
     async function fetchStats() {
-      // Note: `teachers` uses `created_date`, not `created_at` — matches
-      // the column TeacherList.jsx/TeachersTable.jsx already order by.
+      // Note: `teachers` uses `created_date` (matches the column
+      // TeacherList.jsx/TeachersTable.jsx already order by), and `users`
+      // uses `date_created` — neither follows the `created_at` convention
+      // that `student_jobs`/`hagwon_requests` use.
       const [teachersRes, studentsRes, studentJobsRes, hagwonRequestsRes] = await Promise.all([
         supabase.from('teachers').select('created_date'),
-        supabase.from('users').select('created_at').eq('role', 'student'),
+        supabase.from('users').select('date_created').eq('role', 'student'),
         supabase.from('student_jobs').select('created_at'),
         supabase.from('hagwon_requests').select('created_at'),
       ]);
@@ -50,7 +52,9 @@ export default function MonthlyStatsTable() {
       const newTeachers = bucketByMonth(
         (teachersRes.data || []).map((r) => ({ created_at: r.created_date }))
       );
-      const newStudents = bucketByMonth(studentsRes.data || []);
+      const newStudents = bucketByMonth(
+        (studentsRes.data || []).map((r) => ({ created_at: r.date_created }))
+      );
       const studentRequests = bucketByMonth(studentJobsRes.data || []);
       const hagwonRequests = bucketByMonth(hagwonRequestsRes.data || []);
 

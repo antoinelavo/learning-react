@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import Link from 'next/link';
 import PremiumListingOffer from '@/components/PremiumListingOffer';
 import TeacherCard from '@/components/TeacherCard';
 import EmailNotificationToggle from '@/components/chat/EmailNotificationToggle.client';
+import MyPurchases from '@/components/MyPurchases.client';
 
 
 export default function DashboardPage() {
@@ -20,6 +22,8 @@ export default function DashboardPage() {
   const [quillReady, setQuillReady] = useState(false);
   const [showExpediteAccount, setShowExpediteAccount] = useState(false);
   const [expediteProcessing, setExpediteProcessing] = useState(false);
+  const [bankInfo, setBankInfo] = useState({ bank_name: '', bank_account_number: '', bank_account_holder: '' });
+  const [savingBankInfo, setSavingBankInfo] = useState(false);
 
   const formRef = useRef();
 
@@ -65,6 +69,11 @@ export default function DashboardPage() {
 
         setTeacher(profile);
         updateStatus(profile.status);
+        setBankInfo({
+          bank_name: profile.bank_name || '',
+          bank_account_number: profile.bank_account_number || '',
+          bank_account_holder: profile.bank_account_holder || '',
+        });
 
         const { data: teachers, error: subjectsError } = await supabase
           .from('teachers')
@@ -239,6 +248,21 @@ export default function DashboardPage() {
     router.push('/login');
   };
 
+  // Separate from handleSubmit on purpose: saving bank info shouldn't flip
+  // the profile back to 'pending' review (unlike the rest of the profile
+  // form below, which does).
+  const handleSaveBankInfo = async (e) => {
+    e.preventDefault();
+    if (!user) return;
+    setSavingBankInfo(true);
+    const { error } = await supabase
+      .from('teachers')
+      .update(bankInfo)
+      .eq('user_id', user.id);
+    setSavingBankInfo(false);
+    alert(error ? '저장에 실패했습니다.' : '정산 계좌 정보가 저장되었습니다.');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user || !teacher || !quillReady) return;
@@ -290,6 +314,10 @@ export default function DashboardPage() {
         <div className="mt-4">
           <EmailNotificationToggle userId={user.id} />
         </div>
+        <p className="mt-4">
+          <Link href="/marketplace" className="text-blue-600 font-medium">IB 자료 마켓플레이스 둘러보기 &rarr;</Link>
+        </p>
+        <MyPurchases />
         <div className="mt-8 flex gap-4 w-full">
           <button onClick={handleLogout} className="bg-blue-500 text-white w-1/2 px-[2em] py-[1em] rounded-lg">로그아웃</button>
           <button onClick={handleDelete} className="bg-blue-900 text-white w-1/2 px-[2em] py-[1em] rounded-lg">탈퇴하기</button>
@@ -307,6 +335,17 @@ export default function DashboardPage() {
 
           {teacher.status === 'approved' && <PremiumListingOffer teacher={teacher} />}
 
+          {teacher.status === 'approved' && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-[2em] bg-white border border-solid border-gray-200 shadow rounded-2xl mb-6">
+              <div>
+                <h2 className="text-lg font-bold mb-1">IB 자료 마켓플레이스</h2>
+                <p className="text-sm text-gray-500">기출 답안, EE, IA 등 자료를 업로드해 판매해보세요. 수수료 15%, 매달 정산됩니다.</p>
+              </div>
+              <Link href="/dashboard/resources" className="shrink-0 bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700">
+                내 자료 관리하기
+              </Link>
+            </div>
+          )}
 
         {/* Basic Header */}
         <div className="flex flex-col p-[3em] bg-white border border-solid border-gray-200 shadow rounded-2xl">
@@ -387,6 +426,42 @@ export default function DashboardPage() {
 
         </div>
         
+        {/* Payout bank info — used only for the monthly marketplace payout */}
+        <form onSubmit={handleSaveBankInfo} className="space-y-4 mt-6 p-[3em] bg-white border border-solid border-gray-200 shadow rounded-2xl">
+          <h2 className="text-center">정산 계좌 정보</h2>
+          <p className="text-sm text-gray-500 text-center">자료 판매 정산금을 매달 입금받을 계좌입니다.</p>
+          <div>
+            <label className="block font-medium">은행명</label>
+            <input
+              type="text"
+              value={bankInfo.bank_name}
+              onChange={(e) => setBankInfo((b) => ({ ...b, bank_name: e.target.value }))}
+              className="w-full border border-gray-300 rounded-xl p-3 mt-2"
+            />
+          </div>
+          <div>
+            <label className="block font-medium">계좌번호</label>
+            <input
+              type="text"
+              value={bankInfo.bank_account_number}
+              onChange={(e) => setBankInfo((b) => ({ ...b, bank_account_number: e.target.value }))}
+              className="w-full border border-gray-300 rounded-xl p-3 mt-2"
+            />
+          </div>
+          <div>
+            <label className="block font-medium">예금주</label>
+            <input
+              type="text"
+              value={bankInfo.bank_account_holder}
+              onChange={(e) => setBankInfo((b) => ({ ...b, bank_account_holder: e.target.value }))}
+              className="w-full border border-gray-300 rounded-xl p-3 mt-2"
+            />
+          </div>
+          <button type="submit" disabled={savingBankInfo} className="bg-blue-500 text-white px-[2em] py-[1em] rounded-xl mx-auto disabled:opacity-50">
+            {savingBankInfo ? '저장 중...' : '저장하기'}
+          </button>
+        </form>
+
         {/* Edit Profile */}
               <form ref={formRef} onSubmit={handleSubmit} className="space-y-4 mt-6 p-[3em] bg-white border border-solid border-gray-200 shadow rounded-2xl">
                 <h2 className="text-center">프로필 편집하기</h2>

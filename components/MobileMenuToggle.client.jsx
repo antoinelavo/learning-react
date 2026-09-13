@@ -101,6 +101,15 @@ export default function MobileMenuToggle() {
             </a>
           )}
 
+          {/* 자료 마켓플레이스 — both students (buy) and teachers (sell) use it */}
+          <a
+            href="/marketplace"
+            className="block w-full py-4 px-6 text-base text-left text-black hover:text-blue-500 hover:bg-blue-50 border-b border-gray-100"
+            onClick={handleClose}
+          >
+            자료 마켓플레이스
+          </a>
+
           {/* 학생 찾기 — not for students */}
           {!isStudent && (
             <a

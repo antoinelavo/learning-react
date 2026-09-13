@@ -36,6 +36,13 @@ export default function DesktopNav() {
           </li>
         )}
 
+        {/* 자료 마켓플레이스 — both students (buy) and teachers (sell) use it */}
+        <li className="px-5">
+          <a href="/marketplace" className="text-sm text-black font-normal hover:text-blue-500">
+            자료 마켓플레이스
+          </a>
+        </li>
+
         {/* 학생 찾기 — not for students */}
         {!isStudent && (
           <li className="px-5">

@@ -15,7 +15,11 @@ export const metadata = {
   },
 }
 
-export const revalidate = 60
+// Render fresh on every request rather than ISR-caching this page: the
+// admin/blog announcements rail should reflect a newly published post
+// immediately, not lag behind a cache window (the main board below is
+// already fetched live, client-side, regardless of this setting).
+export const dynamic = 'force-dynamic'
 
 export default async function CommunityPage() {
   // --- MDX SEO posts (filesystem) ---

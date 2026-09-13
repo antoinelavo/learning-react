@@ -28,6 +28,18 @@ export default function AdminPage() {
     <div className="max-w-screen-lg mx-auto pt-6 sm:pt-8 px-4 mb-[20dvh]">
       <div className="flex justify-end gap-2 mb-3">
         <Link
+          href="/admin/posts"
+          className="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+        >
+          커뮤니티 포스트 관리
+        </Link>
+        <Link
+          href="/admin/community/reports"
+          className="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+        >
+          신고 관리
+        </Link>
+        <Link
           href="/admin/conversations"
           className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
         >

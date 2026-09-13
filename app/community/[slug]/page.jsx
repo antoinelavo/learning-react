@@ -97,14 +97,6 @@ export default async function CommunityPostPage({ params }) {
           dangerouslySetInnerHTML={{ __html: html }}
         />
       </article>
-
-      {/* Comments placeholder */}
-      <section className="mt-16 border-t border-gray-200 pt-8">
-        <h2 className="text-base font-semibold text-gray-700 mb-4">댓글</h2>
-        <div className="bg-gray-50 rounded-xl p-6 text-center text-sm text-gray-400">
-          댓글 기능은 곧 추가될 예정입니다.
-        </div>
-      </section>
     </main>
   )
 }

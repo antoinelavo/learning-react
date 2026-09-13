@@ -15,7 +15,11 @@ export const metadata = {
   },
 }
 
-export const revalidate = 60
+// Render fresh on every request rather than ISR-caching this page: the
+// admin/blog announcements rail should reflect a newly published post
+// immediately, not lag behind a cache window (the main board below is
+// already fetched live, client-side, regardless of this setting).
+export const dynamic = 'force-dynamic'
 
 export default async function CommunityPage() {
   // --- MDX SEO posts (filesystem) ---
@@ -27,47 +31,56 @@ export default async function CommunityPage() {
       return {
         slug: file.replace(/\.mdx$/, ''),
         title: data.title || '',
-        description: data.description || '',
         date: data.date || '',
         category: data.category || '일반',
         featured: data.featured || false,
-        type: 'mdx',
-        views: 0,
         url: `/blog/${file.replace(/\.mdx$/, '')}`,
       }
     })
 
-  // --- Supabase posts (admin + user) ---
-  let supabasePosts = []
+  // --- Admin-authored announcements (legacy `posts` table, type='admin') ---
+  let adminPosts = []
+  let debugError = null
+  let debugRawCount = null
   try {
-    const { data } = await supabase
+    const { data, error, count } = await supabase
       .from('posts')
-      .select('slug, title, description, category, type, featured, date, created_at, views')
+      .select('slug, title, category, featured, date, created_at', { count: 'exact' })
       .eq('published', true)
+      .eq('type', 'admin')
       .order('created_at', { ascending: false })
+      .limit(10)
 
-    supabasePosts = (data || []).map(p => ({
+    if (error) debugError = error.message
+    debugRawCount = count
+
+    adminPosts = (data || []).map(p => ({
       slug: p.slug,
       title: p.title,
-      description: p.description || '',
       date: p.date || p.created_at?.slice(0, 10) || '',
       category: p.category || '일반',
       featured: p.featured || false,
-      type: p.type,
-      views: p.views || 0,
       url: `/community/${p.slug}`,
     }))
-  } catch {
-    // posts table not yet created — degrade gracefully
+  } catch (err) {
+    // legacy posts table not available — degrade gracefully
+    debugError = err?.message || String(err)
   }
 
-  // Merge and sort by date desc
-  const allPosts = [...supabasePosts, ...mdxPosts].sort(
-    (a, b) => new Date(b.date) - new Date(a.date)
-  )
+  const announcements = [...adminPosts, ...mdxPosts]
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 6)
 
-  const featured = allPosts.filter(p => p.featured)
-  const regular = allPosts.filter(p => !p.featured)
+  // TEMPORARY debug info — remove once the "posts don't load on first visit"
+  // issue is diagnosed. Shows exactly what this specific server render saw.
+  const debug = {
+    renderedAt: new Date().toISOString(),
+    adminPostsFound: adminPosts.length,
+    adminPostsRawCount: debugRawCount,
+    mdxPostsFound: mdxPosts.length,
+    announcementsShown: announcements.length,
+    error: debugError,
+  }
 
-  return <CommunityBoard featured={featured} regular={regular} />
+  return <CommunityBoard announcements={announcements} debug={debug} />
 }

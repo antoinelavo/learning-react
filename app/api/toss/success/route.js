@@ -65,6 +65,7 @@ export async function GET(request) {
     subjects: order.subjects,
     durationMonths: order.duration_months,
     expectedAmount,
+    paymentRequestId: order.id,
   });
 
   if (!result.ok) {

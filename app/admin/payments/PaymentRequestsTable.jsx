@@ -2,13 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { activatePremium } from '@/lib/premiumActivation';
+import { activatePremium, deactivatePayment } from '@/lib/premiumActivation';
 
 const ERROR_MESSAGES = {
   spots_unavailable: '선택한 과목의 프리미엄 자리가 모두 찼습니다.',
   availability_check_failed: '프리미엄 자리 확인 중 오류가 발생했습니다.',
   record_payment_failed: '결제 기록 중 오류가 발생했습니다.',
   activate_premium_failed: '프리미엄 활성화 중 오류가 발생했습니다.',
+  remove_premium_failed: '프리미엄 제거 중 오류가 발생했습니다.',
+  remove_payment_record_failed: '결제 기록 삭제 중 오류가 발생했습니다.',
+  reset_request_failed: '상태 초기화 중 오류가 발생했습니다.',
 };
 
 function formatDate(dateStr) {
@@ -34,7 +37,7 @@ function StatusSwitch({ checked, disabled, busy, onClick }) {
       className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors ${
         checked ? 'bg-blue-600' : 'bg-gray-300'
       } ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
-      title={checked ? '입금 확인됨' : '입금 확인 처리'}
+      title={checked ? '확인 취소하기' : '입금 확인 처리'}
     >
       <span
         className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -75,7 +78,15 @@ export default function PaymentRequestsTable() {
     setLoading(false);
   }
 
-  async function handleConfirm(row) {
+  async function handleToggle(row) {
+    if (row.admin_confirmed) {
+      await handleDeactivate(row);
+    } else {
+      await handleActivate(row);
+    }
+  }
+
+  async function handleActivate(row) {
     const subjectList = (row.subjects || []).join(', ');
     const confirmed = window.confirm(
       `${row.name} 선생님의 입금을 확인 처리하시겠습니까?\n과목: ${subjectList}\n금액: ₩${Number(row.amount).toLocaleString()}\n\n확인 즉시 해당 과목으로 프리미엄 프로필이 활성화됩니다.`
@@ -110,6 +121,30 @@ export default function PaymentRequestsTable() {
         prev.map((r) =>
           r.id === row.id ? { ...r, admin_confirmed: true, confirmed_at: new Date().toISOString() } : r
         )
+      );
+    } finally {
+      setConfirmingId(null);
+    }
+  }
+
+  async function handleDeactivate(row) {
+    const subjectList = (row.subjects || []).join(', ');
+    const confirmed = window.confirm(
+      `${row.name} 선생님의 입금 확인을 취소하시겠습니까?\n과목: ${subjectList}\n\n이 결제로 활성화된 프리미엄이 즉시 제거됩니다.`
+    );
+    if (!confirmed) return;
+
+    setConfirmingId(row.id);
+    try {
+      const result = await deactivatePayment({ paymentRequestId: row.id });
+
+      if (!result.ok) {
+        alert(`❌ ${ERROR_MESSAGES[result.error] || '처리 중 오류가 발생했습니다.'}`);
+        return;
+      }
+
+      setRows((prev) =>
+        prev.map((r) => (r.id === row.id ? { ...r, admin_confirmed: false, confirmed_at: null } : r))
       );
     } finally {
       setConfirmingId(null);
@@ -185,9 +220,9 @@ export default function PaymentRequestsTable() {
                       ) : (
                         <StatusSwitch
                           checked={isConfirmed}
-                          disabled={isConfirmed || isBusy}
+                          disabled={isBusy}
                           busy={isBusy}
-                          onClick={() => handleConfirm(row)}
+                          onClick={() => handleToggle(row)}
                         />
                       )}
                     </td>

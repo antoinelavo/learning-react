@@ -108,7 +108,7 @@ export default function PaymentRequestsTable() {
 
       setRows((prev) =>
         prev.map((r) =>
-          r.id === row.id ? { ...r, status: 'confirmed', confirmed_at: new Date().toISOString() } : r
+          r.id === row.id ? { ...r, admin_confirmed: true, confirmed_at: new Date().toISOString() } : r
         )
       );
     } finally {
@@ -148,7 +148,7 @@ export default function PaymentRequestsTable() {
             <tbody>
               {rows.map((row) => {
                 const isCardPayment = Boolean(row.order_id);
-                const isConfirmed = row.status === 'confirmed';
+                const isConfirmed = row.admin_confirmed === true;
                 const isBusy = confirmingId === row.id;
 
                 return (

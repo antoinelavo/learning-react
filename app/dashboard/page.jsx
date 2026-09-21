@@ -211,7 +211,7 @@ export default function DashboardPage() {
 
   const updateStatus = (status) => {
     const statusMap = {
-      pending: ['계정 상태: 검토 중 - 예상 소요 시간: 3주', 'bg-yellow-100 text-yellow-700'],
+      pending: ['계정 상태: 검토 중 - 예상 소요 시간: 영업일 기준 3일', 'bg-yellow-100 text-yellow-700'],
       approved: ['계정 상태: 승인됨', 'bg-green-100 text-green-700'],
       rejected: ['계정 상태: 반려됨', 'bg-red-100 text-red-700'],
     };
@@ -336,15 +336,16 @@ export default function DashboardPage() {
           {teacher.status === 'pending' && (
             <div className="mt-6 p-8 bg-white border border-gray-200 shadow rounded-2xl text-center">
             <h2 className="text-2xl font-bold mb-4">프로필 검토 중입니다</h2>
-            <p className="text-gray-600">현재 많은 선생님들의 지원으로 인해 프로필 검토에 약 3주 정도 소요되고 있습니다.</p>
-            <p className="text-gray-600 mb-4">9,000원을 결제하시면 1영업일 내로 프로필 검토를 완료해드립니다. </p>
-            <p className="text-xs text-gray-600 mb-4">*수익금은 사이트 운영 및 서비스 개선에 사용됩니다.</p>
+            <p className="text-gray-600 mb-4">영업일 기준 3일 이내로 프로필 검토가 완료됩니다.</p>
+
+              {/* Paid expedited review (card or bank transfer) removed —
+                  verification is free for everyone now, no pay-to-skip-
+                  the-queue gate. Kept below, commented out, in case a
+                  genuinely faster paid option is reintroduced later.
+              <p className="text-gray-600 mb-4">9,000원을 결제하시면 1영업일 내로 프로필 검토를 완료해드립니다. </p>
+              <p className="text-xs text-gray-600 mb-4">*수익금은 사이트 운영 및 서비스 개선에 사용됩니다.</p>
 
               <div className="max-w-md mx-auto flex flex-col sm:flex-row justify-center gap-2">
-
-                {/* Card payment temporarily disabled — Toss's merchant
-                    review is focused on the premium listing product for
-                    now; re-enable once that's settled.
                 <button
                   onClick={handleExpeditePayment}
                   disabled={expediteProcessing}
@@ -356,7 +357,6 @@ export default function DashboardPage() {
                 >
                   {expediteProcessing ? '결제 진행 중...' : '빠른 검토 신청하기 (카드결제)'}
                 </button>
-                */}
 
                 <div className="text-center w-full">
                   <button
@@ -382,6 +382,7 @@ export default function DashboardPage() {
                   )}
                 </div>
               </div>
+              */}
             </div>
           )}
 

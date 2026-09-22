@@ -50,6 +50,7 @@ export async function POST(request) {
       subjects: order.subjects,
       durationMonths: order.duration_months,
       expectedAmount: order.amount,
+      paymentRequestId: order.id,
     });
 
     if (!result.ok) {

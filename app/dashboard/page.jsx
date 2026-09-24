@@ -335,7 +335,10 @@ export default function DashboardPage() {
 
           {teacher.status === 'approved' && <PremiumListingOffer teacher={teacher} />}
 
-          {teacher.status === 'approved' && (
+          {/* Hidden while the marketplace is being tested — page is still
+              reachable directly at /dashboard/resources. Re-enable this
+              card once testing is done. */}
+          {false && teacher.status === 'approved' && (
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-[2em] bg-white border border-solid border-gray-200 shadow rounded-2xl mb-6">
               <div>
                 <h2 className="text-lg font-bold mb-1">IB 자료 마켓플레이스</h2>

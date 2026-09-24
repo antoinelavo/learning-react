@@ -1,12 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import NewsletterPopup from '@/components/NewsletterPopup';
+import { revealStudentJob, getRevealedStudentJobIds, revealsRemaining } from '@/lib/reveal';
 
 export default function StudentsPageClient() {
+  const router = useRouter();
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -22,6 +25,65 @@ export default function StudentsPageClient() {
   const [showFeedbackQuestion, setShowFeedbackQuestion] = useState(false);
   const [foundTeacher, setFoundTeacher] = useState(null);
   const [viewedListings, setViewedListings] = useState(new Set());
+
+  // Reveal-gating state (student_jobs contact info) — see lib/reveal.js.
+  const [teacherProfile, setTeacherProfile] = useState(null);
+  const [revealedIds, setRevealedIds] = useState(new Set());
+  const [revealingId, setRevealingId] = useState(null);
+
+  useEffect(() => {
+    async function loadTeacherRevealState() {
+      if (!(role === 'teacher' && teacherStatus === 'approved' && user)) return;
+
+      const { data: profile } = await supabase
+        .from('teachers')
+        .select('id, tier, reveal_count, reveal_reset_at')
+        .eq('user_id', user.id)
+        .single();
+      if (!profile) return;
+      setTeacherProfile(profile);
+
+      try {
+        setRevealedIds(await getRevealedStudentJobIds(profile.id));
+      } catch (err) {
+        console.error('Error loading revealed requests:', err);
+      }
+    }
+    loadTeacherRevealState();
+  }, [role, teacherStatus, user]);
+
+  const refreshTeacherProfile = async () => {
+    if (!user) return;
+    const { data: profile } = await supabase
+      .from('teachers')
+      .select('id, tier, reveal_count, reveal_reset_at')
+      .eq('user_id', user.id)
+      .single();
+    if (profile) setTeacherProfile(profile);
+  };
+
+  const handleReveal = async (studentId) => {
+    if (!teacherProfile || revealingId) return;
+    setRevealingId(studentId);
+    try {
+      const result = await revealStudentJob(teacherProfile.id, studentId);
+      if (result.revealed) {
+        setRevealedIds((prev) => new Set(prev).add(studentId));
+        if (result.reason === 'free_reveal') {
+          await refreshTeacherProfile();
+        }
+      } else if (result.reason === 'limit_reached') {
+        router.push('/dashboard?tab=pricing');
+      } else {
+        alert('연락처를 확인하지 못했습니다. 잠시 후 다시 시도해주세요.');
+      }
+    } catch (err) {
+      console.error('Error revealing contact:', err);
+      alert('연락처를 확인하지 못했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+      setRevealingId(null);
+    }
+  };
 
   useEffect(() => {
     async function loadStudents() {
@@ -251,6 +313,13 @@ export default function StudentsPageClient() {
           <p className="text-sm text-gray-400">
             ( 최근 1개월에 올라온 요청글만 표시됩니다 )
           </p>
+          {teacherProfile && teacherProfile.tier !== 'premium' && (
+            <p className="text-xs mt-2">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100 font-medium">
+                이번 달 연락처 열람 {revealsRemaining(teacherProfile)}/2회 남음
+              </span>
+            </p>
+          )}
         </div>
         <div className="shrink-0">
           <Link
@@ -285,7 +354,7 @@ export default function StudentsPageClient() {
             {students.map(student => {
               const isExpanded = expandedStudentId === student.id;
               const isApprovedTeacher = role === 'teacher' && teacherStatus === 'approved';
-              const canViewContact = isApprovedTeacher && student.status === 'OPEN';
+              const isRevealed = revealedIds.has(student.id);
 
               return (
                 <div
@@ -407,28 +476,40 @@ export default function StudentsPageClient() {
 
                       <div className="border-t border-gray-200 pt-4">
                         <h4 className="text-sm font-semibold mb-2">학생 연락처</h4>
-                        {!canViewContact ? (
+                        {student.status === 'CLOSED' ? (
                           <div className="bg-white border border-dashed border-gray-300 rounded-md px-4 py-3">
                             <p className="text-sm text-gray-600 text-center mb-0">
-                              {student.status === 'CLOSED' ? (
-                                <>
-                                  이 요청은 <span className="font-bold text-gray-700">마감되었습니다</span>. 마감된 요청의 연락처는 확인할 수 없습니다.
-                                </>
-                              ) : !isApprovedTeacher ? (
-                                <>
-                                  학생의 연락처는{' '}
-                                  <span className="font-bold text-blue-700">프로필이 검증된 선생님만</span> 확인할 수 있습니다.
-                                </>
-                              ) : null}
+                              이 요청은 <span className="font-bold text-gray-700">마감되었습니다</span>. 마감된 요청의 연락처는 확인할 수 없습니다.
                             </p>
-                            {student.status !== 'CLOSED' && !isApprovedTeacher && (
-                              <a
-                                href="/apply"
-                                className="block w-full text-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors mt-3"
-                              >
-                                선생님으로 등록하기
-                              </a>
-                            )}
+                          </div>
+                        ) : !isApprovedTeacher ? (
+                          <div className="bg-white border border-dashed border-gray-300 rounded-md px-4 py-3">
+                            <p className="text-sm text-gray-600 text-center mb-0">
+                              학생의 연락처는{' '}
+                              <span className="font-bold text-blue-700">프로필이 검증된 선생님만</span> 확인할 수 있습니다.
+                            </p>
+                            <a
+                              href="/apply"
+                              className="block w-full text-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors mt-3"
+                            >
+                              선생님으로 등록하기
+                            </a>
+                          </div>
+                        ) : !isRevealed ? (
+                          <div className="bg-white border border-dashed border-gray-300 rounded-md px-4 py-3 text-center">
+                            <p className="text-sm text-gray-600 mb-3">
+                              연락처를 확인하면 무료 회원은 이번 달 열람 횟수 1회가 차감됩니다.
+                            </p>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleReveal(student.id);
+                              }}
+                              disabled={revealingId === student.id}
+                              className="w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors disabled:opacity-50"
+                            >
+                              {revealingId === student.id ? '확인 중...' : '연락처 확인하기'}
+                            </button>
                           </div>
                         ) : (
                           <div className="space-y-1 text-sm text-gray-800 rounded-md p-3">

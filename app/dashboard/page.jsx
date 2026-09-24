@@ -6,8 +6,10 @@ import Script from 'next/script';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import PremiumListingOffer from '@/components/PremiumListingOffer';
+import TierUpgradeOffer from '@/components/TierUpgradeOffer';
 import TeacherCard from '@/components/TeacherCard';
 import EmailNotificationToggle from '@/components/chat/EmailNotificationToggle.client';
+import { revealsRemaining } from '@/lib/reveal';
 
 
 export default function DashboardPage() {
@@ -18,8 +20,10 @@ export default function DashboardPage() {
   const [subjectsList, setSubjectsList] = useState([]);
   const [statusInfo, setStatusInfo] = useState(null);
   const [quillReady, setQuillReady] = useState(false);
-  const [showExpediteAccount, setShowExpediteAccount] = useState(false);
-  const [expediteProcessing, setExpediteProcessing] = useState(false);
+  // 'info' | 'pricing' — ?tab=pricing lets other pages (e.g. the student
+  // board, when a free-tier teacher hits their reveal limit) deep-link
+  // straight to the pricing tab.
+  const [activeTab, setActiveTab] = useState('info');
 
   const formRef = useRef();
 
@@ -83,80 +87,19 @@ export default function DashboardPage() {
     loadTeacherProfile();
   }, [authLoading, user, role, teacherStatus]);
 
-  // Toss confirms the expedite-review payment via a server-side redirect
-  // back to this page (?expedite=success|failed), not a JS callback —
-  // surface the result here.
+  // Support deep-linking straight to the pricing tab (e.g. from the
+  // student board when a free-tier teacher hits their reveal limit), and
+  // keep it selected across the Toss tier-upgrade redirect
+  // (?tab=pricing&tier=success|failed).
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const expedite = params.get('expedite');
-    if (!expedite) return;
-
-    if (expedite === 'success') {
-      alert('결제가 완료되었습니다! 빠른 검토 요청이 접수되었습니다.');
-    } else if (expedite === 'failed') {
-      alert('결제에 실패했습니다. 다시 시도해주세요.');
-    }
-
-    router.replace(window.location.pathname);
+    if (params.get('tab') === 'pricing') setActiveTab('pricing');
   }, []);
 
-  const handleExpeditePayment = async () => {
-    if (!teacher?.id) return;
-    if (expediteProcessing) return;
-
-    if (typeof window === 'undefined' || typeof window.TossPayments === 'undefined') {
-      alert('결제 모듈을 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.');
-      return;
-    }
-
-    setExpediteProcessing(true);
-
-    try {
-      // expedite_payments has no separate order_id column, so this row's
-      // own id (client-generated here) doubles as the Toss orderId —
-      // that's how the server-side success/webhook handlers look it up.
-      const orderId = crypto.randomUUID();
-      const amount = 9000;
-
-      const { error: logError } = await supabase.from('expedite_payments').insert([
-        {
-          id: orderId,
-          teacher_id: teacher.id,
-          method: 'card',
-          amount,
-          status: 'pending',
-          requested_at: new Date().toISOString(),
-        },
-      ]);
-
-      if (logError) {
-        alert('요청 준비 중 오류가 발생했습니다. 다시 시도해주세요.');
-        setExpediteProcessing(false);
-        return;
-      }
-
-      const tossPayments = window.TossPayments(process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY);
-      tossPayments
-        .requestPayment('CARD', {
-          amount,
-          orderId,
-          orderName: '프로필 우선 검토 서비스',
-          customerName: teacher.name,
-          successUrl: `${window.location.origin}/api/toss/expedite-success`,
-          failUrl: `${window.location.origin}/api/toss/expedite-fail`,
-        })
-        .catch((result) => {
-          if (result?.code === 'USER_CANCEL') {
-            setExpediteProcessing(false);
-            return;
-          }
-          alert(`결제 실패: ${result?.message || '알 수 없는 오류'}`);
-          setExpediteProcessing(false);
-        });
-    } catch (error) {
-      alert('결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
-      setExpediteProcessing(false);
-    }
+  const refreshTeacherProfile = async () => {
+    if (!user) return;
+    const { data: profile } = await supabase.from('teachers').select('*').eq('user_id', user.id).single();
+    if (profile) setTeacher(profile);
   };
 
     useEffect(() => {
@@ -307,7 +250,36 @@ export default function DashboardPage() {
 
           {teacher.status === 'approved' && <PremiumListingOffer teacher={teacher} />}
 
+        {/* Tabs — mobile-friendly: full-width, evenly split buttons rather
+            than a horizontal scroller, since there are only two. Not
+            sticky: the site's own header is already sticky at top:0, and
+            stacking another sticky bar there would hide it behind that
+            header on scroll. */}
+        <div className="flex border-b border-gray-200 mt-6 mb-6 bg-white">
+          <button
+            onClick={() => setActiveTab('info')}
+            className={`flex-1 py-3 text-sm sm:text-base font-semibold text-center border-b-2 transition ${
+              activeTab === 'info'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            내 정보
+          </button>
+          <button
+            onClick={() => setActiveTab('pricing')}
+            className={`flex-1 py-3 text-sm sm:text-base font-semibold text-center border-b-2 transition ${
+              activeTab === 'pricing'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            요금제
+          </button>
+        </div>
 
+      {activeTab === 'info' && (
+        <>
         {/* Basic Header */}
         <div className="flex flex-col p-[3em] bg-white border border-solid border-gray-200 shadow rounded-2xl">
           <h1 className="text-2xl font-bold mb-3">계정 정보</h1>
@@ -337,52 +309,6 @@ export default function DashboardPage() {
             <div className="mt-6 p-8 bg-white border border-gray-200 shadow rounded-2xl text-center">
             <h2 className="text-2xl font-bold mb-4">프로필 검토 중입니다</h2>
             <p className="text-gray-600 mb-4">영업일 기준 3일 이내로 프로필 검토가 완료됩니다.</p>
-
-              {/* Paid expedited review (card or bank transfer) removed —
-                  verification is free for everyone now, no pay-to-skip-
-                  the-queue gate. Kept below, commented out, in case a
-                  genuinely faster paid option is reintroduced later.
-              <p className="text-gray-600 mb-4">9,000원을 결제하시면 1영업일 내로 프로필 검토를 완료해드립니다. </p>
-              <p className="text-xs text-gray-600 mb-4">*수익금은 사이트 운영 및 서비스 개선에 사용됩니다.</p>
-
-              <div className="max-w-md mx-auto flex flex-col sm:flex-row justify-center gap-2">
-                <button
-                  onClick={handleExpeditePayment}
-                  disabled={expediteProcessing}
-                  className={`mt-6 px-6 py-3 rounded-xl font-semibold transition w-full ${
-                    expediteProcessing
-                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                      : 'bg-blue-600 text-white hover:bg-blue-700'
-                  }`}
-                >
-                  {expediteProcessing ? '결제 진행 중...' : '빠른 검토 신청하기 (카드결제)'}
-                </button>
-
-                <div className="text-center w-full">
-                  <button
-                    onClick={() => setShowExpediteAccount(!showExpediteAccount)}
-                    className="mt-6 px-6 py-3 rounded-xl font-semibold transition w-full bg-blue-600 text-white hover:bg-blue-700"
-                  >
-                    {showExpediteAccount ? '계좌 정보 숨기기' : '빠른 검토 요청하기 (계좌이체)'}
-                  </button>
-
-                  {showExpediteAccount && (
-                    <div className="mt-4 p-4 bg-gray-50 rounded-lg border text-center">
-                      <div className="text-sm text-gray-600 mb-1">입금 계좌</div>
-                      <div className="text-lg font-mono font-semibold text-gray-900">
-                        {process.env.NEXT_PUBLIC_BANK_ACCOUNT || '계좌 정보를 불러올 수 없습니다'}
-                      </div>
-                      <div className="text-sm text-gray-500 mt-1">
-                        예금주: {process.env.NEXT_PUBLIC_BANK_HOLDER || ''}
-                      </div>
-                      <div className="text-sm text-red-600 mt-2 font-medium">
-                        ※ 입금자명은 반드시 회원님의 아이디({teacher.name})와 동일하게 입력해주세요.
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-              */}
             </div>
           )}
 
@@ -504,10 +430,30 @@ export default function DashboardPage() {
             <button onClick={handleLogout} className="bg-blue-500 text-white w-1/2 px-[2em] py-[1em] rounded-lg">로그아웃</button>
             <button onClick={handleDelete} className="bg-blue-900 text-white w-1/2 px-[2em] py-[1em] rounded-lg">탈퇴하기</button>
           </div>
-      </>
-      
+        </>
       )}
-      
+
+      {activeTab === 'pricing' && (
+        <div className="space-y-6">
+          <div className="p-6 sm:p-8 bg-white border border-solid border-gray-200 shadow rounded-2xl">
+            <h2 className="text-lg font-bold mb-2">현재 요금제</h2>
+            {teacher.tier === 'premium' ? (
+              <p className="text-gray-700">
+                <span className="font-semibold text-blue-600">플러스 회원</span> · 학생 연락처 무제한 열람
+              </p>
+            ) : (
+              <p className="text-gray-700">
+                <span className="font-semibold">무료 회원</span> · 이번 달 남은 연락처 열람 횟수:{' '}
+                <span className="font-semibold text-blue-600">{revealsRemaining(teacher)}/2</span>
+              </p>
+            )}
+          </div>
+
+          <TierUpgradeOffer teacher={teacher} onUpgraded={refreshTeacherProfile} />
+        </div>
+      )}
+        </>
+      )}
 
 
     </div>

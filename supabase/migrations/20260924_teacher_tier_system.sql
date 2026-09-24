@@ -20,9 +20,11 @@ alter table teachers
 -- Tracks which specific student_jobs a teacher has already unlocked, so
 -- re-viewing a previously revealed request never costs another credit or
 -- re-triggers the free-tier count logic.
+-- teacher_id is integer here (not uuid) because teachers.id itself is an
+-- integer primary key in this database, unlike student_jobs.id (uuid).
 create table if not exists teacher_revealed_requests (
   id uuid primary key default gen_random_uuid(),
-  teacher_id uuid not null references teachers(id) on delete cascade,
+  teacher_id integer not null references teachers(id) on delete cascade,
   student_job_id uuid not null references student_jobs(id) on delete cascade,
   revealed_at timestamptz not null default now(),
   unique (teacher_id, student_job_id)
@@ -41,7 +43,7 @@ create table if not exists teacher_revealed_requests (
 -- 세금계산서 issuance.
 create table if not exists payments (
   id uuid primary key default gen_random_uuid(),
-  teacher_id uuid not null references teachers(id) on delete cascade,
+  teacher_id integer not null references teachers(id) on delete cascade,
   amount integer not null,
   currency text not null default 'KRW',
   provider text not null default 'toss',
@@ -62,7 +64,7 @@ create table if not exists payments (
 -- already_revealed | premium | free_reveal | limit_reached |
 -- teacher_not_found. The client redirects to the dashboard's pricing tab
 -- on limit_reached instead of showing an inline modal.
-create or replace function reveal_student_job(p_teacher_id uuid, p_student_job_id uuid)
+create or replace function reveal_student_job(p_teacher_id integer, p_student_job_id uuid)
 returns table (revealed boolean, reason text) language plpgsql security definer as $$
 declare
   v_tier text;

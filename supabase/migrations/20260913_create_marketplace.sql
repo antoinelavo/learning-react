@@ -89,7 +89,7 @@ create policy "public_select_active" on resources
 
 create policy "owner_select" on resources
   for select using (exists (
-    select 1 from teachers t where t.id = resources.teacher_id and t.user_id = auth.uid()
+    select 1 from teachers t where t.id = resources.teacher_id and t.user_id = auth.uid()::text
   ));
 
 create policy "admin_select" on resources
@@ -104,7 +104,7 @@ create policy "buyer_select" on purchases
 
 create policy "teacher_select" on purchases
   for select using (exists (
-    select 1 from teachers t where t.id = purchases.teacher_id and t.user_id = auth.uid()
+    select 1 from teachers t where t.id = purchases.teacher_id and t.user_id = auth.uid()::text
   ));
 
 create policy "admin_select" on purchases
@@ -119,7 +119,7 @@ create policy "admin_select" on payouts
 
 create policy "teacher_select" on payouts
   for select using (exists (
-    select 1 from teachers t where t.id = payouts.teacher_id and t.user_id = auth.uid()
+    select 1 from teachers t where t.id = payouts.teacher_id and t.user_id = auth.uid()::text
   ));
 
 create policy "server_insert" on payouts for insert with check (true);

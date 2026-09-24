@@ -15,7 +15,7 @@
 
 create table if not exists resources (
   id                uuid primary key default gen_random_uuid(),
-  teacher_id        uuid not null references teachers(id),
+  teacher_id        integer not null references teachers(id), -- teachers.id is an integer PK, not uuid
   title             text not null,
   description       text,
   subject           text not null,
@@ -39,7 +39,7 @@ create table if not exists purchases (
   order_id            text not null unique, -- client-generated, passed through to Toss
   resource_id         uuid not null references resources(id),
   buyer_id            uuid not null references users(id),
-  teacher_id          uuid not null references teachers(id), -- denormalized for payout queries
+  teacher_id          integer not null references teachers(id), -- denormalized for payout queries; teachers.id is an integer PK
   price_krw           int not null,
   platform_fee_krw    int not null,
   teacher_earning_krw int not null,
@@ -57,7 +57,7 @@ create index if not exists purchases_status_idx on purchases(status);
 
 create table if not exists payouts (
   id                  uuid primary key default gen_random_uuid(),
-  teacher_id          uuid not null references teachers(id),
+  teacher_id          integer not null references teachers(id), -- teachers.id is an integer PK
   period_month        date not null, -- first day of the month
   total_sales_krw     int not null,
   platform_fee_krw    int not null,

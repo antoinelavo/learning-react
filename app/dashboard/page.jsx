@@ -10,7 +10,6 @@ import TierUpgradeOffer from '@/components/TierUpgradeOffer';
 import TeacherCard from '@/components/TeacherCard';
 import EmailNotificationToggle from '@/components/chat/EmailNotificationToggle.client';
 import { revealsRemaining } from '@/lib/reveal';
-import { Users } from 'lucide-react';
 
 
 export default function DashboardPage() {
@@ -254,7 +253,7 @@ export default function DashboardPage() {
             sticky: the site's own header is already sticky at top:0, and
             stacking another sticky bar there would hide it behind that
             header on scroll. */}
-        <div className="flex border-b border-gray-200 mt-6 mb-6 bg-white">
+        <div className="flex border-b border-gray-200 mb-6 bg-white">
           <button
             onClick={() => setActiveTab('info')}
             className={`flex-1 py-3 text-sm sm:text-base font-semibold text-center border-b-2 transition ${
@@ -310,23 +309,18 @@ export default function DashboardPage() {
           )}
 
           {teacher.status === 'approved' && teacher.tier !== 'premium' && (
-            <div className="mt-3 flex items-center gap-3 p-4 rounded-xl bg-blue-50 border border-blue-100">
-              <div className="flex-shrink-0 w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center">
-                <Users size={18} className="text-blue-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 m-0">
-                  {revealsRemaining(teacher) > 0
-                    ? `이번 달 연락처 열람이 ${revealsRemaining(teacher)}번 남았어요`
-                    : '이번 달 무료 열람을 모두 사용했어요'}
-                </p>
-                <p className="text-xs text-gray-500 m-0">플러스로 무제한 열람해보세요</p>
-              </div>
+            <div className="mt-3 p-4 rounded-xl bg-blue-50 border border-blue-100">
+              <p className="text-sm font-semibold text-gray-900 m-0">
+                {revealsRemaining(teacher) > 0
+                  ? `이번 달 연락처 열람이 ${revealsRemaining(teacher)}번 남았어요`
+                  : '이번 달 무료 열람을 모두 사용했어요'}
+              </p>
+              <p className="text-xs text-gray-500 mt-1 mb-3">플러스 회원은 무제한으로 열람할 수 있어요</p>
               <button
                 onClick={() => setActiveTab('pricing')}
-                className="flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                className="w-full sm:w-auto text-sm font-semibold px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
               >
-                알아보기
+                플러스 알아보기
               </button>
             </div>
           )}

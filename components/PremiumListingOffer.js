@@ -446,7 +446,7 @@ const checkAvailability = async (subjectsToCheck) => {
                 <span className="text-[10px] px-1.5 py-0.5 border border-white rounded-full">추천</span>
               )}
             </div>
-            <p className="text-2xl font-bold leading-tight">
+            <p className={classNames(tier.featured ? 'text-white' : 'text-gray-900', 'text-2xl font-bold leading-tight')}>
               {tier.priceMonthly}
               <span className={classNames(tier.featured ? 'text-gray-400' : 'text-gray-500', 'text-xs font-normal ml-1')}>
                 /월

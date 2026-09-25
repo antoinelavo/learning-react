@@ -78,7 +78,14 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
       if (logError) {
         // Without this row the successUrl callback can't look up who paid —
         // don't send the buyer into Toss's payment window for nothing.
-        alert('결제 준비 중 오류가 발생했습니다. 다시 시도해주세요.');
+        // TEMP DEBUG — surfaces the real Supabase error so we can diagnose
+        // the "결제 준비 중 오류" report. Remove once diagnosed.
+        console.error('TierUpgradeOffer: payments insert failed', logError);
+        alert(
+          `결제 준비 중 오류가 발생했습니다.\n[debug]\ncode: ${logError?.code ?? 'none'}\nmessage: ${
+            logError?.message ?? String(logError)
+          }\ndetails: ${logError?.details ?? 'none'}\nhint: ${logError?.hint ?? 'none'}`
+        );
         setPaymentProcessing(false);
         return;
       }
@@ -107,7 +114,9 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
           setPaymentProcessing(false);
         });
     } catch (error) {
-      alert('결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+      // TEMP DEBUG — see the payments-insert branch above. Remove once diagnosed.
+      console.error('TierUpgradeOffer: unhandled error', error);
+      alert(`결제 처리 중 오류가 발생했습니다.\n[debug] ${error?.message ?? String(error)}`);
       setPaymentProcessing(false);
     }
   };

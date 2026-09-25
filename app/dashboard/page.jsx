@@ -248,8 +248,6 @@ export default function DashboardPage() {
         <>
         <Script src="https://js.tosspayments.com/v1/payment" strategy="afterInteractive" />
 
-          {teacher.status === 'approved' && <PremiumListingOffer teacher={teacher} />}
-
         {/* Tabs — mobile-friendly: full-width, evenly split buttons rather
             than a horizontal scroller, since there are only two. Not
             sticky: the site's own header is already sticky at top:0, and
@@ -282,7 +280,16 @@ export default function DashboardPage() {
         <>
         {/* Basic Header */}
         <div className="flex flex-col p-[3em] bg-white border border-solid border-gray-200 shadow rounded-2xl">
-          <h1 className="text-2xl font-bold mb-3">계정 정보</h1>
+          <div className="flex items-center gap-2 mb-3">
+            <h1 className="text-2xl font-bold m-0">계정 정보</h1>
+            <span
+              className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                teacher.tier === 'premium' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'
+              }`}
+            >
+              {teacher.tier === 'premium' ? '플러스 회원' : '무료 회원'}
+            </span>
+          </div>
           {user && <p className="font-medium mb-3">계정 아이디: {user.email}</p>}
 
           {role === 'teacher' && teacher && statusInfo && (
@@ -299,6 +306,15 @@ export default function DashboardPage() {
                 </p>
               )}
             </div>
+          )}
+
+          {teacher.status === 'approved' && teacher.tier !== 'premium' && (
+            <button
+              onClick={() => setActiveTab('pricing')}
+              className="mt-3 w-fit text-left text-sm px-3 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+            >
+              무료 회원은 연락처 열람이 이번 달 {revealsRemaining(teacher)}/2회 남았습니다 · 플러스 보기 →
+            </button>
           )}
 
           <div className="mt-3">
@@ -434,23 +450,32 @@ export default function DashboardPage() {
       )}
 
       {activeTab === 'pricing' && (
-        <div className="space-y-6">
-          <div className="p-6 sm:p-8 bg-white border border-solid border-gray-200 shadow rounded-2xl">
-            <h2 className="text-lg font-bold mb-2">현재 요금제</h2>
-            {teacher.tier === 'premium' ? (
-              <p className="text-gray-700">
-                <span className="font-semibold text-blue-600">플러스 회원</span> · 학생 연락처 무제한 열람
-              </p>
-            ) : (
-              <p className="text-gray-700">
-                <span className="font-semibold">무료 회원</span> · 이번 달 남은 연락처 열람 횟수:{' '}
-                <span className="font-semibold text-blue-600">{revealsRemaining(teacher)}/2</span>
-              </p>
-            )}
+        teacher.status !== 'approved' ? (
+          <div className="p-6 sm:p-8 bg-white border border-solid border-gray-200 shadow rounded-2xl text-center text-gray-600">
+            프로필 승인 완료 후 이용할 수 있습니다.
           </div>
+        ) : (
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="text-lg font-bold m-0">요금제</h2>
+              <span
+                className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  teacher.tier === 'premium' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'
+                }`}
+              >
+                {teacher.tier === 'premium' ? '플러스 회원' : '무료 회원'}
+              </span>
+            </div>
 
-          <TierUpgradeOffer teacher={teacher} onUpgraded={refreshTeacherProfile} />
-        </div>
+            {/* Both products shown fully expanded, side by side — no
+                accordion/tab gating a teacher's awareness of what's on
+                offer, only the checkout steps themselves require a click. */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+              <PremiumListingOffer teacher={teacher} />
+              <TierUpgradeOffer teacher={teacher} onUpgraded={refreshTeacherProfile} />
+            </div>
+          </div>
+        )
       )}
         </>
       )}

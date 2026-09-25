@@ -1,13 +1,8 @@
 'use client';
-import dynamic from 'next/dynamic';
 import Script from 'next/script';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import TeacherCard from '@/components/TeacherCard';
-import ScrollFadeIn from '@/components/ScrollFadeIn';
 import { supabase } from '@/lib/supabase';
-
-const Scroll = dynamic(() => import('quill/blots/scroll'), { ssr: false });
 
 const tiers = [
   {
@@ -26,12 +21,11 @@ const tiers = [
     name: '프리미엄 과목 3개',
     id: 'tier-top',
     priceMonthly: '\₩ 12,000',
-    description: '선생님 프로필이 선택한 3개 과목으로 상단 노출됩니다.',
+    description: '선택한 3개 과목으로 상단 노출됩니다.',
     features: [
       '프로필 상단 고정',
-      '강조 색상',
-      '추천 뱃지 적용',
-      '과목당  \₩ 4,000'
+      '강조 색상 · 추천 뱃지',
+      '과목당 \₩ 4,000'
     ],
     featured: true,
   },
@@ -39,12 +33,11 @@ const tiers = [
     name: '프리미엄 과목 1개',
     id: 'tier-medium',
     priceMonthly: '\₩ 5,000',
-    description: '선생님 프로필이 선택한 1과목으로 상단 노출됩니다.',
+    description: '선택한 1과목으로 상단 노출됩니다.',
     features: [
       '프로필 상단 고정',
-      '강조 색상',
-      '추천 뱃지 적용',
-      '과목당  \₩ 5,000'
+      '강조 색상 · 추천 뱃지',
+      '과목당 \₩ 5,000'
     ],
     featured: false,
   }
@@ -54,67 +47,24 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-function PremiumCount(){
-  const [count, setCount] = useState(null)
-  const [error, setError] = useState(null)
+// Small inline counter used for the "n=7,315" stat in the card subtitle —
+// same technique as the rest of this codebase's scroll/mount-triggered
+// animations (plain state + requestAnimationFrame, no animation library).
+function CountUp({ target, duration = 1200 }) {
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
-    async function fetchCount() {
-      const { data, error } = await supabase
-        .from('teacher_premium')
-        .select('subject')
-      if (error) {
-        setError(error.message)
-        return
-      }
-      const total = data.reduce((sum, row) => sum + row.subject.length, 0)
-      setCount(total)
-    }
-    fetchCount()
-  }, [])
+    const startTime = performance.now();
+    const animate = (currentTime) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      setCount(Math.floor(progress * target));
+      if (progress < 1) requestAnimationFrame(animate);
+    };
+    requestAnimationFrame(animate);
+  }, [target, duration]);
 
-  if (error) return <p>오류 발생: {error}</p>
-  if (count === null) return <p>로딩 중…</p>
-
-  return(
-    <span>{count}</span>
-  )
-}
-
-function CountUp({ target, duration = 1500 }) {
-    const ref = useRef();
-    const [count, setCount] = useState(0);
-
-    useEffect(() => {
-    const observer = new IntersectionObserver(
-        ([entry]) => {
-        if (entry.isIntersecting) {
-            const startTime = performance.now();
-
-            const animate = (currentTime) => {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            const current = Math.floor(progress * target);
-            setCount(current);
-
-            if (progress < 1) {
-                requestAnimationFrame(animate);
-            }
-            };
-
-            requestAnimationFrame(animate);
-            observer.disconnect();
-        }
-        },
-        { threshold: 0.5 }
-    );
-
-    if (ref.current) observer.observe(ref.current);
-
-    return () => observer.disconnect();
-    }, [target, duration]);
-
-  return <span ref={ref}>{count.toLocaleString()}</span>;
+  return <span>{count.toLocaleString()}</span>;
 }
 
 // Generate a random order ID to hand to Toss's payment window.
@@ -127,7 +77,7 @@ function randomId() {
 // Check premium spot availability
 async function checkPremiumSpotAvailability(subjects, supabase) {
   const SPOTS_PER_SUBJECT = 5;
-  
+
   try {
     // Get all currently active premium subscriptions
     const { data: activePremium, error } = await supabase
@@ -141,7 +91,7 @@ async function checkPremiumSpotAvailability(subjects, supabase) {
 
     // Count how many teachers have premium for each subject
     const subjectCounts = {};
-    
+
     // Initialize counts for requested subjects
     subjects.forEach(subject => {
       subjectCounts[subject] = 0;
@@ -186,17 +136,16 @@ async function checkPremiumSpotAvailability(subjects, supabase) {
 
 async function countTeachersPerSubject(subjects, supabase) {
   try {
-    // TODO: Update table name and column name based on your schema
     const { data: allTeachers, error } = await supabase
-      .from('teachers') // ← Update this table name
-      .select('subjects'); // ← Update this column name
+      .from('teachers')
+      .select('subjects');
 
     if (error) {
       throw error;
     }
 
     const subjectCounts = {};
-    
+
     // Initialize counts for requested subjects
     subjects.forEach(subject => {
       subjectCounts[subject] = 0;
@@ -242,7 +191,7 @@ export default function PremiumListingOffer({teacher}) {
   // Check premium spot availability
 const checkAvailability = async (subjectsToCheck) => {
   if (subjectsToCheck.length === 0) return;
-  
+
   setAvailabilityLoading(true);
   try {
     const [availabilityResult, teacherCountResult] = await Promise.all([
@@ -441,257 +390,168 @@ const checkAvailability = async (subjectsToCheck) => {
 };
 
   return (
-    <div className="bg-white border border-solid border-gray-200 shadow rounded-2xl relative isolate px-6 py-[5dvh] lg:px-8">
-        <Script src="https://js.tosspayments.com/v1/payment" strategy="afterInteractive" />
+    <div className="bg-white border border-gray-200 rounded-2xl shadow p-6 sm:p-8">
+      <Script src="https://js.tosspayments.com/v1/payment" strategy="afterInteractive" />
 
-        <h2 className="text-base font-semibold text-center bg-gradient-to-r from-blue-800 to-blue-400 bg-clip-text text-transparent">프리미엄 프로필</h2>
-        <p className="mt-2 text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl text-center mb-[2em]">
-          9배 더 많은 학생들과 만나보세요. 
-        </p>
+      <h2 className="text-lg font-bold mb-1">프리미엄 프로필</h2>
+      <p className="text-sm text-gray-500 mb-6">
+        과목별 검색 결과에서 <span className="font-semibold text-blue-600">상단 노출</span> · 평균 클릭 수{' '}
+        <span className="font-semibold text-blue-600">9배</span> 증가 (n=<CountUp target={7315} /> 실험 기준). 각 과목별{' '}
+        <span className="font-semibold text-blue-600">5명 한정</span>, 선착순 마감.
+      </p>
 
-        {teacher && (
-            <>
-            <div>
-                <ScrollFadeIn>
-                    <div className="mb-12 mt-12 max-w-[40em] mx-auto">
-                        <p className="m-0 text-gray-500">일반 프로필</p>
-                        <div className="pointer-events-none">
-                                <div className="bg-white border border-gray-200 rounded-2xl shadow-sm">
-                                <TeacherCard
-                                    name={teacher.name}
-                                    school={teacher.school}
-                                    shortintroduction={teacher.shortintroduction}
-                                    profile_picture={teacher.profile_picture || 'https://ibmaster.antoinelavo.com/teachers/default.jpg'}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </ScrollFadeIn>
-                <ScrollFadeIn>
-                    <div className="mb-12 max-w-[40em] mx-auto ">
-                        <p className="m-0 text-gray-500">프리미엄 프로필</p>
-                        <div className="pointer-events-none border border-2 border-yellow-400 rounded-2xl overflow-hidden shadow-sm w-full h-full">
-                            <TeacherCard
-                                name={teacher.name}
-                                school={teacher.school}
-                                shortintroduction={teacher.shortintroduction}
-                                profile_picture={teacher.profile_picture || 'https://ibmaster.antoinelavo.com/teachers/default.jpg'}
-                                badge="추천"
-                                className="w-full h-full"
-                            />
-                        </div>
-                    </div>
-                </ScrollFadeIn>
-            </div>
-            </>
-        )}
-
-        <p className="mt-6 max-w-2xl mx-auto text-lg text-gray-600">
-            프리미엄 프로필은 과목별 검색 결과에서 <span className="font-bold text-blue-500">상단 노출</span>됩니다. 
-            각 과목별로 프리미엄 프로필 서비스는 <span className="font-bold text-blue-500">단 5명</span>에게만 제공되며, 선착순으로 마감됩니다.
-        </p>
-
-        <ScrollFadeIn>
-            <div className="max-w-xl mx-auto my-[15em] text-center space-y-4">
-                <div className="text-sm text-gray-500 font-medium mb-0">일반 프로필 대비</div>
-                <div className="text-5xl font-extrabold bg-gradient-to-r from-black to-blue-400 bg-clip-text text-transparent">예상 프로필 클릭 수 9배</div>
-                <div className="text-lg text-gray-700 font-medium">노출 수 약 3배 × CTR(클릭율) 약 3배</div>
-                <div className="text-sm text-gray-500 font-medium">n = <CountUp target={7315} />의 실험 결과</div>
-            </div>
-        </ScrollFadeIn>
-
-        <ScrollFadeIn>
-      <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 gap-y-6 sm:mt-20 lg:max-w-4xl lg:grid-cols-3">
-        {tiers.map((tier, tierIdx) => (
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+        {tiers.map((tier) => (
           <div
             key={tier.id}
             className={classNames(
-              tier.featured ? 'relative bg-gray-900 shadow-2xl' : 'bg-white/60 sm:mx-8 lg:mx-0',
-              tier.featured
-                ? ''
-                : tierIdx === 0
-                ? 'rounded-t-3xl sm:rounded-b-none lg:rounded-tr-none lg:rounded-bl-3xl'
-                : 'sm:rounded-t-none lg:rounded-tr-3xl lg:rounded-bl-none',
-              'rounded-3xl p-8 ring-1 ring-gray-900/10 sm:p-10'
+              tier.featured ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900',
+              'rounded-xl p-4'
             )}
           >
-            <div className="flex flex-row">
-                <h3
-                id={tier.id}
-                className={classNames(tier.featured ? 'text-blue-400' : 'text-blue-600', 'text-base font-semibold')}
-                >
+            <div className="flex items-center gap-2 mb-1">
+              <span className={classNames(tier.featured ? 'text-blue-300' : 'text-blue-600', 'text-xs font-semibold')}>
                 {tier.name}
-                </h3>
-                <span className={classNames(!tier.featured ? 'hidden' : 'block', 'text-white', 'text-xs', 'px-[0.5em]', 'py-[0.25em]', 'border', 'border-white', 'rounded-full', 'ml-[1em]')}>
-                    추천
-                </span>
-            </div>
-            <p className="mt-4 flex items-baseline gap-x-2">
-              <span
-                className={classNames(
-                  tier.featured ? 'text-white' : 'text-gray-900',
-                  'text-5xl font-semibold tracking-tight'
-                )}
-              >
-                {tier.priceMonthly}
               </span>
-              <span className={classNames(tier.featured ? 'text-gray-400' : 'text-gray-500', 'text-base')}>
+              {tier.featured && (
+                <span className="text-[10px] px-1.5 py-0.5 border border-white rounded-full">추천</span>
+              )}
+            </div>
+            <p className="text-2xl font-bold leading-tight">
+              {tier.priceMonthly}
+              <span className={classNames(tier.featured ? 'text-gray-400' : 'text-gray-500', 'text-xs font-normal ml-1')}>
                 /월
               </span>
             </p>
-            <p className={classNames(tier.featured ? 'text-gray-300' : 'text-gray-600', 'mt-6 text-base')}>
-              {tier.description}
-            </p>
-            <ul
-              role="list"
-              className={classNames(
-                tier.featured ? 'text-gray-300' : 'text-gray-600',
-                'mt-8 space-y-3 text-sm sm:mt-10'
-              )}
-            >
+            <ul className={classNames(tier.featured ? 'text-gray-300' : 'text-gray-600', 'text-xs mt-2 space-y-1')}>
               {tier.features.map((feature) => (
-                <li key={feature} className="flex gap-x-3">
-                  {feature}
-                </li>
+                <li key={feature}>{feature}</li>
               ))}
-            </ul>            
+            </ul>
           </div>
         ))}
       </div>
-      </ScrollFadeIn>
 
-              {/* Subject Selector */}
-                <div className="mx-auto mt-24 w-fill border rounded-3xl bg-white p-8 shadow-inner">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-4">프리미엄 과목 선택</h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {subjects.map((subject) => {
-                        const availability = subjectAvailability[subject];
-                        const isFull = availability?.isFull || false;
-                        const remaining = availability?.remaining || 0;
-                        const isSelected = selectedSubjects.includes(subject);
-                        const teacherCount = teacherCounts[subject] || 0;
+      {/* Subject Selector */}
+      <div className="border-t border-gray-100 pt-6">
+        <h3 className="text-sm font-semibold text-gray-800 mb-3">프리미엄 과목 선택</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {subjects.map((subject) => {
+            const availability = subjectAvailability[subject];
+            const isFull = availability?.isFull || false;
+            const remaining = availability?.remaining || 0;
+            const isSelected = selectedSubjects.includes(subject);
+            const teacherCount = teacherCounts[subject] || 0;
 
-                        
-                        return (
-                        <div key={subject} className="relative">
-                            {/* Availability indicator */}
-                          <button
-                              onClick={() => handleToggleSubject(subject)}
-                              disabled={paymentProcessing || isFull}
-                              className={classNames(
-                                  'px-4 py-3 rounded-lg border transition w-full text-left',
-                                  isSelected && !isFull
-                                  ? 'bg-blue-600 text-white border-blue-600'
-                                  : isFull
-                                  ? 'bg-gray-300 text-gray-400 border-gray-300 cursor-not-allowed'
-                                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50',
-                                  paymentProcessing ? 'opacity-50 cursor-not-allowed' : ''
-                              )}
-                          >
-                              <div className={classNames(
-                                  "font-medium",
-                                  isSelected && !isFull ? "text-white" : "text-gray-800"
-                              )}>
-                                  {subject}
-                              </div>
-                              <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 justify-between items-left mt-1 text-xs">
-                                  <span className={classNames(
-                                      isSelected && !isFull ? "text-blue-100" : "text-gray-500"
-                                  )}>
-                                      {availabilityLoading ? "로딩중..." : `총 선생님 수: ${teacherCount}`}
-                                  </span>
-                                  <span>
-                                      {availabilityLoading ? (
-                                          <span className={classNames(
-                                              isSelected && !isFull ? "text-blue-100" : "text-gray-400"
-                                          )}>
-                                              확인중...
-                                          </span>
-                                      ) : isFull ? (
-                                          <span className="text-red-500 font-medium">마감</span>
-                                      ) : availability ? (
-                                          <span className={classNames(
-                                              "font-medium",
-                                              isSelected && !isFull ? "text-white" : 
-                                              remaining === 5 ? "text-green-600" : "text-yellow-600"
-                                          )}>
-                                              남은 자리: {remaining}
-                                          </span>
-                                      ) : null}
-                                  </span>
-                              </div>
-                          </button>
-
-
-                        </div>
-                        );
-                    })}
-                    </div>
-
-                    <div className="mt-6 text-center">
-                        <label className="block mb-2 text-sm font-medium text-gray-700">원하는 기간 선택 (개월)</label>
-                        <select
-                            value={duration}
-                            onChange={(e) => setDuration(Number(e.target.value))}
-                            disabled={paymentProcessing}
-                            className="px-4 py-2 border rounded-md text-sm font-medium text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            return (
+              <div key={subject} className="relative">
+                <button
+                  onClick={() => handleToggleSubject(subject)}
+                  disabled={paymentProcessing || isFull}
+                  className={classNames(
+                    'px-4 py-3 rounded-lg border transition w-full text-left',
+                    isSelected && !isFull
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : isFull
+                      ? 'bg-gray-300 text-gray-400 border-gray-300 cursor-not-allowed'
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50',
+                    paymentProcessing ? 'opacity-50 cursor-not-allowed' : ''
+                  )}
+                >
+                  <div className={classNames('font-medium', isSelected && !isFull ? 'text-white' : 'text-gray-800')}>
+                    {subject}
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 justify-between items-left mt-1 text-xs">
+                    <span className={classNames(isSelected && !isFull ? 'text-blue-100' : 'text-gray-500')}>
+                      {availabilityLoading ? '로딩중...' : `총 선생님 수: ${teacherCount}`}
+                    </span>
+                    <span>
+                      {availabilityLoading ? (
+                        <span className={classNames(isSelected && !isFull ? 'text-blue-100' : 'text-gray-400')}>
+                          확인중...
+                        </span>
+                      ) : isFull ? (
+                        <span className="text-red-500 font-medium">마감</span>
+                      ) : availability ? (
+                        <span
+                          className={classNames(
+                            'font-medium',
+                            isSelected && !isFull ? 'text-white' : remaining === 5 ? 'text-green-600' : 'text-yellow-600'
+                          )}
                         >
-                            {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
-                            <option key={month} value={month}>
-                                {month}개월
-                            </option>
-                            ))}
-                        </select>
-                    </div>
+                          남은 자리: {remaining}
+                        </span>
+                      ) : null}
+                    </span>
+                  </div>
+                </button>
+              </div>
+            );
+          })}
+        </div>
 
-                    <div className="mt-6 text-center text-lg font-semibold text-gray-800">
-                    총 결제 금액: <span className="text-blue-600">₩ {calculateTotal().toLocaleString()}</span>
-                    </div>
+        <div className="mt-6 text-center">
+          <label className="block mb-2 text-sm font-medium text-gray-700">원하는 기간 선택 (개월)</label>
+          <select
+            value={duration}
+            onChange={(e) => setDuration(Number(e.target.value))}
+            disabled={paymentProcessing}
+            className="px-4 py-2 border rounded-md text-sm font-medium text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+              <option key={month} value={month}>
+                {month}개월
+              </option>
+            ))}
+          </select>
+        </div>
 
-                    <div className="mx-auto text-center flex flex-col sm:flex-row justify-center gap-2">
-                        <button
-                        onClick={handlePayment}
-                        disabled={paymentProcessing || selectedSubjects.length === 0}
-                        className={classNames(
-                            'mt-6 px-6 py-3 rounded-xl font-semibold transition',
-                            paymentProcessing || selectedSubjects.length === 0
-                            ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                            : 'bg-blue-600 text-white hover:bg-blue-700'
-                        )}
-                        >
-                        {paymentProcessing
-                          ? '결제 진행 중...'
-                          : '결제하기 (카드 - 현재 테스트 중입니다. 실결제로 이어지지 않습니다)'}
-                        </button>
+        <div className="mt-6 text-center text-lg font-semibold text-gray-800">
+          총 결제 금액: <span className="text-blue-600">₩ {calculateTotal().toLocaleString()}</span>
+        </div>
 
-                        <div className="text-center">
-                            <button
-                              onClick={handleBankTransfer}
-                              disabled={bankTransferRequested || selectedSubjects.length === 0}
-                              className={classNames(
-                                  'mt-6 px-6 py-3 rounded-xl font-semibold transition w-full',
-                                  bankTransferRequested || selectedSubjects.length === 0
-                                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                                  : 'bg-blue-600 text-white hover:bg-blue-700'
-                              )}
-                            >
-                                {showAccountNumber ? '입금 후 1일 내 프리미엄 프로필이 적용됩니다.' : '결제하기 (계좌이체)'}
-                            </button>
-                        </div>
-                    </div>
-                    {/* Account number text that appears/disappears */}
-                    {showAccountNumber && (
-                        <div className="mt-4 p-4 bg-gray-50 rounded-lg border text-center">
-                            <div className="text-sm text-gray-600 mb-1">입금 계좌</div>
-                            <div className="text-lg font-mono font-semibold text-gray-900">
-                                {process.env.NEXT_PUBLIC_BANK_ACCOUNT || '계좌 정보를 불러올 수 없습니다'}
-                            </div>
-                            <div className="text-sm text-gray-500 mt-1">
-                                예금주: {process.env.NEXT_PUBLIC_BANK_HOLDER || ''}
-                            </div>
-                        </div>
-                    )}
-                </div>
+        <div className="mx-auto text-center flex flex-col sm:flex-row justify-center gap-2">
+          <button
+            onClick={handlePayment}
+            disabled={paymentProcessing || selectedSubjects.length === 0}
+            className={classNames(
+              'mt-6 px-6 py-3 rounded-xl font-semibold transition',
+              paymentProcessing || selectedSubjects.length === 0
+                ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                : 'bg-blue-600 text-white hover:bg-blue-700'
+            )}
+          >
+            {paymentProcessing
+              ? '결제 진행 중...'
+              : '결제하기 (카드 - 현재 테스트 중입니다. 실결제로 이어지지 않습니다)'}
+          </button>
+
+          <div className="text-center">
+            <button
+              onClick={handleBankTransfer}
+              disabled={bankTransferRequested || selectedSubjects.length === 0}
+              className={classNames(
+                'mt-6 px-6 py-3 rounded-xl font-semibold transition w-full',
+                bankTransferRequested || selectedSubjects.length === 0
+                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
+              )}
+            >
+              {showAccountNumber ? '입금 후 1일 내 프리미엄 프로필이 적용됩니다.' : '결제하기 (계좌이체)'}
+            </button>
+          </div>
+        </div>
+        {/* Account number text that appears/disappears */}
+        {showAccountNumber && (
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg border text-center">
+            <div className="text-sm text-gray-600 mb-1">입금 계좌</div>
+            <div className="text-lg font-mono font-semibold text-gray-900">
+              {process.env.NEXT_PUBLIC_BANK_ACCOUNT || '계좌 정보를 불러올 수 없습니다'}
+            </div>
+            <div className="text-sm text-gray-500 mt-1">예금주: {process.env.NEXT_PUBLIC_BANK_HOLDER || ''}</div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

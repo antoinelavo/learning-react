@@ -8,14 +8,70 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { revealsRemaining } from '@/lib/reveal';
+import ScrollFadeIn from '@/components/ScrollFadeIn';
 
 const PLUS_TIER_AMOUNT = 9000;
+const FREE_TIER_LIMIT = 2;
 
 // Generate a random order ID to hand to Toss's payment window.
 function randomId() {
   return [...crypto.getRandomValues(new Uint32Array(2))]
     .map((word) => word.toString(16).padStart(8, '0'))
     .join('');
+}
+
+// Fades a feature-list item up into place a beat after the card mounts,
+// with a per-item delay for a staggered effect — same transition-based
+// technique as components/ScrollFadeIn.jsx, just mount-triggered instead
+// of scroll-triggered (this card is already in view when its tab opens).
+function FadeInItem({ delay = 0, children }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  return (
+    <li
+      className={`transition-all duration-500 ease-out transform ${
+        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+      }`}
+    >
+      {children}
+    </li>
+  );
+}
+
+// Progress bar for "이번 달 사용한 무료 열람 N/2" — tied to real account
+// state (not decorative), so free-tier teachers see how close they are to
+// needing 플러스. Animates its fill from 0 on mount.
+function UsageBar({ used, limit }) {
+  const [animatedPct, setAnimatedPct] = useState(0);
+  const targetPct = Math.min(100, (used / limit) * 100);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setAnimatedPct(targetPct), 50);
+    return () => clearTimeout(timer);
+  }, [targetPct]);
+
+  return (
+    <div className="mb-6">
+      <div className="flex justify-between text-xs text-gray-500 mb-1">
+        <span>이번 달 사용한 무료 열람</span>
+        <span>
+          {used}/{limit}
+        </span>
+      </div>
+      <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+        <div
+          className="h-full rounded-full bg-blue-500 transition-all duration-700 ease-out"
+          style={{ width: `${animatedPct}%` }}
+        />
+      </div>
+    </div>
+  );
 }
 
 export default function TierUpgradeOffer({ teacher, onUpgraded }) {
@@ -126,22 +182,26 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
 
   if (teacher?.tier === 'premium') {
     return (
-      <div className="bg-white border border-gray-200 rounded-2xl shadow p-6 sm:p-8 text-center">
+      <ScrollFadeIn className="bg-white border border-gray-200 rounded-2xl shadow p-6 sm:p-8 text-center">
         <h2 className="text-lg font-bold mb-2">플러스 회원</h2>
         <p className="text-gray-600">
           이미 플러스 회원입니다. 학생 게시판의 연락처를 <span className="font-semibold text-blue-600">무제한</span>으로 열람할 수 있습니다.
         </p>
-      </div>
+      </ScrollFadeIn>
     );
   }
 
+  const used = FREE_TIER_LIMIT - (revealsRemaining(teacher) ?? FREE_TIER_LIMIT);
+
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl shadow p-6 sm:p-8">
+    <ScrollFadeIn className="bg-white border border-gray-200 rounded-2xl shadow p-6 sm:p-8">
       <h2 className="text-lg font-bold mb-1">플러스로 업그레이드</h2>
       <p className="text-sm text-gray-500 mb-6">
-        무료 회원은 학생 게시판에서 한 달에 연락처를 2번까지만 열람할 수 있습니다.
+        무료 회원은 학생 게시판에서 한 달에 연락처를 {FREE_TIER_LIMIT}번까지만 열람할 수 있습니다.
         플러스 회원은 <span className="font-semibold text-blue-600">무제한</span>으로 열람할 수 있습니다.
       </p>
+
+      <UsageBar used={used} limit={FREE_TIER_LIMIT} />
 
       <div className="flex items-baseline gap-2 mb-6">
         <span className="text-4xl font-bold text-gray-900">₩9,000</span>
@@ -149,8 +209,8 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
       </div>
 
       <ul className="text-sm text-gray-700 space-y-2 mb-6">
-        <li>✓ 학생 연락처 무제한 열람</li>
-        <li>✓ 한 번 결제로 계속 유지 (갱신 없음)</li>
+        <FadeInItem delay={100}>✓ 학생 연락처 무제한 열람</FadeInItem>
+        <FadeInItem delay={220}>✓ 한 번 결제로 계속 유지 (갱신 없음)</FadeInItem>
       </ul>
 
       <button
@@ -166,6 +226,6 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
           ? '결제 진행 중...'
           : '결제하기 (카드 - 현재 테스트 중입니다. 실결제로 이어지지 않습니다)'}
       </button>
-    </div>
+    </ScrollFadeIn>
   );
 }

@@ -190,6 +190,23 @@ export default function StudentsPageClient() {
         // Fail silently - don't disrupt user experience
       }
     }
+
+    // Plus (premium) teachers see contact info immediately, no click
+    // required — still log the reveal in the background (unawaited) so
+    // teacher_revealed_requests stays accurate for audit purposes.
+    if (
+      willExpand &&
+      teacherProfile?.tier === 'premium' &&
+      !revealedIds.has(studentId)
+    ) {
+      revealStudentJob(teacherProfile.id, studentId)
+        .then((result) => {
+          if (result.revealed) {
+            setRevealedIds((prev) => new Set(prev).add(studentId));
+          }
+        })
+        .catch((err) => console.error('Error auto-revealing for plus tier:', err));
+    }
   };
 
   async function hashPassword(password) {
@@ -495,7 +512,7 @@ export default function StudentsPageClient() {
                               선생님으로 등록하기
                             </a>
                           </div>
-                        ) : !isRevealed ? (
+                        ) : !isRevealed && teacherProfile?.tier !== 'premium' ? (
                           <div className="bg-white border border-dashed border-gray-300 rounded-md px-4 py-3 text-center">
                             <p className="text-sm text-gray-600 mb-3">
                               연락처를 확인하면 무료 회원은 이번 달 열람 횟수 1회가 차감됩니다.

@@ -34,7 +34,10 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
       alert('결제가 완료되었습니다! 플러스 회원으로 전환되었습니다.');
       onUpgraded?.();
     } else if (tier === 'failed') {
-      alert('결제에 실패했습니다. 다시 시도해주세요.');
+      // TEMP DEBUG — surfaces which step the server-side route failed at.
+      // Remove once diagnosed.
+      const reason = params.get('reason') || 'unknown';
+      alert(`결제에 실패했습니다. 다시 시도해주세요.\n[debug] reason: ${reason}`);
     }
 
     // Strip tier/reason but keep ?tab=pricing so a refresh stays on this tab.

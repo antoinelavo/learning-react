@@ -3,6 +3,7 @@ import Script from 'next/script';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import TeacherCard from '@/components/TeacherCard';
 
 const tiers = [
   {
@@ -399,6 +400,34 @@ const checkAvailability = async (subjectsToCheck) => {
         <span className="font-semibold text-blue-600">9배</span> 증가 (n=<CountUp target={7315} /> 실험 기준). 각 과목별{' '}
         <span className="font-semibold text-blue-600">5명 한정</span>, 선착순 마감.
       </p>
+
+      {teacher && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          <div>
+            <p className="text-xs text-gray-500 mb-1">일반 프로필</p>
+            <div className="pointer-events-none bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+              <TeacherCard
+                name={teacher.name}
+                school={teacher.school}
+                shortintroduction={teacher.shortintroduction}
+                profile_picture={teacher.profile_picture || 'https://ibmaster.antoinelavo.com/teachers/default.jpg'}
+              />
+            </div>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-1">프리미엄 프로필</p>
+            <div className="pointer-events-none border-2 border-yellow-400 rounded-xl overflow-hidden shadow-sm">
+              <TeacherCard
+                name={teacher.name}
+                school={teacher.school}
+                shortintroduction={teacher.shortintroduction}
+                profile_picture={teacher.profile_picture || 'https://ibmaster.antoinelavo.com/teachers/default.jpg'}
+                badge="추천"
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
         {tiers.map((tier) => (

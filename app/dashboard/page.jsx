@@ -10,6 +10,7 @@ import TierUpgradeOffer from '@/components/TierUpgradeOffer';
 import TeacherCard from '@/components/TeacherCard';
 import EmailNotificationToggle from '@/components/chat/EmailNotificationToggle.client';
 import { revealsRemaining } from '@/lib/reveal';
+import { Users } from 'lucide-react';
 
 
 export default function DashboardPage() {
@@ -272,7 +273,7 @@ export default function DashboardPage() {
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
-            요금제
+            더 많은 학생 만나기
           </button>
         </div>
 
@@ -309,12 +310,25 @@ export default function DashboardPage() {
           )}
 
           {teacher.status === 'approved' && teacher.tier !== 'premium' && (
-            <button
-              onClick={() => setActiveTab('pricing')}
-              className="mt-3 w-fit text-left text-sm px-3 py-2 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
-            >
-              무료 회원은 연락처 열람이 이번 달 {revealsRemaining(teacher)}/2회 남았습니다 · 플러스 보기 →
-            </button>
+            <div className="mt-3 flex items-center gap-3 p-4 rounded-xl bg-blue-50 border border-blue-100">
+              <div className="flex-shrink-0 w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center">
+                <Users size={18} className="text-blue-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-900 m-0">
+                  {revealsRemaining(teacher) > 0
+                    ? `이번 달 연락처 열람이 ${revealsRemaining(teacher)}번 남았어요`
+                    : '이번 달 무료 열람을 모두 사용했어요'}
+                </p>
+                <p className="text-xs text-gray-500 m-0">플러스로 무제한 열람해보세요</p>
+              </div>
+              <button
+                onClick={() => setActiveTab('pricing')}
+                className="flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+              >
+                알아보기
+              </button>
+            </div>
           )}
 
           <div className="mt-3">
@@ -457,7 +471,7 @@ export default function DashboardPage() {
         ) : (
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <h2 className="text-lg font-bold m-0">요금제</h2>
+              <h2 className="text-lg font-bold m-0">더 많은 학생 만나기</h2>
               <span
                 className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                   teacher.tier === 'premium' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'

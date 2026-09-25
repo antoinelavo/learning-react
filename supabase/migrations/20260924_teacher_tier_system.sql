@@ -29,14 +29,11 @@ create table if not exists teacher_revealed_requests (
   revealed_at timestamptz not null default now(),
   unique (teacher_id, student_job_id)
 );
--- No RLS on this table, matching payment_request/successful_payments/
--- teacher_premium elsewhere in this app: there is no service role key
--- anywhere in this codebase, so server-side API routes run as the plain
--- anon role with no forwarded user session — an owner-scoped policy would
--- block those routes from reading/writing these rows. Accepted as-is for
--- now (same trust model already in place for every other payment/activation
--- table here), enforced instead by reveal_student_job() below being the
--- only sanctioned way to insert into this table.
+-- Intended to have no RLS, matching payment_request/successful_payments/
+-- teacher_premium elsewhere in this app — but this project defaults new
+-- tables to RLS-on, so it actually came up locked with no policy (blocking
+-- everything). See 20260925_fix_payments_rls.sql for the permissive
+-- policy that fixes this, added once that turned out to be necessary.
 
 -- Payment log for the 플러스 upgrade (₩9,000, one-time, permanent — no
 -- expiration/renewal/refund). Needed for Toss's site review and later
@@ -52,7 +49,8 @@ create table if not exists payments (
   status text not null default 'pending' check (status in ('pending', 'paid', 'failed')),
   created_at timestamptz not null default now()
 );
--- Same reasoning as teacher_revealed_requests above — no RLS.
+-- Same reasoning as teacher_revealed_requests above — see
+-- 20260925_fix_payments_rls.sql.
 
 -- Reveals a student_job's contact info for a teacher, enforcing the
 -- free-tier limit of 2 reveals per rolling 30-day window (premium:

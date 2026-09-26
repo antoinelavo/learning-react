@@ -203,15 +203,37 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
 
       <UsageBar used={used} limit={FREE_TIER_LIMIT} />
 
+      {/* Free vs 플러스 comparison — same light/dark tier-card language as
+          PremiumListingOffer's pricing grid. Most rows are identical on
+          both sides on purpose: matching, chat, and contact-sharing are
+          always free here, so only the reveal cap actually differs. */}
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="rounded-xl bg-gray-50 p-4">
+          <p className="text-xs font-semibold text-gray-500 mb-3">무료 회원</p>
+          <ul className="text-xs text-gray-600 space-y-2">
+            <FadeInItem delay={80}>✓ 수수료 없음</FadeInItem>
+            <FadeInItem delay={140}>✓ 채팅으로 학생과 자유롭게 연락</FadeInItem>
+            <FadeInItem delay={200}>✓ 연락처 정보 공유 무료</FadeInItem>
+            <FadeInItem delay={260}>✓ 연락처 열람 월 {FREE_TIER_LIMIT}회</FadeInItem>
+          </ul>
+        </div>
+        <div className="rounded-xl bg-gray-900 text-white p-4">
+          <p className="text-xs font-semibold text-blue-300 mb-3">플러스 회원</p>
+          <ul className="text-xs text-gray-300 space-y-2">
+            <FadeInItem delay={80}>✓ 수수료 없음</FadeInItem>
+            <FadeInItem delay={140}>✓ 채팅으로 학생과 자유롭게 연락</FadeInItem>
+            <FadeInItem delay={200}>✓ 연락처 정보 공유 무료</FadeInItem>
+            <FadeInItem delay={260}>
+              <span className="text-white font-medium">✓ 연락처 열람 무제한</span>
+            </FadeInItem>
+          </ul>
+        </div>
+      </div>
+
       <div className="flex items-baseline gap-2 mb-6">
         <span className="text-4xl font-bold text-gray-900">₩9,000</span>
         <span className="text-sm text-gray-500">1회 결제 · 평생 유지</span>
       </div>
-
-      <ul className="text-sm text-gray-700 space-y-2 mb-6">
-        <FadeInItem delay={100}>✓ 학생 연락처 무제한 열람</FadeInItem>
-        <FadeInItem delay={220}>✓ 한 번 결제로 계속 유지 (갱신 없음)</FadeInItem>
-      </ul>
 
       <button
         onClick={handleUpgrade}

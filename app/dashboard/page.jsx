@@ -24,6 +24,11 @@ export default function DashboardPage() {
   // board, when a free-tier teacher hits their reveal limit) deep-link
   // straight to the pricing tab.
   const [activeTab, setActiveTab] = useState('info');
+  // Set true by the "플러스 알아보기" nudge button so the pricing tab, once
+  // it mounts, scrolls straight to the TierUpgradeOffer card instead of
+  // just landing at the top (grid order stays PremiumListingOffer-first).
+  const [scrollToUpgrade, setScrollToUpgrade] = useState(false);
+  const tierUpgradeRef = useRef(null);
 
   const formRef = useRef();
 
@@ -95,6 +100,13 @@ export default function DashboardPage() {
     const params = new URLSearchParams(window.location.search);
     if (params.get('tab') === 'pricing') setActiveTab('pricing');
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'pricing' && scrollToUpgrade && tierUpgradeRef.current) {
+      tierUpgradeRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setScrollToUpgrade(false);
+    }
+  }, [activeTab, scrollToUpgrade]);
 
   const refreshTeacherProfile = async () => {
     if (!user) return;
@@ -253,23 +265,23 @@ export default function DashboardPage() {
             sticky: the site's own header is already sticky at top:0, and
             stacking another sticky bar there would hide it behind that
             header on scroll. */}
-        <div className="flex border-b border-gray-200 mb-6 bg-white">
+        <div className="flex p-1 gap-1 rounded-full bg-gray-100 mb-6">
           <button
             onClick={() => setActiveTab('info')}
-            className={`flex-1 py-3 text-sm sm:text-base font-semibold text-center border-b-2 transition ${
+            className={`flex-1 py-2.5 text-sm sm:text-base font-semibold text-center rounded-full transition ${
               activeTab === 'info'
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
+                ? 'bg-white text-blue-600 shadow'
+                : 'text-gray-500 hover:text-gray-700'
             }`}
           >
             내 정보
           </button>
           <button
             onClick={() => setActiveTab('pricing')}
-            className={`flex-1 py-3 text-sm sm:text-base font-semibold text-center border-b-2 transition ${
+            className={`flex-1 py-2.5 text-sm sm:text-base font-semibold text-center rounded-full transition ${
               activeTab === 'pricing'
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
+                ? 'bg-white text-blue-600 shadow'
+                : 'text-gray-500 hover:text-gray-700'
             }`}
           >
             더 많은 학생 만나기
@@ -317,7 +329,10 @@ export default function DashboardPage() {
               </p>
               <p className="text-xs text-gray-500 mt-1 mb-3">플러스 회원은 무제한으로 열람할 수 있어요</p>
               <button
-                onClick={() => setActiveTab('pricing')}
+                onClick={() => {
+                  setActiveTab('pricing');
+                  setScrollToUpgrade(true);
+                }}
                 className="w-full sm:w-auto text-sm font-semibold px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
               >
                 플러스 알아보기
@@ -480,7 +495,9 @@ export default function DashboardPage() {
                 offer, only the checkout steps themselves require a click. */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
               <PremiumListingOffer teacher={teacher} />
-              <TierUpgradeOffer teacher={teacher} onUpgraded={refreshTeacherProfile} />
+              <div ref={tierUpgradeRef} className="scroll-mt-24">
+                <TierUpgradeOffer teacher={teacher} onUpgraded={refreshTeacherProfile} />
+              </div>
             </div>
           </div>
         )

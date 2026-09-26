@@ -1,19 +1,50 @@
 'use client';
 // components/TierUpgradeOffer.js
-// The 플러스(Plus) tier upgrade checkout — ₩9,000, one-time, permanent (no
-// expiration/renewal). Adapted from PremiumListingOffer.js's Toss
-// integration (same Script tag, window.TossPayments(...).requestPayment
+// The 플러스(Plus) tier upgrade checkout — ₩9,000, one-time. Framed to the
+// buyer as a 12-month term that renews for free afterward (Toss's payment
+// review policy disallows selling an indefinite/"lifetime" service), but
+// nothing in teachers.tier actually expires — a free renewal forever has
+// the same real-world effect as never expiring, so there's no separate
+// expiry/renewal mechanism to build. Adapted from PremiumListingOffer.js's
+// Toss integration (same Script tag, window.TossPayments(...).requestPayment
 // pattern, order-logged-before-checkout flow) rather than built fresh,
 // just without the subject/duration selection that feature needs.
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
+import { Info } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { revealsRemaining } from '@/lib/reveal';
 import ScrollFadeIn from '@/components/ScrollFadeIn';
 
 const PLUS_TIER_AMOUNT = 9000;
 const FREE_TIER_LIMIT = 2;
+const PLUS_TERM_MONTHS = 12;
+const RENEWAL_NOTE = `${PLUS_TERM_MONTHS}개월 동안 이용할 수 있으며, 이후에는 무료로 연장할 수 있습니다.`;
+
+// Tap-to-open info bubble — click toggles it, clicking away (blur) closes
+// it, so it works without hover on mobile.
+function InfoTooltip({ text }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <span className="relative inline-flex">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        onBlur={() => setOpen(false)}
+        className="inline-flex items-center justify-center w-4 h-4 rounded-full text-gray-400 hover:text-gray-600"
+        aria-label="자세히 보기"
+      >
+        <Info className="w-4 h-4" />
+      </button>
+      {open && (
+        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-48 p-2 rounded-lg bg-gray-900 text-white text-xs text-center shadow-lg z-10">
+          {text}
+        </span>
+      )}
+    </span>
+  );
+}
 
 // Generate a random order ID to hand to Toss's payment window.
 function randomId() {
@@ -221,6 +252,7 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
         <p className="text-gray-600">
           이미 플러스 회원입니다. 학생 게시판의 연락처를 <span className="font-semibold text-blue-600">무제한</span>으로 열람할 수 있습니다.
         </p>
+        <p className="text-xs text-gray-400 mt-2">{RENEWAL_NOTE}</p>
       </ScrollFadeIn>
     );
   }
@@ -229,11 +261,11 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
 
   return (
     <ScrollFadeIn className="bg-white border border-gray-200 rounded-2xl shadow p-6 sm:p-8">
-      <div className="flex items-center gap-2 mb-1">
-        <span className="flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 shadow-sm">
-          <Plus className="w-4 h-4 text-white" strokeWidth={3} />
+      <div className="relative mb-2">
+        <span className="absolute -top-1 left-0 text-5xl sm:text-6xl font-black italic tracking-tight text-blue-600/[0.08] select-none pointer-events-none leading-none whitespace-nowrap">
+          PLUS
         </span>
-        <h2 className="text-lg font-bold">플러스로 업그레이드</h2>
+        <h2 className="relative z-10 text-lg font-bold pt-4 sm:pt-5">플러스로 업그레이드</h2>
       </div>
       <p className="text-sm text-gray-500 mb-6">
         무료 회원은 학생 게시판에서 한 달에 연락처를 {FREE_TIER_LIMIT}번까지만 열람할 수 있습니다.
@@ -273,7 +305,10 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
 
       <div className="flex items-baseline gap-2 mb-6">
         <span className="text-4xl font-bold text-gray-900">₩9,000</span>
-        <span className="text-sm text-gray-500">1회 결제 · 평생 유지</span>
+        <span className="inline-flex items-center gap-1 text-sm text-gray-500">
+          1회 결제
+          <InfoTooltip text={RENEWAL_NOTE} />
+        </span>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-2">

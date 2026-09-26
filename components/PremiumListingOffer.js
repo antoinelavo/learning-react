@@ -49,6 +49,11 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
+// Toss's per-transaction review policy caps how large a single card/bank
+// charge can be — above this, the buyer needs to split it into multiple
+// smaller purchases instead.
+const MAX_SINGLE_PAYMENT = 60000;
+
 // Fades a tier card up into place a beat after the card mounts, with a
 // per-item delay — same staggered technique used in TierUpgradeOffer.js's
 // feature list, applied here to the tier-pricing grid instead.
@@ -297,6 +302,11 @@ const checkAvailability = async (subjectsToCheck) => {
       return;
     }
 
+    if (calculateTotal() > MAX_SINGLE_PAYMENT) {
+      alert(`1회 결제 금액은 ₩${MAX_SINGLE_PAYMENT.toLocaleString()}을 초과할 수 없습니다. 여러 번에 나누어 결제해주세요.`);
+      return;
+    }
+
     if (!teacher?.id || !teacher?.name) {
       alert('로그인이 필요합니다.');
       router.push('/login');
@@ -373,6 +383,11 @@ const checkAvailability = async (subjectsToCheck) => {
     // Validation
     if (selectedSubjects.length === 0) {
         alert('과목을 선택해주세요.');
+        return;
+    }
+
+    if (calculateTotal() > MAX_SINGLE_PAYMENT) {
+        alert(`1회 결제 금액은 ₩${MAX_SINGLE_PAYMENT.toLocaleString()}을 초과할 수 없습니다. 여러 번에 나누어 결제해주세요.`);
         return;
     }
 
@@ -563,6 +578,11 @@ const checkAvailability = async (subjectsToCheck) => {
           총 결제 금액: <span className="text-blue-600">₩ {calculateTotal().toLocaleString()}</span>
         </div>
 
+        {calculateTotal() > MAX_SINGLE_PAYMENT ? (
+          <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl text-center text-red-600 font-semibold">
+            1회 결제 금액은 ₩{MAX_SINGLE_PAYMENT.toLocaleString()}을 초과할 수 없습니다. 과목이나 기간을 나누어 여러 번 결제해주세요.
+          </div>
+        ) : (
         <div className="mx-auto text-center flex flex-col sm:flex-row justify-center gap-2">
           <button
             onClick={handlePayment}
@@ -594,6 +614,7 @@ const checkAvailability = async (subjectsToCheck) => {
             </button>
           </div>
         </div>
+        )}
         {/* Account number text that appears/disappears */}
         {showAccountNumber && (
           <div className="mt-4 p-4 bg-gray-50 rounded-lg border text-center">

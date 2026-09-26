@@ -51,6 +51,12 @@ export default function AdminPage() {
         >
           결제 요청 →
         </Link>
+        <Link
+          href="/admin/tiers"
+          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+        >
+          플러스 회원 →
+        </Link>
       </div>
       <DashboardCards />
       {/* <section className="mt-10">

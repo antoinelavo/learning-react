@@ -214,7 +214,9 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
             <FadeInItem delay={80}>✓ 수수료 없음</FadeInItem>
             <FadeInItem delay={140}>✓ 채팅으로 학생과 자유롭게 연락</FadeInItem>
             <FadeInItem delay={200}>✓ 연락처 정보 공유 무료</FadeInItem>
-            <FadeInItem delay={260}>✓ 연락처 열람 월 {FREE_TIER_LIMIT}회</FadeInItem>
+            <FadeInItem delay={260}>
+              <span className="text-gray-400">✕ 연락처 열람 월 {FREE_TIER_LIMIT}회</span>
+            </FadeInItem>
           </ul>
         </div>
         <div className="rounded-xl bg-gray-900 text-white p-4">
@@ -224,7 +226,7 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
             <FadeInItem delay={140}>✓ 채팅으로 학생과 자유롭게 연락</FadeInItem>
             <FadeInItem delay={200}>✓ 연락처 정보 공유 무료</FadeInItem>
             <FadeInItem delay={260}>
-              <span className="text-white font-medium">✓ 연락처 열람 무제한</span>
+              <span className="text-blue-400 font-semibold">✓ 연락처 열람 무제한</span>
             </FadeInItem>
           </ul>
         </div>

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import TeacherCard from '@/components/TeacherCard';
+import ScrollFadeIn from '@/components/ScrollFadeIn';
 
 const tiers = [
   {
@@ -46,6 +47,28 @@ const tiers = [
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
+}
+
+// Fades a tier card up into place a beat after the card mounts, with a
+// per-item delay — same staggered technique used in TierUpgradeOffer.js's
+// feature list, applied here to the tier-pricing grid instead.
+function FadeInItem({ delay = 0, children }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  return (
+    <div
+      className={`transition-all duration-500 ease-out transform ${
+        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+      }`}
+    >
+      {children}
+    </div>
+  );
 }
 
 // Small inline counter used for the "n=7,315" stat in the card subtitle —
@@ -391,7 +414,7 @@ const checkAvailability = async (subjectsToCheck) => {
 };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl shadow p-6 sm:p-8">
+    <ScrollFadeIn className="bg-white border border-gray-200 rounded-2xl shadow p-6 sm:p-8">
       <Script src="https://js.tosspayments.com/v1/payment" strategy="afterInteractive" />
 
       <h2 className="text-lg font-bold mb-1">프리미엄 프로필</h2>
@@ -430,34 +453,35 @@ const checkAvailability = async (subjectsToCheck) => {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-        {tiers.map((tier) => (
-          <div
-            key={tier.id}
-            className={classNames(
-              tier.featured ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900',
-              'rounded-xl p-4'
-            )}
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <span className={classNames(tier.featured ? 'text-blue-300' : 'text-blue-600', 'text-xs font-semibold')}>
-                {tier.name}
-              </span>
-              {tier.featured && (
-                <span className="text-[10px] px-1.5 py-0.5 border border-white rounded-full">추천</span>
+        {tiers.map((tier, index) => (
+          <FadeInItem key={tier.id} delay={80 + index * 100}>
+            <div
+              className={classNames(
+                tier.featured ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900',
+                'rounded-xl p-4'
               )}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <span className={classNames(tier.featured ? 'text-blue-300' : 'text-blue-600', 'text-xs font-semibold')}>
+                  {tier.name}
+                </span>
+                {tier.featured && (
+                  <span className="text-[10px] px-1.5 py-0.5 border border-white rounded-full">추천</span>
+                )}
+              </div>
+              <p className={classNames(tier.featured ? 'text-white' : 'text-gray-900', 'text-2xl font-bold leading-tight')}>
+                {tier.priceMonthly}
+                <span className={classNames(tier.featured ? 'text-gray-400' : 'text-gray-500', 'text-xs font-normal ml-1')}>
+                  /월
+                </span>
+              </p>
+              <ul className={classNames(tier.featured ? 'text-gray-300' : 'text-gray-600', 'text-xs mt-2 space-y-1')}>
+                {tier.features.map((feature) => (
+                  <li key={feature}>{feature}</li>
+                ))}
+              </ul>
             </div>
-            <p className={classNames(tier.featured ? 'text-white' : 'text-gray-900', 'text-2xl font-bold leading-tight')}>
-              {tier.priceMonthly}
-              <span className={classNames(tier.featured ? 'text-gray-400' : 'text-gray-500', 'text-xs font-normal ml-1')}>
-                /월
-              </span>
-            </p>
-            <ul className={classNames(tier.featured ? 'text-gray-300' : 'text-gray-600', 'text-xs mt-2 space-y-1')}>
-              {tier.features.map((feature) => (
-                <li key={feature}>{feature}</li>
-              ))}
-            </ul>
-          </div>
+          </FadeInItem>
         ))}
       </div>
 
@@ -581,6 +605,6 @@ const checkAvailability = async (subjectsToCheck) => {
           </div>
         )}
       </div>
-    </div>
+    </ScrollFadeIn>
   );
 }

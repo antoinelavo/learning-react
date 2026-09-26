@@ -19,7 +19,7 @@ import ScrollFadeIn from '@/components/ScrollFadeIn';
 const PLUS_TIER_AMOUNT = 9000;
 const FREE_TIER_LIMIT = 2;
 const PLUS_TERM_MONTHS = 12;
-const RENEWAL_NOTE = `${PLUS_TERM_MONTHS}개월 이용 후에는 무료로 자동 연장됩니다.`;
+const RENEWAL_NOTE = `${PLUS_TERM_MONTHS}개월 동안 이용할 수 있으며, 이후에는 무료로 연장할 수 있습니다.`;
 
 // Tap-to-open info bubble — click toggles it, clicking away (blur) closes
 // it, so it works without hover on mobile.
@@ -297,10 +297,7 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
             <FadeInItem delay={140}>✓ 채팅으로 학생과 자유롭게 연락</FadeInItem>
             <FadeInItem delay={200}>✓ 연락처 정보 공유 무료</FadeInItem>
             <FadeInItem delay={260}>
-              <span className="inline-flex items-center gap-1 text-blue-400 font-semibold">
-                ✓ 연락처 열람 무제한
-                <InfoTooltip text={RENEWAL_NOTE} />
-              </span>
+              <span className="text-blue-400 font-semibold">✓ 연락처 열람 무제한</span>
             </FadeInItem>
           </ul>
         </div>
@@ -309,7 +306,7 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
       <div className="flex items-baseline gap-2 mb-6">
         <span className="text-4xl font-bold text-gray-900">₩9,000</span>
         <span className="inline-flex items-center gap-1 text-sm text-gray-500">
-          1회 결제 · {PLUS_TERM_MONTHS}개월 이용
+          1회 결제
           <InfoTooltip text={RENEWAL_NOTE} />
         </span>
       </div>

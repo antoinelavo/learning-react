@@ -261,11 +261,11 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
 
   return (
     <ScrollFadeIn className="bg-white border border-gray-200 rounded-2xl shadow p-6 sm:p-8">
-      <div className="relative overflow-hidden mb-1">
-        <span className="absolute -top-4 -left-1 text-6xl sm:text-7xl font-black italic tracking-tighter text-blue-600/10 select-none pointer-events-none leading-none">
+      <div className="relative mb-2">
+        <span className="absolute -top-1 left-0 text-5xl sm:text-6xl font-black italic tracking-tight text-blue-600/[0.08] select-none pointer-events-none leading-none whitespace-nowrap">
           PLUS
         </span>
-        <h2 className="relative text-lg font-bold">플러스로 업그레이드</h2>
+        <h2 className="relative z-10 text-lg font-bold pt-4 sm:pt-5">플러스로 업그레이드</h2>
       </div>
       <p className="text-sm text-gray-500 mb-6">
         무료 회원은 학생 게시판에서 한 달에 연락처를 {FREE_TIER_LIMIT}번까지만 열람할 수 있습니다.

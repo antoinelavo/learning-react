@@ -12,8 +12,13 @@ import { supabase } from '@/lib/supabase';
 import { confirmPayment } from '@/lib/toss';
 import { activatePlusTier } from '@/lib/tierActivation';
 
+// Always redirect within whatever deployment served this request (prod,
+// or a preview URL when testing) — NEXT_PUBLIC_SITE_URL is shared with the
+// old NicePay integration and has been observed pointing at a stale
+// NicePay webhook path, which broke this exact redirect (activation still
+// ran correctly beforehand; only the post-payment redirect landed wrong).
 function siteUrl(request) {
-  return process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
+  return new URL(request.url).origin;
 }
 
 function failRedirect(request, reason) {

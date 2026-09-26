@@ -7,7 +7,12 @@ export default function ScrollFadeIn({ children, className = '' }) {
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setVisible(entry.isIntersecting);
+        // Fire once and stay visible — otherwise scrolling back past the
+        // element re-hides it, which looked broken rather than animated.
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
       },
       { threshold: 0.2 }
     );

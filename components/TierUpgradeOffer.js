@@ -7,6 +7,7 @@
 // just without the subject/duration selection that feature needs.
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Plus } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { revealsRemaining } from '@/lib/reveal';
 import ScrollFadeIn from '@/components/ScrollFadeIn';
@@ -77,6 +78,8 @@ function UsageBar({ used, limit }) {
 export default function TierUpgradeOffer({ teacher, onUpgraded }) {
   const router = useRouter();
   const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [showAccountNumber, setShowAccountNumber] = useState(false);
+  const [bankTransferRequested, setBankTransferRequested] = useState(false);
 
   // Toss confirms payment via a server-side redirect back to this page
   // (?tab=pricing&tier=success|failed), not a JS callback — surface the
@@ -180,6 +183,37 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
     }
   };
 
+  // Same manual, admin-confirmed flow as PremiumListingOffer's bank
+  // transfer option — logs a pending payment row and reveals the account
+  // number; an admin flips the teacher's tier by hand once the transfer
+  // clears (via /admin/tiers), same as that feature's payment_request flow.
+  const handleBankTransfer = async () => {
+    if (!teacher?.id) {
+      alert('로그인이 필요합니다.');
+      router.push('/login');
+      return;
+    }
+
+    if (bankTransferRequested) return;
+
+    setShowAccountNumber(true);
+    setBankTransferRequested(true);
+
+    const { error } = await supabase.from('payments').insert([
+      {
+        teacher_id: teacher.id,
+        amount: PLUS_TIER_AMOUNT,
+        currency: 'KRW',
+        provider: 'bank_transfer',
+        status: 'pending',
+      },
+    ]);
+
+    if (error) {
+      alert('요청 기록 중 오류가 발생했습니다.');
+    }
+  };
+
   if (teacher?.tier === 'premium') {
     return (
       <ScrollFadeIn className="bg-white border border-gray-200 rounded-2xl shadow p-6 sm:p-8 text-center">
@@ -195,7 +229,12 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
 
   return (
     <ScrollFadeIn className="bg-white border border-gray-200 rounded-2xl shadow p-6 sm:p-8">
-      <h2 className="text-lg font-bold mb-1">플러스로 업그레이드</h2>
+      <div className="flex items-center gap-2 mb-1">
+        <span className="flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 shadow-sm">
+          <Plus className="w-4 h-4 text-white" strokeWidth={3} />
+        </span>
+        <h2 className="text-lg font-bold">플러스로 업그레이드</h2>
+      </div>
       <p className="text-sm text-gray-500 mb-6">
         무료 회원은 학생 게시판에서 한 달에 연락처를 {FREE_TIER_LIMIT}번까지만 열람할 수 있습니다.
         플러스 회원은 <span className="font-semibold text-blue-600">무제한</span>으로 열람할 수 있습니다.
@@ -208,9 +247,9 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
           both sides on purpose: matching, chat, and contact-sharing are
           always free here, so only the reveal cap actually differs. */}
       <div className="grid grid-cols-2 gap-3 mb-6">
-        <div className="rounded-xl bg-gray-50 p-4">
+        <div className="rounded-xl bg-gray-50 p-4 sm:p-5">
           <p className="text-xs font-semibold text-gray-500 mb-3">무료 회원</p>
-          <ul className="text-xs text-gray-600 space-y-2">
+          <ul className="text-xs text-gray-600 space-y-3">
             <FadeInItem delay={80}>✓ 수수료 없음</FadeInItem>
             <FadeInItem delay={140}>✓ 채팅으로 학생과 자유롭게 연락</FadeInItem>
             <FadeInItem delay={200}>✓ 연락처 정보 공유 무료</FadeInItem>
@@ -219,9 +258,9 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
             </FadeInItem>
           </ul>
         </div>
-        <div className="rounded-xl bg-gray-900 text-white p-4">
+        <div className="rounded-xl bg-gray-900 text-white p-4 sm:p-5">
           <p className="text-xs font-semibold text-blue-300 mb-3">플러스 회원</p>
-          <ul className="text-xs text-gray-300 space-y-2">
+          <ul className="text-xs text-gray-300 space-y-3">
             <FadeInItem delay={80}>✓ 수수료 없음</FadeInItem>
             <FadeInItem delay={140}>✓ 채팅으로 학생과 자유롭게 연락</FadeInItem>
             <FadeInItem delay={200}>✓ 연락처 정보 공유 무료</FadeInItem>
@@ -237,19 +276,44 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
         <span className="text-sm text-gray-500">1회 결제 · 평생 유지</span>
       </div>
 
-      <button
-        onClick={handleUpgrade}
-        disabled={paymentProcessing}
-        className={`w-full px-6 py-3 rounded-xl font-semibold transition ${
-          paymentProcessing
-            ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-            : 'bg-blue-600 text-white hover:bg-blue-700'
-        }`}
-      >
-        {paymentProcessing
-          ? '결제 진행 중...'
-          : '결제하기 (카드 - 현재 테스트 중입니다. 실결제로 이어지지 않습니다)'}
-      </button>
+      <div className="flex flex-col sm:flex-row gap-2">
+        <button
+          onClick={handleUpgrade}
+          disabled={paymentProcessing}
+          className={`flex-1 px-6 py-3 rounded-xl font-semibold transition ${
+            paymentProcessing
+              ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+              : 'bg-blue-600 text-white hover:bg-blue-700'
+          }`}
+        >
+          {paymentProcessing
+            ? '결제 진행 중...'
+            : '결제하기 (카드 - 현재 테스트 중입니다. 실결제로 이어지지 않습니다)'}
+        </button>
+
+        <button
+          onClick={handleBankTransfer}
+          disabled={bankTransferRequested}
+          className={`flex-1 px-6 py-3 rounded-xl font-semibold transition ${
+            bankTransferRequested
+              ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+              : 'bg-blue-600 text-white hover:bg-blue-700'
+          }`}
+        >
+          {showAccountNumber ? '입금 후 1일 내 플러스 회원으로 전환됩니다.' : '결제하기 (계좌이체)'}
+        </button>
+      </div>
+
+      {showAccountNumber && (
+        <div className="mt-4 p-4 bg-gray-50 rounded-lg border text-center">
+          <div className="text-sm text-gray-600 mb-1">입금 계좌</div>
+          <div className="text-lg font-mono font-semibold text-gray-900">
+            {process.env.NEXT_PUBLIC_BANK_ACCOUNT || '계좌 정보를 불러올 수 없습니다'}
+          </div>
+          <div className="text-sm text-gray-500 mt-1">예금주: {process.env.NEXT_PUBLIC_BANK_HOLDER || ''}</div>
+          <div className="text-sm text-gray-500 mt-1">입금 금액: ₩{PLUS_TIER_AMOUNT.toLocaleString()}</div>
+        </div>
+      )}
     </ScrollFadeIn>
   );
 }

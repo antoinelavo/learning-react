@@ -96,7 +96,8 @@ export default function TeacherList() {
       const { data: teachers, error } = await supabase
         .from('teachers')
         .select('*')
-        .eq('status', 'approved');
+        .eq('status', 'approved')
+        .eq('is_test', false);
 
       if (error) { console.error(error); setLoading(false); return; }
 

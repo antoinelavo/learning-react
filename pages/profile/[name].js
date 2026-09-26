@@ -18,7 +18,8 @@ export async function getStaticPaths() {
   const { data, error } = await supabase
     .from('teachers')
     .select('name')
-    .eq('status', 'approved');
+    .eq('status', 'approved')
+    .eq('is_test', false);
 
   if (error) {
     console.error('getStaticPaths: failed to fetch approved teachers', error);
@@ -44,6 +45,13 @@ export async function getStaticProps({ params }) {
     .single();
 
   if (error || !teacher) {
+    return { notFound: true };
+  }
+
+  // Excluded from getStaticPaths above, but fallback:'blocking' would
+  // otherwise still render this on-demand for anyone who guesses/is given
+  // the URL directly — a test account must never be reachable here either.
+  if (teacher.is_test) {
     return { notFound: true };
   }
 

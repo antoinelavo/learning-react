@@ -222,7 +222,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="max-w-[1025px] mx-auto py-12 px-4 min-h-screen">
+    <div className="max-w-[1025px] mx-auto pt-4 pb-12 px-4 min-h-screen">
 
       {/* Student Section */}
       {role === 'student' && 

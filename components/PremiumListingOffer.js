@@ -19,18 +19,6 @@ const tiers = [
     featured: false,
   },
   {
-    name: '프리미엄 과목 3개',
-    id: 'tier-top',
-    priceMonthly: '\₩ 12,000',
-    description: '선택한 3개 과목으로 상단 노출됩니다.',
-    features: [
-      '프로필 상단 고정',
-      '강조 색상 · 추천 뱃지',
-      '과목당 \₩ 4,000'
-    ],
-    featured: true,
-  },
-  {
     name: '프리미엄 과목 1개',
     id: 'tier-medium',
     priceMonthly: '\₩ 5,000',
@@ -41,6 +29,18 @@ const tiers = [
       '과목당 \₩ 5,000'
     ],
     featured: false,
+  },
+  {
+    name: '프리미엄 과목 3개',
+    id: 'tier-top',
+    priceMonthly: '\₩ 12,000',
+    description: '선택한 3개 과목으로 상단 노출됩니다.',
+    features: [
+      '프로필 상단 고정',
+      '강조 색상 · 추천 뱃지',
+      '과목당 \₩ 4,000'
+    ],
+    featured: true,
   }
 ];
 

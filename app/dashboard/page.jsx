@@ -29,6 +29,7 @@ export default function DashboardPage() {
   // just landing at the top (grid order stays PremiumListingOffer-first).
   const [scrollToUpgrade, setScrollToUpgrade] = useState(false);
   const tierUpgradeRef = useRef(null);
+  const hasResetScrollRef = useRef(false);
 
   const formRef = useRef();
 
@@ -101,6 +102,19 @@ export default function DashboardPage() {
     if (params.get('tab') === 'pricing') setActiveTab('pricing');
   }, []);
 
+  // The browser sometimes restores a scroll position left over from a
+  // previous visit to this same URL (observed on mobile Safari after
+  // navigating in via the menu's "내 정보" link) — this lands the page
+  // already scrolled past the tab bar, hidden behind the sticky header.
+  // Force back to the top exactly once, right when the real content first
+  // mounts, without fighting the separate scroll-to-upgrade behavior below.
+  useEffect(() => {
+    if (teacher && !hasResetScrollRef.current) {
+      hasResetScrollRef.current = true;
+      window.scrollTo(0, 0);
+    }
+  }, [teacher]);
+
   useEffect(() => {
     if (activeTab === 'pricing' && scrollToUpgrade && tierUpgradeRef.current) {
       tierUpgradeRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -114,55 +128,79 @@ export default function DashboardPage() {
     if (profile) setTeacher(profile);
   };
 
-    useEffect(() => {
+  // Warm the Quill module cache as soon as the page mounts, in parallel
+  // with the teacher-profile fetch below, so the actual init effect
+  // usually finds it already loaded instead of visibly waiting on it.
+  useEffect(() => {
+    import('quill');
+    import('quill/dist/quill.snow.css');
+  }, []);
 
+  // Two race conditions used to live here: (1) this only re-ran on
+  // [teacher], so a teacher who deep-links straight to ?tab=pricing (the
+  // 내 정보 tab's containers never mounted) would silently never get an
+  // editor, with nothing retrying even after switching back to 내 정보;
+  // (2) any later teacher refetch (e.g. refreshTeacherProfile after a
+  // 플러스 purchase) re-ran this effect and called `new Quill(...)` again
+  // on the same already-initialized container, corrupting it. Fixed by
+  // keying off the container's own DOM state (Quill marks its root with
+  // the `ql-container` class) rather than a ref that can go stale across
+  // an info/pricing tab remount, and by re-checking after the async
+  // import resolves in case the tab changed while it was in flight.
+  useEffect(() => {
+    if (!teacher || activeTab !== 'info') return;
+    if (quillLongContainerRef.current?.classList.contains('ql-container')) return;
+
+    let cancelled = false;
 
     const initQuill = async () => {
-        const [{ default: Quill }] = await Promise.all([
+      const [{ default: Quill }] = await Promise.all([
         import('quill'),
         import('quill/dist/quill.snow.css'),
-        ]);
+      ]);
 
-        const toolbar = [
+      if (cancelled) return;
+      if (!quillLongContainerRef.current || !quillExpContainerRef.current) return;
+      if (quillLongContainerRef.current.classList.contains('ql-container')) return;
+
+      const toolbar = [
         ['bold', 'italic', 'underline'],
         [{ list: 'ordered' }, { list: 'bullet' }],
         ['link'],
-        ];
-        // 1) Start
-        if (quillLongContainerRef.current && quillExpContainerRef.current) {
-          quillLongInstanceRef.current = new Quill(
-            quillLongContainerRef.current,
-            { theme: 'snow', modules: { toolbar } }
-          );
-          quillExpInstanceRef.current = new Quill(
-            quillExpContainerRef.current,
-            { theme: 'snow', modules: { toolbar } }
-          );
+      ];
 
-        // Preload saved HTML
-        if (teacher.longintroduction) {
-          const delta = quillLongInstanceRef.current.clipboard.convert({
-            html: teacher.longintroduction
-          });
-          quillLongInstanceRef.current.setContents(delta, 'silent');
-        }
-        if (teacher.experience) {
-          const delta = quillExpInstanceRef.current.clipboard.convert({
-            html: teacher.experience
-          });
-          quillExpInstanceRef.current.setContents(delta, 'silent');
-        }
-        
-          setQuillReady(true);
-        }
+      quillLongInstanceRef.current = new Quill(quillLongContainerRef.current, {
+        theme: 'snow',
+        modules: { toolbar },
+      });
+      quillExpInstanceRef.current = new Quill(quillExpContainerRef.current, {
+        theme: 'snow',
+        modules: { toolbar },
+      });
+
+      // Preload saved HTML
+      if (teacher.longintroduction) {
+        const delta = quillLongInstanceRef.current.clipboard.convert({
+          html: teacher.longintroduction,
+        });
+        quillLongInstanceRef.current.setContents(delta, 'silent');
+      }
+      if (teacher.experience) {
+        const delta = quillExpInstanceRef.current.clipboard.convert({
+          html: teacher.experience,
+        });
+        quillExpInstanceRef.current.setContents(delta, 'silent');
+      }
+
+      setQuillReady(true);
     };
 
-    if (teacher) {
-    const timer = setTimeout(() => {
-        initQuill();
-    }, 100);
-    return () => clearTimeout(timer);
-    }    }, [teacher]);
+    initQuill();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [teacher, activeTab]);
 
   const updateStatus = (status) => {
     const statusMap = {

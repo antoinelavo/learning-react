@@ -6,8 +6,10 @@
 // payment=failed handling.
 import { NextResponse } from 'next/server';
 
+// See app/api/toss/tier-success/route.js for why this ignores
+// NEXT_PUBLIC_SITE_URL entirely.
 function siteUrl(request) {
-  return process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
+  return new URL(request.url).origin;
 }
 
 export async function GET(request) {

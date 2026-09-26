@@ -29,6 +29,7 @@ export default function DashboardPage() {
   // just landing at the top (grid order stays PremiumListingOffer-first).
   const [scrollToUpgrade, setScrollToUpgrade] = useState(false);
   const tierUpgradeRef = useRef(null);
+  const hasResetScrollRef = useRef(false);
 
   const formRef = useRef();
 
@@ -100,6 +101,19 @@ export default function DashboardPage() {
     const params = new URLSearchParams(window.location.search);
     if (params.get('tab') === 'pricing') setActiveTab('pricing');
   }, []);
+
+  // The browser sometimes restores a scroll position left over from a
+  // previous visit to this same URL (observed on mobile Safari after
+  // navigating in via the menu's "내 정보" link) — this lands the page
+  // already scrolled past the tab bar, hidden behind the sticky header.
+  // Force back to the top exactly once, right when the real content first
+  // mounts, without fighting the separate scroll-to-upgrade behavior below.
+  useEffect(() => {
+    if (teacher && !hasResetScrollRef.current) {
+      hasResetScrollRef.current = true;
+      window.scrollTo(0, 0);
+    }
+  }, [teacher]);
 
   useEffect(() => {
     if (activeTab === 'pricing' && scrollToUpgrade && tierUpgradeRef.current) {

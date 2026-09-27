@@ -13,7 +13,7 @@ create or replace view community_posts_public
     case when p.is_anonymous then null else t.profile_picture end as teacher_profile_picture
   from community_posts p
   left join public.users u on u.id = p.user_id
-  left join teachers t on t.user_id = p.user_id and t.status = 'approved'
+  left join teachers t on t.user_id = p.user_id::text and t.status = 'approved'
   where p.deleted_at is null;
 
 -- 2) View-count dedup: one view per visitor per post per day, instead of

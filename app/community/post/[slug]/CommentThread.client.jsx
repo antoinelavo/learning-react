@@ -270,7 +270,7 @@ export default function CommentThread({ slug }) {
   const totalCount = comments.reduce((sum, c) => sum + 1 + (c.replies?.length || 0), 0);
 
   return (
-    <section className="mt-16 border-t border-gray-200 pt-8">
+    <section className="bg-white border border-gray-200 shadow-sm rounded-2xl p-5 sm:p-8">
       <h2 className="text-base font-semibold text-gray-700 mb-4">댓글 {totalCount}</h2>
 
       {user ? (

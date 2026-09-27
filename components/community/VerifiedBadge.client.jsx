@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { ShieldCheck } from 'lucide-react';
 
-// Small badge next to a teacher's name on posts/comments. Works on both
-// hover (desktop) and tap (mobile, since native `title` tooltips don't
+// Small "선생님" pill next to a teacher's name on posts/comments. Works on
+// both hover (desktop) and tap (mobile, since native `title` tooltips don't
 // fire on touch) by toggling an explicit popover on click.
 export default function VerifiedBadge() {
   const [show, setShow] = useState(false);
@@ -16,10 +16,10 @@ export default function VerifiedBadge() {
         onClick={e => { e.preventDefault(); e.stopPropagation(); setShow(s => !s); }}
         onMouseEnter={() => setShow(true)}
         onMouseLeave={() => setShow(false)}
-        className="text-blue-500 hover:text-blue-600 shrink-0"
-        aria-label="인증된 선생님"
+        className="inline-flex items-center gap-0.5 bg-blue-50 text-blue-600 text-[10px] font-semibold px-1.5 py-0.5 rounded-full border border-blue-200 hover:bg-blue-100 transition-colors shrink-0"
       >
-        <ShieldCheck size={13} fill="currentColor" className="text-white" strokeWidth={2} style={{ color: '#3D9BE9' }} />
+        <ShieldCheck size={10} strokeWidth={2.5} />
+        선생님
       </button>
       {show && (
         <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 whitespace-nowrap bg-gray-900 text-white text-[11px] px-2 py-1 rounded shadow-lg z-20">

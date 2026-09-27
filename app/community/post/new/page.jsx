@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { communityAuthHeaders } from '@/lib/communityClient';
 import { CATEGORY_LIST } from '@/components/community/CategoryBadge';
 import UsernamePrompt from '@/components/community/UsernamePrompt.client';
-import Link from 'next/link';
+import BackLink from '@/components/community/BackLink';
 import { X } from 'lucide-react';
 
 const MAX_IMAGES = 5;
@@ -34,12 +34,14 @@ export default function NewCommunityPostPage() {
 
   if (!username) {
     return (
-      <main className="max-w-2xl mx-auto px-4 py-10 mb-20">
-        <Link href="/community" className="text-sm text-blue-500 hover:underline mb-6 inline-block">
-          ← 커뮤니티로 돌아가기
-        </Link>
-        <h1 className="text-xl font-bold text-gray-900 mb-6">글쓰기</h1>
-        <UsernamePrompt />
+      <main className="bg-gray-50 min-h-screen">
+        <div className="max-w-2xl mx-auto px-4 py-10 mb-20">
+          <BackLink href="/community" label="커뮤니티로 돌아가기" />
+          <div className="bg-white border border-gray-200 shadow-sm rounded-2xl p-5 sm:p-8">
+            <h1 className="text-xl font-bold text-gray-900 mb-6">글쓰기</h1>
+            <UsernamePrompt />
+          </div>
+        </div>
       </main>
     );
   }
@@ -111,14 +113,14 @@ export default function NewCommunityPostPage() {
   }
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-10 mb-20">
-      <Link href="/community" className="text-sm text-blue-500 hover:underline mb-6 inline-block">
-        ← 커뮤니티로 돌아가기
-      </Link>
+    <main className="bg-gray-50 min-h-screen">
+      <div className="max-w-2xl mx-auto px-4 py-10 mb-20">
+        <BackLink href="/community" label="커뮤니티로 돌아가기" />
 
-      <h1 className="text-xl font-bold text-gray-900 mb-6">글쓰기</h1>
+        <div className="bg-white border border-gray-200 shadow-sm rounded-2xl p-5 sm:p-8">
+        <h1 className="text-xl font-bold text-gray-900 mb-6">글쓰기</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">카테고리</label>
           <select
@@ -204,7 +206,9 @@ export default function NewCommunityPostPage() {
         >
           {submitting ? (uploading ? '이미지 업로드 중...' : '게시 중...') : '게시하기'}
         </button>
-      </form>
+        </form>
+        </div>
+      </div>
     </main>
   );
 }

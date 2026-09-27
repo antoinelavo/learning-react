@@ -27,7 +27,7 @@ function AnnouncementsRail({ announcements }) {
           <Link
             key={a.slug}
             href={a.url}
-            className="shrink-0 w-52 bg-blue-50 hover:bg-blue-100 transition-colors rounded-xl p-3"
+            className="shrink-0 w-52 bg-blue-50 border border-blue-100 hover:bg-blue-100 hover:border-blue-200 transition-colors rounded-xl p-3"
           >
             <CategoryBadge category={a.category} />
             <p className="text-sm font-medium text-gray-900 mt-1.5 line-clamp-2 leading-snug">{a.title}</p>
@@ -42,7 +42,7 @@ function PostCard({ post }) {
   return (
     <Link
       href={`/community/post/${post.slug}`}
-      className="flex items-start justify-between gap-3 px-2 py-4 hover:bg-gray-50 transition-colors"
+      className="flex items-start justify-between gap-3 p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md hover:border-blue-300 transition-all"
     >
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5 mb-1">
@@ -80,9 +80,8 @@ function PostCard({ post }) {
   );
 }
 
-export default function CommunityBoard({ announcements, debug }) {
+export default function CommunityBoard({ announcements }) {
   const { user } = useAuth();
-  const [clientMountedAt] = useState(() => new Date().toISOString());
   const [category, setCategory] = useState('전체');
   const [sortMode, setSortMode] = useState('latest');
   const [searchInput, setSearchInput] = useState('');
@@ -123,19 +122,8 @@ export default function CommunityBoard({ announcements, debug }) {
   }
 
   return (
-    <main className="max-w-3xl mx-auto px-3 py-4 mb-24 relative">
-      {/* TEMPORARY debug panel — remove once diagnosed */}
-      {debug && (
-        <div className="mb-4 p-3 rounded-lg bg-yellow-50 border border-yellow-300 text-[11px] font-mono text-yellow-900 whitespace-pre-wrap break-all">
-          {'[DEBUG] server rendered: ' + debug.renderedAt + '\n'}
-          {'[DEBUG] client mounted:  ' + clientMountedAt + '\n'}
-          {'[DEBUG] adminPostsFound: ' + debug.adminPostsFound + ' (raw count from query: ' + debug.adminPostsRawCount + ')\n'}
-          {'[DEBUG] mdxPostsFound:   ' + debug.mdxPostsFound + '\n'}
-          {'[DEBUG] announcements shown: ' + debug.announcementsShown + '\n'}
-          {'[DEBUG] error: ' + (debug.error || 'none')}
-        </div>
-      )}
-
+    <main className="bg-gray-50 min-h-screen">
+    <div className="max-w-3xl mx-auto px-3 py-4 mb-24 relative">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-lg font-bold text-gray-900">국제학교 입시 커뮤니티</h1>
@@ -206,7 +194,7 @@ export default function CommunityBoard({ announcements, debug }) {
           )}
         </div>
       ) : (
-        <ul className="divide-y divide-gray-200">
+        <ul className="space-y-3">
           {posts.map(post => <li key={post.slug}><PostCard post={post} /></li>)}
         </ul>
       )}
@@ -237,6 +225,7 @@ export default function CommunityBoard({ announcements, debug }) {
       >
         <PenSquare size={22} />
       </Link>
+    </div>
     </main>
   );
 }

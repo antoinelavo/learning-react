@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { communityAuthHeaders } from '@/lib/communityClient';
 import { CATEGORY_LIST } from '@/components/community/CategoryBadge';
-import Link from 'next/link';
+import BackLink from '@/components/community/BackLink';
 
 export default function EditCommunityPostPage() {
   const { user, loading } = useAuth();
@@ -66,14 +66,14 @@ export default function EditCommunityPostPage() {
   }
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-10 mb-20">
-      <Link href={`/community/post/${slug}`} className="text-sm text-blue-500 hover:underline mb-6 inline-block">
-        ← 게시글로 돌아가기
-      </Link>
+    <main className="bg-gray-50 min-h-screen">
+      <div className="max-w-2xl mx-auto px-4 py-10 mb-20">
+        <BackLink href={`/community/post/${slug}`} label="게시글로 돌아가기" />
 
-      <h1 className="text-xl font-bold text-gray-900 mb-6">글 수정</h1>
+        <div className="bg-white border border-gray-200 shadow-sm rounded-2xl p-5 sm:p-8">
+        <h1 className="text-xl font-bold text-gray-900 mb-6">글 수정</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">카테고리</label>
           <select
@@ -120,7 +120,9 @@ export default function EditCommunityPostPage() {
         >
           {submitting ? '저장 중...' : '저장하기'}
         </button>
-      </form>
+        </form>
+        </div>
+      </div>
     </main>
   );
 }

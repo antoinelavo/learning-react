@@ -528,10 +528,10 @@ export default function DashboardPage() {
               </span>
             </div>
 
-            {/* Both products shown fully expanded, side by side — no
+            {/* Both products shown fully expanded, stacked top-down — no
                 accordion/tab gating a teacher's awareness of what's on
                 offer, only the checkout steps themselves require a click. */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            <div className="grid grid-cols-1 gap-6 items-start">
               <PremiumListingOffer teacher={teacher} />
               <div ref={tierUpgradeRef} className="scroll-mt-24">
                 <TierUpgradeOffer teacher={teacher} onUpgraded={refreshTeacherProfile} />

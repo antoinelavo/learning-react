@@ -1,6 +1,4 @@
 import { supabase } from '@/lib/supabase'
-import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { generateAnonNickname } from '@/lib/communityAnon'
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
@@ -10,6 +8,7 @@ import rehypeStringify from 'rehype-stringify'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import CategoryBadge from '@/components/community/CategoryBadge'
+import AuthorLine from '@/components/community/AuthorLine'
 import PostActions from './PostActions.client'
 import CommentThread from './CommentThread.client'
 
@@ -49,18 +48,10 @@ export default async function CommunityPostDetailPage({ params }) {
 
   const html = await markdownToHtml(post.content)
 
-  let authorDisplayName = post.author_username || '이름없는 회원'
-  if (post.is_anonymous) {
-    // The public view strips user_id for privacy, so the nickname needs a
-    // separate service-role lookup — this string is all that ever reaches
-    // the client, never the raw user_id.
-    const { data: ownerRow } = await supabaseAdmin
-      .from('community_posts')
-      .select('user_id')
-      .eq('slug', params.slug)
-      .single()
-    authorDisplayName = generateAnonNickname(post.id, ownerRow?.user_id)
-  }
+  const isTeacher = !post.is_anonymous && !!post.teacher_name
+  const authorDisplayName = post.is_anonymous
+    ? '익명'
+    : (post.teacher_name || post.author_username || '이름없는 회원')
 
   return (
     <main className="max-w-3xl mx-auto px-4 py-10 mb-20">
@@ -74,7 +65,13 @@ export default async function CommunityPostDetailPage({ params }) {
           <h1 className="text-2xl font-bold text-gray-900 leading-snug mt-3">{post.title}</h1>
 
           <div className="flex items-center gap-2 mt-3 text-xs text-gray-400">
-            <span className="text-gray-600 font-medium">{authorDisplayName}</span>
+            <AuthorLine
+              name={authorDisplayName}
+              isTeacher={isTeacher}
+              profilePicture={post.teacher_profile_picture}
+              profileLink={isTeacher ? `/profile/${encodeURIComponent(post.teacher_name)}` : null}
+              size="md"
+            />
             <span>·</span>
             <time>{new Date(post.created_at).toLocaleDateString('ko-KR')}</time>
             <span>·</span>

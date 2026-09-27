@@ -5,13 +5,14 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { communityAuthHeaders } from '@/lib/communityClient';
 import { CATEGORY_LIST } from '@/components/community/CategoryBadge';
+import UsernamePrompt from '@/components/community/UsernamePrompt.client';
 import Link from 'next/link';
 import { X } from 'lucide-react';
 
 const MAX_IMAGES = 5;
 
 export default function NewCommunityPostPage() {
-  const { user, loading } = useAuth();
+  const { user, username, loading } = useAuth();
   const router = useRouter();
   const fileInputRef = useRef(null);
 
@@ -30,6 +31,18 @@ export default function NewCommunityPostPage() {
 
   if (loading) return <div className="text-center mt-20 text-gray-400">로딩 중...</div>;
   if (!user) return null;
+
+  if (!username) {
+    return (
+      <main className="max-w-2xl mx-auto px-4 py-10 mb-20">
+        <Link href="/community" className="text-sm text-blue-500 hover:underline mb-6 inline-block">
+          ← 커뮤니티로 돌아가기
+        </Link>
+        <h1 className="text-xl font-bold text-gray-900 mb-6">글쓰기</h1>
+        <UsernamePrompt />
+      </main>
+    );
+  }
 
   function handleFilesSelected(e) {
     const files = Array.from(e.target.files || []);

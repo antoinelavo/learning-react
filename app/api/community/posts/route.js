@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { getCommunityUser, checkRateLimit, withCommunityErrors } from '@/lib/communityAuth'
-import { generateAnonNickname } from '@/lib/communityAnon'
 
 const CATEGORIES = ['자유게시판', '질문답변', 'IB', 'SAT', '특례입학', '정보공유']
 const PAGE_SIZE = 20
@@ -40,25 +39,17 @@ export const GET = withCommunityErrors(async function GET(request) {
   const { data, error, count } = await query.range(from, to)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  // The public view strips user_id, so anonymous posts need a separate
-  // service-role lookup to generate their nickname (never exposed as-is).
-  const anonSlugs = (data || []).filter(p => p.is_anonymous).map(p => p.slug)
-  let userIdBySlug = {}
-  if (anonSlugs.length > 0) {
-    const { data: rows } = await supabaseAdmin
-      .from('community_posts')
-      .select('slug, user_id')
-      .in('slug', anonSlugs)
-    userIdBySlug = Object.fromEntries((rows || []).map(r => [r.slug, r.user_id]))
-  }
-
-  const posts = (data || []).map(p => ({
-    ...p,
-    author_display_name: p.is_anonymous
-      ? generateAnonNickname(p.id, userIdBySlug[p.slug])
-      : (p.author_username || '이름없는 회원'),
-    is_hot: p.like_count >= HOT_THRESHOLD.likes || p.view_count >= HOT_THRESHOLD.views,
-  }))
+  const posts = (data || []).map(p => {
+    const isTeacher = !p.is_anonymous && !!p.teacher_name
+    return {
+      ...p,
+      author_display_name: p.is_anonymous ? '익명' : (p.teacher_name || p.author_username || '이름없는 회원'),
+      is_teacher: isTeacher,
+      author_profile_picture: isTeacher ? (p.teacher_profile_picture || null) : null,
+      author_profile_link: isTeacher ? `/profile/${encodeURIComponent(p.teacher_name)}` : null,
+      is_hot: p.like_count >= HOT_THRESHOLD.likes || p.view_count >= HOT_THRESHOLD.views,
+    }
+  })
 
   return NextResponse.json({
     posts,

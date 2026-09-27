@@ -26,21 +26,28 @@ export const GET = withCommunityErrors(async function GET(request, { params }) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  // Batch-fetch usernames for non-anonymous authors only.
+  // Batch-fetch usernames + approved-teacher identity for non-anonymous
+  // authors only.
   const nonAnonUserIds = [...new Set(
     (rawComments || []).filter(c => !c.is_anonymous && c.user_id).map(c => c.user_id)
   )]
   let usernameById = {}
+  let teacherByUserId = {}
   if (nonAnonUserIds.length > 0) {
-    const { data: users } = await supabaseAdmin
-      .from('users')
-      .select('id, username')
-      .in('id', nonAnonUserIds)
+    const [{ data: users }, { data: teachers }] = await Promise.all([
+      supabaseAdmin.from('users').select('id, username').in('id', nonAnonUserIds),
+      supabaseAdmin.from('teachers').select('user_id, name, profile_picture').eq('status', 'approved').in('user_id', nonAnonUserIds),
+    ])
     usernameById = Object.fromEntries((users || []).map(u => [u.id, u.username]))
+    teacherByUserId = Object.fromEntries((teachers || []).map(t => [t.user_id, t]))
   }
 
   const viewer = await getCommunityUser(request)
-  const withUsername = (rawComments || []).map(c => ({ ...c, username: usernameById[c.user_id] }))
+  const withUsername = (rawComments || []).map(c => ({
+    ...c,
+    username: usernameById[c.user_id],
+    teacher: teacherByUserId[c.user_id] || null,
+  }))
   const labeled = labelComments(post, withUsername, viewer?.id ?? null)
 
   // Batch-fetch which of these comments the viewer has liked.
@@ -58,7 +65,15 @@ export const GET = withCommunityErrors(async function GET(request, { params }) {
   // Mask deleted comments' content but keep them in the tree so replies
   // aren't orphaned.
   const masked = withLiked.map(c => c.deleted_at
-    ? { ...c, content: '[삭제된 댓글]', image_url: null, author_display_name: '[삭제됨]' }
+    ? {
+        ...c,
+        content: '[삭제된 댓글]',
+        image_url: null,
+        author_display_name: '[삭제됨]',
+        is_teacher: false,
+        author_profile_picture: null,
+        author_profile_link: null,
+      }
     : c
   )
 
@@ -134,11 +149,16 @@ export const POST = withCommunityErrors(async function POST(request, { params })
   }
 
   let username = null
+  let teacher = null
   if (!created.is_anonymous) {
-    const { data: userRow } = await supabaseAdmin.from('users').select('username').eq('id', user.id).single()
+    const [{ data: userRow }, { data: teacherRow }] = await Promise.all([
+      supabaseAdmin.from('users').select('username').eq('id', user.id).single(),
+      supabaseAdmin.from('teachers').select('user_id, name, profile_picture').eq('status', 'approved').eq('user_id', user.id).maybeSingle(),
+    ])
     username = userRow?.username ?? null
+    teacher = teacherRow || null
   }
 
-  const [labeledComment] = labelComments(post, [{ ...created, username }], user.id)
+  const [labeledComment] = labelComments(post, [{ ...created, username, teacher }], user.id)
   return NextResponse.json({ comment: labeledComment })
 })

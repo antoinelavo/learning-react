@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { getCommunityUser, withCommunityErrors } from '@/lib/communityAuth'
-import { generateAnonNickname } from '@/lib/communityAnon'
+import { getCommunityUser, getClientIp, withCommunityErrors } from '@/lib/communityAuth'
 
 const CATEGORIES = ['자유게시판', '질문답변', 'IB', 'SAT', '특례입학', '정보공유']
 
@@ -19,10 +18,13 @@ export const GET = withCommunityErrors(async function GET(request, { params }) {
     return NextResponse.json({ error: '게시글을 찾을 수 없습니다.' }, { status: 404 })
   }
 
-  // Fire-and-forget view increment, same pattern as the legacy posts table.
-  supabase.rpc('increment_community_post_views', { post_slug: slug }).then(() => {})
-
   const viewer = await getCommunityUser(request)
+
+  // Fire-and-forget, deduped to one view per visitor per post per day
+  // (visitor = logged-in user id, or best-effort IP when logged out).
+  const viewerKey = viewer ? `user:${viewer.id}` : `ip:${getClientIp(request)}`
+  supabase.rpc('record_community_post_view', { p_post_id: post.id, p_viewer_key: viewerKey }).then(() => {})
+
   const { data: ownerRow } = await supabaseAdmin
     .from('community_posts')
     .select('id, user_id')
@@ -42,11 +44,14 @@ export const GET = withCommunityErrors(async function GET(request, { params }) {
     liked = !!likeRow
   }
 
+  const isTeacher = !post.is_anonymous && !!post.teacher_name
+
   return NextResponse.json({
     ...post,
-    author_display_name: post.is_anonymous
-      ? generateAnonNickname(post.id, ownerRow?.user_id)
-      : (post.author_username || '이름없는 회원'),
+    author_display_name: post.is_anonymous ? '익명' : (post.teacher_name || post.author_username || '이름없는 회원'),
+    is_teacher: isTeacher,
+    author_profile_picture: isTeacher ? (post.teacher_profile_picture || null) : null,
+    author_profile_link: isTeacher ? `/profile/${encodeURIComponent(post.teacher_name)}` : null,
     is_mine: isMine,
     liked,
   })

@@ -7,6 +7,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { communityAuthHeaders } from '@/lib/communityClient';
 import { timeAgo } from '@/lib/timeAgo';
 import ReportModal from '@/components/community/ReportModal.client';
+import UsernamePrompt from '@/components/community/UsernamePrompt.client';
+import AuthorLine from '@/components/community/AuthorLine';
 
 function CommentComposer({ onSubmit, submitting, placeholder = '댓글을 입력해주세요', autoFocus = false }) {
   const [content, setContent] = useState('');
@@ -75,7 +77,7 @@ function CommentComposer({ onSubmit, submitting, placeholder = '댓글을 입력
   );
 }
 
-function CommentRow({ comment, isReply, onLike, onReply, onReport, onDelete, currentReplyTarget, onSubmitReply, replySubmitting }) {
+function CommentRow({ comment, isReply, onLike, onReply, onReport, onDelete, currentReplyTarget, onSubmitReply, replySubmitting, needsUsername }) {
   const isDeleted = !!comment.deleted_at;
 
   return (
@@ -83,7 +85,12 @@ function CommentRow({ comment, isReply, onLike, onReply, onReport, onDelete, cur
       <div className="flex items-start gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 text-xs">
-            <span className="font-medium text-gray-800">{comment.author_display_name}</span>
+            <AuthorLine
+              name={comment.author_display_name}
+              isTeacher={comment.is_teacher}
+              profilePicture={comment.author_profile_picture}
+              profileLink={comment.author_profile_link}
+            />
             <span className="text-gray-300">·</span>
             <span className="text-gray-400">{timeAgo(comment.created_at)}</span>
           </div>
@@ -120,12 +127,16 @@ function CommentRow({ comment, isReply, onLike, onReply, onReport, onDelete, cur
 
       {currentReplyTarget === comment.id && (
         <div className="ml-8 mt-2">
-          <CommentComposer
-            onSubmit={data => onSubmitReply(comment.id, data)}
-            submitting={replySubmitting}
-            placeholder="답글을 입력해주세요"
-            autoFocus
-          />
+          {needsUsername ? (
+            <UsernamePrompt />
+          ) : (
+            <CommentComposer
+              onSubmit={data => onSubmitReply(comment.id, data)}
+              submitting={replySubmitting}
+              placeholder="답글을 입력해주세요"
+              autoFocus
+            />
+          )}
         </div>
       )}
 
@@ -141,6 +152,7 @@ function CommentRow({ comment, isReply, onLike, onReply, onReport, onDelete, cur
           currentReplyTarget={currentReplyTarget}
           onSubmitReply={onSubmitReply}
           replySubmitting={replySubmitting}
+          needsUsername={needsUsername}
         />
       ))}
     </div>
@@ -148,7 +160,8 @@ function CommentRow({ comment, isReply, onLike, onReply, onReport, onDelete, cur
 }
 
 export default function CommentThread({ slug }) {
-  const { user } = useAuth();
+  const { user, username } = useAuth();
+  const needsUsername = !!user && !username;
   const router = useRouter();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -262,7 +275,11 @@ export default function CommentThread({ slug }) {
 
       {user ? (
         <div className="mb-6">
-          <CommentComposer onSubmit={handleNewComment} submitting={submitting} />
+          {needsUsername ? (
+            <UsernamePrompt />
+          ) : (
+            <CommentComposer onSubmit={handleNewComment} submitting={submitting} />
+          )}
         </div>
       ) : (
         <p className="text-sm text-gray-400 mb-6">
@@ -289,6 +306,7 @@ export default function CommentThread({ slug }) {
               currentReplyTarget={replyTarget}
               onSubmitReply={handleReply}
               replySubmitting={replySubmitting}
+              needsUsername={needsUsername}
             />
           ))}
         </div>

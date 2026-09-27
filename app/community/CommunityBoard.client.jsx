@@ -6,6 +6,7 @@ import { ThumbsUp, MessageCircle, Eye, PenSquare, Search } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { timeAgo } from '@/lib/timeAgo';
 import CategoryBadge, { CATEGORY_LIST } from '@/components/community/CategoryBadge';
+import AuthorLine from '@/components/community/AuthorLine';
 
 const SORT_OPTIONS = [
   { value: 'latest', label: '최신순' },
@@ -53,7 +54,13 @@ function PostCard({ post }) {
         <p className="text-sm font-medium text-gray-900 leading-snug line-clamp-2">{post.title}</p>
         <p className="text-xs text-gray-400 mt-1 line-clamp-1">{stripMarkdown(post.content || '')}</p>
         <div className="flex items-center gap-2 mt-2 text-xs text-gray-400">
-          <span>{post.author_display_name || '익명'}</span>
+          <AuthorLine
+            name={post.author_display_name || '익명'}
+            isTeacher={post.is_teacher}
+            profilePicture={post.author_profile_picture}
+            profileLink={post.author_profile_link}
+            linkable={false}
+          />
           <span>·</span>
           <time>{timeAgo(post.created_at)}</time>
         </div>

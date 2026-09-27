@@ -2,21 +2,21 @@
 
 ## Community Board
 
-- Run the Supabase SQL migration to activate post creation
-  - File: supabase/migrations/20260605_create_posts.sql
+- Run the Supabase SQL migrations before this feature works in production:
+  - `supabase/migrations/20260605_create_posts.sql` (legacy admin-authored posts — may already be applied)
+  - `supabase/migrations/20260908_create_community_board.sql` (new user community board — posts, threaded comments, likes, reports)
   - Run in Supabase dashboard → SQL Editor
-
+- Add `SUPABASE_SERVICE_ROLE_KEY` to `.env.local` and to Vercel (Production + Preview) — required by the new `/api/community/*` routes (`lib/supabaseAdmin.js`)
+- Rebuilt from scratch: posts, threaded comments (1 level deep), likes, anonymous posting
+  (Goondori-style generated nicknames), image uploads (Cloudflare R2, ≤5/post), and
+  report/flag moderation with an admin review queue at `/admin/community/reports`.
+  See the board at `/community` (feed) and `/community/post/[slug]` (detail) — the
+  legacy `/community/[slug]` admin/blog detail page is unchanged.
 - Add 커뮤니티 to the navigation menu when ready to launch
   - Link is already built and commented out in DesktopNav.client.jsx and MobileMenuToggle.client.jsx
   - Just uncomment the relevant blocks to make it visible
-
-- Implement post engagement features
-  - View count tracking (increment on each post visit)
-  - Likes / upvotes on posts
-  - Comments and replies on posts
-
-- Post moderation
-  - Admin queue to review and approve/reject user-submitted posts before they go live
+- Follow-ups not in this build: notifications on reply, member level/activity badges,
+  orphaned-R2-image cleanup cron, a real rate limiter (current one is a DB count check)
 
 ## Teacher Profiles
 

@@ -46,7 +46,7 @@ export const GET = withCommunityErrors(async function GET(request, { params }) {
     ...post,
     author_display_name: post.is_anonymous
       ? generateAnonNickname(post.id, ownerRow?.user_id)
-      : (post.author_username || '알 수 없음'),
+      : (post.author_username || '이름없는 회원'),
     is_mine: isMine,
     liked,
   })

@@ -49,7 +49,7 @@ export default async function CommunityPostDetailPage({ params }) {
 
   const html = await markdownToHtml(post.content)
 
-  let authorDisplayName = post.author_username || '알 수 없음'
+  let authorDisplayName = post.author_username || '이름없는 회원'
   if (post.is_anonymous) {
     // The public view strips user_id for privacy, so the nickname needs a
     // separate service-role lookup — this string is all that ever reaches

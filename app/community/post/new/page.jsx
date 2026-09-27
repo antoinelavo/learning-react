@@ -69,7 +69,7 @@ export default function NewCommunityPostPage() {
         images.forEach(img => formData.append('files', img.file));
         const uploadRes = await fetch('/api/community/images', { method: 'POST', headers, body: formData });
         const uploadJson = await uploadRes.json();
-        if (!uploadRes.ok) throw new Error(uploadJson.error || '이미지 업로드에 실패했습니다.');
+        if (!uploadRes.ok) throw new Error(uploadJson.detail ? `${uploadJson.error} (${uploadJson.detail})` : (uploadJson.error || '이미지 업로드에 실패했습니다.'));
         imageUrls = uploadJson.urls;
         setUploading(false);
       }
@@ -87,7 +87,7 @@ export default function NewCommunityPostPage() {
       });
 
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || '게시 실패');
+      if (!res.ok) throw new Error(json.detail ? `${json.error} (${json.detail})` : (json.error || '게시 실패'));
       router.push(`/community/post/${json.slug}`);
     } catch (err) {
       setError(err.message);

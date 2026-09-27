@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { requireAdminUser } from '@/lib/communityAuth'
+import { requireAdminUser, withCommunityErrors } from '@/lib/communityAuth'
 
-export async function GET(request) {
+export const GET = withCommunityErrors(async function GET(request) {
   const admin = await requireAdminUser(request)
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
@@ -40,4 +40,4 @@ export async function GET(request) {
   }))
 
   return NextResponse.json({ reports: enriched })
-}
+})

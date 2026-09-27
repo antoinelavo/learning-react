@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { requireAdminUser } from '@/lib/communityAuth'
+import { requireAdminUser, withCommunityErrors } from '@/lib/communityAuth'
 
 // body: { status: 'resolved' | 'dismissed', deleteContent?: boolean }
-export async function PATCH(request, { params }) {
+export const PATCH = withCommunityErrors(async function PATCH(request, { params }) {
   const admin = await requireAdminUser(request)
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
@@ -36,4 +36,4 @@ export async function PATCH(request, { params }) {
   }
 
   return NextResponse.json({ success: true })
-}
+})

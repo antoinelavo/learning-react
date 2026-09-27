@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { getCommunityUser } from '@/lib/communityAuth'
+import { getCommunityUser, withCommunityErrors } from '@/lib/communityAuth'
 import { generateAnonNickname } from '@/lib/communityAnon'
 
 const CATEGORIES = ['자유게시판', '질문답변', 'IB', 'SAT', '특례입학', '정보공유']
 
-export async function GET(request, { params }) {
+export const GET = withCommunityErrors(async function GET(request, { params }) {
   const { slug } = params
 
   const { data: post, error } = await supabase
@@ -50,9 +50,9 @@ export async function GET(request, { params }) {
     is_mine: isMine,
     liked,
   })
-}
+})
 
-export async function PATCH(request, { params }) {
+export const PATCH = withCommunityErrors(async function PATCH(request, { params }) {
   const user = await getCommunityUser(request)
   if (!user) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
 
@@ -104,9 +104,9 @@ export async function PATCH(request, { params }) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
-}
+})
 
-export async function DELETE(request, { params }) {
+export const DELETE = withCommunityErrors(async function DELETE(request, { params }) {
   const user = await getCommunityUser(request)
   if (!user) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
 
@@ -134,4 +134,4 @@ export async function DELETE(request, { params }) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ success: true })
-}
+})

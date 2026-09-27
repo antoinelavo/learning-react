@@ -1,6 +1,6 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { NextResponse } from 'next/server'
-import { getCommunityUser } from '@/lib/communityAuth'
+import { getCommunityUser, withCommunityErrors } from '@/lib/communityAuth'
 
 const s3 = new S3Client({
   region: 'auto',
@@ -15,7 +15,7 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const MAX_FILES = 5
 
-export async function POST(request) {
+export const POST = withCommunityErrors(async function POST(request) {
   const user = await getCommunityUser(request)
   if (!user) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
 
@@ -59,4 +59,4 @@ export async function POST(request) {
     console.error('community image upload error:', error)
     return NextResponse.json({ error: '업로드에 실패했습니다.' }, { status: 500 })
   }
-}
+})

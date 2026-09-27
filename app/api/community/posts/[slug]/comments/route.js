@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { getCommunityUser, checkRateLimit } from '@/lib/communityAuth'
+import { getCommunityUser, checkRateLimit, withCommunityErrors } from '@/lib/communityAuth'
 import { labelComments } from '@/lib/communityAnon'
 
 async function getPost(slug) {
@@ -12,7 +12,7 @@ async function getPost(slug) {
   return data
 }
 
-export async function GET(request, { params }) {
+export const GET = withCommunityErrors(async function GET(request, { params }) {
   const post = await getPost(params.slug)
   if (!post || post.deleted_at) {
     return NextResponse.json({ error: '게시글을 찾을 수 없습니다.' }, { status: 404 })
@@ -71,9 +71,9 @@ export async function GET(request, { params }) {
   }))
 
   return NextResponse.json({ comments: tree })
-}
+})
 
-export async function POST(request, { params }) {
+export const POST = withCommunityErrors(async function POST(request, { params }) {
   const user = await getCommunityUser(request)
   if (!user) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
 
@@ -141,4 +141,4 @@ export async function POST(request, { params }) {
 
   const [labeledComment] = labelComments(post, [{ ...created, username }], user.id)
   return NextResponse.json({ comment: labeledComment })
-}
+})

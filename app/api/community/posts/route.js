@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { getCommunityUser, checkRateLimit } from '@/lib/communityAuth'
+import { getCommunityUser, checkRateLimit, withCommunityErrors } from '@/lib/communityAuth'
 import { generateAnonNickname } from '@/lib/communityAnon'
 
 const CATEGORIES = ['자유게시판', '질문답변', 'IB', 'SAT', '특례입학', '정보공유']
@@ -13,7 +13,7 @@ function generateSlug(title) {
   return `${base}-${Date.now().toString(36)}`
 }
 
-export async function GET(request) {
+export const GET = withCommunityErrors(async function GET(request) {
   const { searchParams } = new URL(request.url)
   const category = searchParams.get('category')
   const q = searchParams.get('q')?.trim()
@@ -67,9 +67,9 @@ export async function GET(request) {
     total: count ?? 0,
     hasMore: count != null ? to + 1 < count : false,
   })
-}
+})
 
-export async function POST(request) {
+export const POST = withCommunityErrors(async function POST(request) {
   const user = await getCommunityUser(request)
   if (!user) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
 
@@ -119,4 +119,4 @@ export async function POST(request) {
   }
 
   return NextResponse.json({ slug: data.slug })
-}
+})

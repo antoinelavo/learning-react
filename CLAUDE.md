@@ -1,21 +1,36 @@
 # CLAUDE.md
 
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, with a blog, chat, and paid teacher listings.
 
 ## Stack
 
 - Next.js 15, React 19, plain JavaScript (no TypeScript). Tailwind CSS 3.
-- Both routers are in use. Most pages and all API routes are in `app/`. The blog post page and teacher profile page are still in `pages/`.
+- Both routers are in use. Most pages and all real API routes are in `app/`. The blog post page (`pages/blog/[slug].js`) and teacher profile page (`pages/profile/[name].js`) are still in `pages/`. `pages/api/hello.js` is leftover boilerplate.
 - Supabase for auth, database, and storage. The shared client is in `lib/supabase.js`.
 - Toss Payments for payments (`lib/toss.js`). NicePay is legacy and can be removed if it gets in the way.
-- Resend for email. Hosted on Vercel.
+- Resend for email (templates in `lib/email/`). Hosted on Vercel.
 - Import paths use the `@/` alias for the repo root.
 
 ## Commands
 
 - `npm run dev` starts the dev server on port 3000.
-- `npm run build` is the main check. There are no tests and no ESLint config.
+- `npm run build` is the main check. There are no tests and no ESLint config (`npm run lint` is not set up).
+- `ANALYZE=true npm run build` opens the bundle analyzer.
 - `node scripts/generate-sitemap.js` rebuilds `public/sitemap.xml`. It needs `.env.local`.
+
+## Architecture
+
+- **One Supabase client everywhere.** `lib/supabase.js` uses the anon key only; there is no service-role client, even in API routes. Server-side writes therefore depend on RLS policies and on Postgres RPCs (`activate_plus_tier`, `reveal_student_job`, `get_or_create_conversation`, etc.) defined in `supabase/migrations/`. If a write fails silently, check RLS first.
+- **Auth and chat state** live in React contexts (`contexts/AuthContext.jsx`, `contexts/ChatContext.jsx`), wired up in `components/Providers.client.jsx`. Chat data access is in `lib/chat/chatClient.js`.
+- **Payments are idempotent by design.** Each purchase type has a success route and a webhook (`app/api/toss/success|webhook` for premium listings, `tier-success|tier-webhook` for the 플러스 tier). Both call the same activation function (`lib/premiumActivation.js`, `lib/tierActivation.js`), which only flips a `payments` row from `pending` to `paid` once. Keep that guard if you touch these.
+- **Blog** is MDX files in `content/blog/`, read from disk at build time by `pages/blog/[slug].js` (`getStaticPaths`/`getStaticProps`). The index is `app/blog/page.jsx`.
+- **Teacher profiles** are ISR (`revalidate: 60`, `fallback: 'blocking'`) from the Supabase teachers table.
+- **Hagwon listings** are static data in `data/` (`hagwons.js`, `sat-hagwons.js`), not the database.
+- **Cron:** `app/api/cron/daily-digest` requires `Authorization: Bearer $CRON_SECRET`.
+- Component filenames ending in `.client.jsx` / `.server.jsx` mark client vs. server components.
+- `TODO.md` tracks planned work (community board launch, moderation, unsubscribe flows).
 
 ## Rules
 

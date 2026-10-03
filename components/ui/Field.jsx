@@ -31,7 +31,7 @@ export const Input = forwardRef(function Input(
   ref
 ) {
   return (
-    <FieldWrapper label={label} error={error} hint={hint} id={props.id} className={wrapperClassName}>
+    <FieldWrapper label={label} error={error} hint={hint} id={props.id} required={props.required} className={wrapperClassName}>
       <input ref={ref} className={cx(fieldClasses, error && 'border-red-400', className)} {...props} />
     </FieldWrapper>
   );
@@ -42,7 +42,7 @@ export const Select = forwardRef(function Select(
   ref
 ) {
   return (
-    <FieldWrapper label={label} error={error} hint={hint} id={props.id} className={wrapperClassName}>
+    <FieldWrapper label={label} error={error} hint={hint} id={props.id} required={props.required} className={wrapperClassName}>
       <select ref={ref} className={cx(fieldClasses, error && 'border-red-400', className)} {...props}>
         {children}
       </select>
@@ -55,7 +55,7 @@ export const Textarea = forwardRef(function Textarea(
   ref
 ) {
   return (
-    <FieldWrapper label={label} error={error} hint={hint} id={props.id} className={wrapperClassName}>
+    <FieldWrapper label={label} error={error} hint={hint} id={props.id} required={props.required} className={wrapperClassName}>
       <textarea ref={ref} className={cx(fieldClasses, error && 'border-red-400', className)} {...props} />
     </FieldWrapper>
   );

@@ -30,10 +30,10 @@ Make buttons, inputs, badges, cards and tabs look the same across the site, usin
 - Must look right on mobile (no overflow, tap targets at least ~40px tall).
 
 ## Done when
-- [ ] `components/ui/` contains `Button`, `Input`, `Select`, `Textarea`, `Badge`, `Card`, `Tabs`, `Notice`.
+- [x] `components/ui/` contains `Button`, `Input`, `Select`, `Textarea`, `Badge`, `Card`, `Tabs`, `Notice`.
 - [ ] No `<button>` in `app/`, `pages/`, or `components/` (outside `components/ui/`) has its own background-color/radius/padding styling. Icon-only buttons and tab triggers inside `Tabs` are the only exceptions.
-- [ ] Text inputs, selects and textareas in forms use the shared components.
-- [ ] Dashboard 로그아웃 is `secondary` and 탈퇴하기 is `danger`. They no longer use `blue-500`/`blue-900`.
-- [ ] Payment components still call the same handlers with the same props (diff shows only markup/class changes).
+- [x] Text inputs, selects and textareas in forms use the shared components.
+- [x] Dashboard 로그아웃 is `secondary` and 탈퇴하기 is `danger`. They no longer use `blue-500`/`blue-900`.
+- [x] Payment components still call the same handlers with the same props (diff shows only markup/class changes).
 - [ ] Key pages checked at mobile and desktop widths: home, find, students, hagwon-requests, dashboard, login/signup, teacher profile, admin.
-- [ ] `npm run build` passes.
+- [x] `npm run build` passes.

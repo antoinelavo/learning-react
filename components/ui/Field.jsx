@@ -2,11 +2,18 @@ import { forwardRef } from 'react';
 import cx from './cx';
 
 export const fieldClasses = cx(
-  'w-full rounded-xl border border-gray-300 bg-white p-3 text-base text-gray-900',
+  'rounded-xl border border-gray-300 bg-white p-3 text-base text-gray-900',
   'placeholder:text-gray-400 transition-colors',
   'focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100',
   'disabled:bg-gray-50 disabled:text-gray-500'
 );
+
+// Full width unless the caller sets its own base width (e.g. `w-auto`);
+// Tailwind can't override `w-full` with a later class.
+function controlClasses(error, className) {
+  const hasWidth = /(^|\s)w-/.test(className || '');
+  return cx(fieldClasses, !hasWidth && 'w-full', error && 'border-red-400', className);
+}
 
 // Optional label above and error/hint text below a form control.
 function FieldWrapper({ label, error, hint, id, required, className, children }) {
@@ -32,7 +39,7 @@ export const Input = forwardRef(function Input(
 ) {
   return (
     <FieldWrapper label={label} error={error} hint={hint} id={props.id} required={props.required} className={wrapperClassName}>
-      <input ref={ref} className={cx(fieldClasses, error && 'border-red-400', className)} {...props} />
+      <input ref={ref} className={controlClasses(error, className)} {...props} />
     </FieldWrapper>
   );
 });
@@ -43,7 +50,7 @@ export const Select = forwardRef(function Select(
 ) {
   return (
     <FieldWrapper label={label} error={error} hint={hint} id={props.id} required={props.required} className={wrapperClassName}>
-      <select ref={ref} className={cx(fieldClasses, error && 'border-red-400', className)} {...props}>
+      <select ref={ref} className={controlClasses(error, className)} {...props}>
         {children}
       </select>
     </FieldWrapper>
@@ -56,7 +63,7 @@ export const Textarea = forwardRef(function Textarea(
 ) {
   return (
     <FieldWrapper label={label} error={error} hint={hint} id={props.id} required={props.required} className={wrapperClassName}>
-      <textarea ref={ref} className={cx(fieldClasses, error && 'border-red-400', className)} {...props} />
+      <textarea ref={ref} className={controlClasses(error, className)} {...props} />
     </FieldWrapper>
   );
 });

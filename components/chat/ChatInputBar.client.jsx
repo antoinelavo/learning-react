@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
+import { Input, Button } from '@/components/ui';
 
 // Deliberately isolated from MessageThread and uncontrolled (no
 // value/onChange React state) so that typing only re-renders this leaf
@@ -21,7 +22,7 @@ export default function ChatInputBar({ onSend, disabled }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex items-center gap-2 p-3 border-t border-gray-100">
-      <input
+      <Input
         ref={inputRef}
         type="text"
         defaultValue=""
@@ -30,14 +31,14 @@ export default function ChatInputBar({ onSend, disabled }) {
         // whole page on focusing any input with a font-size under 16px —
         // that zoom is what revealed background content and shifted the
         // 전송 button, not an actual layout bug.
-        className="flex-1 min-w-0 border border-gray-300 rounded-full px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-400"
+        className="flex-1 min-w-0"
       />
-      <button
+      <Button
         type="submit"
-        className="px-4 py-2 rounded-full bg-blue-500 text-white text-sm font-medium hover:bg-blue-600"
+       
       >
         전송
-      </button>
+      </Button>
     </form>
   );
 }

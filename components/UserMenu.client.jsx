@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { buttonClasses } from '@/components/ui';
 
 export default function UserMenu() {
   const { user, loading, signOut } = useAuth();
@@ -36,7 +37,7 @@ export default function UserMenu() {
       ) : !user ? (
         <a
           href="/login"
-          className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors whitespace-nowrap"
+          className={buttonClasses({ size: 'sm', className: 'whitespace-nowrap' })}
         >
           로그인
         </a>

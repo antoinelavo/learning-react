@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
+import { Input, Select, Textarea, Button } from '@/components/ui';
 
 const CATEGORIES = ['IB', 'SAT', '특례입학', '일반'];
 
@@ -63,50 +64,48 @@ export default function NewPostPage() {
         {/* Category */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">카테고리</label>
-          <select
+          <Select
             value={category}
             onChange={e => setCategory(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
             {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
+          </Select>
         </div>
 
         {/* Title */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">제목</label>
-          <input
+          <Input
             type="text"
             value={title}
             onChange={e => setTitle(e.target.value)}
             placeholder="제목을 입력해주세요"
             maxLength={100}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </div>
 
         {/* Content */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">내용</label>
-          <textarea
+          <Textarea
             value={content}
             onChange={e => setContent(e.target.value)}
             placeholder="내용을 입력해주세요. 마크다운 형식을 지원합니다."
             rows={14}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-400 resize-y"
+            className="font-mono resize-y"
           />
           <p className="text-xs text-gray-400 mt-1">**굵게**, *기울임*, ## 제목, - 목록 등 마크다운 사용 가능</p>
         </div>
 
         {error && <p className="text-sm text-red-500">{error}</p>}
 
-        <button
+        <Button
           type="submit"
           disabled={submitting}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-medium py-2.5 rounded-lg transition-colors text-sm"
+          fullWidth
         >
           {submitting ? '게시 중...' : '게시하기'}
-        </button>
+        </Button>
       </form>
     </main>
   );

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { getAllConversationsForAdmin } from '@/lib/chat/chatClient';
+import { Input, cardClasses } from '@/components/ui';
 
 function formatDate(iso) {
   if (!iso) return '메시지 없음';
@@ -35,12 +36,11 @@ export default function ConversationsTable() {
 
   return (
     <div className="space-y-4">
-      <input
+      <Input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="선생님 또는 학생 이름 검색..."
-        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
       />
 
       <div className="text-sm text-gray-500">
@@ -54,7 +54,7 @@ export default function ConversationsTable() {
           <p className="text-sm">대화가 없습니다.</p>
         </div>
       ) : (
-        <div className="bg-white border border-gray-200 rounded-xl divide-y divide-gray-100 overflow-hidden">
+        <div className={cardClasses({ className: 'divide-y divide-gray-100 overflow-hidden' })}>
           {filtered.map((c) => (
             <Link
               key={c.id}

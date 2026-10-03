@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { revealsRemaining } from '@/lib/reveal';
+import { Input, cardClasses, Badge, Notice } from '@/components/ui';
 
 // Toggle switch: on (파란색) = 플러스, off (회색) = 무료. Mirrors
 // app/admin/payments/PaymentRequestsTable.jsx's StatusSwitch.
@@ -90,12 +91,11 @@ export default function TeacherTiersTable() {
 
   return (
     <div className="space-y-4">
-      <input
+      <Input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="이름 검색..."
-        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
       />
 
       <div className="text-sm text-gray-500">
@@ -103,15 +103,15 @@ export default function TeacherTiersTable() {
       </div>
 
       {fetchError && (
-        <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+        <Notice color="red" className="mb-4">
           데이터를 불러오지 못했습니다: {fetchError}
-        </div>
+        </Notice>
       )}
 
       {filteredTeachers.length === 0 ? (
         <div className="text-center text-gray-500 py-10">검색 결과가 없습니다.</div>
       ) : (
-        <div className="overflow-x-auto bg-white rounded-lg shadow">
+        <div className={cardClasses({ className: 'overflow-x-auto' })}>
           <table className="min-w-full text-sm text-left">
             <thead className="bg-gray-100 text-gray-600">
               <tr>
@@ -142,13 +142,13 @@ export default function TeacherTiersTable() {
                     <td className="px-4 py-2 whitespace-nowrap text-gray-500">{teacher.status || '—'}</td>
                     <td className="px-4 py-2 whitespace-nowrap">
                       {isPremium ? (
-                        <span className="text-xs px-2 py-1 rounded-full font-medium bg-blue-100 text-blue-700">
+                        <Badge color="blue">
                           플러스
-                        </span>
+                        </Badge>
                       ) : (
-                        <span className="text-xs px-2 py-1 rounded-full font-medium bg-gray-100 text-gray-600">
+                        <Badge color="gray">
                           무료
-                        </span>
+                        </Badge>
                       )}
                     </td>
                     <td className="px-4 py-2 whitespace-nowrap text-gray-500">

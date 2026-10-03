@@ -10,6 +10,7 @@ import TierUpgradeOffer from '@/components/TierUpgradeOffer';
 import TeacherCard from '@/components/TeacherCard';
 import EmailNotificationToggle from '@/components/chat/EmailNotificationToggle.client';
 import { revealsRemaining } from '@/lib/reveal';
+import { Input, Select, Textarea, Button, Badge, Card, Tabs, Notice } from '@/components/ui';
 
 
 export default function DashboardPage() {
@@ -284,8 +285,8 @@ export default function DashboardPage() {
           <EmailNotificationToggle userId={user.id} />
         </div>
         <div className="mt-8 flex gap-4 w-full">
-          <button onClick={handleLogout} className="bg-blue-500 text-white w-1/2 px-[2em] py-[1em] rounded-lg">로그아웃</button>
-          <button onClick={handleDelete} className="bg-blue-900 text-white w-1/2 px-[2em] py-[1em] rounded-lg">탈퇴하기</button>
+          <Button onClick={handleLogout} variant="secondary" className="w-1/2">로그아웃</Button>
+          <Button onClick={handleDelete} variant="danger" className="w-1/2">탈퇴하기</Button>
         </div>
       </div>
       }
@@ -303,49 +304,32 @@ export default function DashboardPage() {
             sticky: the site's own header is already sticky at top:0, and
             stacking another sticky bar there would hide it behind that
             header on scroll. */}
-        <div className="flex p-1 gap-1 rounded-full bg-gray-100 mb-6">
-          <button
-            onClick={() => setActiveTab('info')}
-            className={`flex-1 py-2.5 text-sm sm:text-base font-semibold text-center rounded-full transition ${
-              activeTab === 'info'
-                ? 'bg-white text-blue-600 shadow'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            내 정보
-          </button>
-          <button
-            onClick={() => setActiveTab('pricing')}
-            className={`flex-1 py-2.5 text-sm sm:text-base font-semibold text-center rounded-full transition ${
-              activeTab === 'pricing'
-                ? 'bg-white text-blue-600 shadow'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            더 많은 학생 만나기
-          </button>
-        </div>
+        <Tabs
+          className="mb-6"
+          value={activeTab}
+          onChange={setActiveTab}
+          tabs={[
+            { value: 'info', label: '내 정보' },
+            { value: 'pricing', label: '더 많은 학생 만나기' },
+          ]}
+        />
 
       {activeTab === 'info' && (
         <>
         {/* Basic Header */}
-        <div className="flex flex-col p-[3em] bg-white border border-solid border-gray-200 shadow rounded-2xl">
+        <Card padding="lg" className="flex flex-col">
           <div className="flex items-center gap-2 mb-3">
             <h1 className="text-2xl font-bold m-0">계정 정보</h1>
-            <span
-              className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                teacher.tier === 'premium' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'
-              }`}
-            >
+            <Badge color={teacher.tier === 'premium' ? 'blue' : 'gray'}>
               {teacher.tier === 'premium' ? '플러스 회원' : '무료 회원'}
-            </span>
+            </Badge>
           </div>
           {user && <p className="font-medium mb-3">계정 아이디: {user.email}</p>}
 
           {role === 'teacher' && teacher && statusInfo && (
             <div>
               <div
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold w-fit ${statusInfo.classes}`}
+                className={`inline-flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold w-fit ${statusInfo.classes}`}
               >
                 <span className="w-2 h-2 rounded-full bg-current inline-block"></span>
                 {statusInfo.text}
@@ -359,23 +343,23 @@ export default function DashboardPage() {
           )}
 
           {teacher.status === 'approved' && teacher.tier !== 'premium' && (
-            <div className="mt-3 p-4 rounded-xl bg-blue-50 border border-blue-100">
+            <Notice color="blue" className="mt-3">
               <p className="text-sm font-semibold text-gray-900 m-0">
                 {revealsRemaining(teacher) > 0
                   ? `이번 달 연락처 열람이 ${revealsRemaining(teacher)}번 남았어요`
                   : '이번 달 무료 열람을 모두 사용했어요'}
               </p>
               <p className="text-xs text-gray-500 mt-1 mb-3">플러스 회원은 무제한으로 열람할 수 있어요</p>
-              <button
+              <Button
                 onClick={() => {
                   setActiveTab('pricing');
                   setScrollToUpgrade(true);
                 }}
-                className="w-full sm:w-auto text-sm font-semibold px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                className="w-full sm:w-auto"
               >
                 플러스 알아보기
-              </button>
-            </div>
+              </Button>
+            </Notice>
           )}
 
           <div className="mt-3">
@@ -383,16 +367,16 @@ export default function DashboardPage() {
           </div>
 
           {teacher.status === 'pending' && (
-            <div className="mt-6 p-8 bg-white border border-gray-200 shadow rounded-2xl text-center">
+            <Card className="mt-6 text-center">
             <h2 className="text-2xl font-bold mb-4">프로필 검토 중입니다</h2>
             <p className="text-gray-600 mb-4">영업일 기준 3일 이내로 프로필 검토가 완료됩니다.</p>
-            </div>
+            </Card>
           )}
 
-        </div>
+        </Card>
         
         {/* Edit Profile */}
-              <form ref={formRef} onSubmit={handleSubmit} className="space-y-4 mt-6 p-[3em] bg-white border border-solid border-gray-200 shadow rounded-2xl">
+              <Card as="form" padding="lg" ref={formRef} onSubmit={handleSubmit} className="space-y-4 mt-6">
                 <h2 className="text-center">프로필 편집하기</h2>
                 <br></br>
                   <p className="text-sm mt-4">※ 정보 수정을 원하시면 아래 정보를 수정 후 <strong>저장하기</strong>를 눌러주세요.</p>
@@ -400,7 +384,7 @@ export default function DashboardPage() {
                 
                 <div>
                   <label className="block font-medium">사이트 기재용 이름 *</label>
-                  <input name="name" type="text" defaultValue={teacher.name} required className="w-full border border-gray-300 rounded-xl p-3 mt-2" />
+                  <Input name="name" type="text" defaultValue={teacher.name} required className="mt-2" />
                 </div>
 
                 <div>
@@ -417,7 +401,7 @@ export default function DashboardPage() {
 
                 <div>
                   <label className="block font-medium">기타 과목</label>
-                  <input name="extra-subject" type="text" defaultValue={teacher.extra_subject} className="w-full border border-gray-300 rounded-xl p-3 mt-2" />
+                  <Input name="extra-subject" type="text" defaultValue={teacher.extra_subject} className="mt-2" />
                 </div>
 
                 <div>
@@ -438,36 +422,36 @@ export default function DashboardPage() {
 
                 <div>
                   <label className="block font-medium">선호 수업 시간 *</label>
-                  <input name="preferred_lesson_time" type="text" defaultValue={teacher.preferred_lesson_time} required className="w-full border border-gray-300 rounded-xl p-3 mt-2" />
+                  <Input name="preferred_lesson_time" type="text" defaultValue={teacher.preferred_lesson_time} required className="mt-2" />
                 </div>
 
                 <div>
                   <label className="block font-medium">학력 / 학과 *</label>
-                  <input name="school" type="text" defaultValue={teacher.school} required className="w-full border border-gray-300 rounded-xl p-3 mt-2" />
+                  <Input name="school" type="text" defaultValue={teacher.school} required className="mt-2" />
                 </div>
 
                 <div>
                   <label className="block font-medium">학번 (선택)</label>
-                  <input name="student_id_number" type="text" defaultValue={teacher.student_id_number} className="w-full border border-gray-300 rounded-xl p-3 mt-2" />
+                  <Input name="student_id_number" type="text" defaultValue={teacher.student_id_number} className="mt-2" />
                 </div>
 
                 <div>
                   <label className="block font-medium">나이 (선택)</label>
-                  <input name="age" type="number" defaultValue={teacher.age} className="w-full border border-gray-300 rounded-xl p-3 mt-2" />
+                  <Input name="age" type="number" defaultValue={teacher.age} className="mt-2" />
                 </div>
 
                 <div>
                   <label className="block font-medium">성별 *</label>
-                  <select name="gender" defaultValue={teacher.gender || ''} required className="w-full border border-gray-300 rounded-xl p-3 mt-2">
+                  <Select name="gender" defaultValue={teacher.gender || ''} required className="mt-2">
                     <option value="">성별 고르기</option>
                     <option value="남">남</option>
                     <option value="여">여</option>
-                  </select>
+                  </Select>
                 </div>
 
                 <div>
                   <label className="block font-medium">한줄소개 *</label>
-                  <textarea name="shortintroduction" maxLength={50} defaultValue={teacher.shortintroduction} required className="w-full border border-gray-300 rounded-xl p-3 mt-2"></textarea>
+                  <Textarea name="shortintroduction" maxLength={50} defaultValue={teacher.shortintroduction} required className="mt-2"></Textarea>
                 </div>
 
                 <div>
@@ -488,44 +472,40 @@ export default function DashboardPage() {
 
                 <div>
                   <label className="block font-medium">수업료 (시급, 단위는 만 원) *</label>
-                  <input name="rate" type="number" defaultValue={teacher.rate} className="w-full border border-gray-300 rounded-xl p-3 mt-2" />
+                  <Input name="rate" type="number" defaultValue={teacher.rate} className="mt-2" />
                 </div>
 
                 <div>
                   <label className="block font-medium">수업료 관련 설명 (선택)</label>
-                  <input name="rate_description" type="text" defaultValue={teacher.rate_description} className="w-full border border-gray-300 rounded-xl p-3 mt-2" />
+                  <Input name="rate_description" type="text" defaultValue={teacher.rate_description} className="mt-2" />
                 </div>
 
                 <div>
                   <label className="block font-medium">이메일 주소 / 연락처 *</label>
-                  <input name="contact_information" type="text" defaultValue={teacher.contact_information} required className="w-full border border-gray-300 rounded-xl p-3 mt-2" />
+                  <Input name="contact_information" type="text" defaultValue={teacher.contact_information} required className="mt-2" />
                 </div>
 
-                <button type="submit" className="bg-blue-500 text-white px-[2em] py-[1em] rounded-xl mx-auto">저장하기</button>
-              </form>
+                <Button type="submit" className="mx-auto">저장하기</Button>
+              </Card>
                         <div className="mt-8 flex gap-4 w-full">
-            <button onClick={handleLogout} className="bg-blue-500 text-white w-1/2 px-[2em] py-[1em] rounded-lg">로그아웃</button>
-            <button onClick={handleDelete} className="bg-blue-900 text-white w-1/2 px-[2em] py-[1em] rounded-lg">탈퇴하기</button>
+            <Button onClick={handleLogout} variant="secondary" className="w-1/2">로그아웃</Button>
+            <Button onClick={handleDelete} variant="danger" className="w-1/2">탈퇴하기</Button>
           </div>
         </>
       )}
 
       {activeTab === 'pricing' && (
         teacher.status !== 'approved' ? (
-          <div className="p-6 sm:p-8 bg-white border border-solid border-gray-200 shadow rounded-2xl text-center text-gray-600">
+          <Card className="text-center text-gray-600">
             프로필 승인 완료 후 이용할 수 있습니다.
-          </div>
+          </Card>
         ) : (
           <div>
             <div className="flex items-center gap-2 mb-4">
               <h2 className="text-lg font-bold m-0">더 많은 학생 만나기</h2>
-              <span
-                className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                  teacher.tier === 'premium' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'
-                }`}
-              >
+              <Badge color={teacher.tier === 'premium' ? 'blue' : 'gray'}>
                 {teacher.tier === 'premium' ? '플러스 회원' : '무료 회원'}
-              </span>
+              </Badge>
             </div>
 
             {/* Both products shown fully expanded, stacked top-down — no

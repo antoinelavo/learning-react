@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import NewsletterPopup from '@/components/NewsletterPopup';
 import { revealStudentJob, getRevealedStudentJobIds, revealsRemaining } from '@/lib/reveal';
+import { Input, Button, buttonClasses, choiceClasses, cardClasses, Badge, Notice } from '@/components/ui';
 
 export default function StudentsPageClient() {
   const router = useRouter();
@@ -320,7 +321,7 @@ export default function StudentsPageClient() {
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-8 mb-[50dvh]">
-      <section className="bg-white border border-gray-200 rounded-xl shadow-md p-4 sm:p-6 mb-8 flex items-center justify-between gap-3">
+      <section className={cardClasses({ className: 'p-4 sm:p-6 mb-8 flex items-center justify-between gap-3' })}>
         <div>
           <h1 className="text-xl sm:text-2xl font-bold mb-1">학생 게시판</h1>
           <p className="text-sm text-gray-600">
@@ -332,16 +333,16 @@ export default function StudentsPageClient() {
           </p>
           {teacherProfile && teacherProfile.tier !== 'premium' && (
             <p className="text-xs mt-2">
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100 font-medium">
+              <Badge color="blue">
                 이번 달 연락처 열람 {revealsRemaining(teacherProfile)}/2회 남음
-              </span>
+              </Badge>
             </p>
           )}
         </div>
         <div className="shrink-0">
           <Link
             href="/students/new"
-            className="inline-flex items-center px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+            className={buttonClasses({ size: 'sm' })}
           >
             수업 요청글 작성하기
           </Link>
@@ -355,9 +356,9 @@ export default function StudentsPageClient() {
         </div>
 
         {error && (
-          <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded px-3 py-2 mb-3">
+          <Notice color="red" compact className="mb-3">
             {error}
-          </p>
+          </Notice>
         )}
 
         {loading ? (
@@ -376,7 +377,7 @@ export default function StudentsPageClient() {
               return (
                 <div
                   key={student.id}
-                  className="bg-white border border-gray-200 rounded-lg overflow-hidden transition-shadow hover:shadow-md"
+                  className={cardClasses({ className: 'overflow-hidden transition-shadow hover:shadow-md' })}
                 >
                   <button
                     onClick={() => toggleStudentExpansion(student.id)}
@@ -388,14 +389,14 @@ export default function StudentsPageClient() {
                       </h3>
                       <div className="flex items-center gap-2 shrink-0">
                         {student.status === 'OPEN' ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-green-50 text-green-700 border border-green-300 animate-pulse shadow-sm shadow-green-200">
+                          <Badge color="green" className="animate-pulse shadow-sm shadow-green-200">
                             <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
                             모집중
-                          </span>
+                          </Badge>
                         ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 text-gray-500 border border-gray-200">
+                          <Badge color="gray">
                             마감
-                          </span>
+                          </Badge>
                         )}
                         <svg
                           className={`w-5 h-5 text-gray-400 transition-transform ${
@@ -417,36 +418,33 @@ export default function StudentsPageClient() {
                     <div className="flex flex-wrap gap-2 mt-2">
                       {/* Subject pills */}
                       {student.subject && student.subject.split(', ').map((subj, idx) => (
-                        <span
-                          key={idx}
-                          className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-blue-50 text-blue-700 border border-blue-100"
-                        >
+                        <Badge color="blue" key={idx}>
                           {subj}
-                        </span>
+                        </Badge>
                       ))}
 
                       {/* Level pill */}
                       {student.level && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-gray-50 text-gray-700 border border-gray-200">
+                        <Badge color="gray">
                           {student.level}
-                        </span>
+                        </Badge>
                       )}
 
                       {/* Hourly rate pill */}
                       {student.hourly_rate_min && student.hourly_rate_max && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-blue-50 text-blue-700 border border-blue-100">
+                        <Badge color="blue">
                           {student.hourly_rate_min}-{student.hourly_rate_max}만원/시간
-                        </span>
+                        </Badge>
                       )}
 
                       {/* Format pill */}
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-gray-50 text-gray-700 border border-gray-200">
+                      <Badge color="gray">
                         {student.format === 'online'
                           ? '온라인'
                           : student.format === 'offline'
                           ? `대면${student.region ? ` · ${student.region}` : ''}`
                           : `대면/온라인${student.region ? ` · ${student.region}` : ''}`}
-                      </span>
+                      </Badge>
                     </div>
                     {student.created_at && (
                       <p className="text-xs text-gray-400 mt-2">
@@ -507,7 +505,7 @@ export default function StudentsPageClient() {
                             </p>
                             <a
                               href="/apply"
-                              className="block w-full text-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors mt-3"
+                              className={buttonClasses({ fullWidth: true, className: 'mt-3' })}
                             >
                               선생님으로 등록하기
                             </a>
@@ -517,16 +515,16 @@ export default function StudentsPageClient() {
                             <p className="text-sm text-gray-600 mb-3">
                               연락처를 확인하면 무료 회원은 이번 달 열람 횟수 1회가 차감됩니다.
                             </p>
-                            <button
+                            <Button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleReveal(student.id);
                               }}
                               disabled={revealingId === student.id}
-                              className="w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors disabled:opacity-50"
+                              fullWidth
                             >
                               {revealingId === student.id ? '확인 중...' : '연락처 확인하기'}
-                            </button>
+                            </Button>
                           </div>
                         ) : (
                           <div className="space-y-1 text-sm text-gray-800 rounded-md p-3">
@@ -556,16 +554,16 @@ export default function StudentsPageClient() {
 
                       {/* Edit button */}
                       <div className="border-t border-gray-200 pt-4 mt-4">
-                        <button
+                        <Button
                           onClick={(e) => {
                             e.stopPropagation();
                             setEditingStudentId(student.id);
                             setShowPasswordModal(true);
                           }}
-                          className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition"
+                          variant="secondary" fullWidth
                         >
                           이 글 편집하기
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   )}
@@ -586,7 +584,7 @@ export default function StudentsPageClient() {
           />
 
           {/* Modal */}
-          <div className="relative bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+          <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4">
             {/* Close button */}
             <button
               onClick={closeModal}
@@ -609,25 +607,25 @@ export default function StudentsPageClient() {
                   <button
                     type="button"
                     onClick={() => handleFeedbackSubmit(true)}
-                    className="w-full text-left px-4 py-3 rounded-lg border-2 border-gray-200 bg-white hover:border-blue-500 hover:bg-blue-50 transition"
+                    className={choiceClasses({ className: 'w-full px-4 py-3 hover:border-blue-500 hover:bg-blue-50' })}
                   >
                     <span className="font-medium">네, 찾았어요!</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleFeedbackSubmit(false)}
-                    className="w-full text-left px-4 py-3 rounded-lg border-2 border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 transition"
+                    className={choiceClasses({ className: 'w-full px-4 py-3' })}
                   >
                     <span className="font-medium">아니요</span>
                   </button>
                 </div>
 
-                <button
+                <Button
                   onClick={closeModal}
-                  className="w-full px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700"
+                  variant="ghost" fullWidth
                 >
                   건너뛰기
-                </button>
+                </Button>
               </>
             ) : !passwordVerified ? (
               /* Password Entry Step */
@@ -638,17 +636,17 @@ export default function StudentsPageClient() {
                 </p>
 
                 {modalError && (
-                  <p className="text-xs text-red-600 bg-red-50 border border-red-100 rounded px-3 py-2 mb-3">
+                  <Notice color="red" compact className="mb-3">
                     {modalError}
-                  </p>
+                  </Notice>
                 )}
 
-                <input
+                <Input
                   type="password"
                   value={passwordInput}
                   onChange={(e) => setPasswordInput(e.target.value)}
                   placeholder="비밀번호"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4"
+                  className="mb-4"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       handleVerifyPassword();
@@ -657,18 +655,18 @@ export default function StudentsPageClient() {
                 />
 
                 <div className="flex gap-2">
-                  <button
+                  <Button
                     onClick={closeModal}
-                    className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                    variant="secondary" className="flex-1"
                   >
                     취소
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={handleVerifyPassword}
-                    className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                    className="flex-1"
                   >
                     확인
-                  </button>
+                  </Button>
                 </div>
               </>
             ) : (
@@ -677,9 +675,9 @@ export default function StudentsPageClient() {
                 <h3 className="text-lg font-semibold mb-4">상태 변경</h3>
 
                 {modalError && (
-                  <p className="text-xs text-red-600 bg-red-50 border border-red-100 rounded px-3 py-2 mb-3">
+                  <Notice color="red" compact className="mb-3">
                     {modalError}
-                  </p>
+                  </Notice>
                 )}
 
                 <div className="mb-4">
@@ -688,7 +686,7 @@ export default function StudentsPageClient() {
                     <button
                       type="button"
                       onClick={() => setNewStatus('OPEN')}
-                      className={`w-full text-left px-4 py-3 rounded-lg border-2 transition ${
+                      className={`w-full text-left px-4 py-3 rounded-xl border-2 transition ${
                         newStatus === 'OPEN'
                           ? 'border-green-500 bg-green-50'
                           : 'border-gray-200 bg-white hover:border-gray-300'
@@ -708,7 +706,7 @@ export default function StudentsPageClient() {
                     <button
                       type="button"
                       onClick={() => setNewStatus('CLOSED')}
-                      className={`w-full text-left px-4 py-3 rounded-lg border-2 transition ${
+                      className={`w-full text-left px-4 py-3 rounded-xl border-2 transition ${
                         newStatus === 'CLOSED'
                           ? 'border-gray-500 bg-gray-50'
                           : 'border-gray-200 bg-white hover:border-gray-300'
@@ -729,20 +727,20 @@ export default function StudentsPageClient() {
                 </div>
 
                 <div className="flex gap-2">
-                  <button
+                  <Button
                     onClick={closeModal}
                     disabled={saving}
-                    className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                    variant="secondary" className="flex-1"
                   >
                     취소
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={handleSaveStatus}
                     disabled={saving}
-                    className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
+                    className="flex-1"
                   >
                     {saving ? '저장 중...' : '저장하기'}
-                  </button>
+                  </Button>
                 </div>
               </>
             )}

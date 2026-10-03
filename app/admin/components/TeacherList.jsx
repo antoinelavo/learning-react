@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { Button, Tabs, cardClasses, Badge } from '@/components/ui';
 
 const batchSize = 10;
 
@@ -95,28 +96,14 @@ export default function TeacherList() {
     <div className="max-w-xl mx-auto mt-6 space-y-6">
       <div className="text-sm font-medium text-gray-600">대기 중인 프로필: {teachers.length}개</div>
 
-      <div className="flex gap-2">
-        <button
-          onClick={() => { setActiveTab('recent'); setCurrentIndex(0); }}
-          className={`px-4 py-2 text-sm font-medium rounded-lg transition ${
-            activeTab === 'recent'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          }`}
-        >
-          3주 미만 ({recentTeachers.length})
-        </button>
-        <button
-          onClick={() => { setActiveTab('older'); setCurrentIndex(0); }}
-          className={`px-4 py-2 text-sm font-medium rounded-lg transition ${
-            activeTab === 'older'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          }`}
-        >
-          3주 이상 ({olderTeachers.length})
-        </button>
-      </div>
+      <Tabs
+        value={activeTab}
+        onChange={(tab) => { setActiveTab(tab); setCurrentIndex(0); }}
+        tabs={[
+          { value: 'recent', label: `3주 미만 (${recentTeachers.length})` },
+          { value: 'older', label: `3주 이상 (${olderTeachers.length})` },
+        ]}
+      />
 
       {visibleTeachers.map((teacher) => {
         const profilePicture =
@@ -125,7 +112,7 @@ export default function TeacherList() {
         const profileURL = `/profile/${encodeURIComponent(teacher.name)}`;
 
         return (
-          <div key={teacher.id} className="bg-white p-4 rounded-xl shadow space-y-2">
+          <div key={teacher.id} className={cardClasses({ className: 'p-4 space-y-2' })}>
             <a href={profileURL} target="_blank" className="flex gap-4 items-center">
               <img
                 src={profilePicture}
@@ -137,12 +124,9 @@ export default function TeacherList() {
                 <div className="flex items-center gap-2">
                   <span className="font-bold">{teacher.name}</span>
                   {!teacher.loginEmail && (
-                    <span
-                      title="이메일 정보가 없어 승인 알림을 보낼 수 없습니다."
-                      className="text-xs px-2 py-0.5 rounded-full font-medium bg-red-100 text-red-700"
-                    >
+                    <Badge color="red" title="이메일 정보가 없어 승인 알림을 보낼 수 없습니다.">
                       ⚠️ 이메일 없음
-                    </span>
+                    </Badge>
                   )}
                 </div>
                 <div className="text-gray-500 text-sm">{truncatedSchool}</div>
@@ -167,12 +151,12 @@ export default function TeacherList() {
                 return `${dateStr} (${timeAgo})`;
               })() : '없음'}
             </div>
-            <button
+            <Button
               onClick={() => approveTeacher(teacher.id)}
-              className="mt-2 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+              size="sm" className="mt-2"
             >
               승인
-            </button>
+            </Button>
           </div>
         );
       })}

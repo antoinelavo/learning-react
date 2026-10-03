@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Input, Select, Textarea, Button } from '@/components/ui';
 import { supabase } from '@/lib/supabase';
 
 const CATEGORIES = ['IB', 'SAT', '특례입학', '일반'];
@@ -63,7 +64,7 @@ export default function AdminEditPostPage({ params }) {
     }
   }
 
-  const inputCls = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-y';
+  const inputCls = 'resize-y';
 
   return (
     <div className="max-w-2xl mx-auto pt-12 px-4 mb-20">
@@ -75,27 +76,27 @@ export default function AdminEditPostPage({ params }) {
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">카테고리</label>
-          <select value={post.category} onChange={e => setPost(p => ({ ...p, category: e.target.value }))} className={inputCls}>
+          <Select value={post.category} onChange={e => setPost(p => ({ ...p, category: e.target.value }))} className={inputCls}>
             {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
+          </Select>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">제목</label>
-          <input type="text" value={post.title} onChange={e => setPost(p => ({ ...p, title: e.target.value }))}
+          <Input type="text" value={post.title} onChange={e => setPost(p => ({ ...p, title: e.target.value }))}
             maxLength={100} className={inputCls} />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">날짜</label>
-          <input type="date" value={post.date || ''} onChange={e => setPost(p => ({ ...p, date: e.target.value }))} className={inputCls} />
+          <Input type="date" value={post.date || ''} onChange={e => setPost(p => ({ ...p, date: e.target.value }))} className={inputCls} />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">설명 (SEO)</label>
-          <textarea value={post.description || ''} onChange={e => setPost(p => ({ ...p, description: e.target.value }))}
+          <Textarea value={post.description || ''} onChange={e => setPost(p => ({ ...p, description: e.target.value }))}
             rows={2} className={inputCls} />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">내용 (마크다운)</label>
-          <textarea value={post.content} onChange={e => setPost(p => ({ ...p, content: e.target.value }))}
+          <Textarea value={post.content} onChange={e => setPost(p => ({ ...p, content: e.target.value }))}
             rows={18} className={`${inputCls} font-mono`} />
         </div>
 
@@ -114,10 +115,10 @@ export default function AdminEditPostPage({ params }) {
 
         {error && <p className="text-sm text-red-500">{error}</p>}
 
-        <button type="submit" disabled={submitting}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-medium py-2.5 rounded-lg transition-colors text-sm">
+        <Button type="submit" disabled={submitting}
+          fullWidth>
           {submitting ? '저장 중...' : '저장하기'}
-        </button>
+        </Button>
       </form>
     </div>
   );

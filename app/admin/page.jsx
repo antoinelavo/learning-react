@@ -8,6 +8,7 @@ import ABTestTable from './components/ABTestTable';
 import FilterUsageTable from './components/FilterUsageTable';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { buttonClasses } from '@/components/ui';
 
 export default function AdminPage() {
   const { role, loading } = useAuth();
@@ -29,31 +30,31 @@ export default function AdminPage() {
       <div className="flex justify-end gap-2 mb-3">
         <Link
           href="/admin/conversations"
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          className={buttonClasses({ size: 'sm' })}
         >
           채팅 대화 →
         </Link>
         <Link
           href="/admin/teachers"
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          className={buttonClasses({ size: 'sm' })}
         >
           선생님 검색 →
         </Link>
         <Link
           href="/admin/statistics"
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          className={buttonClasses({ size: 'sm' })}
         >
           통계 →
         </Link>
         <Link
           href="/admin/payments"
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          className={buttonClasses({ size: 'sm' })}
         >
           결제 요청 →
         </Link>
         <Link
           href="/admin/tiers"
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          className={buttonClasses({ size: 'sm' })}
         >
           플러스 회원 →
         </Link>

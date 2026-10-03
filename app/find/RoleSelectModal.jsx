@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@/components/ui';
 
 export default function RoleSelectModal({ onSubmit }) {
   const [selectedRole, setSelectedRole] = useState('');
@@ -34,13 +35,13 @@ export default function RoleSelectModal({ onSubmit }) {
           </label>
         </div>
 
-        <button
+        <Button
           onClick={() => onSubmit(selectedRole)}
           disabled={!selectedRole}
-          className="w-full py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+          fullWidth
         >
           제출하기
-        </button>
+        </Button>
       </div>
     </div>
   );

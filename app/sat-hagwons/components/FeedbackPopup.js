@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Textarea, Button } from '@/components/ui';
 
 export default function FeedbackPopup() {
   const [isVisible, setIsVisible] = useState(false);
@@ -129,23 +130,23 @@ const handleSubmit = async (e) => {
               <label htmlFor="other-feedback" className="block text-sm font-medium text-gray-700 mb-2">
                 기타 의견:
               </label>
-              <textarea
+              <Textarea
                 id="other-feedback"
                 value={otherText}
                 onChange={(e) => setOtherText(e.target.value)}
                 placeholder="추가로 필요한 정보나 의견을 자유롭게 적어주세요..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                className="resize-none"
                 rows="3"
               />
             </div>
 
             {/* Submit button */}
-            <button
+            <Button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              fullWidth
             >
               의견 보내기
-            </button>
+            </Button>
           </form>
         </div>
       </div>

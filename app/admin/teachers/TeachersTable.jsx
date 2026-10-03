@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { Input, Select, Button, cardClasses } from '@/components/ui';
 
 const STATUS_STYLES = {
   approved: 'bg-green-100 text-green-700',
@@ -95,23 +96,23 @@ export default function TeachersTable() {
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-2">
-        <select
+        <Select
           value={searchColumn}
           onChange={(e) => setSearchColumn(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm sm:w-48"
+          className="sm:w-48 w-auto"
         >
           {columns.map((col) => (
             <option key={col} value={col}>
               {formatColumnLabel(col)}
             </option>
           ))}
-        </select>
-        <input
+        </Select>
+        <Input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder={`${formatColumnLabel(searchColumn)} 검색...`}
-          className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          className="flex-1"
         />
       </div>
 
@@ -128,7 +129,7 @@ export default function TeachersTable() {
       ) : (
         <>
           {/* Table view (sm and up) — one column per teachers table column */}
-          <div className="hidden sm:block bg-white border border-gray-200 rounded-xl overflow-x-auto">
+          <div className={cardClasses({ className: 'hidden sm:block overflow-x-auto' })}>
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-gray-50 border-b text-xs font-medium text-gray-500">
@@ -170,12 +171,12 @@ export default function TeachersTable() {
                     ))}
                     <td className="px-4 py-3 whitespace-nowrap">
                       {teacher.status === 'approved' && (
-                        <button
+                        <Button
                           onClick={() => unapproveTeacher(teacher.id)}
-                          className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 font-medium hover:bg-red-100"
+                          variant="danger" size="sm"
                         >
                           승인 취소
-                        </button>
+                        </Button>
                       )}
                     </td>
                   </tr>
@@ -187,7 +188,7 @@ export default function TeachersTable() {
           {/* Card list view (below sm) — every column listed per teacher */}
           <div className="sm:hidden space-y-3">
             {filteredTeachers.map((teacher) => (
-              <div key={teacher.id} className="bg-white p-4 rounded-xl shadow space-y-2">
+              <div key={teacher.id} className={cardClasses({ className: 'p-4 space-y-2' })}>
                 <div className="flex items-center justify-between gap-2">
                   <a
                     href={`/profile/${encodeURIComponent(teacher.name)}`}
@@ -200,12 +201,12 @@ export default function TeachersTable() {
                   <StatusBadge status={teacher.status} />
                 </div>
                 {teacher.status === 'approved' && (
-                  <button
+                  <Button
                     onClick={() => unapproveTeacher(teacher.id)}
-                    className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 font-medium hover:bg-red-100"
+                    variant="danger" size="sm"
                   >
                     승인 취소
-                  </button>
+                  </Button>
                 )}
                 <div className="text-sm text-gray-700 space-y-1">
                   {columns

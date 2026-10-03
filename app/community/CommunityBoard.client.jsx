@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { Select, buttonClasses, chipClasses } from '@/components/ui';
 
 const SORT_OPTIONS = ['최신순', '인기글'];
 const CATEGORY_LIST = ['IB', 'SAT', '특례입학', '일반'];
@@ -51,7 +52,7 @@ export default function CommunityBoard({ featured, regular }) {
         {user && (
           <Link
             href="/community/new"
-            className="shrink-0 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
+            className={buttonClasses({ size: 'sm', className: 'shrink-0' })}
           >
             글쓰기
           </Link>
@@ -61,15 +62,15 @@ export default function CommunityBoard({ featured, regular }) {
       {/* Controls row */}
       <div className="flex items-start gap-3 mb-4 flex-wrap">
         {/* Sort dropdown */}
-        <select
+        <Select
           value={sortMode}
           onChange={e => setSortMode(e.target.value)}
-          className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 shrink-0"
+          className="shrink-0 w-auto"
         >
           {SORT_OPTIONS.map(opt => (
             <option key={opt} value={opt}>{opt}</option>
           ))}
-        </select>
+        </Select>
 
         {/* Category pills */}
         <div className="flex gap-2 flex-wrap">
@@ -79,11 +80,7 @@ export default function CommunityBoard({ featured, regular }) {
               <button
                 key={cat}
                 onClick={() => toggleCategory(cat)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
-                  active
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-gray-600 border-gray-300 hover:border-blue-400 hover:text-blue-600'
-                }`}
+                className={chipClasses({ selected: active })}
               >
                 {cat}
               </button>

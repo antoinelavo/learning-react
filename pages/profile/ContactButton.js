@@ -1,6 +1,7 @@
 // pages/profile/ContactButton.js
 import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import { Button } from '@/components/ui';
 
 const supabaseClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -34,12 +35,12 @@ export default function ContactButton({ teacherName, contactInfo }) {
 
   return (
     <div className="flex flex-col items-start space-y-2">
-      <button
+      <Button
         onClick={handleClick}
-        className="contact-btn px-4 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+        size="sm" className="contact-btn"
       >
         {showContact ? '연락처 숨기기' : '연락처 보기'}
-      </button>
+      </Button>
 
       {showContact && (
         <div className="text-gray-800">

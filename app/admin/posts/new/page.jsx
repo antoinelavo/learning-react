@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Input, Select, Textarea, Button } from '@/components/ui';
 
 const CATEGORIES = ['IB', 'SAT', '특례입학', '일반'];
 
@@ -65,32 +66,32 @@ export default function AdminNewPostPage() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <Field label="카테고리">
-          <select value={category} onChange={e => setCategory(e.target.value)} className={inputCls}>
+          <Select value={category} onChange={e => setCategory(e.target.value)} className={inputCls}>
             {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
+          </Select>
         </Field>
 
         <Field label="제목">
-          <input type="text" value={title} onChange={e => setTitle(e.target.value)}
+          <Input type="text" value={title} onChange={e => setTitle(e.target.value)}
             placeholder="포스트 제목" maxLength={100} className={inputCls} />
         </Field>
 
         <Field label="슬러그 (URL, 비워두면 자동 생성)">
-          <input type="text" value={slug} onChange={e => setSlug(e.target.value)}
+          <Input type="text" value={slug} onChange={e => setSlug(e.target.value)}
             placeholder="my-post-slug" className={inputCls} />
         </Field>
 
         <Field label="날짜">
-          <input type="date" value={date} onChange={e => setDate(e.target.value)} className={inputCls} />
+          <Input type="date" value={date} onChange={e => setDate(e.target.value)} className={inputCls} />
         </Field>
 
         <Field label="설명 (SEO 메타 설명, 비워두면 내용에서 자동 추출)">
-          <textarea value={description} onChange={e => setDescription(e.target.value)}
+          <Textarea value={description} onChange={e => setDescription(e.target.value)}
             placeholder="검색 결과에 표시될 설명 (150자 이내)" rows={2} className={inputCls} />
         </Field>
 
         <Field label="내용 (마크다운)">
-          <textarea value={content} onChange={e => setContent(e.target.value)}
+          <Textarea value={content} onChange={e => setContent(e.target.value)}
             placeholder="## 제목&#10;&#10;내용을 입력하세요..." rows={18} className={`${inputCls} font-mono`} />
         </Field>
 
@@ -109,16 +110,16 @@ export default function AdminNewPostPage() {
 
         {error && <p className="text-sm text-red-500">{error}</p>}
 
-        <button type="submit" disabled={submitting}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-medium py-2.5 rounded-lg transition-colors text-sm">
+        <Button type="submit" disabled={submitting}
+          fullWidth>
           {submitting ? '저장 중...' : '저장하기'}
-        </button>
+        </Button>
       </form>
     </div>
   );
 }
 
-const inputCls = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-y';
+const inputCls = 'resize-y';
 
 function Field({ label, children }) {
   return (

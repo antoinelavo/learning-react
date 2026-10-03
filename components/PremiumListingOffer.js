@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import TeacherCard from '@/components/TeacherCard';
 import ScrollFadeIn from '@/components/ScrollFadeIn';
+import { Select, Button, cardClasses, Notice } from '@/components/ui';
 
 const tiers = [
   {
@@ -429,7 +430,7 @@ const checkAvailability = async (subjectsToCheck) => {
 };
 
   return (
-    <ScrollFadeIn className="bg-white border border-gray-200 rounded-2xl shadow p-6 sm:p-8">
+    <ScrollFadeIn className={cardClasses({ className: 'p-6 sm:p-8' })}>
       <Script src="https://js.tosspayments.com/v1/payment" strategy="afterInteractive" />
 
       <h2 className="text-lg font-bold mb-1">프리미엄 프로필</h2>
@@ -517,7 +518,7 @@ const checkAvailability = async (subjectsToCheck) => {
                   onClick={() => handleToggleSubject(subject)}
                   disabled={paymentProcessing || isFull}
                   className={classNames(
-                    'px-4 py-3 rounded-lg border transition w-full text-left',
+                    'px-4 py-3 rounded-xl border transition w-full text-left',
                     isSelected && !isFull
                       ? 'bg-blue-600 text-white border-blue-600'
                       : isFull
@@ -560,18 +561,18 @@ const checkAvailability = async (subjectsToCheck) => {
 
         <div className="mt-6 text-center">
           <label className="block mb-2 text-sm font-medium text-gray-700">원하는 기간 선택 (개월)</label>
-          <select
+          <Select
             value={duration}
             onChange={(e) => setDuration(Number(e.target.value))}
             disabled={paymentProcessing}
-            className="px-4 py-2 border rounded-md text-sm font-medium text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="font-medium disabled:opacity-50 disabled:cursor-not-allowed w-auto"
           >
             {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
               <option key={month} value={month}>
                 {month}개월
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
         <div className="mt-6 text-center text-lg font-semibold text-gray-800">
@@ -579,39 +580,29 @@ const checkAvailability = async (subjectsToCheck) => {
         </div>
 
         {calculateTotal() > MAX_SINGLE_PAYMENT ? (
-          <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl text-center text-red-600 font-semibold">
+          <Notice color="red" className="mt-6 text-center font-semibold">
             1회 결제 금액은 ₩{MAX_SINGLE_PAYMENT.toLocaleString()}을 초과할 수 없습니다. 과목이나 기간을 나누어 여러 번 결제해주세요.
-          </div>
+          </Notice>
         ) : (
         <div className="mx-auto text-center flex flex-col sm:flex-row justify-center gap-2">
-          <button
+          <Button
             onClick={handlePayment}
             disabled={paymentProcessing || selectedSubjects.length === 0}
-            className={classNames(
-              'mt-6 px-6 py-3 rounded-xl font-semibold transition',
-              paymentProcessing || selectedSubjects.length === 0
-                ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                : 'bg-blue-600 text-white hover:bg-blue-700'
-            )}
+            size="lg" className="mt-6"
           >
             {paymentProcessing
               ? '결제 진행 중...'
               : '결제하기 (카드 - 현재 테스트 중입니다. 실결제로 이어지지 않습니다)'}
-          </button>
+          </Button>
 
           <div className="text-center">
-            <button
+            <Button
               onClick={handleBankTransfer}
               disabled={bankTransferRequested || selectedSubjects.length === 0}
-              className={classNames(
-                'mt-6 px-6 py-3 rounded-xl font-semibold transition w-full',
-                bankTransferRequested || selectedSubjects.length === 0
-                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
-              )}
+              size="lg" fullWidth className="mt-6"
             >
               {showAccountNumber ? '입금 후 1일 내 프리미엄 프로필이 적용됩니다.' : '결제하기 (계좌이체)'}
-            </button>
+            </Button>
           </div>
         </div>
         )}

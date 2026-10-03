@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import TeacherCard from '@/components/TeacherCard';
 import { supabase } from '@/lib/supabase';
+import { buttonClasses, chipClasses, cardClasses } from '@/components/ui';
 
 function shuffle(array) {
   const a = array.slice();
@@ -19,11 +20,7 @@ function FilterDropdown({ label, activeCount, isOpen, onToggle, children }) {
     <div className="relative filter-dropdown">
       <button
         onClick={onToggle}
-        className={`flex items-center gap-1 px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors ${
-          active
-            ? 'border-blue-500 bg-blue-50 text-blue-700'
-            : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
-        }`}
+        className={chipClasses({ selected: active, soft: true })}
       >
         {label}{active ? ` (${activeCount})` : ''}
         <svg className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -43,11 +40,7 @@ function PillOption({ label, active, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={`px-3 py-1 text-sm rounded-full border transition-colors ${
-        active
-          ? 'bg-blue-600 text-white border-blue-600'
-          : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:text-blue-600'
-      }`}
+      className={chipClasses({ selected: active })}
     >
       {label}
     </button>
@@ -146,13 +139,13 @@ export default function TeacherList() {
   return (
     <main className="max-w-3xl mx-auto px-3 py-3 min-h-screen">
       {/* Top Banner */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm px-4 py-3 mb-3 text-center">
+      <div className={cardClasses({ className: 'px-4 py-3 mb-3 text-center' })}>
         <p className="text-sm text-gray-700 mb-2">
           간단한 질문 몇 개만 답하면, 선생님이 직접 연락드립니다. (약 30초 소요)
         </p>
         <a
           href="/students/new"
-          className="inline-block px-5 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+          className={buttonClasses()}
         >
           질문 보기
         </a>
@@ -261,7 +254,7 @@ export default function TeacherList() {
                     <p className="text-sm text-gray-700 mb-3">
                       간단한 질문 몇 개만 답하면, 선생님이 직접 연락드립니다. (약 30초 소요)
                     </p>
-                    <a href="/students/new" className="inline-block px-5 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                    <a href="/students/new" className={buttonClasses()}>
                       질문 보기
                     </a>
                   </div>

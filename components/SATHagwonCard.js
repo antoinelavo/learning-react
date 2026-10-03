@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { cardClasses, Badge } from '@/components/ui';
 
 function getDeviceType() {
   if (typeof window === 'undefined') return 'unknown';
@@ -99,7 +100,7 @@ export default function HagwonCard({ image, name, region, format, lessonType, se
 
 
   return (
-      <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 "
+      <div className={cardClasses({ className: 'p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-200' })}
       data-hagwon-name={name}
       >
         <div className="flex flex-wrap justify-between flex-row items-start gap-y-[1em] sm:gap-y-[2em]">
@@ -152,20 +153,14 @@ export default function HagwonCard({ image, name, region, format, lessonType, se
                 {/* Subjects */}
               <div className="gap-2 w-[20em] hidden md:flex flex-wrap">
                 {[...format, ...lessonType].map((tag, i) => (
-                  <span
-                    key={i}
-                    className="text-xs px-2 py-1.5 bg-[#e9f3ff] text-[#216eb3] rounded-full leading-none"
-                  >
+                  <Badge color="blue" key={i}>
                     {tag}
-                  </span>
+                  </Badge>
                 ))}
                 {[...services].map((tag, i) => (
-                  <span
-                    key={`subject-${i}`}
-                    className="text-xs px-2 py-1.5 bg-[#ffe9ff] text-[#b321b1] rounded-full leading-none"
-                  >
+                  <Badge color="pink" key={`subject-${i}`}>
                     {tag}
-                  </span>
+                  </Badge>
                 ))}
               </div>
           

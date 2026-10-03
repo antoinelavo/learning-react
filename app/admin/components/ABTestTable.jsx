@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { cardClasses } from '@/components/ui';
 
 export default function ABTestTable() {
   const [rows, setRows] = useState([]);
@@ -52,7 +53,7 @@ export default function ABTestTable() {
   }, []);
 
   return (
-    <div className="overflow-x-auto bg-white rounded-lg shadow">
+    <div className={cardClasses({ className: 'overflow-x-auto' })}>
       <table className="min-w-full text-sm text-left">
         <thead className="bg-gray-100 text-gray-600">
           <tr>

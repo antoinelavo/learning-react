@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { revealStudentJob, getRevealedStudentJobIds, revealsRemaining } from '@/lib/reveal';
+import { Button, cardClasses, Notice, Badge } from '@/components/ui';
 
 export default function StudentDetailClient({ studentId }) {
   const router = useRouter();
@@ -131,9 +132,9 @@ export default function StudentDetailClient({ studentId }) {
   if (error) {
     return (
       <main className="max-w-3xl mx-auto px-4 py-10">
-        <div className="bg-white border border-red-100 text-red-700 rounded-lg p-4 text-sm mb-4">
+        <Notice color="red" className="mb-4">
           {error}
-        </div>
+        </Notice>
         <button
           onClick={() => router.push('/students')}
           className="text-sm text-blue-600 hover:underline"
@@ -166,13 +167,13 @@ export default function StudentDetailClient({ studentId }) {
           ← 학생 게시판으로 돌아가기
         </Link>
         {teacherProfile && teacherProfile.tier !== 'premium' && (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-blue-50 text-blue-700 border border-blue-100 font-medium">
+          <Badge color="blue">
             이번 달 연락처 열람 {revealsRemaining(teacherProfile)}/2회 남음
-          </span>
+          </Badge>
         )}
       </div>
 
-      <section className="bg-white border border-gray-200 rounded-xl shadow-md p-4 sm:p-6 mb-6">
+      <section className={cardClasses({ className: 'p-4 sm:p-6 mb-6' })}>
         <div className="flex items-start justify-between gap-3 mb-3">
           <div>
             <h1 className="text-lg sm:text-xl font-semibold break-words mb-1">
@@ -259,13 +260,13 @@ export default function StudentDetailClient({ studentId }) {
               <p className="text-xs text-gray-600 mb-3">
                 연락처를 확인하면 무료 회원은 이번 달 열람 횟수 1회가 차감됩니다.
               </p>
-              <button
+              <Button
                 onClick={handleReveal}
                 disabled={revealing}
-                className="w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors disabled:opacity-50"
+                fullWidth
               >
                 {revealing ? '확인 중...' : '연락처 확인하기'}
-              </button>
+              </Button>
             </div>
           ) : (
             <div className="space-y-1 text-sm text-gray-800">

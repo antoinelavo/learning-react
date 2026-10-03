@@ -26,8 +26,8 @@ Let the admin see which teachers clicked "결제하기 (계좌이체)" on the �
 - Table scrolls horizontally on mobile (`overflow-x-auto`), like other admin tables.
 
 ## Done when
-- [ ] `/admin/plus-payments` redirects non-admins and lists bank-transfer `payments` rows with teacher names, pending first.
+- [x] `/admin/plus-payments` redirects non-admins and lists bank-transfer `payments` rows with teacher names, pending first.
 - [ ] Turning a switch on sets the row to `paid` and the teacher to 플러스; turning it off reverts both.
-- [ ] `/admin` home has a card linking to the page with the pending count.
+- [x] `/admin` home has a card linking to the page with the pending count.
 - [ ] Clicking "계좌이체" twice across reloads creates only one pending row.
-- [ ] `npm run build` passes.
+- [x] `npm run build` passes.

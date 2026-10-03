@@ -8,7 +8,7 @@ IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, wi
 
 - Next.js 15, React 19, plain JavaScript (no TypeScript). Tailwind CSS 3.
 - Both routers are in use. Most pages and all real API routes are in `app/`. The blog post page (`pages/blog/[slug].js`) and teacher profile page (`pages/profile/[name].js`) are still in `pages/`. `pages/api/hello.js` is leftover boilerplate.
-- Supabase for auth, database, and storage. The shared client is in `lib/supabase.js`.
+- Supabase for auth and database. The shared client is in `lib/supabase.js`. File storage is Cloudflare R2 via `@aws-sdk/client-s3` (`app/api/upload-profile-picture`), not Supabase storage.
 - Toss Payments for payments (`lib/toss.js`). NicePay is legacy and can be removed if it gets in the way.
 - Resend for email (templates in `lib/email/`). Hosted on Vercel.
 - Import paths use the `@/` alias for the repo root.
@@ -16,7 +16,7 @@ IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, wi
 ## Commands
 
 - `npm run dev` starts the dev server on port 3000.
-- `npm run build` is the main check. There are no tests and no ESLint config (`npm run lint` is not set up).
+- `npm run build` is the main check. There are no tests and no ESLint config (`npm run lint` is not set up). The build needs `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`, because `lib/supabase.js` throws at import without them.
 - `ANALYZE=true npm run build` opens the bundle analyzer.
 - `node scripts/generate-sitemap.js` rebuilds `public/sitemap.xml`. It needs `.env.local`.
 
@@ -28,7 +28,9 @@ IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, wi
 - **Blog** is MDX files in `content/blog/`, read from disk at build time by `pages/blog/[slug].js` (`getStaticPaths`/`getStaticProps`). The index is `app/blog/page.jsx`.
 - **Teacher profiles** are ISR (`revalidate: 60`, `fallback: 'blocking'`) from the Supabase teachers table.
 - **Hagwon listings** are static data in `data/` (`hagwons.js`, `sat-hagwons.js`), not the database.
-- **Cron:** `app/api/cron/daily-digest` requires `Authorization: Bearer $CRON_SECRET`.
+- **Cron:** `app/api/cron/daily-digest` requires `Authorization: Bearer $CRON_SECRET`. `vercel.json` is empty, so the schedule is configured outside this repo.
+- **Subscriber emails** (`daily-digest`, `notify-subscribers`): if `TEST_OVERRIDE_EMAIL` is set, every recipient is replaced with that address.
+- **Roles:** user role is `users.role`; teacher approval state is `teachers.status` (helpers `getUserRole`/`getTeacherStatus` in `lib/supabase.js`).
 - Component filenames ending in `.client.jsx` / `.server.jsx` mark client vs. server components.
 - `TODO.md` tracks planned work (community board launch, moderation, unsubscribe flows).
 

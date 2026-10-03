@@ -17,6 +17,17 @@ IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, wi
 - `npm run build` is the main check. There are no tests and no ESLint config.
 - `node scripts/generate-sitemap.js` rebuilds `public/sitemap.xml`. It needs `.env.local`.
 
+## Checking your work
+
+- After making changes, build the site and run the code checks. If anything fails, fix it and check again.
+- The build is the only check right now. Run it like this if `.env.local` is missing:
+  ```
+  NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy RESEND_API_KEY=re_dummy npm run build
+  ```
+  With placeholder keys, "fetch failed" warnings about teachers are expected and not a failure.
+- `npm run lint` is not set up yet. It only asks how to set up ESLint. Do not set it up without asking.
+- When you finish, show proof that everything passed: paste the end of the build output.
+
 ## Rules
 
 - Always work on a branch and open a pull request. Never push to `main`.

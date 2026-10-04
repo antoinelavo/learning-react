@@ -14,6 +14,16 @@ const MOBILE_SUBJECT_LIMIT = 6;
 const DESCRIPTION_MAX = 150;
 const PILL = 'flex items-center w-fit gap-2 bg-gray-100 rounded-xl px-[8px] py-[2px] text-sm';
 
+function InfoIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="text-gray-400">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 16v-4" />
+      <path d="M12 8h.01" />
+    </svg>
+  );
+}
+
 function WonIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -132,6 +142,7 @@ export default function ProfilePage({ teacher }) {
   const { user, role, loading: authLoading } = useAuth();
   const { openChatWithTeacher } = useChat();
   const [showAllSubjects, setShowAllSubjects] = useState(false);
+  const [showRateNote, setShowRateNote] = useState(false);
 
   if (router.isFallback) {
     return <p className="text-center p-6">로딩 중…</p>;
@@ -234,10 +245,25 @@ export default function ProfilePage({ teacher }) {
 
               {!authLoading && (
                 user ? (
-                  <div className={PILL}>
-                    <WonIcon />
-                    {priceText}
-                  </div>
+                  rateNote ? (
+                    // The note is revealed on tap so the card stays compact.
+                    <button
+                      type="button"
+                      onClick={() => setShowRateNote(open => !open)}
+                      aria-expanded={showRateNote}
+                      aria-controls="rate-note"
+                      className={`${PILL} hover:bg-gray-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300`}
+                    >
+                      <WonIcon />
+                      {priceText}
+                      <InfoIcon />
+                    </button>
+                  ) : (
+                    <div className={PILL}>
+                      <WonIcon />
+                      {priceText}
+                    </div>
+                  )
                 ) : (
                   <Link href="/login" className={`${PILL} text-blue-600 hover:bg-gray-200 transition-colors`}>
                     <WonIcon />
@@ -247,7 +273,7 @@ export default function ProfilePage({ teacher }) {
               )}
             </div>
             {user && rateNote && (
-              <p className="text-xs text-gray-500 -mt-1 md:-mt-2 mb-2 md:mb-4 whitespace-pre-line break-words">{rateNote}</p>
+              <p id="rate-note" hidden={!showRateNote} className="text-xs text-gray-500 -mt-1 md:-mt-2 mb-2 md:mb-4 whitespace-pre-line break-words">{rateNote}</p>
             )}
 
             {/* Mobile: capped list with a show-more toggle so long subject lists don't push the buttons down */}

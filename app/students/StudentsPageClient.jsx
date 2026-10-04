@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import Link from 'next/link';
+import RequestBoardHeader from '@/components/RequestBoardHeader';
 import NewsletterPopup from '@/components/NewsletterPopup';
 import { revealStudentJob, getRevealedStudentJobIds, revealsRemaining } from '@/lib/reveal';
 import { Input, Button, buttonClasses, choiceClasses, cardClasses, Badge, Notice } from '@/components/ui';
@@ -321,38 +321,25 @@ export default function StudentsPageClient() {
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-8 mb-[50dvh]">
-      <section className={cardClasses({ className: 'p-4 sm:p-6 mb-8 flex items-center justify-between gap-3' })}>
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold mb-1">학생 게시판</h1>
-          <p className="text-sm text-gray-600">
-            학생/학부모님께서 올린 수업 요청글을 확인하고, 직접 연락해 보세요.
-            
+      <RequestBoardHeader
+        title="학생 게시판"
+        description="학생/학부모님께서 올린 수업 요청글을 확인하고 직접 연락해 보세요."
+        writeHref="/students/new"
+        writeLabel="수업 요청글 작성하기"
+      >
+        {teacherProfile && teacherProfile.tier !== 'premium' && (
+          <p className="text-xs mt-2 mb-0">
+            <Badge color="blue">
+              이번 달 연락처 열람 {revealsRemaining(teacherProfile)}/2회 남음
+            </Badge>
           </p>
-          <p className="text-sm text-gray-400">
-            ( 최근 1개월에 올라온 요청글만 표시됩니다 )
-          </p>
-          {teacherProfile && teacherProfile.tier !== 'premium' && (
-            <p className="text-xs mt-2">
-              <Badge color="blue">
-                이번 달 연락처 열람 {revealsRemaining(teacherProfile)}/2회 남음
-              </Badge>
-            </p>
-          )}
-        </div>
-        <div className="shrink-0">
-          <Link
-            href="/students/new"
-            className={buttonClasses({ size: 'sm' })}
-          >
-            수업 요청글 작성하기
-          </Link>
-        </div>
-      </section>
+        )}
+      </RequestBoardHeader>
 
       <section>
         <div className="flex items-baseline justify-between mb-3">
           <h2 className="text-lg font-semibold">최근 학생 요청</h2>
-          <span className="text-xs text-gray-500">총 {students.length}건</span>
+          <span className="text-xs text-gray-500">최근 1개월 · 총 {students.length}건</span>
         </div>
 
         {error && (
@@ -365,7 +352,7 @@ export default function StudentsPageClient() {
           <p className="text-sm text-gray-600">학생 요청을 불러오는 중입니다…</p>
         ) : students.length === 0 ? (
           <p className="text-sm text-gray-600">
-            아직 등록된 학생 요청이 없습니다. 상단의 &quot;요청하기&quot; 버튼을 눌러 첫 번째 글을 올려보세요!
+            아직 등록된 학생 요청이 없습니다.
           </p>
         ) : (
           <div className="space-y-3">

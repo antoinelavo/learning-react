@@ -28,9 +28,9 @@ Replace the bulky top card on the student and hagwon request boards with a plain
 - No payment, database, blog, or legal changes.
 
 ## Done when
-- [ ] Neither board's header is a card; each shows the title and the exact one-line text above.
-- [ ] List headers read `최근 1개월 · 총 N건` and `오래된 글은 자동 삭제 · 총 N건`; the old gray note lines are gone.
-- [ ] At 390px width, the write button is fixed to the bottom, full width, and the last card can scroll fully above it.
-- [ ] At 1280px width, the write button sits on the title line and nothing is fixed to the bottom.
-- [ ] The write button does not render for `teacher` or `hagwon` roles (checked in code).
-- [ ] `npm run build` passes.
+- [x] Neither board's header is a card; each shows the title and the exact one-line text above.
+- [x] List headers read `최근 1개월 · 총 N건` and `오래된 글은 자동 삭제 · 총 N건`; the old gray note lines are gone.
+- [x] At 390px width, the write button is fixed to the bottom, full width, and the last card can scroll fully above it.
+- [x] At 1280px width, the write button sits on the title line and nothing is fixed to the bottom.
+- [x] The write button does not render for `teacher` or `hagwon` roles (checked in code).
+- [x] `npm run build` passes.

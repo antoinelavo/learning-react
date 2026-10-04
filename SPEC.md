@@ -31,9 +31,9 @@ Help students and parents narrow the teacher list on `/find` by price and by key
 - Must work at 360–390px with no page-level horizontal scroll.
 
 ## Done when
-- [ ] Typing "물리" (or a school name) narrows the list to teachers whose name/school/intro/subjects match; clearing the box restores the list.
-- [ ] Setting the slider to 5–7 shows teachers with rate 5–7 first, then teachers without a rate; teachers with other rates are hidden.
-- [ ] The 수업료 chip reads the selected range while set, and the sheet's 초기화 resets it.
-- [ ] At 360px the chip row scrolls sideways, the right-edge fade shows, and it disappears when scrolled to the end; the page itself has no horizontal scroll.
-- [ ] "필터 초기화" clears search, slider, and chip filters.
-- [ ] `npm run build` passes.
+- [x] Typing "물리" (or a school name) narrows the list to teachers whose name/school/intro/subjects match; clearing the box restores the list.
+- [x] Setting the slider to 5–7 shows teachers with rate 5–7 first, then teachers without a rate; teachers with other rates are hidden.
+- [x] The 수업료 chip reads the selected range while set, and the sheet's 초기화 resets it.
+- [x] At 360px the chip row scrolls sideways, the right-edge fade shows, and it disappears when scrolled to the end; the page itself has no horizontal scroll.
+- [x] "필터 초기화" clears search, slider, and chip filters.
+- [x] `npm run build` passes.

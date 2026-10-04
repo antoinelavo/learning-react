@@ -26,10 +26,10 @@ Show each teacher's hourly rate on their profile page (`/profile/[name]`) so stu
 - Korean text exactly: "시간당 N만원", "수업료 협의".
 
 ## Done when
-- [ ] A teacher with rate 5 shows "시간당 5만원" above the lesson-time pill.
-- [ ] A teacher with a `rate_description` shows it under the rate in small gray text.
-- [ ] A teacher with no rate shows "수업료 협의" (plus their note, if any).
-- [ ] Looks right at 390px and 1280px.
-- [ ] The page's meta and og descriptions start with the school and "시간당 N만원" (or "수업료 협의") and are at most ~150 characters.
-- [ ] Teachers with a rate have valid JSON-LD with the KRW hourly price; teachers without a rate have none.
-- [ ] `npm run build` passes.
+- [x] A teacher with rate 5 shows "시간당 5만원" above the lesson-time pill.
+- [x] A teacher with a `rate_description` shows it under the rate in small gray text.
+- [x] A teacher with no rate shows "수업료 협의" (plus their note, if any).
+- [x] Looks right at 390px and 1280px.
+- [x] The page's meta and og descriptions start with the school and "시간당 N만원" (or "수업료 협의") and are at most ~150 characters.
+- [x] Teachers with a rate have valid JSON-LD with the KRW hourly price; teachers without a rate have none.
+- [x] `npm run build` passes.

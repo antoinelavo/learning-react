@@ -10,6 +10,59 @@ import { useChat } from '@/contexts/ChatContext';
 import { Button, cardClasses, Badge } from '@/components/ui';
 
 const MOBILE_SUBJECT_LIMIT = 6;
+const DESCRIPTION_MAX = 150;
+
+function hasRate(teacher) {
+  return typeof teacher.rate === 'number' && teacher.rate > 0;
+}
+
+// Cuts at the last space before the limit so the snippet doesn't end mid-word.
+function truncate(text, max) {
+  if (text.length <= max) return text;
+  let cut = text.slice(0, max - 1);
+  const lastSpace = cut.lastIndexOf(' ');
+  if (lastSpace > max * 0.6) cut = cut.slice(0, lastSpace);
+  return `${cut.trimEnd()}…`;
+}
+
+// "{학교} · 시간당 N만원 · {과목} — {한줄소개}", skipping empty parts.
+function buildDescription(teacher, priceText) {
+  const head = [teacher.school?.trim(), priceText, (teacher.subjects || []).slice(0, 3).join(', ')]
+    .filter(Boolean)
+    .join(' · ');
+  const intro = teacher.shortintroduction?.trim();
+  return truncate(intro ? `${head} — ${intro}` : head, DESCRIPTION_MAX);
+}
+
+// schema.org Service with an hourly KRW price, for teachers who set a rate.
+function buildJsonLd(teacher) {
+  const price = teacher.rate * 10000;
+  const provider = { '@type': 'Person', name: teacher.name };
+  if (teacher.school?.trim()) {
+    provider.alumniOf = { '@type': 'CollegeOrUniversity', name: teacher.school.trim() };
+  }
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: 'IB 과외',
+    serviceType: 'IB 과외',
+    provider,
+    offers: {
+      '@type': 'Offer',
+      price,
+      priceCurrency: 'KRW',
+      priceSpecification: {
+        '@type': 'UnitPriceSpecification',
+        price,
+        priceCurrency: 'KRW',
+        unitText: 'HOUR',
+        unitCode: 'HUR',
+      },
+    },
+  };
+  // Escape "<" so teacher-written text can't close the script tag.
+  return JSON.stringify(data).replace(/</g, '\\u003c');
+}
 
 // 1) Build‐time: pre-render every approved teacher
 export async function getStaticPaths() {
@@ -91,8 +144,10 @@ export default function ProfilePage({ teacher }) {
     }
   };
 
-  const description =
-    teacher.shortintroduction || '이 선생님의 프로필을 확인하세요.';
+  const rateSet = hasRate(teacher);
+  const priceText = rateSet ? `시간당 ${teacher.rate}만원` : '수업료 협의';
+  const rateNote = teacher.rate_description?.trim();
+  const description = buildDescription(teacher, priceText) || '이 선생님의 프로필을 확인하세요.';
 
   return (
     <>
@@ -105,6 +160,12 @@ export default function ProfilePage({ teacher }) {
         />
         <meta property="og:description" content={description} />
         <link rel="icon" href="/images/favicon.ico" />
+        {rateSet && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: buildJsonLd(teacher) }}
+          />
+        )}
       </Head>
 
       <main className="max-w-3xl mx-auto px-4 pt-6 md:pt-10 pb-24 md:pb-10 space-y-6 md:space-y-8">
@@ -136,6 +197,16 @@ export default function ProfilePage({ teacher }) {
           </div>
 
           <div className="flex-1 p-4 md:p-6 md:bg-white md:border md:border-gray-200 md:rounded-2xl md:shadow border-t border-gray-100">
+            {/* 수업료 */}
+            <div className="mb-3 md:mb-4">
+              <p className={`m-0 leading-snug ${rateSet ? 'text-lg md:text-xl font-bold text-gray-900' : 'text-base font-semibold text-gray-500'}`}>
+                {priceText}
+              </p>
+              {rateNote && (
+                <p className="text-sm text-gray-500 mt-1 mb-0 whitespace-pre-line break-words">{rateNote}</p>
+              )}
+            </div>
+
             <div className="mb-2 md:mb-4 flex items-center w-fit gap-2 bg-gray-100 rounded-xl px-[8px] py-[2px] text-sm">
               <svg
                 xmlns="http://www.w3.org/2000/svg"

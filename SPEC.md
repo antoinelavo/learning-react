@@ -1,35 +1,28 @@
-# Spec: Show 수업료 on teacher profiles (page + SEO)
+# Spec: Tap to reveal 수업료 설명 on profiles
 
 ## Goal
-Show each teacher's hourly rate on their profile page (`/profile/[name]`) so students and parents see the price before contacting them, and include it in search-result snippets.
+Keep the profile's info card tidy by hiding the teacher's rate note (`rate_description`) until the visitor taps the 수업료 pill.
 
 ## Included
-- In `pages/profile/[name].js`, at the top of the right-hand card (above the lesson-time pill):
-  - Teachers with a rate (`rate` > 0): **시간당 N만원**, prominent (bold, larger than body text).
-  - Teachers without a rate (`rate` empty or ≤ 0): **수업료 협의**, same position, muted style.
-  - If `rate_description` has text, show it under the line in small gray text, wrapping as needed (also for teachers without a rate).
-- Works on mobile (merged card) and desktop (two cards).
-- **Meta description and `og:description`:** "{학교} · 시간당 N만원 · {first 3 subjects} — {한줄소개}", trimmed to about 150 characters at a word boundary with "…". Without a rate, "수업료 협의" takes the price's place. Empty parts are skipped, with no stray separators.
-- **JSON-LD** (`<script type="application/ld+json">` in `<Head>`), only for teachers with a rate: a schema.org `Service` ("IB 과외") whose `provider` is a `Person` (name, school as `alumniOf`), with an `Offer` + `UnitPriceSpecification` (price N×10000, `priceCurrency` "KRW", `unitText` "HOUR").
+- In `pages/profile/[name].js`, for logged-in visitors:
+  - Teachers **with** a `rate_description`: the 수업료 pill becomes a button with a small ⓘ icon at its end. Tapping it shows the note below the pills; tapping again hides it. Starts closed.
+  - Teachers **without** a `rate_description`: the pill looks and behaves exactly as now (no icon, not tappable), and no note area is rendered.
+- The note keeps its current style (small gray text, wraps, line breaks kept).
 
 ## Not included
-- Changes to how teachers enter their rate (dashboard/apply forms).
-- Rate on the `/find` list cards.
-- Page `<title>` (stays "{이름} | IB 과외 선생님").
-- Any data or database change.
+- Logged-out view (still the "수업료: 로그인 후 확인" link pill; the note stays hidden).
+- SEO, meta description, JSON-LD.
+- Rate entry forms or any data change.
 
 ## Rules
-- Read-only use of the existing `rate` and `rate_description` columns, already loaded by the page's `getStaticProps` (`select('*')`).
-- `rate_description` is rendered as plain text (no HTML).
-- JSON-LD is built with `JSON.stringify` and `<` escaped, so teacher text can't break out of the script tag.
-- Profiles are ISR (`revalidate: 60`), so new rates appear within a minute of a teacher saving them.
-- Korean text exactly: "시간당 N만원", "수업료 협의".
+- No arrow/chevron icons; use an info (ⓘ) icon.
+- The button has `aria-expanded` and is keyboard-accessible.
+- Whitespace-only notes count as no note.
+- Same behavior at 390px and 1280px.
 
 ## Done when
-- [x] A teacher with rate 5 shows "시간당 5만원" above the lesson-time pill.
-- [x] A teacher with a `rate_description` shows it under the rate in small gray text.
-- [x] A teacher with no rate shows "수업료 협의" (plus their note, if any).
-- [x] Looks right at 390px and 1280px.
-- [x] The page's meta and og descriptions start with the school and "시간당 N만원" (or "수업료 협의") and are at most ~150 characters.
-- [x] Teachers with a rate have valid JSON-LD with the KRW hourly price; teachers without a rate have none.
-- [x] `npm run build` passes.
+- [ ] Logged in, a teacher with a note shows the pill with an ⓘ icon and no note text until tapped.
+- [ ] Tapping the pill shows the note; tapping again hides it.
+- [ ] A teacher without a note shows a plain pill (no icon, not a button) and no note.
+- [ ] Logged out, nothing changes from the current behavior.
+- [ ] `npm run build` passes.

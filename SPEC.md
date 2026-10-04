@@ -1,36 +1,36 @@
-# Spec: Slimmer request board header with sticky write button
+# Spec: /find page redesign
 
 ## Goal
-Replace the bulky top card on the student and hagwon request boards with a plain title and one line of text, and move the "write request" button to a sticky bar at the bottom on mobile, so requests show up sooner.
+Clean up the teacher search page (`/find`): a properly bordered grouped list, CTA cards that look intentional, and filters that are easy to use on a phone.
 
 ## Included
-- Both boards, changed the same way: `/students` (`app/students/StudentsPageClient.jsx`) and `/hagwon-requests` (`app/hagwon-requests/HagwonRequestsPageClient.jsx`).
-- Header: no card. Plain title + one line of text.
-  - 학생 게시판 / "학생/학부모님께서 올린 수업 요청글을 확인하고 직접 연락해 보세요."
-  - 학원 요청 게시판 / "학생/학부모님께서 올린 학원 요청글을 확인하고 직접 연락해 보세요."
-- The separate gray note line moves into the list header's count:
-  - Students: `최근 1개월 · 총 N건`
-  - Hagwon: `오래된 글은 자동 삭제 · 총 N건`
-- Write button (수업 요청글 작성하기 / 학원 요청글 작성하기, same links as now):
-  - Mobile (below `sm`): full-width primary button fixed to the bottom of the screen, with safe-area padding for the iPhone home bar.
-  - Desktop (`sm` and up): small primary button on the right of the title line. Nothing sticky.
-- Bottom padding on mobile so the sticky bar never covers the last request card.
+- **Teacher list (iOS grouped style):** one white box with a full border and `rounded-2xl` corners on all screen sizes, rows separated by thin dividers inside. No cut-off sides on mobile.
+- **List split around the mid CTA:** first 6 teachers in one grouped box, then the CTA card, then the rest in a second grouped box (only when there are more than 6 teachers, as now).
+- **CTA cards:** the top and mid-list 질문 보기 CTAs use one shared look: tinted blue card (`bg-blue-50`, light blue border on all sides, `rounded-2xl`), centered text and button. Same text and link (`/students/new`) as now.
+- **Page order unchanged:** top CTA card, then title and description, filters, count line, list.
+- **Teacher rows (`components/TeacherCard.js`):** restyled to sit cleanly inside the grouped list. 추천 (premium) rows keep a soft yellow background and the yellow 추천 badge; the glow shadow is removed.
+- **Filters:**
+  - Mobile (below `sm`): tapping a filter chip opens a bottom sheet with the filter name, large tappable options, and a 초기화 (clear this filter) + 완료 (close) row. Dimmed backdrop; tapping it closes the sheet.
+  - Desktop: a wider dropdown with larger options.
+  - Options still apply immediately as you tap, as now. The 필터 초기화 link for all filters stays.
 
 ## Not included
-- Changes to the request cards, filters, modals, reveal flow, or the write/edit pages.
-- Any data, API, or database change.
+- Filter logic, sorting (premium first, shuffled), data loading, or the count/views line text.
+- The teacher profile page.
+- Any data, API, payment, or database change.
 
 ## Rules
-- Both boards must stay identical in layout and behavior; a change to one is made to the other.
-- The write button (sticky and desktop) is hidden for logged-in `teacher` and `hagwon` accounts. Students, parents, admins, and logged-out visitors see it.
-- The approved-teacher badge "이번 달 연락처 열람 N/2회 남음" stays, under the explanation line.
-- Use the shared `components/ui` button styles.
-- No payment, database, blog, or legal changes.
+- `TeacherCard` is also used on the teacher dashboard's premium-listing preview (`PremiumListingOffer`); the new row style must look right there too. Styling only — no payment logic changes.
+- Use the shared `components/ui` styles where they fit (buttons, chips).
+- Korean text unchanged except 초기화 / 완료 in the sheet.
+- Must work at 390px with no horizontal scroll; the sheet must respect the iPhone safe area.
 
 ## Done when
-- [x] Neither board's header is a card; each shows the title and the exact one-line text above.
-- [x] List headers read `최근 1개월 · 총 N건` and `오래된 글은 자동 삭제 · 총 N건`; the old gray note lines are gone.
-- [x] At 390px width, the write button is fixed to the bottom, full width, and the last card can scroll fully above it.
-- [x] At 1280px width, the write button sits on the title line and nothing is fixed to the bottom.
-- [x] The write button does not render for `teacher` or `hagwon` roles (checked in code).
-- [x] `npm run build` passes.
+- [ ] At 390px and 1280px, the teacher list has a full border with rounded corners on all four sides.
+- [ ] With more than 6 teachers, the list is two grouped boxes with the CTA card between them; the CTA has a border on all sides.
+- [ ] Top and mid CTAs share the same style.
+- [ ] 추천 rows have a yellow background and badge but no glow shadow.
+- [ ] At 390px, tapping a filter chip opens a bottom sheet; toggling an option filters the list; 초기화 clears that filter; 완료 and the backdrop close it.
+- [ ] At 1280px, filters open as a wider dropdown with larger options.
+- [ ] The dashboard premium-listing preview still renders the card correctly.
+- [ ] `npm run build` passes.

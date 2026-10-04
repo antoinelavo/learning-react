@@ -21,8 +21,8 @@ Keep the profile's info card tidy by hiding the teacher's rate note (`rate_descr
 - Same behavior at 390px and 1280px.
 
 ## Done when
-- [ ] Logged in, a teacher with a note shows the pill with an ⓘ icon and no note text until tapped.
-- [ ] Tapping the pill shows the note; tapping again hides it.
-- [ ] A teacher without a note shows a plain pill (no icon, not a button) and no note.
-- [ ] Logged out, nothing changes from the current behavior.
-- [ ] `npm run build` passes.
+- [x] Logged in, a teacher with a note shows the pill with an ⓘ icon and no note text until tapped.
+- [x] Tapping the pill shows the note; tapping again hides it.
+- [x] A teacher without a note shows a plain pill (no icon, not a button) and no note.
+- [x] Logged out, nothing changes from the current behavior.
+- [x] `npm run build` passes.

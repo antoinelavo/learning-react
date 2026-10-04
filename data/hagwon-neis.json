@@ -5995,6 +5995,1697 @@
         }
       ]
     },
+    "3000039094": {
+      "name": "에듀아고라학원",
+      "establishedYmd": "20210524",
+      "realm": "종합(대)",
+      "tracks": [
+        "외국어",
+        "진학지도"
+      ],
+      "courses": [
+        {
+          "subject": "진학상담지도",
+          "period": "0개월1일",
+          "hours": 0.5,
+          "fee": 25000,
+          "otherFee": 0,
+          "total": 25000
+        },
+        {
+          "subject": "진학상담지도",
+          "period": "0개월1일",
+          "hours": 0.5,
+          "fee": 30000,
+          "otherFee": 0,
+          "total": 30000
+        },
+        {
+          "subject": "영어 기초 수업-1",
+          "period": "0개월1일",
+          "hours": 2.2,
+          "fee": 35000,
+          "otherFee": 0,
+          "total": 35000
+        },
+        {
+          "subject": "ITEP-1",
+          "period": "0개월1일",
+          "hours": 2.2,
+          "fee": 40000,
+          "otherFee": 0,
+          "total": 40000
+        },
+        {
+          "subject": "PTE-1",
+          "period": "0개월1일",
+          "hours": 2.2,
+          "fee": 40000,
+          "otherFee": 0,
+          "total": 40000
+        },
+        {
+          "subject": "듀오링고-1",
+          "period": "0개월1일",
+          "hours": 2.2,
+          "fee": 40000,
+          "otherFee": 0,
+          "total": 40000
+        },
+        {
+          "subject": "영어 기초 수업-2",
+          "period": "0개월1일",
+          "hours": 2.8,
+          "fee": 45000,
+          "otherFee": 0,
+          "total": 45000
+        },
+        {
+          "subject": "GED-1",
+          "period": "0개월1일",
+          "hours": 2.8,
+          "fee": 50000,
+          "otherFee": 0,
+          "total": 50000
+        },
+        {
+          "subject": "IB MYP-1",
+          "period": "0개월1일",
+          "hours": 3.1,
+          "fee": 50000,
+          "otherFee": 0,
+          "total": 50000
+        },
+        {
+          "subject": "IELTS-1",
+          "period": "0개월1일",
+          "hours": 3.1,
+          "fee": 50000,
+          "otherFee": 0,
+          "total": 50000
+        },
+        {
+          "subject": "ISEE-1",
+          "period": "0개월1일",
+          "hours": 3.1,
+          "fee": 50000,
+          "otherFee": 0,
+          "total": 50000
+        },
+        {
+          "subject": "ITEP -2",
+          "period": "0개월1일",
+          "hours": 2.8,
+          "fee": 50000,
+          "otherFee": 0,
+          "total": 50000
+        },
+        {
+          "subject": "M1",
+          "period": "0개월1일",
+          "hours": 3.1,
+          "fee": 50000,
+          "otherFee": 0,
+          "total": 50000
+        },
+        {
+          "subject": "Map test-1",
+          "period": "0개월1일",
+          "hours": 3.1,
+          "fee": 50000,
+          "otherFee": 0,
+          "total": 50000
+        },
+        {
+          "subject": "PTE-2",
+          "period": "0개월1일",
+          "hours": 2.8,
+          "fee": 50000,
+          "otherFee": 0,
+          "total": 50000
+        },
+        {
+          "subject": "SSAT-1",
+          "period": "0개월1일",
+          "hours": 3.1,
+          "fee": 50000,
+          "otherFee": 0,
+          "total": 50000
+        },
+        {
+          "subject": "TOEFL-1",
+          "period": "0개월1일",
+          "hours": 3.1,
+          "fee": 50000,
+          "otherFee": 0,
+          "total": 50000
+        },
+        {
+          "subject": "듀오링고-2",
+          "period": "0개월1일",
+          "hours": 2.8,
+          "fee": 50000,
+          "otherFee": 0,
+          "total": 50000
+        },
+        {
+          "subject": "영어 기본기-1",
+          "period": "0개월1일",
+          "hours": 3.1,
+          "fee": 50000,
+          "otherFee": 0,
+          "total": 50000
+        },
+        {
+          "subject": "진학상담지도",
+          "period": "1개월0일",
+          "hours": 4.2,
+          "fee": 50000,
+          "otherFee": 0,
+          "total": 50000
+        },
+        {
+          "subject": "GCSE-1",
+          "period": "0개월1일",
+          "hours": 3.5,
+          "fee": 55000,
+          "otherFee": 0,
+          "total": 55000
+        },
+        {
+          "subject": "IGCSE-1",
+          "period": "0개월1일",
+          "hours": 3.5,
+          "fee": 55000,
+          "otherFee": 0,
+          "total": 55000
+        },
+        {
+          "subject": "O-Level-1",
+          "period": "0개월1일",
+          "hours": 3.5,
+          "fee": 55000,
+          "otherFee": 0,
+          "total": 55000
+        },
+        {
+          "subject": "외국교과초등-1",
+          "period": "0개월1일",
+          "hours": 3.5,
+          "fee": 55000,
+          "otherFee": 0,
+          "total": 55000
+        },
+        {
+          "subject": "A-Level-1",
+          "period": "0개월1일",
+          "hours": 3.8,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "ACT-1",
+          "period": "0개월1일",
+          "hours": 3.4,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "AIME-1",
+          "period": "0개월1일",
+          "hours": 3.4,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "AMC10/12-1",
+          "period": "0개월1일",
+          "hours": 3.4,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "AMC8-1",
+          "period": "0개월1일",
+          "hours": 3.8,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "AP-1",
+          "period": "0개월1일",
+          "hours": 3.4,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "DAT-1",
+          "period": "0개월1일",
+          "hours": 3.4,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "Foundation-1",
+          "period": "0개월1일",
+          "hours": 3.8,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "GCSE-2",
+          "period": "0개월1일",
+          "hours": 3.8,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "GED-2",
+          "period": "0개월1일",
+          "hours": 3.4,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "GPA-1",
+          "period": "0개월1일",
+          "hours": 3.8,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "IB DP-1",
+          "period": "0개월1일",
+          "hours": 3.4,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "IB MYP-2",
+          "period": "0개월1일",
+          "hours": 3.8,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "IB에세이-1",
+          "period": "0개월1일",
+          "hours": 3.4,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "IELTS-2",
+          "period": "0개월1일",
+          "hours": 3.8,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "IGCSE-2",
+          "period": "0개월1일",
+          "hours": 3.8,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "ISEE-2",
+          "period": "0개월1일",
+          "hours": 3.8,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "MCAT-1",
+          "period": "0개월1일",
+          "hours": 3.4,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "Map test-2",
+          "period": "0개월1일",
+          "hours": 3.8,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "O-Level-2",
+          "period": "0개월1일",
+          "hours": 3.8,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "SAT-1",
+          "period": "0개월1일",
+          "hours": 3.4,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "SSAT-2",
+          "period": "0개월1일",
+          "hours": 3.8,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "TOEFL-2",
+          "period": "0개월1일",
+          "hours": 3.8,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "영어 기본기-2",
+          "period": "0개월1일",
+          "hours": 3.8,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "외국교과-1",
+          "period": "0개월1일",
+          "hours": 3.4,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "외국교과초등-2",
+          "period": "0개월1일",
+          "hours": 3.8,
+          "fee": 60000,
+          "otherFee": 0,
+          "total": 60000
+        },
+        {
+          "subject": "A-Level-2",
+          "period": "0개월1일",
+          "hours": 4.1,
+          "fee": 65000,
+          "otherFee": 0,
+          "total": 65000
+        },
+        {
+          "subject": "Foundation-2",
+          "period": "0개월1일",
+          "hours": 4.1,
+          "fee": 65000,
+          "otherFee": 0,
+          "total": 65000
+        },
+        {
+          "subject": "BMAT-1",
+          "period": "0개월1일",
+          "hours": 4.4,
+          "fee": 70000,
+          "otherFee": 0,
+          "total": 70000
+        },
+        {
+          "subject": "대회수업-1",
+          "period": "0개월1일",
+          "hours": 4.4,
+          "fee": 70000,
+          "otherFee": 0,
+          "total": 70000
+        },
+        {
+          "subject": "영어 기초 수업-3",
+          "period": "0개월1일",
+          "hours": 4.4,
+          "fee": 70000,
+          "otherFee": 0,
+          "total": 70000
+        },
+        {
+          "subject": "ACT-4",
+          "period": "0개월1일",
+          "hours": 4.7,
+          "fee": 75000,
+          "otherFee": 0,
+          "total": 75000
+        },
+        {
+          "subject": "AIME-2",
+          "period": "0개월1일",
+          "hours": 4.2,
+          "fee": 75000,
+          "otherFee": 0,
+          "total": 75000
+        },
+        {
+          "subject": "BMAT-2",
+          "period": "0개월1일",
+          "hours": 4.7,
+          "fee": 75000,
+          "otherFee": 0,
+          "total": 75000
+        },
+        {
+          "subject": "DAT-2",
+          "period": "0개월1일",
+          "hours": 4.2,
+          "fee": 75000,
+          "otherFee": 0,
+          "total": 75000
+        },
+        {
+          "subject": "GPA-2",
+          "period": "0개월1일",
+          "hours": 4.7,
+          "fee": 75000,
+          "otherFee": 0,
+          "total": 75000
+        },
+        {
+          "subject": "IB DP-2",
+          "period": "0개월1일",
+          "hours": 4.2,
+          "fee": 75000,
+          "otherFee": 0,
+          "total": 75000
+        },
+        {
+          "subject": "IB에세이-2",
+          "period": "0개월1일",
+          "hours": 4.2,
+          "fee": 75000,
+          "otherFee": 0,
+          "total": 75000
+        },
+        {
+          "subject": "MCAT-2",
+          "period": "0개월1일",
+          "hours": 4.2,
+          "fee": 75000,
+          "otherFee": 0,
+          "total": 75000
+        },
+        {
+          "subject": "대회수업-2",
+          "period": "0개월1일",
+          "hours": 4.7,
+          "fee": 75000,
+          "otherFee": 0,
+          "total": 75000
+        },
+        {
+          "subject": "외국교과-2",
+          "period": "0개월1일",
+          "hours": 4.2,
+          "fee": 75000,
+          "otherFee": 0,
+          "total": 75000
+        },
+        {
+          "subject": "ITEP -3",
+          "period": "0개월1일",
+          "hours": 4.5,
+          "fee": 80000,
+          "otherFee": 0,
+          "total": 80000
+        },
+        {
+          "subject": "PTE-3",
+          "period": "0개월1일",
+          "hours": 4.5,
+          "fee": 80000,
+          "otherFee": 0,
+          "total": 80000
+        },
+        {
+          "subject": "art 클래스-1",
+          "period": "0개월1일",
+          "hours": 6.2,
+          "fee": 80000,
+          "otherFee": 0,
+          "total": 80000
+        },
+        {
+          "subject": "듀오링고 1일특강",
+          "period": "0개월1일",
+          "hours": 4.5,
+          "fee": 80000,
+          "otherFee": 0,
+          "total": 80000
+        },
+        {
+          "subject": "듀오링고-3",
+          "period": "0개월1일",
+          "hours": 4.5,
+          "fee": 80000,
+          "otherFee": 0,
+          "total": 80000
+        },
+        {
+          "subject": "외국교과A",
+          "period": "1개월0일",
+          "hours": 6.3,
+          "fee": 80000,
+          "otherFee": 0,
+          "total": 80000
+        },
+        {
+          "subject": "영어 기초 수업-4",
+          "period": "0개월1일",
+          "hours": 5.7,
+          "fee": 90000,
+          "otherFee": 0,
+          "total": 90000
+        },
+        {
+          "subject": "외국교과초등-3",
+          "period": "0개월1일",
+          "hours": 5.7,
+          "fee": 90000,
+          "otherFee": 0,
+          "total": 90000
+        },
+        {
+          "subject": "EC-1",
+          "period": "0개월1일",
+          "hours": 8.4,
+          "fee": 100000,
+          "otherFee": 0,
+          "total": 100000
+        },
+        {
+          "subject": "GED-3",
+          "period": "0개월1일",
+          "hours": 5.6,
+          "fee": 100000,
+          "otherFee": 0,
+          "total": 100000
+        },
+        {
+          "subject": "IB MYP-3",
+          "period": "0개월1일",
+          "hours": 6.3,
+          "fee": 100000,
+          "otherFee": 0,
+          "total": 100000
+        },
+        {
+          "subject": "IELTS-3",
+          "period": "0개월1일",
+          "hours": 6.3,
+          "fee": 100000,
+          "otherFee": 0,
+          "total": 100000
+        },
+        {
+          "subject": "ISEE-3",
+          "period": "0개월1일",
+          "hours": 6.3,
+          "fee": 100000,
+          "otherFee": 0,
+          "total": 100000
+        },
+        {
+          "subject": "ITEP -4",
+          "period": "0개월1일",
+          "hours": 5.6,
+          "fee": 100000,
+          "otherFee": 0,
+          "total": 100000
+        },
+        {
+          "subject": "Map test-3",
+          "period": "0개월1일",
+          "hours": 6.3,
+          "fee": 100000,
+          "otherFee": 0,
+          "total": 100000
+        },
+        {
+          "subject": "PTE-4",
+          "period": "0개월1일",
+          "hours": 5.6,
+          "fee": 100000,
+          "otherFee": 0,
+          "total": 100000
+        },
+        {
+          "subject": "SSAT-3",
+          "period": "0개월1일",
+          "hours": 6.3,
+          "fee": 100000,
+          "otherFee": 0,
+          "total": 100000
+        },
+        {
+          "subject": "TOEFL-3",
+          "period": "0개월1일",
+          "hours": 6.3,
+          "fee": 100000,
+          "otherFee": 0,
+          "total": 100000
+        },
+        {
+          "subject": "듀오링고-4",
+          "period": "0개월1일",
+          "hours": 5.6,
+          "fee": 100000,
+          "otherFee": 0,
+          "total": 100000
+        },
+        {
+          "subject": "영어 기본기-3",
+          "period": "0개월1일",
+          "hours": 6.3,
+          "fee": 100000,
+          "otherFee": 0,
+          "total": 100000
+        },
+        {
+          "subject": "진학상담지도",
+          "period": "1개월0일",
+          "hours": 4.2,
+          "fee": 100000,
+          "otherFee": 0,
+          "total": 100000
+        },
+        {
+          "subject": "GCSE-3",
+          "period": "0개월1일",
+          "hours": 6.9,
+          "fee": 110000,
+          "otherFee": 0,
+          "total": 110000
+        },
+        {
+          "subject": "IGCSE-3",
+          "period": "0개월1일",
+          "hours": 6.9,
+          "fee": 110000,
+          "otherFee": 0,
+          "total": 110000
+        },
+        {
+          "subject": "O-Level-3",
+          "period": "0개월1일",
+          "hours": 6.9,
+          "fee": 110000,
+          "otherFee": 0,
+          "total": 110000
+        },
+        {
+          "subject": "외국교과초등-4",
+          "period": "0개월1일",
+          "hours": 6.9,
+          "fee": 110000,
+          "otherFee": 0,
+          "total": 110000
+        },
+        {
+          "subject": "A-Level-3",
+          "period": "0개월1일",
+          "hours": 7.5,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "ACT-2",
+          "period": "0개월1일",
+          "hours": 7,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "AIME-3",
+          "period": "0개월1일",
+          "hours": 7,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "AMC10/12-2",
+          "period": "0개월1일",
+          "hours": 7,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "AMC8-2",
+          "period": "0개월1일",
+          "hours": 7.5,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "AP 1일특강B",
+          "period": "0개월1일",
+          "hours": 7,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "AP-2",
+          "period": "0개월1일",
+          "hours": 7,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "DAT-3",
+          "period": "0개월1일",
+          "hours": 7,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "Foundation-3",
+          "period": "0개월1일",
+          "hours": 7.5,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "GCSE-4",
+          "period": "0개월1일",
+          "hours": 7.5,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "GED-4",
+          "period": "0개월1일",
+          "hours": 6.7,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "GPA-3",
+          "period": "0개월2일",
+          "hours": 7.5,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "IB DP-3",
+          "period": "0개월1일",
+          "hours": 7,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "IB MYP-4",
+          "period": "0개월1일",
+          "hours": 7.5,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "IB에세이-3",
+          "period": "0개월1일",
+          "hours": 7,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "IELTS-4",
+          "period": "0개월1일",
+          "hours": 7.5,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "IGCSE-4",
+          "period": "0개월1일",
+          "hours": 7.5,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "ISEE-4",
+          "period": "0개월1일",
+          "hours": 7.5,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "MCAT-3",
+          "period": "0개월1일",
+          "hours": 7,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "Map test-4",
+          "period": "0개월1일",
+          "hours": 7.5,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "O-Level-4",
+          "period": "0개월1일",
+          "hours": 7.5,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "SAT-2",
+          "period": "0개월1일",
+          "hours": 7,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "SSAT-4",
+          "period": "0개월1일",
+          "hours": 7.5,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "TOEFL-4",
+          "period": "0개월1일",
+          "hours": 7.5,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "art 포트폴리오-2",
+          "period": "0개월2일",
+          "hours": 9.3,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "영어 기본기-4",
+          "period": "0개월1일",
+          "hours": 7.5,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "외국교과-3",
+          "period": "0개월1일",
+          "hours": 7,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "외국교과초등-5",
+          "period": "0개월1일",
+          "hours": 7.5,
+          "fee": 120000,
+          "otherFee": 0,
+          "total": 120000
+        },
+        {
+          "subject": "A-Level-4",
+          "period": "0개월1일",
+          "hours": 8.2,
+          "fee": 130000,
+          "otherFee": 0,
+          "total": 130000
+        },
+        {
+          "subject": "Alevel 1일특강C",
+          "period": "0개월1일",
+          "hours": 7.5,
+          "fee": 130000,
+          "otherFee": 0,
+          "total": 130000
+        },
+        {
+          "subject": "Foundation-4",
+          "period": "0개월1일",
+          "hours": 8.2,
+          "fee": 130000,
+          "otherFee": 0,
+          "total": 130000
+        },
+        {
+          "subject": "BMAT-3",
+          "period": "0개월1일",
+          "hours": 8.8,
+          "fee": 140000,
+          "otherFee": 0,
+          "total": 140000
+        },
+        {
+          "subject": "STEP1일특강",
+          "period": "0개월1일",
+          "hours": 8,
+          "fee": 140000,
+          "otherFee": 0,
+          "total": 140000
+        },
+        {
+          "subject": "대회수업-3",
+          "period": "0개월1일",
+          "hours": 8.8,
+          "fee": 140000,
+          "otherFee": 0,
+          "total": 140000
+        },
+        {
+          "subject": "듀오링고1",
+          "period": "1개월0일",
+          "hours": 8.4,
+          "fee": 140000,
+          "otherFee": 0,
+          "total": 140000
+        },
+        {
+          "subject": "외국교과-5",
+          "period": "0개월1일",
+          "hours": 7.8,
+          "fee": 140000,
+          "otherFee": 0,
+          "total": 140000
+        },
+        {
+          "subject": "ACT-3",
+          "period": "0개월1일",
+          "hours": 8.4,
+          "fee": 150000,
+          "otherFee": 0,
+          "total": 150000
+        },
+        {
+          "subject": "AIME-4",
+          "period": "0개월1일",
+          "hours": 8.4,
+          "fee": 150000,
+          "otherFee": 0,
+          "total": 150000
+        },
+        {
+          "subject": "AMC10/12-3",
+          "period": "0개월1일",
+          "hours": 8.4,
+          "fee": 150000,
+          "otherFee": 0,
+          "total": 150000
+        },
+        {
+          "subject": "AMC8-3",
+          "period": "0개월1일",
+          "hours": 9.4,
+          "fee": 150000,
+          "otherFee": 0,
+          "total": 150000
+        },
+        {
+          "subject": "AP-3",
+          "period": "0개월1일",
+          "hours": 8.4,
+          "fee": 150000,
+          "otherFee": 0,
+          "total": 150000
+        },
+        {
+          "subject": "BMAT-4",
+          "period": "0개월1일",
+          "hours": 9.4,
+          "fee": 150000,
+          "otherFee": 0,
+          "total": 150000
+        },
+        {
+          "subject": "DAT-4",
+          "period": "0개월1일",
+          "hours": 8.4,
+          "fee": 150000,
+          "otherFee": 0,
+          "total": 150000
+        },
+        {
+          "subject": "EC-2",
+          "period": "0개월1일",
+          "hours": 8.4,
+          "fee": 150000,
+          "otherFee": 0,
+          "total": 150000
+        },
+        {
+          "subject": "GPA-4",
+          "period": "0개월2일",
+          "hours": 9.4,
+          "fee": 150000,
+          "otherFee": 0,
+          "total": 150000
+        },
+        {
+          "subject": "IB DP-4",
+          "period": "0개월1일",
+          "hours": 8.4,
+          "fee": 150000,
+          "otherFee": 0,
+          "total": 150000
+        },
+        {
+          "subject": "IB에세이-4",
+          "period": "0개월1일",
+          "hours": 8.4,
+          "fee": 150000,
+          "otherFee": 0,
+          "total": 150000
+        },
+        {
+          "subject": "MCAT-4",
+          "period": "0개월1일",
+          "hours": 8.4,
+          "fee": 150000,
+          "otherFee": 0,
+          "total": 150000
+        },
+        {
+          "subject": "SAT-3",
+          "period": "0개월1일",
+          "hours": 8.4,
+          "fee": 150000,
+          "otherFee": 0,
+          "total": 150000
+        },
+        {
+          "subject": "대회수업-4",
+          "period": "0개월1일",
+          "hours": 9.4,
+          "fee": 150000,
+          "otherFee": 0,
+          "total": 150000
+        },
+        {
+          "subject": "외국교과-4",
+          "period": "0개월1일",
+          "hours": 8.4,
+          "fee": 150000,
+          "otherFee": 0,
+          "total": 150000
+        },
+        {
+          "subject": "듀오링고 2일특강",
+          "period": "0개월2일",
+          "hours": 11,
+          "fee": 180000,
+          "otherFee": 0,
+          "total": 180000
+        },
+        {
+          "subject": "ACT1일특강(중,고)",
+          "period": "1개월0일",
+          "hours": 14,
+          "fee": 240000,
+          "otherFee": 0,
+          "total": 240000
+        },
+        {
+          "subject": "AP1일특강(중,고)",
+          "period": "1개월0일",
+          "hours": 14,
+          "fee": 240000,
+          "otherFee": 0,
+          "total": 240000
+        },
+        {
+          "subject": "SAT1일특강(중,고)",
+          "period": "1개월0일",
+          "hours": 14,
+          "fee": 240000,
+          "otherFee": 0,
+          "total": 240000
+        },
+        {
+          "subject": "AP-B",
+          "period": "1개월0일",
+          "hours": 18,
+          "fee": 300000,
+          "otherFee": 0,
+          "total": 300000
+        },
+        {
+          "subject": "art 클래스-2",
+          "period": "1개월0일",
+          "hours": 24.9,
+          "fee": 320000,
+          "otherFee": 0,
+          "total": 320000
+        },
+        {
+          "subject": "EC-3",
+          "period": "1개월0일",
+          "hours": 29.4,
+          "fee": 500000,
+          "otherFee": 0,
+          "total": 500000
+        },
+        {
+          "subject": "M2",
+          "period": "1개월0일",
+          "hours": 31.7,
+          "fee": 500000,
+          "otherFee": 0,
+          "total": 500000
+        },
+        {
+          "subject": "진학상담지도",
+          "period": "1개월0일",
+          "hours": 4.2,
+          "fee": 500000,
+          "otherFee": 0,
+          "total": 500000
+        },
+        {
+          "subject": "GED A2",
+          "period": "1개월0일",
+          "hours": 31.5,
+          "fee": 530000,
+          "otherFee": 0,
+          "total": 530000
+        },
+        {
+          "subject": "듀오링고14",
+          "period": "1개월0일",
+          "hours": 31.5,
+          "fee": 560000,
+          "otherFee": 0,
+          "total": 560000
+        },
+        {
+          "subject": "GED A1",
+          "period": "1개월0일",
+          "hours": 48.3,
+          "fee": 600000,
+          "otherFee": 0,
+          "total": 600000
+        },
+        {
+          "subject": "Alevel방학5주특강",
+          "period": "1개월0일",
+          "hours": 37.2,
+          "fee": 640000,
+          "otherFee": 0,
+          "total": 640000
+        },
+        {
+          "subject": "alevel A",
+          "period": "1개월0일",
+          "hours": 50.4,
+          "fee": 660000,
+          "otherFee": 0,
+          "total": 660000
+        },
+        {
+          "subject": "GED A4",
+          "period": "1개월0일",
+          "hours": 50.4,
+          "fee": 730000,
+          "otherFee": 0,
+          "total": 730000
+        },
+        {
+          "subject": "alevel B",
+          "period": "1개월0일",
+          "hours": 50.4,
+          "fee": 770000,
+          "otherFee": 0,
+          "total": 770000
+        },
+        {
+          "subject": "EC-4",
+          "period": "1개월0일",
+          "hours": 50.1,
+          "fee": 800000,
+          "otherFee": 0,
+          "total": 800000
+        },
+        {
+          "subject": "듀오링고20",
+          "period": "1개월0일",
+          "hours": 50.4,
+          "fee": 850000,
+          "otherFee": 0,
+          "total": 850000
+        },
+        {
+          "subject": "alevel C",
+          "period": "1개월0일",
+          "hours": 50.4,
+          "fee": 880000,
+          "otherFee": 0,
+          "total": 880000
+        },
+        {
+          "subject": "GED A3",
+          "period": "1개월0일",
+          "hours": 58.8,
+          "fee": 930000,
+          "otherFee": 0,
+          "total": 930000
+        },
+        {
+          "subject": "alevel D",
+          "period": "1개월0일",
+          "hours": 58.8,
+          "fee": 990000,
+          "otherFee": 0,
+          "total": 990000
+        },
+        {
+          "subject": "EC-5",
+          "period": "1개월0일",
+          "hours": 63,
+          "fee": 1000000,
+          "otherFee": 0,
+          "total": 1000000
+        },
+        {
+          "subject": "GED-C",
+          "period": "1개월0일",
+          "hours": 58.1,
+          "fee": 1000000,
+          "otherFee": 0,
+          "total": 1000000
+        },
+        {
+          "subject": "IGCSE-5",
+          "period": "1개월0일",
+          "hours": 64,
+          "fee": 1100000,
+          "otherFee": 0,
+          "total": 1100000
+        },
+        {
+          "subject": "BMAT-5",
+          "period": "1개월0일",
+          "hours": 84,
+          "fee": 1400000,
+          "otherFee": 0,
+          "total": 1400000
+        },
+        {
+          "subject": "ACT-6",
+          "period": "1개월0일",
+          "hours": 87.2,
+          "fee": 1500000,
+          "otherFee": 0,
+          "total": 1500000
+        },
+        {
+          "subject": "EC-6",
+          "period": "1개월0일",
+          "hours": 92.4,
+          "fee": 1500000,
+          "otherFee": 0,
+          "total": 1500000
+        },
+        {
+          "subject": "GED-D",
+          "period": "1개월0일",
+          "hours": 87.2,
+          "fee": 1500000,
+          "otherFee": 0,
+          "total": 1500000
+        },
+        {
+          "subject": "IELTS-A",
+          "period": "1개월0일",
+          "hours": 93.3,
+          "fee": 1600000,
+          "otherFee": 0,
+          "total": 1600000
+        },
+        {
+          "subject": "EC-7",
+          "period": "1개월0일",
+          "hours": 105,
+          "fee": 1850000,
+          "otherFee": 0,
+          "total": 1850000
+        },
+        {
+          "subject": "GED종합",
+          "period": "1개월0일",
+          "hours": 111,
+          "fee": 1900000,
+          "otherFee": 0,
+          "total": 1900000
+        },
+        {
+          "subject": "AP-F",
+          "period": "1개월0일",
+          "hours": 116.7,
+          "fee": 2000000,
+          "otherFee": 0,
+          "total": 2000000
+        },
+        {
+          "subject": "EC-8",
+          "period": "1개월0일",
+          "hours": 114.8,
+          "fee": 2000000,
+          "otherFee": 0,
+          "total": 2000000
+        },
+        {
+          "subject": "GED-E",
+          "period": "1개월0일",
+          "hours": 116.7,
+          "fee": 2000000,
+          "otherFee": 0,
+          "total": 2000000
+        },
+        {
+          "subject": "IELTS-B",
+          "period": "1개월0일",
+          "hours": 116.7,
+          "fee": 2000000,
+          "otherFee": 0,
+          "total": 2000000
+        },
+        {
+          "subject": "ISEE-B",
+          "period": "1개월0일",
+          "hours": 116.7,
+          "fee": 2000000,
+          "otherFee": 0,
+          "total": 2000000
+        },
+        {
+          "subject": "SSAT-B",
+          "period": "1개월0일",
+          "hours": 116.7,
+          "fee": 2000000,
+          "otherFee": 0,
+          "total": 2000000
+        },
+        {
+          "subject": "외국교과-A",
+          "period": "1개월0일",
+          "hours": 116.7,
+          "fee": 2000000,
+          "otherFee": 0,
+          "total": 2000000
+        },
+        {
+          "subject": "토플B",
+          "period": "1개월0일",
+          "hours": 116.7,
+          "fee": 2000000,
+          "otherFee": 0,
+          "total": 2000000
+        },
+        {
+          "subject": "IB-G(중,고)",
+          "period": "1개월0일",
+          "hours": 128.3,
+          "fee": 2200000,
+          "otherFee": 0,
+          "total": 2200000
+        },
+        {
+          "subject": "IGCSE-6",
+          "period": "1개월0일",
+          "hours": 128.3,
+          "fee": 2200000,
+          "otherFee": 0,
+          "total": 2200000
+        },
+        {
+          "subject": "PMAT-A",
+          "period": "1개월0일",
+          "hours": 128.3,
+          "fee": 2200000,
+          "otherFee": 0,
+          "total": 2200000
+        },
+        {
+          "subject": "ACT-5",
+          "period": "1개월0일",
+          "hours": 140,
+          "fee": 2400000,
+          "otherFee": 0,
+          "total": 2400000
+        },
+        {
+          "subject": "AIME(중,고)-B",
+          "period": "1개월0일",
+          "hours": 168,
+          "fee": 2400000,
+          "otherFee": 0,
+          "total": 2400000
+        },
+        {
+          "subject": "AMC12-B",
+          "period": "1개월0일",
+          "hours": 140,
+          "fee": 2400000,
+          "otherFee": 0,
+          "total": 2400000
+        },
+        {
+          "subject": "AP-G",
+          "period": "1개월0일",
+          "hours": 168,
+          "fee": 2400000,
+          "otherFee": 0,
+          "total": 2400000
+        },
+        {
+          "subject": "Alevel-D",
+          "period": "1개월0일",
+          "hours": 140,
+          "fee": 2400000,
+          "otherFee": 0,
+          "total": 2400000
+        },
+        {
+          "subject": "GPA-5",
+          "period": "1개월0일",
+          "hours": 150.9,
+          "fee": 2400000,
+          "otherFee": 0,
+          "total": 2400000
+        },
+        {
+          "subject": "IB-H(중,고)",
+          "period": "1개월0일",
+          "hours": 140,
+          "fee": 2400000,
+          "otherFee": 0,
+          "total": 2400000
+        },
+        {
+          "subject": "NCEA",
+          "period": "1개월0일",
+          "hours": 140,
+          "fee": 2400000,
+          "otherFee": 0,
+          "total": 2400000
+        },
+        {
+          "subject": "PMAT-B",
+          "period": "1개월0일",
+          "hours": 140,
+          "fee": 2400000,
+          "otherFee": 0,
+          "total": 2400000
+        },
+        {
+          "subject": "SAT4-C",
+          "period": "1개월0일",
+          "hours": 140,
+          "fee": 2400000,
+          "otherFee": 0,
+          "total": 2400000
+        },
+        {
+          "subject": "외국교과-B",
+          "period": "1개월0일",
+          "hours": 140,
+          "fee": 2400000,
+          "otherFee": 0,
+          "total": 2400000
+        },
+        {
+          "subject": "EC-9",
+          "period": "1개월0일",
+          "hours": 140,
+          "fee": 2500000,
+          "otherFee": 0,
+          "total": 2500000
+        },
+        {
+          "subject": "STEP(중,고)",
+          "period": "1개월0일",
+          "hours": 151,
+          "fee": 2600000,
+          "otherFee": 0,
+          "total": 2600000
+        },
+        {
+          "subject": "BMAT-6",
+          "period": "1개월0일",
+          "hours": 168,
+          "fee": 2800000,
+          "otherFee": 0,
+          "total": 2800000
+        },
+        {
+          "subject": "EC-10",
+          "period": "1개월0일",
+          "hours": 157.5,
+          "fee": 2800000,
+          "otherFee": 0,
+          "total": 2800000
+        },
+        {
+          "subject": "GPA-6",
+          "period": "1개월0일",
+          "hours": 180,
+          "fee": 2800000,
+          "otherFee": 0,
+          "total": 2800000
+        },
+        {
+          "subject": "SAT(중,고)",
+          "period": "1개월0일",
+          "hours": 162.7,
+          "fee": 2800000,
+          "otherFee": 0,
+          "total": 2800000
+        },
+        {
+          "subject": "AMC10",
+          "period": "1개월0일",
+          "hours": 175,
+          "fee": 3000000,
+          "otherFee": 0,
+          "total": 3000000
+        },
+        {
+          "subject": "EC-11",
+          "period": "1개월0일",
+          "hours": 175,
+          "fee": 3000000,
+          "otherFee": 0,
+          "total": 3000000
+        },
+        {
+          "subject": "GED-F",
+          "period": "1개월0일",
+          "hours": 175,
+          "fee": 3000000,
+          "otherFee": 0,
+          "total": 3000000
+        },
+        {
+          "subject": "GPA-7",
+          "period": "1개월0일",
+          "hours": 175,
+          "fee": 3000000,
+          "otherFee": 0,
+          "total": 3000000
+        },
+        {
+          "subject": "외국교과-C(중,고)",
+          "period": "1개월0일",
+          "hours": 175,
+          "fee": 3000000,
+          "otherFee": 0,
+          "total": 3000000
+        },
+        {
+          "subject": "EC-12",
+          "period": "1개월0일",
+          "hours": 196,
+          "fee": 3500000,
+          "otherFee": 0,
+          "total": 3500000
+        },
+        {
+          "subject": "EC-13",
+          "period": "1개월0일",
+          "hours": 235.2,
+          "fee": 4000000,
+          "otherFee": 0,
+          "total": 4000000
+        },
+        {
+          "subject": "EC-14",
+          "period": "1개월0일",
+          "hours": 254.3,
+          "fee": 4500000,
+          "otherFee": 0,
+          "total": 4500000
+        },
+        {
+          "subject": "EC-15",
+          "period": "1개월0일",
+          "hours": 279.8,
+          "fee": 5000000,
+          "otherFee": 0,
+          "total": 5000000
+        },
+        {
+          "subject": "EC-16",
+          "period": "1개월0일",
+          "hours": 291.6,
+          "fee": 5200000,
+          "otherFee": 0,
+          "total": 5200000
+        }
+      ]
+    },
     "3000040596": {
       "name": "스타프랩어학원",
       "establishedYmd": "20110511",
@@ -8448,6 +10139,88 @@
           "fee": 579600,
           "otherFee": 0,
           "total": 579600
+        }
+      ]
+    },
+    "3000054419": {
+      "name": "브리티시에듀학원",
+      "establishedYmd": "20260323",
+      "realm": "국제화",
+      "tracks": [
+        "외국어"
+      ],
+      "courses": [
+        {
+          "subject": "영어C",
+          "period": "1개월0일",
+          "hours": 12.6,
+          "fee": 210000,
+          "otherFee": 0,
+          "total": 210000
+        },
+        {
+          "subject": "영어F",
+          "period": "1개월0일",
+          "hours": 16.8,
+          "fee": 280000,
+          "otherFee": 0,
+          "total": 280000
+        },
+        {
+          "subject": "영어B",
+          "period": "1개월0일",
+          "hours": 18.9,
+          "fee": 330000,
+          "otherFee": 0,
+          "total": 330000
+        },
+        {
+          "subject": "영어E",
+          "period": "1개월0일",
+          "hours": 25.2,
+          "fee": 420000,
+          "otherFee": 0,
+          "total": 420000
+        },
+        {
+          "subject": "영어I",
+          "period": "1개월0일",
+          "hours": 25.2,
+          "fee": 440000,
+          "otherFee": 0,
+          "total": 440000
+        },
+        {
+          "subject": "영어A",
+          "period": "1개월0일",
+          "hours": 31.5,
+          "fee": 560000,
+          "otherFee": 0,
+          "total": 560000
+        },
+        {
+          "subject": "영어H",
+          "period": "1개월0일",
+          "hours": 37.8,
+          "fee": 660000,
+          "otherFee": 0,
+          "total": 660000
+        },
+        {
+          "subject": "영어D",
+          "period": "1개월0일",
+          "hours": 42,
+          "fee": 720000,
+          "otherFee": 0,
+          "total": 720000
+        },
+        {
+          "subject": "영어G",
+          "period": "1개월0일",
+          "hours": 63,
+          "fee": 1080000,
+          "otherFee": 0,
+          "total": 1080000
         }
       ]
     }

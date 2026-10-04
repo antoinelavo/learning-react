@@ -239,7 +239,7 @@ const hagwons = [
     {
     "image": "/images/hagwons/small/monthlyib.png",
     "name":"MonthlyIB",
-    // NEIS: unconfirmed. Same address and floors as 에듀아고라학원 (B10/1168/3000039094); confirm before adding neis.
+    "neis": { "office": "B10", "zone": "1168", "id": "3000039094", "name": "에듀아고라학원" },
     "url":"https:\/\/www.monthly-ib.com\/",
     "address":"서울시 강남구 강남대로 84길 8, 우인빌딩 3·4·6층",
     "region":"서울 강남",
@@ -490,7 +490,7 @@ const hagwons = [
   {
     "image": "/images/hagwons/small/beceduclass.png",
     "name":"BEC 에듀클래스",
-    // NEIS: unconfirmed. Same address/floor as 브리티시에듀학원 (B10/1165/3000054419); confirm before adding neis.
+    "neis": { "office": "B10", "zone": "1165", "id": "3000054419", "name": "브리티시에듀학원" },
     "url":"https:\/\/www.beceduclass.com\/index.htm",
     "address":"서초구 서초중앙로 22길 87 유정빌딩 3층",
     "region":"서울 서초",

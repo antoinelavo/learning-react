@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import TeacherCard from '@/components/TeacherCard';
 import { supabase } from '@/lib/supabase';
-import { buttonClasses, chipClasses, cardClasses } from '@/components/ui';
+import { Button, buttonClasses, chipClasses } from '@/components/ui';
 
 function shuffle(array) {
   const a = array.slice();
@@ -14,36 +14,113 @@ function shuffle(array) {
   return a;
 }
 
-function FilterDropdown({ label, activeCount, isOpen, onToggle, children }) {
-  const active = activeCount > 0;
+function CheckIcon() {
+  return (
+    <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+    </svg>
+  );
+}
+
+function FilterOptions({ options, selected, onToggle, scrollClass }) {
+  return (
+    <div className={`flex flex-col gap-1 overflow-y-auto ${scrollClass}`}>
+      {options.map(({ label, value }) => {
+        const active = selected.includes(value);
+        return (
+          <button
+            key={label}
+            type="button"
+            onClick={() => onToggle(value)}
+            className={`flex items-center justify-between w-full min-h-[48px] px-4 py-3 rounded-xl text-base text-left transition-colors ${
+              active ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-800 hover:bg-gray-50'
+            }`}
+          >
+            {label}
+            {active && <CheckIcon />}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// Filter chip that opens a dropdown on desktop and a bottom sheet on mobile.
+// Options apply immediately; 완료 / the backdrop just close.
+function FilterDropdown({ label, options, selected, isOpen, onOpenChange, onToggle, onClear }) {
+  const active = selected.length > 0;
+
+  // Lock page scroll behind the mobile sheet.
+  useEffect(() => {
+    if (!isOpen || !window.matchMedia('(max-width: 639px)').matches) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, [isOpen]);
+
   return (
     <div className="relative filter-dropdown">
       <button
-        onClick={onToggle}
-        className={chipClasses({ selected: active, soft: true })}
+        type="button"
+        onClick={() => onOpenChange(!isOpen)}
+        className={chipClasses({ selected: active, soft: true, className: 'min-h-[40px] px-4 text-base' })}
       >
-        {label}{active ? ` (${activeCount})` : ''}
-        <svg className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        {label}{active ? ` (${selected.length})` : ''}
+        <svg className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
+
       {isOpen && (
-        <div className="absolute z-20 top-full left-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg p-2 min-w-[140px] filter-dropdown">
-          {children}
-        </div>
+        <>
+          {/* Desktop dropdown */}
+          <div className="hidden sm:block absolute z-30 top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-2xl shadow-lg p-2">
+            <FilterOptions options={options} selected={selected} onToggle={onToggle} scrollClass="max-h-80" />
+          </div>
+
+          {/* Mobile bottom sheet */}
+          <div className="sm:hidden fixed inset-0 z-[1100] flex flex-col justify-end">
+            <div className="absolute inset-0 bg-black/40" onClick={() => onOpenChange(false)} aria-hidden="true" />
+            <div
+              role="dialog"
+              aria-label={label}
+              className="filter-dropdown relative bg-white rounded-t-3xl shadow-xl px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] animate-slide-up"
+            >
+              <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-gray-300" aria-hidden="true" />
+              <h3 className="text-lg font-bold text-gray-900 mt-0 mb-3 px-1">{label}</h3>
+              <FilterOptions options={options} selected={selected} onToggle={onToggle} scrollClass="max-h-[50vh]" />
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <Button variant="secondary" onClick={onClear} disabled={!active}>초기화</Button>
+                <Button onClick={() => onOpenChange(false)}>완료</Button>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
 }
 
-function PillOption({ label, active, onClick }) {
+function QuestionCta() {
   return (
-    <button
-      onClick={onClick}
-      className={chipClasses({ selected: active })}
-    >
-      {label}
-    </button>
+    <div className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-5 text-center">
+      <p className="text-sm text-gray-700 mt-0 mb-3">
+        간단한 질문 몇 개만 답하면, 선생님이 직접 연락드립니다. (약 30초 소요)
+      </p>
+      <a href="/students/new" className={buttonClasses()}>
+        질문 보기
+      </a>
+    </div>
+  );
+}
+
+function TeacherGroup({ teachers, startIndex = 0 }) {
+  return (
+    <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden divide-y divide-gray-200">
+      {teachers.map((t, i) => (
+        <TeacherCard key={t.id} {...t} badge={t.isPremium ? '추천' : null} priority={startIndex + i === 0} />
+      ))}
+    </div>
   );
 }
 
@@ -71,6 +148,10 @@ export default function TeacherList() {
       const next = arr.includes(value) ? arr.filter(v => v !== value) : [...arr, value];
       return { ...prev, [category]: next };
     });
+  }
+
+  function clearCategory(category) {
+    setFilters(prev => ({ ...prev, [category]: [] }));
   }
 
   function clearFilters() {
@@ -136,98 +217,43 @@ export default function TeacherList() {
     setFilteredTeachers([...premium, ...normal]);
   }, [filters, allTeachers]);
 
+  const filterConfigs = [
+    { key: 'subjects', label: '과목', options: subjectOptions.map(subj => ({ label: subj, value: subj })) },
+    { key: 'lessonTypes', label: '수업 방식', options: ['비대면', '대면'].map(v => ({ label: v, value: v })) },
+    { key: 'genders', label: '성별', options: ['남', '여'].map(v => ({ label: v, value: v })) },
+    { key: 'ib', label: 'IB 이수', options: [{ label: '이수', value: true }, { label: '미이수', value: false }] },
+  ];
+
   return (
-    <main className="max-w-3xl mx-auto px-3 py-3 min-h-screen">
-      {/* Top Banner */}
-      <div className={cardClasses({ className: 'px-4 py-3 mb-3 text-center' })}>
-        <p className="text-sm text-gray-700 mb-2">
-          간단한 질문 몇 개만 답하면, 선생님이 직접 연락드립니다. (약 30초 소요)
-        </p>
-        <a
-          href="/students/new"
-          className={buttonClasses()}
-        >
-          질문 보기
-        </a>
+    <main className="max-w-3xl mx-auto px-4 py-4 min-h-screen">
+      {/* Top CTA */}
+      <div className="mb-6">
+        <QuestionCta />
       </div>
 
       {/* Page title */}
-      <div className="mb-3">
-        <h1 className="text-base font-bold text-gray-900">IB 과외 선생님 찾기</h1>
-        <p className="text-xs text-gray-500">과외 글 게시, 열람 비용 없이 원하는 IB 과외 선생님을 찾아보세요.</p>
+      <div className="mb-4">
+        <h1 className="text-lg sm:text-xl font-bold text-gray-900 mt-0 mb-1 leading-snug">IB 과외 선생님 찾기</h1>
+        <p className="text-sm text-gray-500 m-0">과외 글 게시, 열람 비용 없이 원하는 IB 과외 선생님을 찾아보세요.</p>
       </div>
 
       {/* Filter bar */}
-      <div className="flex items-center gap-2 flex-wrap mb-3" ref={containerRef}>
-        {/* 과목 */}
-        <FilterDropdown
-          label="과목"
-          activeCount={filters.subjects.length}
-          isOpen={openDropdown === 'subjects'}
-          onToggle={() => setOpenDropdown(openDropdown === 'subjects' ? null : 'subjects')}
-        >
-          <div className="max-h-48 overflow-y-auto">
-            {subjectOptions.map(subj => (
-              <button
-                key={subj}
-                onClick={() => toggleFilter('subjects', subj)}
-                className={`w-full text-left px-2 py-1.5 text-sm rounded-lg transition-colors ${
-                  filters.subjects.includes(subj)
-                    ? 'bg-blue-50 text-blue-700 font-medium'
-                    : 'text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                {subj}
-              </button>
-            ))}
-          </div>
-        </FilterDropdown>
+      <div className="flex items-center gap-2 flex-wrap mb-4" ref={containerRef}>
+        {filterConfigs.map(({ key, label, options }) => (
+          <FilterDropdown
+            key={key}
+            label={label}
+            options={options}
+            selected={filters[key]}
+            isOpen={openDropdown === key}
+            onOpenChange={open => setOpenDropdown(open ? key : null)}
+            onToggle={value => toggleFilter(key, value)}
+            onClear={() => clearCategory(key)}
+          />
+        ))}
 
-        {/* 수업 방식 */}
-        <FilterDropdown
-          label="수업 방식"
-          activeCount={filters.lessonTypes.length}
-          isOpen={openDropdown === 'lessonTypes'}
-          onToggle={() => setOpenDropdown(openDropdown === 'lessonTypes' ? null : 'lessonTypes')}
-        >
-          <div className="flex gap-2 p-1">
-            {['비대면', '대면'].map(lt => (
-              <PillOption key={lt} label={lt} active={filters.lessonTypes.includes(lt)} onClick={() => toggleFilter('lessonTypes', lt)} />
-            ))}
-          </div>
-        </FilterDropdown>
-
-        {/* 성별 */}
-        <FilterDropdown
-          label="성별"
-          activeCount={filters.genders.length}
-          isOpen={openDropdown === 'genders'}
-          onToggle={() => setOpenDropdown(openDropdown === 'genders' ? null : 'genders')}
-        >
-          <div className="flex gap-2 p-1">
-            {['남', '여'].map(g => (
-              <PillOption key={g} label={g} active={filters.genders.includes(g)} onClick={() => toggleFilter('genders', g)} />
-            ))}
-          </div>
-        </FilterDropdown>
-
-        {/* IB 이수 여부 */}
-        <FilterDropdown
-          label="IB 이수"
-          activeCount={filters.ib.length}
-          isOpen={openDropdown === 'ib'}
-          onToggle={() => setOpenDropdown(openDropdown === 'ib' ? null : 'ib')}
-        >
-          <div className="flex gap-2 p-1">
-            {[{ label: '이수', value: true }, { label: '미이수', value: false }].map(({ label, value }) => (
-              <PillOption key={label} label={label} active={filters.ib.includes(value)} onClick={() => toggleFilter('ib', value)} />
-            ))}
-          </div>
-        </FilterDropdown>
-
-        {/* Clear */}
         {hasActiveFilters && (
-          <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-red-500 transition-colors ml-1">
+          <button type="button" onClick={clearFilters} className="text-sm text-gray-500 hover:text-red-500 transition-colors ml-1">
             필터 초기화
           </button>
         )}
@@ -240,28 +266,20 @@ export default function TeacherList() {
         <p className="text-center text-sm text-gray-400 mt-10">조건에 맞는 선생님이 없습니다.</p>
       ) : (
         <div>
-          <div className="flex gap-4 mb-2">
-            <p className="text-xs text-gray-500">총 검색된 선생님 수: {filteredTeachers.length}명</p>
-            <p className="text-xs text-gray-400">지난달 조회수: {process.env.NEXT_PUBLIC_MONTHLY_VIEWS || '0'}회</p>
+          <div className="flex gap-4 mb-2 px-1">
+            <p className="text-xs text-gray-500 m-0">총 검색된 선생님 수: {filteredTeachers.length}명</p>
+            <p className="text-xs text-gray-400 m-0">지난달 조회수: {process.env.NEXT_PUBLIC_MONTHLY_VIEWS || '0'}회</p>
           </div>
 
-          <div className="flex flex-col bg-white border-t border-gray-200 sm:border sm:border-gray-200 sm:rounded-xl divide-y divide-gray-200 overflow-hidden sm:shadow-lg">
-            {filteredTeachers.map((t, i) => (
-              <div key={t.id}>
-                <TeacherCard {...t} badge={t.isPremium ? '추천' : null} priority={i === 0} />
-                {i === 5 && filteredTeachers.length > 6 && (
-                  <div className="px-4 py-5 bg-blue-50 text-center">
-                    <p className="text-sm text-gray-700 mb-3">
-                      간단한 질문 몇 개만 답하면, 선생님이 직접 연락드립니다. (약 30초 소요)
-                    </p>
-                    <a href="/students/new" className={buttonClasses()}>
-                      질문 보기
-                    </a>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+          {filteredTeachers.length > 6 ? (
+            <div className="flex flex-col gap-4">
+              <TeacherGroup teachers={filteredTeachers.slice(0, 6)} />
+              <QuestionCta />
+              <TeacherGroup teachers={filteredTeachers.slice(6)} startIndex={6} />
+            </div>
+          ) : (
+            <TeacherGroup teachers={filteredTeachers} />
+          )}
         </div>
       )}
     </main>

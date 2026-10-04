@@ -26,11 +26,11 @@ Clean up the teacher search page (`/find`): a properly bordered grouped list, CT
 - Must work at 390px with no horizontal scroll; the sheet must respect the iPhone safe area.
 
 ## Done when
-- [ ] At 390px and 1280px, the teacher list has a full border with rounded corners on all four sides.
-- [ ] With more than 6 teachers, the list is two grouped boxes with the CTA card between them; the CTA has a border on all sides.
-- [ ] Top and mid CTAs share the same style.
-- [ ] 추천 rows have a yellow background and badge but no glow shadow.
-- [ ] At 390px, tapping a filter chip opens a bottom sheet; toggling an option filters the list; 초기화 clears that filter; 완료 and the backdrop close it.
-- [ ] At 1280px, filters open as a wider dropdown with larger options.
-- [ ] The dashboard premium-listing preview still renders the card correctly.
-- [ ] `npm run build` passes.
+- [x] At 390px and 1280px, the teacher list has a full border with rounded corners on all four sides.
+- [x] With more than 6 teachers, the list is two grouped boxes with the CTA card between them; the CTA has a border on all sides.
+- [x] Top and mid CTAs share the same style.
+- [x] 추천 rows have a yellow background and badge but no glow shadow.
+- [x] At 390px, tapping a filter chip opens a bottom sheet; toggling an option filters the list; 초기화 clears that filter; 완료 and the backdrop close it.
+- [x] At 1280px, filters open as a wider dropdown with larger options.
+- [x] The dashboard premium-listing preview still renders the card correctly.
+- [x] `npm run build` passes.

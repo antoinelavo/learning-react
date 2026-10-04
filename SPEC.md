@@ -1,36 +1,39 @@
-# Spec: /find page redesign
+# Spec: /find search box and 수업료 slider
 
 ## Goal
-Clean up the teacher search page (`/find`): a properly bordered grouped list, CTA cards that look intentional, and filters that are easy to use on a phone.
+Help students and parents narrow the teacher list on `/find` by price and by keyword, using data already in the `teachers` table.
 
 ## Included
-- **Teacher list (iOS grouped style):** one white box with a full border and `rounded-2xl` corners on all screen sizes, rows separated by thin dividers inside. No cut-off sides on mobile.
-- **List split around the mid CTA:** first 6 teachers in one grouped box, then the CTA card, then the rest in a second grouped box (only when there are more than 6 teachers, as now).
-- **CTA cards:** the top and mid-list 질문 보기 CTAs use one shared look: tinted blue card (`bg-blue-50`, light blue border on all sides, `rounded-2xl`), centered text and button. Same text and link (`/students/new`) as now.
-- **Page order unchanged:** top CTA card, then title and description, filters, count line, list.
-- **Teacher rows (`components/TeacherCard.js`):** restyled to sit cleanly inside the grouped list. 추천 (premium) rows keep a soft yellow background and the yellow 추천 badge; the glow shadow is removed.
-- **Filters:**
-  - Mobile (below `sm`): tapping a filter chip opens a bottom sheet with the filter name, large tappable options, and a 초기화 (clear this filter) + 완료 (close) row. Dimmed backdrop; tapping it closes the sheet.
-  - Desktop: a wider dropdown with larger options.
-  - Options still apply immediately as you tap, as now. The 필터 초기화 link for all filters stays.
+- **Search box** above the filter chips, full width.
+  - Placeholder: "이름, 학교, 과목으로 검색".
+  - Matches `name`, `school`, `shortintroduction`, `subjects`, and `extra_subject`; case-insensitive; updates as you type.
+- **수업료 filter chip** (5th chip), opening the same bottom sheet (mobile) / dropdown (desktop) as the other filters, with a two-handle range slider (`rc-slider`, already installed).
+  - Range 2만원 – 15만원+, step 1만원 (`rate` is 만원/시간). The top handle at 15 means "15만원 이상".
+  - Labels under the slider show the current range, e.g. "5만원 – 7만원" or "2만원 – 15만원+".
+  - At the full range the slider filters nothing.
+  - While set, the chip reads the range, e.g. "5–7만원", in the selected chip style.
+  - The sheet's 초기화 resets the slider to the full range.
+- **Teachers without a 수업료** (`rate` empty or ≤ 0) are not hidden by the slider: they are listed after all matching teachers.
+- **Chip row** stays on one line and scrolls sideways on narrow screens, with a fade on the right edge that shows only while more chips are off-screen. No visible scrollbar.
+- **"필터 초기화"** also clears the search box and the slider. It shows whenever any filter, search text, or slider is active.
 
 ## Not included
-- Filter logic, sorting (premium first, shuffled), data loading, or the count/views line text.
-- The teacher profile page.
-- Any data, API, payment, or database change.
+- Sorting options, age filter, school categories.
+- Any change to the `teachers` table, data cleanup, or the teacher apply/edit forms.
+- Changes to the list design, CTA cards, or other filters.
 
 ## Rules
-- `TeacherCard` is also used on the teacher dashboard's premium-listing preview (`PremiumListingOffer`); the new row style must look right there too. Styling only — no payment logic changes.
-- Use the shared `components/ui` styles where they fit (buttons, chips).
-- Korean text unchanged except 초기화 / 완료 in the sheet.
-- Must work at 390px with no horizontal scroll; the sheet must respect the iPhone safe area.
+- Read-only use of existing columns; no migration.
+- Within each group (rate matches / no rate), keep the current order: premium first, then shuffled.
+- Search and filters combine (AND).
+- Count line ("총 검색된 선생님 수") reflects the filtered result, including no-rate teachers shown at the bottom.
+- Korean text exactly as above.
+- Must work at 360–390px with no page-level horizontal scroll.
 
 ## Done when
-- [x] At 390px and 1280px, the teacher list has a full border with rounded corners on all four sides.
-- [x] With more than 6 teachers, the list is two grouped boxes with the CTA card between them; the CTA has a border on all sides.
-- [x] Top and mid CTAs share the same style.
-- [x] 추천 rows have a yellow background and badge but no glow shadow.
-- [x] At 390px, tapping a filter chip opens a bottom sheet; toggling an option filters the list; 초기화 clears that filter; 완료 and the backdrop close it.
-- [x] At 1280px, filters open as a wider dropdown with larger options.
-- [x] The dashboard premium-listing preview still renders the card correctly.
-- [x] `npm run build` passes.
+- [ ] Typing "물리" (or a school name) narrows the list to teachers whose name/school/intro/subjects match; clearing the box restores the list.
+- [ ] Setting the slider to 5–7 shows teachers with rate 5–7 first, then teachers without a rate; teachers with other rates are hidden.
+- [ ] The 수업료 chip reads the selected range while set, and the sheet's 초기화 resets it.
+- [ ] At 360px the chip row scrolls sideways, the right-edge fade shows, and it disappears when scrolled to the end; the page itself has no horizontal scroll.
+- [ ] "필터 초기화" clears search, slider, and chip filters.
+- [ ] `npm run build` passes.

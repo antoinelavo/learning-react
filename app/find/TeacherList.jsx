@@ -63,10 +63,10 @@ function FilterDropdown({ label, options, selected, isOpen, onOpenChange, onTogg
       <button
         type="button"
         onClick={() => onOpenChange(!isOpen)}
-        className={chipClasses({ selected: active, soft: true, className: 'min-h-[40px] px-4 text-base' })}
+        className={chipClasses({ selected: active, soft: true, compact: true })}
       >
         {label}{active ? ` (${selected.length})` : ''}
-        <svg className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
@@ -238,7 +238,7 @@ export default function TeacherList() {
       </div>
 
       {/* Filter bar */}
-      <div className="flex items-center gap-2 flex-wrap mb-4" ref={containerRef}>
+      <div className="flex items-center gap-1 sm:gap-2 flex-wrap mb-4" ref={containerRef}>
         {filterConfigs.map(({ key, label, options }) => (
           <FilterDropdown
             key={key}

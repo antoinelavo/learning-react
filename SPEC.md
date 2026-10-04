@@ -1,39 +1,36 @@
-# Spec: Unified UI components
+# Spec: Slimmer request board header with sticky write button
 
 ## Goal
-Make buttons, inputs, badges, cards and tabs look the same across the site, using the teacher dashboard (`app/dashboard/page.jsx`) as the visual reference.
+Replace the bulky top card on the student and hagwon request boards with a plain title and one line of text, and move the "write request" button to a sticky bar at the bottom on mobile, so requests show up sooner.
 
 ## Included
-- Shared components in `components/ui/`:
-  - `Button`: variants `primary` (solid `blue-600`, hover `blue-700`), `secondary` (white, `border-gray-300`), `danger` (red text and border, not solid), `ghost` (text only). Sizes `sm`/`md`/`lg`. Always `rounded-xl`. Supports `disabled`, `type`, `fullWidth`, and rendering as a link.
-  - `Input`, `Select`, `Textarea`: `rounded-xl`, `border-gray-300`, `p-3`, blue focus ring. Optional `label` and error text.
-  - `Badge`: `rounded-full` pill with soft colors (`blue`, `gray`, `green`, `yellow`, `red`), e.g. `blue-50` background with blue text.
-  - `Card`: white, `rounded-2xl`, `border-gray-200`, `shadow`, standard padding.
-  - `Tabs`: segmented control. Gray `rounded-full` track, white shadowed active pill with blue text.
-  - `Notice`: soft tinted status box (`yellow`, `blue`, `red`, `green`), `rounded-xl`.
-- Replace the inline-styled versions of these elements with the shared components on every page in `app/` and `pages/`, including admin pages, dashboards, auth, chat, community, and the teacher profile page.
-- Shared components in `components/` that use these elements (cards, popups, nav, `BlogCTAButton`, `TierUpgradeOffer`, `PremiumListingOffer`, chat components).
+- Both boards, changed the same way: `/students` (`app/students/StudentsPageClient.jsx`) and `/hagwon-requests` (`app/hagwon-requests/HagwonRequestsPageClient.jsx`).
+- Header: no card. Plain title + one line of text.
+  - 학생 게시판 / "학생/학부모님께서 올린 수업 요청글을 확인하고 직접 연락해 보세요."
+  - 학원 요청 게시판 / "학생/학부모님께서 올린 학원 요청글을 확인하고 직접 연락해 보세요."
+- The separate gray note line moves into the list header's count:
+  - Students: `최근 1개월 · 총 N건`
+  - Hagwon: `오래된 글은 자동 삭제 · 총 N건`
+- Write button (수업 요청글 작성하기 / 학원 요청글 작성하기, same links as now):
+  - Mobile (below `sm`): full-width primary button fixed to the bottom of the screen, with safe-area padding for the iPhone home bar.
+  - Desktop (`sm` and up): small primary button on the right of the title line. Nothing sticky.
+- Bottom padding on mobile so the sticky bar never covers the last request card.
 
 ## Not included
-- Page layouts, spacing, typography, and the global `h1`/`h2`/`p` styles in `styles/`.
-- Blog post content in `content/blog/`.
-- Legal pages (terms, privacy, refund policy) and the footer's business info.
-- Brand color or font changes. Primary stays the existing `blue` palette and Noto Sans KR.
-- The Quill rich-text editor's internal styling.
+- Changes to the request cards, filters, modals, reveal flow, or the write/edit pages.
+- Any data, API, or database change.
 
 ## Rules
-- No behavior changes: same handlers, `href`s, form field `name`s, `required`/validation, and Korean text.
-- Payment components (`TierUpgradeOffer`, `PremiumListingOffer`, and any Toss checkout buttons): styling only. Do not touch Toss calls, prices, `lib/toss.js`, activation code, or API routes.
-- No database or migration changes.
-- Components are plain JS/JSX with Tailwind classes and accept `className` for small per-use tweaks.
-- Destructive actions (탈퇴하기, delete, cancel) use the `danger` variant.
-- Must look right on mobile (no overflow, tap targets at least ~40px tall).
+- Both boards must stay identical in layout and behavior; a change to one is made to the other.
+- The write button (sticky and desktop) is hidden for logged-in `teacher` and `hagwon` accounts. Students, parents, admins, and logged-out visitors see it.
+- The approved-teacher badge "이번 달 연락처 열람 N/2회 남음" stays, under the explanation line.
+- Use the shared `components/ui` button styles.
+- No payment, database, blog, or legal changes.
 
 ## Done when
-- [x] `components/ui/` contains `Button`, `Input`, `Select`, `Textarea`, `Badge`, `Card`, `Tabs`, `Notice`.
-- [ ] No `<button>` in `app/`, `pages/`, or `components/` (outside `components/ui/`) has its own background-color/radius/padding styling. Icon-only buttons and tab triggers inside `Tabs` are the only exceptions.
-- [x] Text inputs, selects and textareas in forms use the shared components.
-- [x] Dashboard 로그아웃 is `secondary` and 탈퇴하기 is `danger`. They no longer use `blue-500`/`blue-900`.
-- [x] Payment components still call the same handlers with the same props (diff shows only markup/class changes).
-- [ ] Key pages checked at mobile and desktop widths: home, find, students, hagwon-requests, dashboard, login/signup, teacher profile, admin.
-- [x] `npm run build` passes.
+- [ ] Neither board's header is a card; each shows the title and the exact one-line text above.
+- [ ] List headers read `최근 1개월 · 총 N건` and `오래된 글은 자동 삭제 · 총 N건`; the old gray note lines are gone.
+- [ ] At 390px width, the write button is fixed to the bottom, full width, and the last card can scroll fully above it.
+- [ ] At 1280px width, the write button sits on the title line and nothing is fixed to the bottom.
+- [ ] The write button does not render for `teacher` or `hagwon` roles (checked in code).
+- [ ] `npm run build` passes.

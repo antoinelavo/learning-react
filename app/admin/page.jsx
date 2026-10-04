@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 import DashboardCards from './components/DashboardCards';
 import TeacherList from './components/TeacherList';
 import ABTestTable from './components/ABTestTable';
@@ -22,12 +23,27 @@ export default function AdminPage() {
     }
   }, [loading, role]);
 
+  // Pending 플러스 bank-transfer requests, shown on the link below.
+  const [pendingPlusCount, setPendingPlusCount] = useState(null);
+
+  useEffect(() => {
+    if (!authorized) return;
+    supabase
+      .from('payments')
+      .select('id', { count: 'exact', head: true })
+      .eq('provider', 'bank_transfer')
+      .eq('status', 'pending')
+      .then(({ count, error }) => {
+        if (!error) setPendingPlusCount(count ?? 0);
+      });
+  }, [authorized]);
+
   if (loading) return <div className="text-center mt-20">Loading...</div>;
   if (!authorized) return null;
 
   return (
     <div className="max-w-screen-lg mx-auto pt-6 sm:pt-8 px-4 mb-[20dvh]">
-      <div className="flex justify-end gap-2 mb-3">
+      <div className="flex flex-wrap justify-end gap-2 mb-3">
         <Link
           href="/admin/conversations"
           className={buttonClasses({ size: 'sm' })}
@@ -57,6 +73,18 @@ export default function AdminPage() {
           className={buttonClasses({ size: 'sm' })}
         >
           플러스 회원 →
+        </Link>
+        <Link
+          href="/admin/plus-payments"
+          className={buttonClasses({ size: 'sm', className: 'gap-1.5' })}
+        >
+          플러스 결제 요청
+          {pendingPlusCount > 0 && (
+            <span className="bg-red-500 text-white text-xs font-semibold rounded-full px-1.5 py-0.5 leading-none">
+              {pendingPlusCount}
+            </span>
+          )}
+          →
         </Link>
       </div>
       <DashboardCards />

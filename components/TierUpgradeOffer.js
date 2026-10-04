@@ -231,6 +231,24 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
     setShowAccountNumber(true);
     setBankTransferRequested(true);
 
+    // One pending request per teacher — a reload + second click just
+    // re-shows the account info instead of logging a duplicate row for
+    // /admin/plus-payments.
+    const { data: existing, error: lookupError } = await supabase
+      .from('payments')
+      .select('id')
+      .eq('teacher_id', teacher.id)
+      .eq('provider', 'bank_transfer')
+      .eq('status', 'pending')
+      .limit(1);
+
+    if (lookupError) {
+      alert('요청 기록 중 오류가 발생했습니다.');
+      return;
+    }
+
+    if (existing && existing.length > 0) return;
+
     const { error } = await supabase.from('payments').insert([
       {
         teacher_id: teacher.id,

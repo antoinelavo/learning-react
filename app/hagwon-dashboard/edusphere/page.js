@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Eye, MousePointer, Smartphone, Monitor, TrendingUp, Calendar, Clock, Lock, LogOut } from 'lucide-react';
+import { Input, Button, cardClasses, Notice } from '@/components/ui';
 
 const Dashboard = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -122,7 +123,7 @@ const Dashboard = () => {
     const colors = colorClasses[color] || colorClasses.blue;
     
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+      <div className={cardClasses({ className: 'p-6 hover:shadow-md transition-shadow' })}>
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
@@ -170,7 +171,7 @@ const Dashboard = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full">
-          <div className="bg-white rounded-xl shadow-lg p-8">
+          <div className={cardClasses({ className: 'p-8' })}>
             <div className="text-center mb-8">
               <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
                 <Lock className="w-8 h-8 text-blue-600" />
@@ -184,29 +185,28 @@ const Dashboard = () => {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                   비밀번호
                 </label>
-                <input
+                <Input
                   type="password"
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
                   placeholder="비밀번호를 입력하세요"
                 />
               </div>
 
               {error && (
-                <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
+                <Notice color="red">
                   {error}
-                </div>
+                </Notice>
               )}
 
-              <button
+              <Button
                 onClick={handleLogin}
-                className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 outline-none transition-colors font-medium"
+                fullWidth
               >
                 로그인
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -236,12 +236,12 @@ const Dashboard = () => {
             </svg>
           </div>
           <p className="text-red-600 mb-4">{dataError}</p>
-          <button
+          <Button
             onClick={fetchDashboardData}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+           
           >
             다시 시도
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -257,23 +257,23 @@ const Dashboard = () => {
             <p className="text-gray-600">실시간 클릭 데이터 및 분석</p>
           </div>
           <div className="flex space-x-3">
-            <button
+            <Button
               onClick={fetchDashboardData}
               disabled={dataLoading}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+             
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
               <span>새로고침</span>
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleLogout}
-              className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              variant="danger"
             >
               <LogOut className="w-4 h-4" />
               <span>로그아웃</span>
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -309,7 +309,7 @@ const Dashboard = () => {
         </div>
 
           {/* Billing Section */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8 hover:shadow-md">
+        <div className={cardClasses({ className: 'p-6 mb-8 hover:shadow-md' })}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Homepage clicks billing */}
             <div className="bg-green-50 rounded-lg p-4">
@@ -376,7 +376,7 @@ const Dashboard = () => {
 
         {/* Device Stats */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md">
+          <div className={cardClasses({ className: 'p-6 hover:shadow-md' })}>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">기기별 클릭 현황</h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -445,7 +445,7 @@ const Dashboard = () => {
           </div>
 
           {/* Button Click Comparison */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md">
+          <div className={cardClasses({ className: 'p-6 hover:shadow-md' })}>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">버튼별 클릭 비교</h3>
             <div className="space-y-4">
               {(dashboardData.buttonClicks.homepage + dashboardData.buttonClicks.click) > 0 ? (
@@ -492,7 +492,7 @@ const Dashboard = () => {
         </div>
 
         {/* Recent Clicks Table */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md">
+        <div className={cardClasses({ className: 'overflow-hidden hover:shadow-md' })}>
           <div className="px-6 py-4 border-b border-gray-100">
             <h3 className="text-lg font-semibold text-gray-900">최근 클릭 활동</h3>
             <p className="text-sm text-gray-600 mt-1">클릭별 정확한 시간과 기기 정보</p>

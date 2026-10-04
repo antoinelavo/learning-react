@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { cardClasses } from '@/components/ui';
 
 export default function DashboardCards() {
   const [stats, setStats] = useState({
@@ -100,7 +101,7 @@ export default function DashboardCards() {
   ];
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+    <div className={cardClasses({ className: 'overflow-hidden' })}>
       <table className="w-full text-sm">
         <thead>
           <tr className="bg-gray-50 border-b text-xs font-medium text-gray-500">

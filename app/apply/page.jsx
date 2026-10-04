@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
 import { useForm } from 'react-hook-form';
+import { Input, Select, Textarea, Button, cardClasses } from '@/components/ui';
 
 export default function ApplyPage() {
   const router = useRouter();
@@ -215,9 +216,9 @@ export default function ApplyPage() {
         선생님 계정만 열람 가능합니다. 선생님 계정으로 로그인 해주세요. 
         <br></br>
         <br></br>
-        <button onClick="window.location.href='/logout';">
+        <Button href="/logout" variant="secondary">
           로그아웃하기
-        </button>
+        </Button>
         </div>
 
     );
@@ -226,7 +227,7 @@ export default function ApplyPage() {
 // (only when isTeacher === true do we fall through to render the form)
 
   return (
-  <div className="flex flex-col mt-6 p-[1em] bg-white border border-solid border-gray-200 shadow rounded-2xl max-w-4xl mx-auto mb-[3em]">
+  <div className={cardClasses({ className: 'flex flex-col mt-6 p-[1em] max-w-4xl mx-auto mb-[3em]' })}>
 
     <div className="max-w-4xl mx-auto p-0 mb-[3em]">
       <h1 className="text-3xl font-bold mb-6 text-center">IB Master 선생님 지원하기</h1>
@@ -236,12 +237,12 @@ export default function ApplyPage() {
           <label htmlFor="name" className="block font-medium">
             사이트 기재용 이름 *
           </label>
-          <input
+          <Input
             type="text"
             id="name"
             {...register('name', { required: true, maxLength: 10 })}
             placeholder="이름 혹은 아이디"
-            className="w-full border border-gray-300 rounded-xl p-3 mt-2"
+            className="mt-2"
           />
           {errors.name && (
             <p className="text-red-500 text-sm mt-1">이름을 입력해주세요 (최대 10자).</p>
@@ -274,12 +275,12 @@ export default function ApplyPage() {
           <label htmlFor="extra_subject" className="block font-medium">
             위에 수업 과목명이 없는 경우, 여기에 수업 과목명을 적어주세요.
           </label>
-          <input
+          <Input
             type="text"
             id="extra_subject"
             {...register('extra_subject')}
             placeholder="기타 과목명을 입력하세요"
-            className="w-full border border-gray-300 rounded-xl p-3 mt-2"
+            className="mt-2"
           />
         </div>
 
@@ -344,12 +345,11 @@ export default function ApplyPage() {
           <label htmlFor="preferred_lesson_time" className="block mb-1 font-medium">
             선호 수업 시간 *
           </label>
-          <input
+          <Input
             type="text"
             id="preferred_lesson_time"
             {...register('preferred_lesson_time', { required: true })}
             placeholder="예: 평일 오전/오후, 수요일 저녁 7-8시"
-            className="w-full border border-gray-300 rounded p-2"
           />
           {errors.preferred_lesson_time && (
             <p className="text-red-500 text-sm mt-1">선호 수업 시간을 입력해주세요.</p>
@@ -361,12 +361,11 @@ export default function ApplyPage() {
           <label htmlFor="school" className="block mb-1 font-medium">
             학력 / 학과 *
           </label>
-          <input
+          <Input
             type="text"
             id="school"
             {...register('school', { required: true })}
             placeholder="한국대학교 국문학과 / SKY 컴퓨터공학과 등 구체적, 혹은 포괄적인 학교 정보"
-            className="w-full border border-gray-300 rounded p-2"
           />
           {errors.school && (
             <p className="text-red-500 text-sm mt-1">학력/학과를 입력해주세요.</p>
@@ -378,12 +377,11 @@ export default function ApplyPage() {
           <label htmlFor="student_id_number" className="block mb-1 font-medium">
             학번 (입학년도) *
           </label>
-          <input
+          <Input
             type="text"
             id="student_id_number"
             {...register('student_id_number', {required: true})}
             placeholder="예: 21, 23"
-            className="w-full border border-gray-300 rounded p-2"
           />
         </div>
 
@@ -392,11 +390,10 @@ export default function ApplyPage() {
           <label htmlFor="age" className="block mb-1 font-medium">
             나이 (선택)
           </label>
-          <input
+          <Input
             type="number"
             id="age"
             {...register('age')}
-            className="w-full border border-gray-300 rounded p-2"
           />
         </div>
 
@@ -405,15 +402,14 @@ export default function ApplyPage() {
           <label htmlFor="gender" className="block mb-1 font-medium">
             성별 *
           </label>
-          <select
+          <Select
             id="gender"
             {...register('gender', { required: true })}
-            className="w-full border border-gray-300 rounded p-2"
           >
             <option value="">성별 고르기</option>
             <option value="남">남</option>
             <option value="여">여</option>
-          </select>
+          </Select>
           {errors.gender && (
             <p className="text-red-500 text-sm mt-1">성별을 선택해주세요.</p>
           )}
@@ -424,11 +420,10 @@ export default function ApplyPage() {
           <label htmlFor="shortintroduction" className="block mb-1 font-medium">
             한줄소개 *
           </label>
-          <textarea
+          <Textarea
             id="shortintroduction"
             {...register('shortintroduction', { required: true, maxLength: 50 })}
             placeholder="선생님의 간결하고 임팩트 있는 소개!"
-            className="w-full border border-gray-300 rounded p-2"
             rows={2}
           />
           {errors.shortintroduction && (
@@ -459,12 +454,11 @@ export default function ApplyPage() {
           <label htmlFor="rate" className="block mb-1 font-medium">
             수업료 (시급, 단위는 만 원) *
           </label>
-          <input
+          <Input
             type="number"
             id="rate"
             {...register('rate', { required: true })}
             placeholder="예: 5"
-            className="w-full border border-gray-300 rounded p-2"
           />
           {errors.rate && (
             <p className="text-red-500 text-sm mt-1">수업료를 입력해주세요.</p>
@@ -476,12 +470,11 @@ export default function ApplyPage() {
           <label htmlFor="rate_description" className="block mb-1 font-medium">
             수업료 관련 설명 (선택)
           </label>
-          <input
+          <Input
             type="text"
             id="rate_description"
             {...register('rate_description')}
             placeholder="예: EE는 시급 6만원 / 대면은 시급 +1만원"
-            className="w-full border border-gray-300 rounded p-2"
           />
         </div>
 
@@ -490,12 +483,11 @@ export default function ApplyPage() {
           <label htmlFor="email" className="block mb-1 font-medium">
             이메일 주소 *
           </label>
-          <input
+          <Input
             type="email"
             id="email"
             {...register('email', { required: true })}
             placeholder="example@email.com"
-            className="w-full border border-gray-300 rounded p-2"
           />
           {errors.email && (
             <p className="text-red-500 text-sm mt-1">이메일 주소를 입력해주세요.</p>
@@ -507,12 +499,11 @@ export default function ApplyPage() {
           <label htmlFor="contact_information" className="block mb-1 font-medium">
             추가 연락처 (선택)
           </label>
-          <input
+          <Input
             type="text"
             id="contact_information"
             {...register('contact_information')}
             placeholder="카톡 링크, 전화번호 등"
-            className="w-full border border-gray-300 rounded p-2"
           />
           <p className="text-xs text-gray-500 mt-1">
             예: 오픈카톡 링크, 전화번호 등
@@ -555,13 +546,13 @@ export default function ApplyPage() {
      <input type="hidden" {...register('experience')} />
 
         {/* submit */}
-        <button
+        <Button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 disabled:opacity-50"
+          fullWidth
         >
           {isSubmitting ? '제출 중...' : '제출하기'}
-        </button>
+        </Button>
       </form>
     </div>
 

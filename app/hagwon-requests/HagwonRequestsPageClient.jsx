@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import HagwonNewsletterPopup from '@/components/HagwonNewsletterPopup';
+import { Input, Button, buttonClasses, choiceClasses, cardClasses, Badge, Notice } from '@/components/ui';
 
 export default function HagwonRequestsPageClient() {
   const [requests, setRequests] = useState([]);
@@ -187,7 +188,7 @@ export default function HagwonRequestsPageClient() {
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-8 mb-[50dvh]">
-      <section className="bg-white border border-gray-200 rounded-xl shadow-md p-4 sm:p-6 mb-8 flex items-center justify-between gap-3">
+      <section className={cardClasses({ className: 'p-4 sm:p-6 mb-8 flex items-center justify-between gap-3' })}>
         <div>
           <h1 className="text-xl sm:text-2xl font-bold mb-1">학원 요청 게시판</h1>
           <p className="text-sm text-gray-600">
@@ -200,7 +201,7 @@ export default function HagwonRequestsPageClient() {
         <div className="shrink-0">
           <Link
             href="/hagwon-requests/new"
-            className="inline-flex items-center px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+            className={buttonClasses({ size: 'sm' })}
           >
             학원 요청글 작성하기
           </Link>
@@ -214,9 +215,9 @@ export default function HagwonRequestsPageClient() {
         </div>
 
         {error && (
-          <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded px-3 py-2 mb-3">
+          <Notice color="red" compact className="mb-3">
             {error}
-          </p>
+          </Notice>
         )}
 
         {loading ? (
@@ -240,7 +241,7 @@ export default function HagwonRequestsPageClient() {
               return (
                 <div
                   key={request.id}
-                  className="bg-white border border-gray-200 rounded-lg overflow-hidden transition-shadow hover:shadow-md"
+                  className={cardClasses({ className: 'overflow-hidden transition-shadow hover:shadow-md' })}
                 >
                   <button
                     onClick={() => toggleRequestExpansion(request.id)}
@@ -252,14 +253,14 @@ export default function HagwonRequestsPageClient() {
                       </h3>
                       <div className="flex items-center gap-2 shrink-0">
                         {request.status === 'OPEN' ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-green-50 text-green-700 border border-green-300 animate-pulse shadow-sm shadow-green-200">
+                          <Badge color="green" className="animate-pulse shadow-sm shadow-green-200">
                             <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
                             모집중
-                          </span>
+                          </Badge>
                         ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 text-gray-500 border border-gray-200">
+                          <Badge color="gray">
                             마감
-                          </span>
+                          </Badge>
                         )}
                         <svg
                           className={`w-5 h-5 text-gray-400 transition-transform ${
@@ -281,55 +282,46 @@ export default function HagwonRequestsPageClient() {
                     <div className="flex flex-wrap gap-2 mt-2">
                       {/* Program type pills */}
                       {programTypes.map((type, idx) => (
-                        <span
-                          key={idx}
-                          className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-purple-50 text-purple-700 border border-purple-100"
-                        >
+                        <Badge color="purple" key={idx}>
                           {type === 'both' ? 'IB + SAT' : type}
-                        </span>
+                        </Badge>
                       ))}
 
                       {/* Subject pills */}
                       {request.ib_subjects && request.ib_subjects.split(', ').map((subj, idx) => (
-                        <span
-                          key={`ib-${idx}`}
-                          className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-blue-50 text-blue-700 border border-blue-100"
-                        >
+                        <Badge color="blue" key={`ib-${idx}`}>
                           {subj}
-                        </span>
+                        </Badge>
                       ))}
 
                       {request.sat_subjects && request.sat_subjects.split(', ').map((subj, idx) => (
-                        <span
-                          key={`sat-${idx}`}
-                          className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-orange-50 text-orange-700 border border-orange-100"
-                        >
+                        <Badge color="orange" key={`sat-${idx}`}>
                           SAT {subj}
-                        </span>
+                        </Badge>
                       ))}
 
                       {/* Level pill */}
                       {request.level && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-gray-50 text-gray-700 border border-gray-200">
+                        <Badge color="gray">
                           {request.level}
-                        </span>
+                        </Badge>
                       )}
 
                       {/* Hourly rate pill */}
                       {request.hourly_rate_min && request.hourly_rate_max && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-blue-50 text-blue-700 border border-blue-100">
+                        <Badge color="blue">
                           {request.hourly_rate_min}-{request.hourly_rate_max}만원/1달
-                        </span>
+                        </Badge>
                       )}
 
                       {/* Format pill */}
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-gray-50 text-gray-700 border border-gray-200">
+                      <Badge color="gray">
                         {request.format === 'online'
                           ? '온라인'
                           : request.format === 'offline'
                           ? `대면${request.region ? ` · ${request.region}` : ''}`
                           : `대면/온라인${request.region ? ` · ${request.region}` : ''}`}
-                      </span>
+                      </Badge>
                     </div>
                   </button>
 
@@ -382,12 +374,12 @@ export default function HagwonRequestsPageClient() {
                               ) : null}
                             </p>
                             {request.status !== 'CLOSED' && !isHagwon && (
-                              <button
+                              <Button
                                 onClick={() => setShowContactModal(true)}
-                                className="block w-full text-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors mt-3"
+                                fullWidth className="mt-3"
                               >
                                 학원 관계자 등록하기
-                              </button>
+                              </Button>
                             )}
                           </div>
                         ) : (
@@ -426,16 +418,16 @@ export default function HagwonRequestsPageClient() {
 
                       {/* Edit button */}
                       <div className="border-t border-gray-200 pt-4 mt-4">
-                        <button
+                        <Button
                           onClick={(e) => {
                             e.stopPropagation();
                             setEditingRequestId(request.id);
                             setShowPasswordModal(true);
                           }}
-                          className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition"
+                          variant="secondary" fullWidth
                         >
                           이 글 편집하기
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   )}
@@ -456,7 +448,7 @@ export default function HagwonRequestsPageClient() {
           />
 
           {/* Modal */}
-          <div className="relative bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+          <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4">
             {/* Close button */}
             <button
               onClick={closeModal}
@@ -479,25 +471,25 @@ export default function HagwonRequestsPageClient() {
                   <button
                     type="button"
                     onClick={() => handleFeedbackSubmit(true)}
-                    className="w-full text-left px-4 py-3 rounded-lg border-2 border-gray-200 bg-white hover:border-blue-500 hover:bg-blue-50 transition"
+                    className={choiceClasses({ className: 'w-full px-4 py-3 hover:border-blue-500 hover:bg-blue-50' })}
                   >
                     <span className="font-medium">네, 찾았어요!</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleFeedbackSubmit(false)}
-                    className="w-full text-left px-4 py-3 rounded-lg border-2 border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 transition"
+                    className={choiceClasses({ className: 'w-full px-4 py-3' })}
                   >
                     <span className="font-medium">아니요</span>
                   </button>
                 </div>
 
-                <button
+                <Button
                   onClick={closeModal}
-                  className="w-full px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700"
+                  variant="ghost" fullWidth
                 >
                   건너뛰기
-                </button>
+                </Button>
               </>
             ) : !passwordVerified ? (
               /* Password Entry Step */
@@ -508,17 +500,17 @@ export default function HagwonRequestsPageClient() {
                 </p>
 
                 {modalError && (
-                  <p className="text-xs text-red-600 bg-red-50 border border-red-100 rounded px-3 py-2 mb-3">
+                  <Notice color="red" compact className="mb-3">
                     {modalError}
-                  </p>
+                  </Notice>
                 )}
 
-                <input
+                <Input
                   type="password"
                   value={passwordInput}
                   onChange={(e) => setPasswordInput(e.target.value)}
                   placeholder="비밀번호"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4"
+                  className="mb-4"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       handleVerifyPassword();
@@ -527,18 +519,18 @@ export default function HagwonRequestsPageClient() {
                 />
 
                 <div className="flex gap-2">
-                  <button
+                  <Button
                     onClick={closeModal}
-                    className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                    variant="secondary" className="flex-1"
                   >
                     취소
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={handleVerifyPassword}
-                    className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                    className="flex-1"
                   >
                     확인
-                  </button>
+                  </Button>
                 </div>
               </>
             ) : (
@@ -547,9 +539,9 @@ export default function HagwonRequestsPageClient() {
                 <h3 className="text-lg font-semibold mb-4">상태 변경</h3>
 
                 {modalError && (
-                  <p className="text-xs text-red-600 bg-red-50 border border-red-100 rounded px-3 py-2 mb-3">
+                  <Notice color="red" compact className="mb-3">
                     {modalError}
-                  </p>
+                  </Notice>
                 )}
 
                 <div className="mb-4">
@@ -558,7 +550,7 @@ export default function HagwonRequestsPageClient() {
                     <button
                       type="button"
                       onClick={() => setNewStatus('OPEN')}
-                      className={`w-full text-left px-4 py-3 rounded-lg border-2 transition ${
+                      className={`w-full text-left px-4 py-3 rounded-xl border-2 transition ${
                         newStatus === 'OPEN'
                           ? 'border-green-500 bg-green-50'
                           : 'border-gray-200 bg-white hover:border-gray-300'
@@ -578,7 +570,7 @@ export default function HagwonRequestsPageClient() {
                     <button
                       type="button"
                       onClick={() => setNewStatus('CLOSED')}
-                      className={`w-full text-left px-4 py-3 rounded-lg border-2 transition ${
+                      className={`w-full text-left px-4 py-3 rounded-xl border-2 transition ${
                         newStatus === 'CLOSED'
                           ? 'border-gray-500 bg-gray-50'
                           : 'border-gray-200 bg-white hover:border-gray-300'
@@ -599,20 +591,20 @@ export default function HagwonRequestsPageClient() {
                 </div>
 
                 <div className="flex gap-2">
-                  <button
+                  <Button
                     onClick={closeModal}
                     disabled={saving}
-                    className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                    variant="secondary" className="flex-1"
                   >
                     취소
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={handleSaveStatus}
                     disabled={saving}
-                    className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
+                    className="flex-1"
                   >
                     {saving ? '저장 중...' : '저장하기'}
-                  </button>
+                  </Button>
                 </div>
               </>
             )}
@@ -630,7 +622,7 @@ export default function HagwonRequestsPageClient() {
           />
 
           {/* Modal */}
-          <div className="relative bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-auto">
+          <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-auto">
             {/* Close button */}
             <button
               onClick={() => setShowContactModal(false)}
@@ -645,14 +637,14 @@ export default function HagwonRequestsPageClient() {
             <p className="text-sm text-gray-600 mb-4">
               학원 관계자 등록을 원하시면 아래 이메일로 연락해 주세요.
             </p>
-            <div className="bg-blue-50 border border-blue-200 rounded-md p-4 text-center">
+            <Notice color="blue" className="text-center">
               <a
                 href="mailto:eugenepark912@gmail.com"
                 className="text-blue-600 hover:text-blue-700 font-medium text-base"
               >
                 eugenepark912@gmail.com
               </a>
-            </div>
+            </Notice>
           </div>
         </div>
       )}

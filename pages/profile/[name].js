@@ -7,6 +7,7 @@ import ContactButton from './ContactButton';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChat } from '@/contexts/ChatContext';
+import { Button, cardClasses, Badge } from '@/components/ui';
 
 const MOBILE_SUBJECT_LIMIT = 6;
 
@@ -108,8 +109,8 @@ export default function ProfilePage({ teacher }) {
 
       <main className="max-w-3xl mx-auto px-4 pt-6 md:pt-10 pb-24 md:pb-10 space-y-6 md:space-y-8">
         {/* Profile header — one merged card on mobile, two side-by-side cards on desktop */}
-        <div className="flex flex-col md:flex-row gap-0 md:gap-6 bg-white md:bg-transparent rounded-xl md:rounded-none shadow md:shadow-none">
-          <div className="flex-1 p-4 md:p-6 md:bg-white md:rounded-xl md:shadow flex flex-row md:flex-col items-center gap-4 md:gap-0">
+        <div className="flex flex-col md:flex-row gap-0 md:gap-6 bg-white md:bg-transparent border border-gray-200 md:border-0 rounded-2xl md:rounded-none shadow md:shadow-none">
+          <div className="flex-1 p-4 md:p-6 md:bg-white md:border md:border-gray-200 md:rounded-2xl md:shadow flex flex-row md:flex-col items-center gap-4 md:gap-0">
             <div className="w-20 h-20 md:w-32 md:h-32 md:mb-4 flex-shrink-0">
               <img
                 src={teacher.profile_picture || 'https://ibmaster.antoinelavo.com/teachers/default.jpg'}
@@ -134,7 +135,7 @@ export default function ProfilePage({ teacher }) {
             </div>
           </div>
 
-          <div className="flex-1 p-4 md:p-6 md:bg-white md:rounded-xl md:shadow border-t border-gray-100 md:border-0">
+          <div className="flex-1 p-4 md:p-6 md:bg-white md:border md:border-gray-200 md:rounded-2xl md:shadow border-t border-gray-100">
             <div className="mb-2 md:mb-4 flex items-center w-fit gap-2 bg-gray-100 rounded-xl px-[8px] py-[2px] text-sm">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -158,9 +159,9 @@ export default function ProfilePage({ teacher }) {
             {/* Mobile: capped list with a show-more toggle so long subject lists don't push the buttons down */}
             <div className="md:hidden flex flex-wrap gap-1.5">
               {visibleMobileSubjects.map((subj) => (
-                <span key={subj} className="bg-gray-100 rounded-full px-[8px] py-[2px] text-sm">
+                <Badge color="gray" key={subj} className="text-sm">
                   {subj}
-                </span>
+                </Badge>
               ))}
               {hiddenSubjectCount > 0 && (
                 <button
@@ -174,21 +175,21 @@ export default function ProfilePage({ teacher }) {
             {/* Desktop: full list, no collapsing */}
             <div className="hidden md:flex flex-wrap gap-2">
               {subjects.map((subj) => (
-                <span key={subj} className="bg-gray-100 rounded-full px-[8px] py-[2px]">
+                <Badge color="gray" key={subj}>
                   {subj}
-                </span>
+                </Badge>
               ))}
             </div>
 
             <div className="mt-4 md:mt-10 flex flex-col sm:flex-row gap-2">
               <ContactButton teacherName={teacher.name} contactInfo={teacher.contact_information} />
               {canMessage && (
-                <button
+                <Button
                   onClick={handleMessage}
-                  className="hidden md:inline-block self-start px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 transition-colors"
+                  size="sm" className="hidden md:inline-flex self-start"
                 >
                   메시지 보내기
-                </button>
+                </Button>
               )}
             </div>
 
@@ -196,7 +197,7 @@ export default function ProfilePage({ teacher }) {
         </div>
 
         {/* Introduction & Experience */}
-        <div className="richtext-mobile-tight space-y-6 md:space-y-8 bg-white rounded-xl shadow p-4 md:p-6">
+        <div className={cardClasses({ className: 'richtext-mobile-tight space-y-6 md:space-y-8 p-4 md:p-6' })}>
           <section>
             <h2 className="text-xl font-bold mb-2">소개</h2>
             <div
@@ -224,12 +225,12 @@ export default function ProfilePage({ teacher }) {
           className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-gray-200 p-3"
           style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
         >
-          <button
+          <Button
             onClick={handleMessage}
-            className="w-full px-4 py-3 rounded-lg bg-blue-500 text-white text-sm font-semibold hover:bg-blue-600 transition-colors"
+            fullWidth
           >
             메시지 보내기
-          </button>
+          </Button>
         </div>
       )}
     </>

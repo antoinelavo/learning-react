@@ -9,6 +9,7 @@ import ABTestTable from './components/ABTestTable';
 import FilterUsageTable from './components/FilterUsageTable';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { buttonClasses } from '@/components/ui';
 
 export default function AdminPage() {
   const { role, loading } = useAuth();
@@ -45,45 +46,45 @@ export default function AdminPage() {
       <div className="flex flex-wrap justify-end gap-2 mb-3">
         <Link
           href="/admin/conversations"
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          className={buttonClasses({ variant: 'tinted', size: 'sm' })}
         >
-          채팅 대화 →
+          채팅 대화
         </Link>
         <Link
           href="/admin/teachers"
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          className={buttonClasses({ variant: 'tinted', size: 'sm' })}
         >
-          선생님 검색 →
+          선생님 검색
         </Link>
         <Link
           href="/admin/statistics"
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          className={buttonClasses({ variant: 'tinted', size: 'sm' })}
         >
-          통계 →
+          통계
         </Link>
         <Link
           href="/admin/payments"
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          className={buttonClasses({ variant: 'tinted', size: 'sm' })}
         >
-          결제 요청 →
+          결제 요청
         </Link>
         <Link
           href="/admin/tiers"
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          className={buttonClasses({ variant: 'tinted', size: 'sm' })}
         >
-          플러스 회원 →
+          플러스 회원
         </Link>
         <Link
           href="/admin/plus-payments"
-          className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          className={buttonClasses({ variant: 'tinted', size: 'sm' })}
         >
           플러스 결제 요청
           {pendingPlusCount > 0 && (
-            <span className="bg-red-500 text-white text-xs font-semibold rounded-full px-1.5 py-0.5 leading-none">
+            <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-xs font-semibold leading-none">
               {pendingPlusCount}
             </span>
           )}
-          →
+         
         </Link>
       </div>
       <DashboardCards />

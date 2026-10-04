@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { cardClasses, Notice } from '@/components/ui';
 
 function monthKey(dateStr) {
   return dateStr.slice(0, 7); // 'YYYY-MM-DDTHH:...' -> 'YYYY-MM'
@@ -87,12 +88,12 @@ export default function MonthlyStatsTable() {
   }
 
   const errorBanner = fetchErrors.length > 0 && (
-    <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3 space-y-1">
+    <Notice color="red" className="mb-4 space-y-1">
       <p className="font-medium">일부 데이터를 불러오지 못했습니다:</p>
       {fetchErrors.map((msg) => (
         <p key={msg}>{msg}</p>
       ))}
-    </div>
+    </Notice>
   );
 
   if (rows.length === 0) {
@@ -107,7 +108,7 @@ export default function MonthlyStatsTable() {
   return (
     <div>
       {errorBanner}
-      <div className="overflow-x-auto bg-white rounded-lg shadow">
+      <div className={cardClasses({ className: 'overflow-x-auto' })}>
         <table className="min-w-full text-sm text-left">
           <thead className="bg-gray-100 text-gray-600">
             <tr>

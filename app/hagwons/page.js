@@ -2,6 +2,7 @@ import HagwonCard from '@/components/HagwonCard';
 import allHagwonsData from '@/data/hagwons';
 import FilterLinksClient from './FilterLogic.client';
 import FeedbackPopup from './components/FeedbackPopup';
+import { buttonClasses, cardClasses } from '@/components/ui';
 
 export const metadata = {
   title: 'IB 학원 29곳 추천 및 비교 [2026년 최신]',
@@ -45,14 +46,14 @@ export default function HagwonsPage() {
       <FilterLinksClient />
 
       {/* CTA Banner */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-md p-4 sm:p-6 my-6">
+      <div className={cardClasses({ className: 'p-4 sm:p-6 my-6' })}>
         <div className="text-center">
           <p className="text-sm sm:text-base text-gray-700 mb-3">
             간단한 질문 몇 개만 답하면, 학원 관계자가 직접 연락드립니다. (약 30초 소요)
           </p>
           <a
             href="/hagwon-requests/new"
-            className="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+            className={buttonClasses({ size: 'lg' })}
           >
             질문 보기
           </a>

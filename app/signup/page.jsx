@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
+import { Input, Select, Button } from '@/components/ui';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -92,54 +93,50 @@ export default function SignupPage() {
         onSubmit={handleSubmit}
         className="flex flex-col items-center gap-4 w-full max-w-sm"
       >
-        <input
+        <Input
           id="username"
           type="text"
           placeholder="아이디를 입력하세요"
           required
           value={form.username}
           onChange={handleChange}
-          className="w-full p-3 border rounded"
         />
-        <input
+        <Input
           id="email"
           type="email"
           placeholder="이메일을 입력하세요"
           required
           value={form.email}
           onChange={handleChange}
-          className="w-full p-3 border rounded"
         />
-        <input
+        <Input
           id="password"
           type="password"
           placeholder="비밀번호를 입력하세요"
           required
           value={form.password}
           onChange={handleChange}
-          className="w-full p-3 border rounded"
         />
 
         <label htmlFor="role" className="mt-4">
           회원 유형 선택:
         </label>
-        <select
+        <Select
           id="role"
           value={form.role}
           onChange={handleChange}
-          className="w-full p-3 border rounded"
         >
           <option value="student">학생</option>
           <option value="teacher">선생님</option>
-        </select>
+        </Select>
 
-        <button
+        <Button
           type="submit"
           disabled={loading}
-          className="mt-6 w-full p-3 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+          fullWidth className="mt-6"
         >
           {loading ? '처리 중…' : '계정 인증 이메일 보내기'}
-        </button>
+        </Button>
       </form>
 
       <p className="mt-4">

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { Input, Button } from '@/components/ui';
 
 export default function HagwonNewsletterPopup() {
   const [isVisible, setIsVisible] = useState(false);
@@ -125,26 +126,26 @@ export default function HagwonNewsletterPopup() {
                 {/* Right side - Form */}
                 <form onSubmit={handleSubscribe} className="flex-1 flex flex-col sm:flex-row gap-2 sm:gap-3">
                   <div className="flex-1">
-                    <input
+                    <Input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="이메일 주소 입력"
                       disabled={status === 'loading'}
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed"
+                      className="disabled:bg-gray-50 disabled:cursor-not-allowed"
                     />
                     {errorMessage && (
                       <p className="text-xs text-red-600 mt-1">{errorMessage}</p>
                     )}
                   </div>
 
-                  <button
+                  <Button
                     type="submit"
                     disabled={status === 'loading'}
-                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                    className="whitespace-nowrap"
                   >
                     {status === 'loading' ? '구독 중...' : '구독하기'}
-                  </button>
+                  </Button>
                 </form>
               </div>
             )}

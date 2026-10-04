@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { getConversationForAdmin, getMessages } from '@/lib/chat/chatClient';
+import { cardClasses } from '@/components/ui';
 
 function formatTime(iso) {
   return new Date(iso).toLocaleString('ko-KR', {
@@ -56,8 +57,8 @@ export default function AdminConversationDetailPage() {
         <h1 className="text-xl font-bold">
           {conversation ? `${conversation.teacherName} · ${conversation.studentName}` : '대화 보기'}
         </h1>
-        <Link href="/admin/conversations" className="text-sm text-blue-500 hover:underline">
-          ← 대화 목록
+        <Link href="/admin/conversations" className="text-sm font-medium text-blue-600 hover:text-blue-700">
+          대화 목록
         </Link>
       </div>
 
@@ -68,7 +69,7 @@ export default function AdminConversationDetailPage() {
       ) : messages.length === 0 ? (
         <p className="text-gray-400 text-sm">주고받은 메시지가 없습니다.</p>
       ) : (
-        <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+        <div className={cardClasses({ className: 'p-4 space-y-3' })}>
           {messages.map((m) => {
             const fromTeacher = m.sender_id === conversation.teacherUserId;
             return (

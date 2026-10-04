@@ -1,33 +1,39 @@
-# Spec: 플러스 bank-transfer admin page
+# Spec: Unified UI components
 
 ## Goal
-Let the admin see which teachers clicked "결제하기 (계좌이체)" on the 플러스 upgrade card, and confirm their transfer with one switch that also activates 플러스. Mirrors the premium profile's `/admin/payments` page.
+Make buttons, inputs, badges, cards and tabs look the same across the site, using the teacher dashboard (`app/dashboard/page.jsx`) as the visual reference.
 
 ## Included
-- New admin page `/admin/plus-payments` (`app/admin/plus-payments/`), admin-only, same layout and access check as `/admin/payments`. Title: "플러스 결제 요청".
-- Table of `payments` rows where `provider = 'bank_transfer'`, pending first, then newest first. Columns: 선생님 (name from `teachers`), 금액, 요청일, 상태 (대기 / 확인됨), 입금 확인 (toggle switch).
-- Switch ON → confirm popup → payment `status = 'paid'` and teacher `tier = 'premium'` (via the existing `activate_plus_tier` RPC).
-- Switch OFF → confirm popup → payment `status = 'pending'` and teacher `tier = 'free'`.
-- New card on `/admin` home linking to the page, showing the number of pending requests.
-- `components/TierUpgradeOffer.js`: before inserting a bank-transfer row, check for an existing `pending` `bank_transfer` row for that teacher. If one exists, just show the account info and don't insert.
+- Shared components in `components/ui/`:
+  - `Button`: variants `primary` (solid `blue-600`, hover `blue-700`), `secondary` (white, `border-gray-300`), `danger` (red text and border, not solid), `ghost` (text only). Sizes `sm`/`md`/`lg`. Always `rounded-xl`. Supports `disabled`, `type`, `fullWidth`, and rendering as a link.
+  - `Input`, `Select`, `Textarea`: `rounded-xl`, `border-gray-300`, `p-3`, blue focus ring. Optional `label` and error text.
+  - `Badge`: `rounded-full` pill with soft colors (`blue`, `gray`, `green`, `yellow`, `red`), e.g. `blue-50` background with blue text.
+  - `Card`: white, `rounded-2xl`, `border-gray-200`, `shadow`, standard padding.
+  - `Tabs`: segmented control. Gray `rounded-full` track, white shadowed active pill with blue text.
+  - `Notice`: soft tinted status box (`yellow`, `blue`, `red`, `green`), `rounded-xl`.
+- Replace the inline-styled versions of these elements with the shared components on every page in `app/` and `pages/`, including admin pages, dashboards, auth, chat, community, and the teacher profile page.
+- Shared components in `components/` that use these elements (cards, popups, nav, `BlogCTAButton`, `TierUpgradeOffer`, `PremiumListingOffer`, chat components).
 
 ## Not included
-- Email or other notifications on click.
-- Toss card payment rows (test mode) in this list.
-- Changes to `/admin/payments`, `/admin/tiers`, prices, or the Toss routes.
-- Any migration or schema/RLS change.
+- Page layouts, spacing, typography, and the global `h1`/`h2`/`p` styles in `styles/`.
+- Blog post content in `content/blog/`.
+- Legal pages (terms, privacy, refund policy) and the footer's business info.
+- Brand color or font changes. Primary stays the existing `blue` palette and Noto Sans KR.
+- The Quill rich-text editor's internal styling.
 
 ## Rules
-- Touches payment and tier activation code (approved in interview): only `TierUpgradeOffer.js`'s bank-transfer handler and new admin confirm/undo helpers. Toss flow and `activatePlusTier` stay unchanged.
-- No new migration: uses existing `payments` table (open RLS), `teachers.tier`, and `activate_plus_tier` RPC.
-- Admin UI text in Korean, matching `/admin/payments` wording and switch style.
-- Errors show an alert and leave the row unchanged.
-- Empty state: "결제 요청이 없습니다."
-- Table scrolls horizontally on mobile (`overflow-x-auto`), like other admin tables.
+- No behavior changes: same handlers, `href`s, form field `name`s, `required`/validation, and Korean text.
+- Payment components (`TierUpgradeOffer`, `PremiumListingOffer`, and any Toss checkout buttons): styling only. Do not touch Toss calls, prices, `lib/toss.js`, activation code, or API routes.
+- No database or migration changes.
+- Components are plain JS/JSX with Tailwind classes and accept `className` for small per-use tweaks.
+- Destructive actions (탈퇴하기, delete, cancel) use the `danger` variant.
+- Must look right on mobile (no overflow, tap targets at least ~40px tall).
 
 ## Done when
-- [x] `/admin/plus-payments` redirects non-admins and lists bank-transfer `payments` rows with teacher names, pending first.
-- [ ] Turning a switch on sets the row to `paid` and the teacher to 플러스; turning it off reverts both.
-- [x] `/admin` home has a card linking to the page with the pending count.
-- [ ] Clicking "계좌이체" twice across reloads creates only one pending row.
+- [x] `components/ui/` contains `Button`, `Input`, `Select`, `Textarea`, `Badge`, `Card`, `Tabs`, `Notice`.
+- [ ] No `<button>` in `app/`, `pages/`, or `components/` (outside `components/ui/`) has its own background-color/radius/padding styling. Icon-only buttons and tab triggers inside `Tabs` are the only exceptions.
+- [x] Text inputs, selects and textareas in forms use the shared components.
+- [x] Dashboard 로그아웃 is `secondary` and 탈퇴하기 is `danger`. They no longer use `blue-500`/`blue-900`.
+- [x] Payment components still call the same handlers with the same props (diff shows only markup/class changes).
+- [ ] Key pages checked at mobile and desktop widths: home, find, students, hagwon-requests, dashboard, login/signup, teacher profile, admin.
 - [x] `npm run build` passes.

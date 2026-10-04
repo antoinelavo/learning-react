@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Input, Textarea, Button, choiceClasses, cardClasses, Notice } from '@/components/ui';
 
 const INITIAL_EDIT_FORM = {
   title: [],
@@ -172,9 +173,9 @@ export default function StudentEditClient({ studentId }) {
   if (error && !student) {
     return (
       <main className="max-w-3xl mx-auto px-4 py-10">
-        <div className="bg-white border border-red-100 text-red-700 rounded-lg p-4 text-sm mb-4">
+        <Notice color="red" className="mb-4">
           {error}
-        </div>
+        </Notice>
         <div className="mt-4 text-center">
           <Link href="/students" className="text-sm text-blue-600 hover:underline">
             학생 게시판으로 돌아가기
@@ -192,7 +193,7 @@ export default function StudentEditClient({ studentId }) {
         </Link>
       </div>
 
-      <section className="bg-white border border-gray-200 rounded-xl shadow-md p-4 sm:p-6">
+      <section className={cardClasses({ className: 'p-4 sm:p-6' })}>
         <h1 className="text-lg sm:text-xl font-semibold mb-3">학생 요청 수정</h1>
         {student && (
           <p className="text-xs text-gray-500 mb-4">
@@ -201,14 +202,14 @@ export default function StudentEditClient({ studentId }) {
         )}
 
         {error && (
-          <p className="text-xs text-red-600 bg-red-50 border border-red-100 rounded px-3 py-2 mb-3">
+          <Notice color="red" compact className="mb-3">
             {error}
-          </p>
+          </Notice>
         )}
         {saveMessage && (
-          <p className="text-xs text-green-700 bg-green-50 border border-green-100 rounded px-3 py-2 mb-3">
+          <Notice color="green" compact className="mb-3">
             {saveMessage}
-          </p>
+          </Notice>
         )}
 
         {step === 'password' && (
@@ -220,22 +221,21 @@ export default function StudentEditClient({ studentId }) {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 비밀번호
               </label>
-              <input
+              <Input
                 type="password"
                 value={passwordInput}
                 onChange={e => setPasswordInput(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="작성 시 설정한 비밀번호"
               />
             </div>
             <div className="pt-1">
-              <button
+              <Button
                 type="submit"
                 disabled={verifying}
-                className="px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
+               
               >
                 {verifying ? '확인 중...' : '다음'}
-              </button>
+              </Button>
             </div>
           </form>
         )}
@@ -247,24 +247,22 @@ export default function StudentEditClient({ studentId }) {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   과목<span className="text-red-500 ml-0.5">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   name="subject"
                   value={form.subject}
                   onChange={handleFieldChange}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   학년/레벨
                 </label>
-                <input
+                <Input
                   type="text"
                   name="level"
                   value={form.level}
                   onChange={handleFieldChange}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
             </div>
@@ -288,13 +286,7 @@ export default function StudentEditClient({ studentId }) {
                     type="button"
                     onClick={() => toggleTitleOption(option)}
                     disabled={!form.title?.includes(option) && (form.title?.length || 0) >= 3}
-                    className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
-                      form.title?.includes(option)
-                        ? 'border-blue-500 bg-blue-50'
-                        : (form.title?.length || 0) >= 3
-                        ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
-                        : 'border-gray-200 bg-white hover:border-blue-300'
-                    }`}
+                    className={choiceClasses({ selected: form.title?.includes(option), disabled: (form.title?.length || 0) >= 3, className: 'w-full' })}
                   >
                     {option}
                   </button>
@@ -311,12 +303,12 @@ export default function StudentEditClient({ studentId }) {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 상세 내용<span className="text-red-500 ml-0.5">*</span>
               </label>
-              <textarea
+              <Textarea
                 name="description"
                 value={form.description}
                 onChange={handleFieldChange}
                 rows={5}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y"
+                className="resize-y"
               />
             </div>
 
@@ -366,43 +358,41 @@ export default function StudentEditClient({ studentId }) {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   이메일<span className="text-red-500 ml-0.5">*</span>
                 </label>
-                <input
+                <Input
                   type="email"
                   name="email"
                   value={form.email}
                   onChange={handleFieldChange}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   카카오톡 ID / 오픈채팅 링크 (선택)
                 </label>
-                <input
+                <Input
                   type="text"
                   name="kakaoContact"
                   value={form.kakaoContact}
                   onChange={handleFieldChange}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
             </div>
 
             <div className="flex items-center justify-between pt-2">
-              <button
+              <Button
                 type="button"
                 onClick={() => router.push(`/students/${studentId}`)}
-                className="px-3 py-2 rounded-md text-xs sm:text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200"
+                variant="secondary"
               >
                 취소
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
                 disabled={saving}
-                className="px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
+               
               >
                 {saving ? '저장 중...' : '변경 내용 저장'}
-              </button>
+              </Button>
             </div>
           </form>
         )}

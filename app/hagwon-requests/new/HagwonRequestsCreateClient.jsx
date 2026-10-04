@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
+import { Input, Textarea, Button, choiceClasses, cardClasses, Notice } from '@/components/ui';
 
 const INITIAL_FORM = {
   programType: [],
@@ -311,33 +312,21 @@ export default function HagwonRequestsCreateClient() {
             <button
               type="button"
               onClick={() => toggleProgramType('IB')}
-              className={`w-full text-left px-3 py-2 rounded-lg border ${
-                form.programType.includes('IB') && !form.programType.includes('both')
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 bg-white'
-              }`}
+              className={choiceClasses({ selected: form.programType.includes('IB') && !form.programType.includes('both'), className: 'w-full' })}
             >
               IB 학원
             </button>
             <button
               type="button"
               onClick={() => toggleProgramType('SAT')}
-              className={`w-full text-left px-3 py-2 rounded-lg border ${
-                form.programType.includes('SAT') && !form.programType.includes('both')
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 bg-white'
-              }`}
+              className={choiceClasses({ selected: form.programType.includes('SAT') && !form.programType.includes('both'), className: 'w-full' })}
             >
               SAT 학원
             </button>
             <button
               type="button"
               onClick={() => toggleProgramType('both')}
-              className={`w-full text-left px-3 py-2 rounded-lg border ${
-                form.programType.includes('both')
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 bg-white'
-              }`}
+              className={choiceClasses({ selected: form.programType.includes('both'), className: 'w-full' })}
             >
               둘 다
             </button>
@@ -363,11 +352,7 @@ export default function HagwonRequestsCreateClient() {
                   key={option}
                   type="button"
                   onClick={() => toggleIBSubject(option)}
-                  className={`text-left px-3 py-2 rounded-lg border text-xs ${
-                    selectedIBSubjects.includes(option)
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 bg-white'
-                  }`}
+                  className={choiceClasses({ selected: selectedIBSubjects.includes(option), className: 'text-xs' })}
                 >
                   {option}
                 </button>
@@ -379,13 +364,12 @@ export default function HagwonRequestsCreateClient() {
           </div>
           <div>
             <p className="text-xs text-gray-600 mb-1">위 목록에 없는 과목이 있다면 직접 입력해 주세요.</p>
-            <input
+            <Input
               type="text"
               name="ibSubjects"
               value={form.ibSubjects}
               onChange={handleChange}
               placeholder="기타 과목 입력"
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
         </>
@@ -408,11 +392,7 @@ export default function HagwonRequestsCreateClient() {
                 key={option}
                 type="button"
                 onClick={() => toggleSATSubject(option)}
-                className={`w-full text-left px-3 py-2 rounded-lg border ${
-                  selectedSATSubjects.includes(option)
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 bg-white'
-                }`}
+                className={choiceClasses({ selected: selectedSATSubjects.includes(option), className: 'w-full' })}
               >
                 {option}
               </button>
@@ -436,33 +416,21 @@ export default function HagwonRequestsCreateClient() {
             <button
               type="button"
               onClick={() => setForm(prev => ({ ...prev, format: 'online' }))}
-              className={`w-full text-left px-3 py-2 rounded-lg border ${
-                form.format === 'online'
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 bg-white'
-              }`}
+              className={choiceClasses({ selected: form.format === 'online', className: 'w-full' })}
             >
               온라인
             </button>
             <button
               type="button"
               onClick={() => setForm(prev => ({ ...prev, format: 'offline' }))}
-              className={`w-full text-left px-3 py-2 rounded-lg border ${
-                form.format === 'offline'
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 bg-white'
-              }`}
+              className={choiceClasses({ selected: form.format === 'offline', className: 'w-full' })}
             >
               대면
             </button>
             <button
               type="button"
               onClick={() => setForm(prev => ({ ...prev, format: 'either' }))}
-              className={`w-full text-left px-3 py-2 rounded-lg border ${
-                form.format === 'either'
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 bg-white'
-              }`}
+              className={choiceClasses({ selected: form.format === 'either', className: 'w-full' })}
             >
               온라인 + 대면
             </button>
@@ -472,13 +440,12 @@ export default function HagwonRequestsCreateClient() {
               <label className="block text-sm font-medium text-gray-800 mb-1">
                 희망 지역을 입력해주세요
               </label>
-              <input
+              <Input
                 type="text"
                 name="region"
                 value={form.region}
                 onChange={handleChange}
                 placeholder="예: 서울시 강남구, 성남시 분당구 등"
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           )}
@@ -506,24 +473,19 @@ export default function HagwonRequestsCreateClient() {
                     setForm(prev => ({ ...prev, level: option }));
                   }
                 }}
-                className={`w-full text-left px-3 py-2 rounded-lg border ${
-                  selectedLevelOption === option
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 bg-white'
-                }`}
+                className={choiceClasses({ selected: selectedLevelOption === option, className: 'w-full' })}
               >
                 {option}
               </button>
             ))}
           </div>
           {selectedLevelOption === '기타' && (
-            <input
+            <Input
               type="text"
               name="level"
               value={form.level}
               onChange={handleChange}
               placeholder="예: Grade 10, 대학생, Primary 등"
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           )}
         </>
@@ -552,13 +514,7 @@ export default function HagwonRequestsCreateClient() {
                 type="button"
                 onClick={() => toggleTitleOption(option)}
                 disabled={!selectedTitleOptions.includes(option) && selectedTitleOptions.length >= 3}
-                className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
-                  selectedTitleOptions.includes(option)
-                    ? 'border-blue-500 bg-blue-50'
-                    : selectedTitleOptions.length >= 3
-                    ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
-                    : 'border-gray-200 bg-white hover:border-blue-300'
-                }`}
+                className={choiceClasses({ selected: selectedTitleOptions.includes(option), disabled: selectedTitleOptions.length >= 3, className: 'w-full' })}
               >
                 {option}
               </button>
@@ -580,13 +536,13 @@ export default function HagwonRequestsCreateClient() {
           <p className="text-sm font-medium text-gray-800 mb-2">
             어떤 도움이 필요하신지 적어 주세요. (자세할수록 좋습니다!)
           </p>
-          <textarea
+          <Textarea
             name="description"
             value={form.description}
             onChange={handleChange}
             rows={4}
             placeholder="예: IB Math AA HL과 SAT Math를 함께 가르쳐 줄 수 있는 학원을 찾고 있습니다. 주 2-3회 수업 희망합니다. 현재 학생은 중국에서 공부하고 있으며, 영어는 조금 서툰 편입니다"
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y"
+            className="resize-y"
           />
         </>
       );
@@ -642,21 +598,20 @@ export default function HagwonRequestsCreateClient() {
           <p className="text-sm font-medium text-gray-800 mb-2">
             학원이 어디로 연락하면 될까요?
           </p>
-          <input
+          <Input
             type="email"
             name="email"
             value={form.email}
             onChange={handleChange}
             placeholder="이메일 주소"
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-3"
+            className="mb-3"
           />
-          <input
+          <Input
             type="text"
             name="kakaoContact"
             value={form.kakaoContact}
             onChange={handleChange}
             placeholder="카카오톡 ID / 오픈채팅 링크"
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
           <p className="text-[11px] text-gray-500 mt-2">
             *연락처는 검증된 학원 계정으로 로그인한 사용자에게만 공개됩니다.
@@ -672,21 +627,20 @@ export default function HagwonRequestsCreateClient() {
           <p className="text-sm font-medium text-gray-800 mb-2">
             나중에 이 글을 수정/삭제할 때 사용할 비밀번호를 정해 주세요. <span className="text-red-500">*</span>
           </p>
-          <input
+          <Input
             type="password"
             name="password"
             value={form.password}
             onChange={handleChange}
             placeholder="비밀번호"
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-3"
+            className="mb-3"
           />
-          <input
+          <Input
             type="password"
             name="passwordConfirm"
             value={form.passwordConfirm}
             onChange={handleChange}
             placeholder="비밀번호 확인"
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
           <p className="text-[11px] text-gray-500 mt-2">
             비밀번호는 암호화되어 저장되며, 잊어버리면 되찾을 수 없습니다. 잊은 경우 새 글을 작성해 주세요.
@@ -702,9 +656,9 @@ export default function HagwonRequestsCreateClient() {
     <main className="max-w-xl mx-auto px-4 py-10 min-h-[100dvh]">
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <p className="text-xs text-red-600 bg-red-50 border border-red-100 rounded px-3 py-2">
+          <Notice color="red" compact>
             {error}
-          </p>
+          </Notice>
         )}
 
         <div className="w-full bg-gray-100 rounded-full h-1.5 mb-2">
@@ -717,25 +671,25 @@ export default function HagwonRequestsCreateClient() {
           질문 {step} / {totalSteps}
         </p>
 
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 space-y-4">
+        <div className={cardClasses({ className: 'p-4 space-y-4' })}>
           {getCurrentStepComponent()}
         </div>
 
         <div className="flex items-center justify-between pt-2 mt-4">
-          <button
+          <Button
             type="button"
             onClick={() => {
               setError('');
               setStep(prev => Math.max(1, prev - 1));
             }}
             disabled={step === 1 || submitting}
-            className="px-3 py-2 rounded-md text-xs sm:text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            variant="secondary"
           >
             이전
-          </button>
+          </Button>
 
           {step < totalSteps ? (
-            <button
+            <Button
               type="button"
               onClick={() => {
                 if (!canGoNext(step)) return;
@@ -743,18 +697,18 @@ export default function HagwonRequestsCreateClient() {
                 setStep(prev => Math.min(totalSteps, prev + 1));
               }}
               disabled={submitting}
-              className="px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
+             
             >
               다음
-            </button>
+            </Button>
           ) : (
-            <button
+            <Button
               type="submit"
               disabled={submitting}
-              className="px-4 py-2 rounded-md text-xs sm:text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
+             
             >
               {submitting ? '작성 중...' : '요청 글 올리기'}
-            </button>
+            </Button>
           )}
         </div>
       </form>

@@ -15,6 +15,7 @@ import { Info } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { revealsRemaining } from '@/lib/reveal';
 import ScrollFadeIn from '@/components/ScrollFadeIn';
+import { Button, cardClasses } from '@/components/ui';
 
 const PLUS_TIER_AMOUNT = 9000;
 const FREE_TIER_LIMIT = 2;
@@ -265,7 +266,7 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
 
   if (teacher?.tier === 'premium') {
     return (
-      <ScrollFadeIn className="bg-white border border-gray-200 rounded-2xl shadow p-6 sm:p-8 text-center">
+      <ScrollFadeIn className={cardClasses({ className: 'p-6 sm:p-8 text-center' })}>
         <h2 className="text-lg font-bold mb-2">플러스 회원</h2>
         <p className="text-gray-600">
           이미 플러스 회원입니다. 학생 게시판의 연락처를 <span className="font-semibold text-blue-600">무제한</span>으로 열람할 수 있습니다.
@@ -278,7 +279,7 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
   const used = FREE_TIER_LIMIT - (revealsRemaining(teacher) ?? FREE_TIER_LIMIT);
 
   return (
-    <ScrollFadeIn className="bg-white border border-gray-200 rounded-2xl shadow p-6 sm:p-8">
+    <ScrollFadeIn className={cardClasses({ className: 'p-6 sm:p-8' })}>
       <div className="relative mb-2">
         <span className="absolute -top-1 left-0 text-5xl sm:text-6xl font-black italic tracking-tight text-blue-600/[0.08] select-none pointer-events-none leading-none whitespace-nowrap">
           PLUS
@@ -330,31 +331,23 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-2">
-        <button
+        <Button
           onClick={handleUpgrade}
           disabled={paymentProcessing}
-          className={`flex-1 px-6 py-3 rounded-xl font-semibold transition ${
-            paymentProcessing
-              ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-              : 'bg-blue-600 text-white hover:bg-blue-700'
-          }`}
+          size="lg" className="flex-1"
         >
           {paymentProcessing
             ? '결제 진행 중...'
             : '결제하기 (카드 - 현재 테스트 중입니다. 실결제로 이어지지 않습니다)'}
-        </button>
+        </Button>
 
-        <button
+        <Button
           onClick={handleBankTransfer}
           disabled={bankTransferRequested}
-          className={`flex-1 px-6 py-3 rounded-xl font-semibold transition ${
-            bankTransferRequested
-              ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-              : 'bg-blue-600 text-white hover:bg-blue-700'
-          }`}
+          size="lg" className="flex-1"
         >
           {showAccountNumber ? '입금 후 1일 내 플러스 회원으로 전환됩니다.' : '결제하기 (계좌이체)'}
-        </button>
+        </Button>
       </div>
 
       {showAccountNumber && (

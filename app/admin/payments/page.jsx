@@ -24,7 +24,7 @@ export default function AdminPaymentsPage() {
     <div className="max-w-screen-lg mx-auto pt-12 px-4 mb-20">
       <div className="mb-6">
         <h1 className="text-xl font-bold">프리미엄 결제 요청</h1>
-        <Link href="/admin" className="text-sm text-blue-500 hover:underline">← 어드민 홈</Link>
+        <Link href="/admin" className="text-sm font-medium text-blue-600 hover:text-blue-700">어드민 홈</Link>
       </div>
       <PaymentRequestsTable />
     </div>

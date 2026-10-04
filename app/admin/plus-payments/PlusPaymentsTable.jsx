@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { confirmPlusBankTransfer, undoPlusBankTransfer } from '@/lib/tierActivation';
+import { Notice, cardClasses, Badge } from '@/components/ui';
 
 const ERROR_MESSAGES = {
   record_payment_failed: '결제 기록 중 오류가 발생했습니다.',
@@ -166,15 +167,15 @@ export default function PlusPaymentsTable() {
   return (
     <div>
       {fetchError && (
-        <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+        <Notice color="red" className="mb-4">
           데이터를 불러오지 못했습니다: {fetchError}
-        </div>
+        </Notice>
       )}
 
       {rows.length === 0 ? (
         <div className="text-center text-gray-500 py-10">결제 요청이 없습니다.</div>
       ) : (
-        <div className="overflow-x-auto bg-white rounded-lg shadow">
+        <div className={cardClasses({ className: 'overflow-x-auto' })}>
           <table className="min-w-full text-sm text-left">
             <thead className="bg-gray-100 text-gray-600">
               <tr>
@@ -211,13 +212,13 @@ export default function PlusPaymentsTable() {
                     <td className="px-4 py-2 whitespace-nowrap text-gray-500">{formatDate(row.created_at)}</td>
                     <td className="px-4 py-2 whitespace-nowrap">
                       {isConfirmed ? (
-                        <span className="text-xs px-2 py-1 rounded-full font-medium bg-green-100 text-green-700">
+                        <Badge color="green">
                           확인됨
-                        </span>
+                        </Badge>
                       ) : (
-                        <span className="text-xs px-2 py-1 rounded-full font-medium bg-yellow-100 text-yellow-700">
+                        <Badge color="yellow">
                           대기
-                        </span>
+                        </Badge>
                       )}
                     </td>
                     <td className="px-4 py-2">

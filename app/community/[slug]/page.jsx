@@ -7,6 +7,7 @@ import rehypeSlug from 'rehype-slug'
 import rehypeStringify from 'rehype-stringify'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { Badge } from '@/components/ui';
 
 async function markdownToHtml(content) {
   const file = await unified()
@@ -70,9 +71,9 @@ export default async function CommunityPostPage({ params }) {
               {post.category}
             </span>
             {isAdmin && (
-              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-600 text-white">
+              <Badge color="blue">
                 IB Master
-              </span>
+              </Badge>
             )}
           </div>
 

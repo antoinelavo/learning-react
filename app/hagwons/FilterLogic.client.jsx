@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { chipClasses } from '@/components/ui';
 
 export default function FilterLinksClient() {
   const [selected, setSelected] = useState({
@@ -76,11 +77,7 @@ export default function FilterLinksClient() {
           <div key={param} className="relative filter-dropdown">
             <button
               onClick={() => setOpenDropdown(isOpen ? null : param)}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors ${
-                !isAllSelected
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
-                  : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
-              }`}
+              className={chipClasses({ selected: !isAllSelected, soft: true })}
             >
               {title}{!isAllSelected ? ` (${activeCount})` : ''}
               <svg className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,11 +93,7 @@ export default function FilterLinksClient() {
                     <button
                       key={option}
                       onClick={() => handleFilterChange(param, option)}
-                      className={`px-3 py-1 text-sm rounded-full border transition-colors whitespace-nowrap ${
-                        isActive
-                          ? 'bg-blue-600 text-white border-blue-600'
-                          : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:text-blue-600'
-                      }`}
+                      className={chipClasses({ selected: isActive })}
                     >
                       {option}
                     </button>

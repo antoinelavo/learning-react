@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { Input, Button } from '@/components/ui';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -102,9 +103,8 @@ export default function LoginPage() {
         className="flex flex-col w-full max-w-sm gap-3"
       >
         <label className="text-sm font-medium">이메일</label>
-        <input
+        <Input
           type="email"
-          className="w-full p-2 border rounded"
           placeholder="이메일"
           required
           value={email}
@@ -112,21 +112,20 @@ export default function LoginPage() {
         />
 
         <label className="text-sm font-medium">비밀번호</label>
-        <input
+        <Input
           type="password"
-          className="w-full p-2 border rounded"
           placeholder="비밀번호"
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button
+        <Button
           type="submit"
-          className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          fullWidth
         >
           로그인
-        </button>
+        </Button>
       </form>
 
       <p className="text-sm">

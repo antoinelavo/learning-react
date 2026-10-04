@@ -1,6 +1,7 @@
 'use client';
 
 import { supabase } from '@/lib/supabase'; 
+import { Button } from '@/components/ui';
 
 export default function LogoutPage() {
     const handleLogout = async () => {
@@ -11,7 +12,7 @@ export default function LogoutPage() {
 
     return (
             <div className="mt-8 w-full mb-[60dvh] text-center">
-                <button onClick={handleLogout} className="bg-blue-500 text-white px-[2em] py-[1em] rounded-lg">로그아웃</button>
+                <Button onClick={handleLogout}>로그아웃</Button>
             </div>
 
     )

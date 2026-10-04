@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { Input, Button } from '@/components/ui';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -103,9 +104,8 @@ export default function ResetPasswordPage() {
         className="flex flex-col w-full max-w-sm gap-3"
       >
         <label className="text-sm font-medium">새 비밀번호</label>
-        <input
+        <Input
           type="password"
-          className="w-full p-2 border rounded"
           placeholder="새 비밀번호"
           required
           value={password}
@@ -113,22 +113,21 @@ export default function ResetPasswordPage() {
         />
 
         <label className="text-sm font-medium">비밀번호 확인</label>
-        <input
+        <Input
           type="password"
-          className="w-full p-2 border rounded"
           placeholder="비밀번호 확인"
           required
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
 
-        <button
+        <Button
           type="submit"
           disabled={loading}
-          className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+          fullWidth
         >
           {loading ? '변경 중...' : '비밀번호 변경'}
-        </button>
+        </Button>
 
         {message && (
           <p className="text-sm text-center mt-2">{message}</p>

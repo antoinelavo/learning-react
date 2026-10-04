@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { Badge } from '@/components/ui';
 
 function getDeviceType() {
   if (typeof window === 'undefined') return 'unknown';
@@ -101,7 +102,7 @@ export default function HagwonCard({ image, name, region, format, lessonType, ia
 
 
   return (
-      <div className={`bg-white p-6 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 ${isFeatured ? 'border-2 border-blue-400 ring-1 ring-blue-100' : 'border border-gray-200'}`}
+      <div className={`bg-white p-6 rounded-2xl shadow hover:shadow-lg hover:-translate-y-1 transition-all duration-200 ${isFeatured ? 'border-2 border-blue-400 ring-1 ring-blue-100' : 'border border-gray-200'}`}
       data-hagwon-name = {name}
       >
         <div className="flex flex-wrap justify-between flex-row items-start gap-y-[1em] sm:gap-y-[2em]">
@@ -127,7 +128,7 @@ export default function HagwonCard({ image, name, region, format, lessonType, ia
                   <h2 className="text-[1.1em] font-bold mb-2 text-[#111] m-0">{name}</h2>
                 </a>
                 {isFeatured && (
-                  <span className="text-[0.65em] font-semibold px-2 py-0.5 bg-blue-50 text-blue-600 border border-blue-200 rounded-full whitespace-nowrap mb-1.5">추천</span>
+                  <Badge color="blue" className="whitespace-nowrap mb-1.5">추천</Badge>
                 )}
               </div>
               <p className="text-sm text-gray-600 m-0">📍 {region}</p>
@@ -159,20 +160,14 @@ export default function HagwonCard({ image, name, region, format, lessonType, ia
             {/* Subjects */}
             <div className="gap-2 w-[20em] flex flex-wrap">
               {[...format, ...lessonType].map((tag, i) => (
-                <span
-                  key={i}
-                  className="text-xs px-2 py-1.5 bg-[#e9f3ff] text-[#216eb3] rounded-full leading-none"
-                >
+                <Badge color="blue" key={i}>
                   {tag}
-                </span>
+                </Badge>
               ))}
               {ia_ee_tok && ['IA', 'EE', 'TOK'].map((tag, i) => (
-                <span
-                  key={`core-${i}`}
-                  className="text-xs px-2 py-1.5 bg-[#ffe9ff] text-[#b321b1] rounded-full leading-none"
-                >
+                <Badge color="pink" key={`core-${i}`}>
                   {tag}
-                </span>
+                </Badge>
               ))}
             </div>
             

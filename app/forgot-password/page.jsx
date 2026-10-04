@@ -3,6 +3,7 @@
 
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { Input, Button } from '@/components/ui';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -53,22 +54,21 @@ export default function ForgotPasswordPage() {
         className="flex flex-col w-full max-w-sm gap-3"
       >
         <label className="text-sm font-medium">이메일</label>
-        <input
+        <Input
           type="email"
-          className="w-full p-2 border rounded"
           placeholder="가입한 이메일 주소"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
 
-        <button
+        <Button
           type="submit"
           disabled={loading}
-          className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+          fullWidth
         >
           {loading ? '전송 중...' : '재설정 링크 보내기'}
-        </button>
+        </Button>
 
         {message && (
           <p className="text-sm text-center mt-2 text-red-600">{message}</p>

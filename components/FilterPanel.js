@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui';
 
 const FILTERS = {
   subject: [],
@@ -44,15 +45,15 @@ export default function FilterPanel({ filters, setFilters, allSubjects }) {
       {/* 📱 Mobile filter buttons */}
       <div className="md:hidden flex justify-center gap-3 text-sm font-medium mb-4">
         {['subject', 'lessonType', 'gender', 'ib'].map(type => (
-          <button
+          <Button
             key={type}
-            className="teacherBlock text-gray-700 border px-3 py-1 rounded-lg"
+            variant="secondary" size="sm"
             onClick={() => openPopup(type)}
           >
             {type === 'subject' ? '과목' :
              type === 'lessonType' ? '수업 방식' :
              type === 'gender' ? '성별' : 'IB 이수 여부'} ▼
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -71,7 +72,7 @@ export default function FilterPanel({ filters, setFilters, allSubjects }) {
               isChecked={isChecked}
               onChange={handleCheckboxChange}
             />
-            <button onClick={closePopup} className="block w-full mt-6 bg-black text-white py-2 rounded">적용</button>
+            <Button onClick={closePopup} fullWidth className="mt-6">적용</Button>
           </div>
         </div>
       )}

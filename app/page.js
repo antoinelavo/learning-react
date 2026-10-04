@@ -1,3 +1,4 @@
+import { buttonClasses, cardClasses } from '@/components/ui';
 export const metadata = {
   title: '수수료 없는 IB 전문 과외 플랫폼 | IB Master',
   description: '선생, 학생 모두 수수료 없는 IB 과외 전문 플랫폼. IB 수학, 영어, 물리 과외를 믿고 맡길 수 있는 곳, IB Master',
@@ -40,10 +41,10 @@ export default function Home() {
               국내 유일 수수료 0원 과외 플랫폼
             </p>
             <div className="flex gap-4 justify-center md:justify-start">
-              <a href="/find" className="bg-blue-500 text-white px-2 sm:px-6 py-2 rounded-lg hover:bg-blue-600 transition">
+              <a href="/find" className={buttonClasses()}>
                 선생님 찾기
               </a>
-              <a href="/students" className="border border-blue-500 text-blue-500 px-2 sm:px-6 py-2 rounded-lg bg-white hover:bg-blue-100 transition">
+              <a href="/students" className={buttonClasses({ variant: 'secondary' })}>
                 학생 찾기
               </a>
             </div>
@@ -92,7 +93,7 @@ export default function Home() {
         <p className="text-center text-black text-2xl font-bold px-8 text-balance leading-relaxed">선생님이 만든, 선생님과 학생을 위한 플랫폼</p>
         <div id="comparisonBlocks" className="mt-16 flex flex-col md:flex-row justify-center gap-20 max-w-5xl mx-auto">
           {/* 타 플랫폼 */}
-            <div className="flex flex-col gap-12 p-8 text-center mx-[10dvw] md:mx-0 bg-white border border-solid border-gray-200 shadow rounded-3xl">
+            <div className={cardClasses({ className: 'flex flex-col gap-12 p-8 text-center mx-[10dvw] md:mx-0' })}>
               <p className="text-[25px] font-bold text-gray-500">타 플랫폼</p>
               {[
                 "수업료의 일부분을 플랫폼이 가져감",
@@ -111,7 +112,7 @@ export default function Home() {
             </div>
 
             {/* IB Master */}
-            <div className="flex flex-col gap-12 p-8 text-center mx-[10dvw] md:mx-0 bg-white border border-solid border-gray-200 shadow rounded-3xl">
+            <div className={cardClasses({ className: 'flex flex-col gap-12 p-8 text-center mx-[10dvw] md:mx-0' })}>
               <p className="text-[25px] font-bold text-black">
                 <span>IB </span>
                 <span className="text-blue-500">Master</span>
@@ -145,7 +146,7 @@ export default function Home() {
         <h2 className="text-3xl font-bold text-center text-black mb-10">FAQ</h2>
 
         <div className="space-y-4">
-          <details className="group p-6 bg-white border border-solid border-gray-200 shadow rounded-3xl">
+          <details className={cardClasses({ className: 'group p-6' })}>
             <summary className="cursor-pointer text-lg font-normal text-black group-open:text-blue-600 transition">
               프로필 게시 비용이 있나요?
             </summary>
@@ -154,7 +155,7 @@ export default function Home() {
             </p>
           </details>
 
-          <details className="group p-6 bg-white border border-solid border-gray-200 shadow rounded-3xl">
+          <details className={cardClasses({ className: 'group p-6' })}>
             <summary className="cursor-pointer text-lg font-normal text-black group-open:text-blue-600 transition">
               IB 학원은 어떻게 찾나요?
             </summary>
@@ -168,7 +169,7 @@ export default function Home() {
             </p>
           </details>
 
-          <details className="group p-6 bg-white border border-solid border-gray-200 shadow rounded-3xl">
+          <details className={cardClasses({ className: 'group p-6' })}>
             <summary className="cursor-pointer text-lg font-normal text-black group-open:text-blue-600 transition">
               학생들에게 제 연락처를 공유해도 되나요?
             </summary>
@@ -181,7 +182,7 @@ export default function Home() {
 
       {/* Text */}
       
-      <section className="max-w-4xl mx-[5dvw] sm:mx-auto mb-[3em] px-6 py-12 bg-white border border-solid border-gray-200 shadow rounded-3xl">
+      <section className={cardClasses({ className: 'max-w-4xl mx-[5dvw] sm:mx-auto mb-[3em] px-6 py-12' })}>
         <h2 className="text-3xl font-bold text-center text-black mb-8">IB 과외란?</h2>
         <div className="space-y-6 text-m leading-8 text-gray-500">
           <p>
@@ -203,7 +204,7 @@ export default function Home() {
       
       
       
-      <section className="max-w-4xl mx-[5dvw] sm:mx-auto mb-[3em] px-6 py-12 bg-white border border-solid border-gray-200 shadow rounded-3xl">
+      <section className={cardClasses({ className: 'max-w-4xl mx-[5dvw] sm:mx-auto mb-[3em] px-6 py-12' })}>
         <h2 className="text-3xl font-bold text-center text-black mb-8">IB 과외가 필요한 이유</h2>
         <div className="space-y-6 text-m leading-8 text-gray-500">
           <p>
@@ -227,7 +228,7 @@ export default function Home() {
       
 
       
-      <section className="max-w-4xl mx-[5dvw] sm:mx-auto px-6 py-12 bg-white border border-solid border-gray-200 shadow rounded-3xl">
+      <section className={cardClasses({ className: 'max-w-4xl mx-[5dvw] sm:mx-auto px-6 py-12' })}>
         <h2 className="text-3xl font-bold text-center text-black mb-8">IB 과외 시급은 얼마인가요?</h2>
         <div className="space-y-6 text-m leading-8 text-gray-500">
           <p>

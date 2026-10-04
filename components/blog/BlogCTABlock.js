@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { buttonClasses } from '@/components/ui';
 
 export default function BlogCTABlock({ description, label, href }) {
   return (
@@ -8,7 +9,7 @@ export default function BlogCTABlock({ description, label, href }) {
       </p>
       <Link
         href={href}
-        className="inline-block px-8 py-3 bg-blue-500 text-white font-bold rounded-xl shadow-lg hover:bg-blue-600 hover:scale-105 transition duration-200 ease-out"
+        className={buttonClasses({ size: 'lg', className: '!text-white !no-underline' })}
       >
         {label}
       </Link>

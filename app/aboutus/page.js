@@ -1,7 +1,8 @@
+import { cardClasses } from '@/components/ui';
 export default function AboutPage() {
   return (
     <main className="min-h-screen bg-gray-50 py-16 px-4">
-      <div className="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-md h-[80dvh]">
+      <div className={cardClasses({ className: 'max-w-3xl mx-auto p-8 h-[80dvh]' })}>
         <h1 className="text-4xl font-bold mb-4 text-center mb-16">소개</h1>
         <p className="text-gray-700 leading-relaxed mb-6 m-[2em]">
             안녕하세요, 성균관대학교 의과대학 21학번 박유진입니다.<br></br><br></br>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { cardClasses } from '@/components/ui';
 
 export default function FilterUsageTable() {
   const [stats, setStats] = useState({});
@@ -35,7 +36,7 @@ export default function FilterUsageTable() {
   const sorted = Object.entries(stats).sort((a, b) => b[1] - a[1]);
 
   return (
-    <div className="max-w-2xl mx-auto mt-12 bg-white p-6 rounded-lg shadow">
+    <div className={cardClasses({ className: 'max-w-2xl mx-auto mt-12 p-6' })}>
       <h2 className="text-lg font-semibold mb-4">📊 필터 사용 순위</h2>
       <table className="w-full text-sm">
         <thead className="bg-gray-100 text-gray-600">

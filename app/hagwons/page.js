@@ -1,4 +1,7 @@
 import HagwonCard from '@/components/HagwonCard';
+import HagwonNeisInfo from '@/components/HagwonNeisInfo';
+import HagwonFeeSummary from '@/components/HagwonFeeSummary';
+import { hagwonJsonLd, jsonLdString } from '@/lib/hagwonNeis';
 import allHagwonsData from '@/data/hagwons';
 import FilterLinksClient from './FilterLogic.client';
 import FeedbackPopup from './components/FeedbackPopup';
@@ -6,7 +9,7 @@ import { buttonClasses, cardClasses } from '@/components/ui';
 
 export const metadata = {
   title: 'IB 학원 29곳 추천 및 비교 [2026년 최신]',
-  description: 'IB 학원 추천, 비교, 선택 가이드 – 2026년 최신 업데이트',
+  description: 'IB 학원 추천, 비교, 선택 가이드 – 교육청 등록 수업료(교습비)와 개원 연도까지 한눈에, 2026년 최신 업데이트',
   robots: {
     index: true,
     follow: true,
@@ -24,7 +27,7 @@ export const metadata = {
 
   openGraph: {
     title: 'IB 학원 29곳 추천 및 비교 [2026년 최신]',
-    description: 'IB 학원 추천, 비교, 선택 가이드 – 2026년 최신 업데이트',
+    description: 'IB 학원 추천, 비교, 선택 가이드 – 교육청 등록 수업료(교습비)와 개원 연도까지 한눈에, 2026년 최신 업데이트',
     url: 'https://ibmaster.net/hagwons',
     siteName: 'IB Master',
     locale: 'ko-KR',
@@ -35,6 +38,10 @@ export const metadata = {
 export default function HagwonsPage() {
   return (
     <main className="min-h-screen max-w-4xl mx-[5dvw] lg:mx-auto mb-[10em]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdString(hagwonJsonLd(allHagwonsData, 'https://ibmaster.net/hagwons')) }}
+      />
       <h1>IB 학원 29곳 추천 및 비교 [2026년 최신]</h1>
 
       <article>
@@ -60,6 +67,8 @@ export default function HagwonsPage() {
         </div>
       </div>
 
+      <HagwonFeeSummary hagwons={allHagwonsData} label="IB" />
+
       <div className="space-y-5 flex flex-col mt-6" id="hagwon-list">
         {allHagwonsData.map((card, i) => (
           <div
@@ -70,7 +79,7 @@ export default function HagwonsPage() {
             data-format={card.format}
             data-service={card.ia_ee_tok ? 'IA,EE,TOK' : ''}
           >
-            <HagwonCard {...card} priority={i === 0} />
+            <HagwonCard {...card} priority={i === 0} neisInfo={<HagwonNeisInfo neis={card.neis} />} />
           </div>
         ))}
       </div>

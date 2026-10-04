@@ -26,6 +26,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/sageprep.png",
     name: '세이지프렙 (SagePrep)',
+    neis: { office: 'B10', zone: '1168', id: '3000052517', name: '세이지프렙어학원' },
     region: '서울 신사',
     lessonType: ['그룹'],
     format: ['대면'],
@@ -49,6 +50,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/paretoprep.png",
     name: '파레토프렙 (Pareto Prep)',
+    neis: { office: 'B10', zone: '1168', id: '3000051204', name: '파레토프렙어학원' },
     region: '서울 강남',
     lessonType: ['그룹', '1:1'],
     format: ['대면'],
@@ -61,6 +63,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/interprep.png",
     name: '인터프렙 (Interprep)',
+    neis: { office: 'B10', zone: '1168', id: '3000019548', name: '인터프렙어학원' },
     region: '서울 강남',
     lessonType: ['그룹'],
     format: ['대면'],
@@ -73,6 +76,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/hackers.png",
     name: '해커스 (HACKERS)',
+    // NEIS: unconfirmed. Many 해커스 branches are registered; which one runs SAT is unclear (e.g. 해커스어학원 B10/1165/19518).
     region: '서울 서초',
     lessonType: ['그룹', '1:1'],
     format: ['대면'],
@@ -85,6 +89,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/acme.png",
     name: '아크메 어학원 (ACMÉacademy)',
+    neis: { office: 'B10', zone: '1168', id: '3000038278', name: '아크메아카데미(ACME ACADEMY)어학원' },
     region: '서울 강남',
     lessonType: ['그룹', '1:1'],
     format: ['온라인'],
@@ -108,6 +113,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/paulacademy.png",
     name: '폴아카데미 (PaulAcademy)',
+    neis: { office: 'B10', zone: '1168', id: '3000019573', name: '폴아카데미어학학원' },
     region: '서울 강남',
     lessonType: ['그룹'],
     format: ['대면'],
@@ -121,6 +127,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/starprep.png",
     name: 'STARPREP (스타프랩)',
+    neis: { office: 'B10', zone: '1168', id: '3000040596', name: '스타프랩어학원' },
     region: '서울 강남',
     lessonType: ['그룹'],
     format: ['대면'],
@@ -147,6 +154,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/able.png",
     name: 'AblePrep (에이블프렙)',
+    neis: { office: 'B10', zone: '1168', id: '3000037300', name: '에이블프렙어학원' },
     region: '서울 강남',
     lessonType: ['그룹'],
     format: ['대면'],
@@ -160,6 +168,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/cloudedu.png",
     name: 'CLOUD EDU (클라우드에듀)',
+    // NEIS: unconfirmed. 클라우드에듀원격학원 (J10, 3000046093) is registered but returned no fee rows.
     region: '성남 분당',
     lessonType: ['그룹', '1:1'],
     format: ['대면'],
@@ -173,6 +182,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/brix.png",
     name: 'brix academy (브릭스아카데미)',
+    neis: { office: 'B10', zone: '1168', id: '3000029315', name: '브릭스(Brix)어학원' },
     region: '서울 강남',
     lessonType: ['그룹', '1:1'],
     format: ['대면'],
@@ -185,6 +195,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/languagewill.png",
     name: 'LanguageWill (랭귀지윌)',
+    neis: { office: 'B10', zone: '1168', id: '2185', name: '랭귀지윌학원' },
     region: '서울 강남',
     lessonType: ['그룹', '1:1'],
     format: ['대면'],
@@ -197,6 +208,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/campbell.png",
     name: 'Campbell Academy (강남캠벨아카데미)',
+    neis: { office: 'B10', zone: '1165', id: '3000019775', name: '강남캠벨아카데미어학원' },
     region: '서울 서초',
     lessonType: ['그룹', '1:1'],
     format: ['대면', '온라인'],
@@ -209,6 +221,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/gateprep.png",
     name: 'GatePrep (GATE 어학원)',
+    neis: { office: 'B10', zone: '1168', id: '3000013596', name: '게이트프렙스어학원' },
     region: '서울 강남',
     lessonType: ['그룹'],
     format: ['대면'],
@@ -221,6 +234,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/psuedu.png",
     name: 'PSU EDU (PSU 에듀센터)',
+    neis: { office: 'B10', zone: '1168', id: '3000052728', name: '피에스유(PSU)유학컨설팅어학원' },
     region: '서울 강남',
     lessonType: ['그룹'],
     format: ['대면'],
@@ -233,6 +247,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/eliteprep.png",
     name: 'Elite Prep (엘리트에듀)',
+    // NEIS: unconfirmed. Possibly 엘리트어학학원 (B10/1168/1000036080).
     region: '서울 강남',
     lessonType: ['그룹', '1:1'],
     format: ['대면'],
@@ -245,6 +260,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/edumost.png",
     name: 'EDU MOST (에듀모스트)',
+    neis: { office: 'B10', zone: '1168', id: '3000013817', name: '에듀모스트어학학원' },
     region: '서울 강남',
     lessonType: ['그룹', '1:1'],
     format: ['대면', '온라인'],
@@ -257,6 +273,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/scholar.png",
     name: 'Scholar (스칼라어학원)',
+    neis: { office: 'B10', zone: '1168', id: '23331', name: '스칼라(scholar)어학원' },
     region: '서울 강남',
     lessonType: ['그룹'],
     format: ['대면'],
@@ -281,6 +298,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/veterans.png",
     name: 'Veterans Edu (베테랑스 에듀)',
+    // NEIS: unconfirmed. Only a Jeju 베테랑스어학원 was found (T10/4913/3000011017), but this listing says 서울 강남.
     region: '서울 강남',
     lessonType: ['그룹', '1:1'],
     format: ['대면'],
@@ -293,6 +311,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/brompton.png",
     name: 'Brompton (브롬튼)',
+    neis: { office: 'T10', zone: '4913', id: '3000011566', name: '브롬튼에듀케이션학원' },
     region: '서울 강남, 제주 서귀포시',
     lessonType: ['그룹', '1:1'],
     format: [],
@@ -305,6 +324,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/ssli.png",
     name: 'SSLI (SSLI)',
+    neis: { office: 'J10', zone: '4113', id: '3000012721', name: '에스에스엘아이어학원' },
     region: '성남 분당',
     lessonType: ['그룹', '1:1'],
     format: ['대면'],
@@ -317,6 +337,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/topcle.png",
     name: 'Topcle (탑클어학원)',
+    neis: { office: 'J10', zone: '4113', id: '3000019684', name: '탑클어학원' },
     region: '성남 분당',
     lessonType: ['그룹'],
     format: ['대면'],
@@ -352,6 +373,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/honors.png",
     name: 'HonorsAcademy (아너즈어학원)',
+    neis: { office: 'C10', zone: '2135', id: '3000012491', name: '아너즈어학원' },
     region: '부산 해운대',
     lessonType: ['그룹', '1:1'],
     format: ['대면'],
@@ -364,6 +386,7 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/annarbor.png",
     name: 'AnnArborAcademy (앤아버 어학원)',
+    neis: { office: 'C10', zone: '2123', id: '3000016432', name: '앤아버어학원' },
     region: '부산 부산진구',
     lessonType: ['그룹', '1:1'],
     format: ['대면'],

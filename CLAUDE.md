@@ -30,6 +30,7 @@ IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, wi
 - **Teacher profiles** are ISR (`revalidate: 60`, `fallback: 'blocking'`) from the Supabase teachers table.
 - **Test teachers:** rows with `teachers.is_test = true` are excluded from `/find` (`app/find/TeacherList.jsx`) and from profile pages. Keep that filter on any new public teacher query.
 - **Hagwon listings** are static data in `data/` (`hagwons.js`, `sat-hagwons.js`), not the database.
+- **Hagwon fees** come from a committed NEIS snapshot, `data/hagwon-neis.json`, keyed by each listing's `neis.id`. Rebuild it with `NODE_USE_ENV_PROXY=1 node scripts/update-hagwon-neis.mjs` (needs `NEIS_API_KEY` in `.env.local`). Fees come from the hakwon.neis.go.kr search site because the official open API has none for 학원. Pages read the snapshot at build time only (`lib/hagwonNeis.js`).
 - **Cron:** `app/api/cron/daily-digest` requires `Authorization: Bearer $CRON_SECRET`. `vercel.json` is empty, so the schedule is configured outside this repo.
 - **Subscriber emails** (`daily-digest`, `notify-subscribers`): if `TEST_OVERRIDE_EMAIL` is set, every recipient is replaced with that address.
 - **Roles:** user role is `users.role`; teacher approval state is `teachers.status` (helpers `getUserRole`/`getTeacherStatus` in `lib/supabase.js`).

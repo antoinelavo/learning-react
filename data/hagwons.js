@@ -19,6 +19,7 @@ const hagwons = [
   {
     "image": "/images/hagwons/small/ibsolution.png",
     "name": "아이비솔루션 (IBSOLUTION)",
+    "neis": { "office": "B10", "zone": "1168", "id": "3000053321", "name": "아이비솔루션학원" },
     "url": "https://www.ibsolutions.kr/",
     "address": "서울 강남구 신사동 566-23 jc빌딩 2층",
     "region": "서울 강남",
@@ -54,6 +55,7 @@ const hagwons = [
    {
     "image": "/images/hagwons/small/sageprep.png",
     "name":"세이지프렙",
+    "neis": { "office": "B10", "zone": "1168", "id": "3000052517", "name": "세이지프렙어학원" },
     "url":"https://m.blog.naver.com/sageprep_academy",
     "address":"신사동 591-3, 201-202호 ",
     "region":"서울 강남",
@@ -73,6 +75,7 @@ const hagwons = [
  {
     "image": "/images/hagwons/small/ibsept.png",
     "name":"아이비셉트",
+    "neis": { "office": "B10", "zone": "1168", "id": "3000022362", "name": "아이비셉트학원" },
     "url":"https:\/\/www.ibsept.com\/",
     "address":"압구정본원: 서울시 강남구 논현로 175길 63, 호창빌딩 3층 | 제주분원: 서귀포시 대정읍 글로벌에듀로 145번길 40 캐논스상가 2층",
     "region":"서울 강남, 제주",
@@ -90,6 +93,7 @@ const hagwons = [
   {
     "image": "/images/hagwons/small/masterib.png",
     "name":"마스터아이비",
+    "neis": { "office": "B10", "zone": "1168", "id": "3000052294", "name": "마스터아이비학원" },
     "url":"https:\/\/masterib.co.kr\/",
     "address":"서울특별시 강남구 압구정로36길 12, 501호 (신사동)",
     "region":"서울 강남",
@@ -124,6 +128,7 @@ const hagwons = [
   {
     "image": "/images/hagwons/small/paretoprep.png",
     "name":"파레토프렙",
+    "neis": { "office": "B10", "zone": "1168", "id": "3000051561", "name": "파레토프렙아이비어학원" },
     "url":"https:\/\/blog.naver.com\/paretoprepib",
     "address":"서울 강남구 압구정로34길 32 성우 에이치 빌딩 2층",
     "region":"서울 강남",
@@ -163,6 +168,7 @@ const hagwons = [
   {
     "image": "/images/hagwons/small/alliance.png",
     "name":"얼라이언스",
+    "neis": { "office": "B10", "zone": "1168", "id": "3000041187", "name": "얼라이언스원격학원" },
     "url":"https:\/\/www.allianceedu.co.kr\/default\/",
     "address":"서울특별시 강남구 강남대로98길 11 4층",
     "region":"서울 강남",
@@ -180,6 +186,7 @@ const hagwons = [
   {
     "image": "/images/hagwons/small/paulacademy.png",
     "name":"폴아카데미",
+    "neis": { "office": "B10", "zone": "1168", "id": "3000019573", "name": "폴아카데미어학학원" },
     "url":"https:\/\/paulacademy.net\/",
     "address":"서울특별시 강남구 삼성로 85길 32 3,4층",
     "region":"서울 강남",
@@ -232,6 +239,7 @@ const hagwons = [
     {
     "image": "/images/hagwons/small/monthlyib.png",
     "name":"MonthlyIB",
+    // NEIS: unconfirmed. Same address and floors as 에듀아고라학원 (B10/1168/3000039094); confirm before adding neis.
     "url":"https:\/\/www.monthly-ib.com\/",
     "address":"서울시 강남구 강남대로 84길 8, 우인빌딩 3·4·6층",
     "region":"서울 강남",
@@ -249,6 +257,7 @@ const hagwons = [
   {
     "image": "/images/hagwons/small/iblab.png",
     "name":"아이비랩",
+    "neis": { "office": "B10", "zone": "1168", "id": "3000030998", "name": "아이비랩(IB LAB)학원" },
     "url":"http:\/\/iblab.co.kr\/sub\/gt.php",
     "address":"서울 강남구 언주로 167길36 ok빌딩",
     "region":"서울 강남",
@@ -266,6 +275,7 @@ const hagwons = [
   {
     "image": "/images/hagwons/small/sehan.png",
     "name":"세한아카데미",
+    "neis": { "office": "B10", "zone": "1168", "id": "4493", "name": "(주)세한아카데미외국어학원" },
     "url":"https:\/\/www.sehann.com\/w\/intro.php",
     "address":"서울특별시 강남구 테헤란로64길 16-9, 3·4층(대치동)",
     "region":"서울 강남",
@@ -283,6 +293,7 @@ const hagwons = [
   {
     "image": "/images/hagwons/small/thescholars.png",
     "name":"더스콜라스",
+    "neis": { "office": "B10", "zone": "1168", "id": "13890", "name": "더스콜라스학원" },
     "url":"https:\/\/thescholars.co.kr\/main",
     "address":"서울 강남구 압구정로30길 17 (이소니프라자) 5F",
     "region":"서울 강남",
@@ -301,6 +312,7 @@ const hagwons = [
   {
     "image": "/images/hagwons/small/storyeducation.png",
     "name":"StoryEducation",
+    "neis": { "office": "B10", "zone": "1165", "id": "3000029266", "name": "스토리에듀케이션학원" },
     "url":"http:\/\/storyeducation.com\/",
     "address":"서울특별시 서초구 사임당로 50해양빌딩 2층",
     "region":"서울 서초",
@@ -318,6 +330,7 @@ const hagwons = [
   {
     "image": "/images/hagwons/small/ibthetop.png",
     "name":"IBTheTop",
+    "neis": { "office": "B10", "zone": "1168", "id": "3000031978", "name": "아이비더탑학원" },
     "url":"https:\/\/ibthetop.com\/",
     "address":"서울특별시 강남구 강남대로94길 34, 7층",
     "region":"서울 강남",
@@ -335,6 +348,7 @@ const hagwons = [
   {
     "image": "/images/hagwons/small/campbell.png",
     "name":"강남캠벨아카데미",
+    "neis": { "office": "B10", "zone": "1165", "id": "3000019775", "name": "강남캠벨아카데미어학원" },
     "url":"https:\/\/www.campbellsec.com\/SETF\/main.asp",
     "address":"서울시 서초구 사임당로 174 강남미래타워12층",
     "region":"서울 서초",
@@ -353,6 +367,7 @@ const hagwons = [
   {
     "image": "/images/hagwons/small/royalib.png",
     "name":"로얄아이비",
+    "neis": { "office": "B10", "zone": "1168", "id": "3000036888", "name": "로얄아이비학원" },
     "url":"http:\/\/www.royalib.net\/",
     "address":"서울특별시 강남구 압구정로 34길 11, 603 ,604, 605, 606호(신사동, 압구정스퀘어)",
     "region":"서울 강남",
@@ -386,6 +401,7 @@ const hagwons = [
   {
     "image": "/images/hagwons/small/bloomsbury.png",
     "name":"블룸스버리 에듀케이션",
+    "neis": { "office": "B10", "zone": "1168", "id": "3000032760", "name": "블룸스버리어학원" },
     "url":"http:\/\/www.bloomsburyedu.com\/index.php",
     "address":"[서울] 서울특별시 강남구 선릉로 754, 2층(서진빌딩) [제주] 제주특별자치도 서귀포시 대정읍 글로벌에듀로304번길 36, 가보드림타운 D동 1층",
     "region":"서울 강남",
@@ -421,6 +437,7 @@ const hagwons = [
   {
     "image": "/images/hagwons/small/verusacademy.png",
     "name":"Verus Academy",
+    // NEIS: unconfirmed. Only the Songdo branch was found (베루스아카데미학원, E10/2318/3000014449).
     "url":"https:\/\/verusacademy.co.kr\/default\/",
     "address":"[압구정] 서울특별시 강남구 압구정로34길 34, 성우S빌딩 4층 [송도] 인천광역시 연수구 신송로 160, 넥서스빌딩 9층 2호",
     "region":"서울 강남",
@@ -438,6 +455,7 @@ const hagwons = [
   {
     "image": "/images/hagwons/small/brompton.png",
     "name":"Brompton",
+    "neis": { "office": "T10", "zone": "4913", "id": "3000011566", "name": "브롬튼에듀케이션학원" },
     "url":"https:\/\/www.brmptn.com\/",
     "address":"글로벌에듀로 304번길 36 D동 3층",
     "region":"제주 서귀포시",
@@ -472,6 +490,7 @@ const hagwons = [
   {
     "image": "/images/hagwons/small/beceduclass.png",
     "name":"BEC 에듀클래스",
+    // NEIS: unconfirmed. Same address/floor as 브리티시에듀학원 (B10/1165/3000054419); confirm before adding neis.
     "url":"https:\/\/www.beceduclass.com\/index.htm",
     "address":"서초구 서초중앙로 22길 87 유정빌딩 3층",
     "region":"서울 서초",

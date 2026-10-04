@@ -78,7 +78,7 @@ async function logContactClick({ hagwonName, contactType }) {
   }
 }
 
-export default function HagwonCard({ image, name, region, format, lessonType, ia_ee_tok, description, address, url, kakaotalk, isFeatured, featuredReason, featuredPitch, youtubeId, courses, programs}) {
+export default function HagwonCard({ image, name, region, format, lessonType, ia_ee_tok, description, address, url, kakaotalk, isFeatured, featuredReason, featuredPitch, youtubeId, courses, programs, neisInfo}) {
   const [showDetails, setShowDetails] = useState(false);
 
     useEffect(() => {
@@ -154,6 +154,9 @@ export default function HagwonCard({ image, name, region, format, lessonType, ia
             }
           </button>
         </div>
+
+        {/* Registered fees (NEIS), always rendered for SEO */}
+        {neisInfo}
 
         {showDetails && (
           <div className="pt-4 text-gray-600 w-full mt-[1em]">

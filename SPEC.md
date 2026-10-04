@@ -1,39 +1,30 @@
-# Spec: /find search box and 수업료 slider
+# Spec: Show 수업료 on teacher profiles
 
 ## Goal
-Help students and parents narrow the teacher list on `/find` by price and by keyword, using data already in the `teachers` table.
+Show each teacher's hourly rate on their profile page (`/profile/[name]`) so students and parents see the price before contacting them.
 
 ## Included
-- **Search box** above the filter chips, full width.
-  - Placeholder: "이름, 학교, 과목으로 검색".
-  - Matches `name`, `school`, `shortintroduction`, `subjects`, and `extra_subject`; case-insensitive; updates as you type.
-- **수업료 filter chip** (5th chip), opening the same bottom sheet (mobile) / dropdown (desktop) as the other filters, with a two-handle range slider (`rc-slider`, already installed).
-  - Range 2만원 – 15만원+, step 1만원 (`rate` is 만원/시간). The top handle at 15 means "15만원 이상".
-  - Labels under the slider show the current range, e.g. "5만원 – 7만원" or "2만원 – 15만원+".
-  - At the full range the slider filters nothing.
-  - While set, the chip reads the range, e.g. "5–7만원", in the selected chip style.
-  - The sheet's 초기화 resets the slider to the full range.
-- **Teachers without a 수업료** (`rate` empty or ≤ 0) are not hidden by the slider: they are listed after all matching teachers.
-- **Chip row** stays on one line and scrolls sideways on narrow screens, with a fade on the right edge that shows only while more chips are off-screen. No visible scrollbar.
-- **"필터 초기화"** also clears the search box and the slider. It shows whenever any filter, search text, or slider is active.
+- In `pages/profile/[name].js`, at the top of the right-hand card (above the lesson-time pill):
+  - Teachers with a rate (`rate` > 0): **시간당 N만원**, prominent (bold, larger than body text).
+  - Teachers without a rate (`rate` empty or ≤ 0): **수업료 협의**, same position, muted style.
+  - If `rate_description` has text, show it under the line in small gray text, wrapping as needed (also for teachers without a rate).
+- Works on mobile (merged card) and desktop (two cards).
 
 ## Not included
-- Sorting options, age filter, school categories.
-- Any change to the `teachers` table, data cleanup, or the teacher apply/edit forms.
-- Changes to the list design, CTA cards, or other filters.
+- Changes to how teachers enter their rate (dashboard/apply forms).
+- Rate on the `/find` list cards.
+- SEO/meta description changes.
+- Any data or database change.
 
 ## Rules
-- Read-only use of existing columns; no migration.
-- Within each group (rate matches / no rate), keep the current order: premium first, then shuffled.
-- Search and filters combine (AND).
-- Count line ("총 검색된 선생님 수") reflects the filtered result, including no-rate teachers shown at the bottom.
-- Korean text exactly as above.
-- Must work at 360–390px with no page-level horizontal scroll.
+- Read-only use of the existing `rate` and `rate_description` columns, already loaded by the page's `getStaticProps` (`select('*')`).
+- `rate_description` is rendered as plain text (no HTML).
+- Profiles are ISR (`revalidate: 60`), so new rates appear within a minute of a teacher saving them.
+- Korean text exactly: "시간당 N만원", "수업료 협의".
 
 ## Done when
-- [x] Typing "물리" (or a school name) narrows the list to teachers whose name/school/intro/subjects match; clearing the box restores the list.
-- [x] Setting the slider to 5–7 shows teachers with rate 5–7 first, then teachers without a rate; teachers with other rates are hidden.
-- [x] The 수업료 chip reads the selected range while set, and the sheet's 초기화 resets it.
-- [x] At 360px the chip row scrolls sideways, the right-edge fade shows, and it disappears when scrolled to the end; the page itself has no horizontal scroll.
-- [x] "필터 초기화" clears search, slider, and chip filters.
-- [x] `npm run build` passes.
+- [ ] A teacher with rate 5 shows "시간당 5만원" above the lesson-time pill.
+- [ ] A teacher with a `rate_description` shows it under the rate in small gray text.
+- [ ] A teacher with no rate shows "수업료 협의" (plus their note, if any).
+- [ ] Looks right at 390px and 1280px.
+- [ ] `npm run build` passes.

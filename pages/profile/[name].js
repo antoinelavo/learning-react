@@ -1,6 +1,7 @@
 // pages/profile/[name].js
 
 import Head from 'next/head';
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import ContactButton from './ContactButton';
@@ -11,6 +12,17 @@ import { Button, cardClasses, Badge } from '@/components/ui';
 
 const MOBILE_SUBJECT_LIMIT = 6;
 const DESCRIPTION_MAX = 150;
+const PILL = 'flex items-center w-fit gap-2 bg-gray-100 rounded-xl px-[8px] py-[2px] text-sm';
+
+function WonIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M7 8l2.5 8L12 9l2.5 7L17 8" />
+      <path d="M6.5 12h11" />
+    </svg>
+  );
+}
 
 function hasRate(teacher) {
   return typeof teacher.rate === 'number' && teacher.rate > 0;
@@ -117,7 +129,7 @@ export async function getStaticProps({ params }) {
 
 export default function ProfilePage({ teacher }) {
   const router = useRouter();
-  const { user, role } = useAuth();
+  const { user, role, loading: authLoading } = useAuth();
   const { openChatWithTeacher } = useChat();
   const [showAllSubjects, setShowAllSubjects] = useState(false);
 
@@ -197,35 +209,46 @@ export default function ProfilePage({ teacher }) {
           </div>
 
           <div className="flex-1 p-4 md:p-6 md:bg-white md:border md:border-gray-200 md:rounded-2xl md:shadow border-t border-gray-100">
-            {/* 수업료 */}
-            <div className="mb-3 md:mb-4">
-              <p className={`m-0 leading-snug ${rateSet ? 'text-lg md:text-xl font-bold text-gray-900' : 'text-base font-semibold text-gray-500'}`}>
-                {priceText}
-              </p>
-              {rateNote && (
-                <p className="text-sm text-gray-500 mt-1 mb-0 whitespace-pre-line break-words">{rateNote}</p>
+            {/* Schedule + 수업료 pills; the price is shown to logged-in users only */}
+            <div className="mb-2 md:mb-4 flex flex-wrap gap-2">
+              <div className={PILL}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M8 2v4" />
+                  <path d="M16 2v4" />
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <path d="M3 10h18" />
+                </svg>
+                {teacher.preferred_lesson_time}
+              </div>
+
+              {!authLoading && (
+                user ? (
+                  <div className={PILL}>
+                    <WonIcon />
+                    {priceText}
+                  </div>
+                ) : (
+                  <Link href="/login" className={`${PILL} text-blue-600 hover:bg-gray-200 transition-colors`}>
+                    <WonIcon />
+                    수업료: 로그인 후 확인
+                  </Link>
+                )
               )}
             </div>
-
-            <div className="mb-2 md:mb-4 flex items-center w-fit gap-2 bg-gray-100 rounded-xl px-[8px] py-[2px] text-sm">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M8 2v4" />
-                <path d="M16 2v4" />
-                <rect x="3" y="4" width="18" height="18" rx="2" />
-                <path d="M3 10h18" />
-              </svg>
-              {teacher.preferred_lesson_time}
-            </div>
+            {user && rateNote && (
+              <p className="text-xs text-gray-500 -mt-1 md:-mt-2 mb-2 md:mb-4 whitespace-pre-line break-words">{rateNote}</p>
+            )}
 
             {/* Mobile: capped list with a show-more toggle so long subject lists don't push the buttons down */}
             <div className="md:hidden flex flex-wrap gap-1.5">

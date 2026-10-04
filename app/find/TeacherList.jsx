@@ -338,7 +338,7 @@ export default function TeacherList() {
           type="search"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder="이름, 학교, 과목으로 검색"
+          placeholder="이름, 학교, 키워드로 검색"
           aria-label="선생님 검색"
           className="pl-11"
         />

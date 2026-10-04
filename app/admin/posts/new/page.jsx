@@ -59,8 +59,8 @@ export default function AdminNewPostPage() {
 
   return (
     <div className="max-w-2xl mx-auto pt-12 px-4 mb-20">
-      <Link href="/admin/posts" className="text-sm text-blue-500 hover:underline mb-6 inline-block">
-        ← 포스트 목록
+      <Link href="/admin/posts" className="text-sm font-medium text-blue-600 hover:text-blue-700 mb-6 inline-block">
+        포스트 목록
       </Link>
       <h1 className="text-xl font-bold mb-6">새 포스트 작성</h1>
 

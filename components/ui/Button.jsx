@@ -4,7 +4,8 @@ import cx from './cx';
 const VARIANTS = {
   primary: 'bg-blue-600 text-white border border-blue-600 hover:bg-blue-700 hover:border-blue-700',
   secondary: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
-  danger: 'bg-white text-red-600 border border-red-300 hover:bg-red-50',
+  danger: 'bg-red-50 text-red-600 border border-transparent hover:bg-red-100',
+  tinted: 'bg-blue-50 text-blue-600 border border-transparent hover:bg-blue-100',
   ghost: 'bg-transparent text-gray-600 border border-transparent hover:bg-gray-100',
 };
 

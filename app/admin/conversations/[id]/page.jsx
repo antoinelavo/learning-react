@@ -57,8 +57,8 @@ export default function AdminConversationDetailPage() {
         <h1 className="text-xl font-bold">
           {conversation ? `${conversation.teacherName} · ${conversation.studentName}` : '대화 보기'}
         </h1>
-        <Link href="/admin/conversations" className="text-sm text-blue-500 hover:underline">
-          ← 대화 목록
+        <Link href="/admin/conversations" className="text-sm font-medium text-blue-600 hover:text-blue-700">
+          대화 목록
         </Link>
       </div>
 

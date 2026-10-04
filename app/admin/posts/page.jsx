@@ -53,7 +53,7 @@ export default function AdminPostsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-bold">관리자 포스트 관리</h1>
-          <Link href="/admin" className="text-sm text-blue-500 hover:underline">← 어드민 홈</Link>
+          <Link href="/admin" className="text-sm font-medium text-blue-600 hover:text-blue-700">어드민 홈</Link>
         </div>
         <Link
           href="/admin/posts/new"
@@ -68,8 +68,8 @@ export default function AdminPostsPage() {
       ) : posts.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
           <p className="text-sm">작성된 포스트가 없습니다.</p>
-          <Link href="/admin/posts/new" className="text-blue-500 text-sm mt-2 inline-block hover:underline">
-            첫 번째 포스트 작성하기 →
+          <Link href="/admin/posts/new" className={buttonClasses({ variant: 'tinted', size: 'sm', className: 'mt-3' })}>
+            첫 번째 포스트 작성하기
           </Link>
         </div>
       ) : (

@@ -2,9 +2,11 @@ import cx from './cx';
 
 // Selectable pill for filters and categories. `soft` shows the selected state
 // as a tinted outline (used for dropdown triggers); the default is solid blue.
-export function chipClasses({ selected = false, soft = false, className } = {}) {
+// `compact` trims the side padding on phones so a row of chips fits.
+export function chipClasses({ selected = false, soft = false, compact = false, className } = {}) {
   return cx(
-    'inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors',
+    'inline-flex items-center gap-1 rounded-full border py-1.5 text-sm font-medium whitespace-nowrap transition-colors',
+    compact ? 'px-2.5 sm:px-3' : 'px-3',
     selected
       ? soft
         ? 'border-blue-500 bg-blue-50 text-blue-700'

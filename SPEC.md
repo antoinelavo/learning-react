@@ -1,36 +1,39 @@
-# Spec: Slimmer request board header with sticky write button
+# Spec: /find search box and 수업료 slider
 
 ## Goal
-Replace the bulky top card on the student and hagwon request boards with a plain title and one line of text, and move the "write request" button to a sticky bar at the bottom on mobile, so requests show up sooner.
+Help students and parents narrow the teacher list on `/find` by price and by keyword, using data already in the `teachers` table.
 
 ## Included
-- Both boards, changed the same way: `/students` (`app/students/StudentsPageClient.jsx`) and `/hagwon-requests` (`app/hagwon-requests/HagwonRequestsPageClient.jsx`).
-- Header: no card. Plain title + one line of text.
-  - 학생 게시판 / "학생/학부모님께서 올린 수업 요청글을 확인하고 직접 연락해 보세요."
-  - 학원 요청 게시판 / "학생/학부모님께서 올린 학원 요청글을 확인하고 직접 연락해 보세요."
-- The separate gray note line moves into the list header's count:
-  - Students: `최근 1개월 · 총 N건`
-  - Hagwon: `오래된 글은 자동 삭제 · 총 N건`
-- Write button (수업 요청글 작성하기 / 학원 요청글 작성하기, same links as now):
-  - Mobile (below `sm`): full-width primary button fixed to the bottom of the screen, with safe-area padding for the iPhone home bar.
-  - Desktop (`sm` and up): small primary button on the right of the title line. Nothing sticky.
-- Bottom padding on mobile so the sticky bar never covers the last request card.
+- **Search box** above the filter chips, full width.
+  - Placeholder: "이름, 학교, 과목으로 검색".
+  - Matches `name`, `school`, `shortintroduction`, `subjects`, and `extra_subject`; case-insensitive; updates as you type.
+- **수업료 filter chip** (5th chip), opening the same bottom sheet (mobile) / dropdown (desktop) as the other filters, with a two-handle range slider (`rc-slider`, already installed).
+  - Range 2만원 – 15만원+, step 1만원 (`rate` is 만원/시간). The top handle at 15 means "15만원 이상".
+  - Labels under the slider show the current range, e.g. "5만원 – 7만원" or "2만원 – 15만원+".
+  - At the full range the slider filters nothing.
+  - While set, the chip reads the range, e.g. "5–7만원", in the selected chip style.
+  - The sheet's 초기화 resets the slider to the full range.
+- **Teachers without a 수업료** (`rate` empty or ≤ 0) are not hidden by the slider: they are listed after all matching teachers.
+- **Chip row** stays on one line and scrolls sideways on narrow screens, with a fade on the right edge that shows only while more chips are off-screen. No visible scrollbar.
+- **"필터 초기화"** also clears the search box and the slider. It shows whenever any filter, search text, or slider is active.
 
 ## Not included
-- Changes to the request cards, filters, modals, reveal flow, or the write/edit pages.
-- Any data, API, or database change.
+- Sorting options, age filter, school categories.
+- Any change to the `teachers` table, data cleanup, or the teacher apply/edit forms.
+- Changes to the list design, CTA cards, or other filters.
 
 ## Rules
-- Both boards must stay identical in layout and behavior; a change to one is made to the other.
-- The write button (sticky and desktop) is hidden for logged-in `teacher` and `hagwon` accounts. Students, parents, admins, and logged-out visitors see it.
-- The approved-teacher badge "이번 달 연락처 열람 N/2회 남음" stays, under the explanation line.
-- Use the shared `components/ui` button styles.
-- No payment, database, blog, or legal changes.
+- Read-only use of existing columns; no migration.
+- Within each group (rate matches / no rate), keep the current order: premium first, then shuffled.
+- Search and filters combine (AND).
+- Count line ("총 검색된 선생님 수") reflects the filtered result, including no-rate teachers shown at the bottom.
+- Korean text exactly as above.
+- Must work at 360–390px with no page-level horizontal scroll.
 
 ## Done when
-- [x] Neither board's header is a card; each shows the title and the exact one-line text above.
-- [x] List headers read `최근 1개월 · 총 N건` and `오래된 글은 자동 삭제 · 총 N건`; the old gray note lines are gone.
-- [x] At 390px width, the write button is fixed to the bottom, full width, and the last card can scroll fully above it.
-- [x] At 1280px width, the write button sits on the title line and nothing is fixed to the bottom.
-- [x] The write button does not render for `teacher` or `hagwon` roles (checked in code).
+- [x] Typing "물리" (or a school name) narrows the list to teachers whose name/school/intro/subjects match; clearing the box restores the list.
+- [x] Setting the slider to 5–7 shows teachers with rate 5–7 first, then teachers without a rate; teachers with other rates are hidden.
+- [x] The 수업료 chip reads the selected range while set, and the sheet's 초기화 resets it.
+- [x] At 360px the chip row scrolls sideways, the right-edge fade shows, and it disappears when scrolled to the end; the page itself has no horizontal scroll.
+- [x] "필터 초기화" clears search, slider, and chip filters.
 - [x] `npm run build` passes.

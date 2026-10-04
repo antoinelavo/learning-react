@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import Link from 'next/link';
+import RequestBoardHeader from '@/components/RequestBoardHeader';
 import HagwonNewsletterPopup from '@/components/HagwonNewsletterPopup';
-import { Input, Button, buttonClasses, choiceClasses, cardClasses, Badge, Notice } from '@/components/ui';
+import { Input, Button, choiceClasses, cardClasses, Badge, Notice } from '@/components/ui';
 
 export default function HagwonRequestsPageClient() {
   const [requests, setRequests] = useState([]);
@@ -188,30 +188,17 @@ export default function HagwonRequestsPageClient() {
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-8 mb-[50dvh]">
-      <section className={cardClasses({ className: 'p-4 sm:p-6 mb-8 flex items-center justify-between gap-3' })}>
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold mb-1">학원 요청 게시판</h1>
-          <p className="text-sm text-gray-600">
-            학생/학부모님께서 올린 학원 요청글을 확인하고, 직접 연락해 보세요.
-          </p>
-          <p className="text-sm text-gray-400">
-            ( 오래된 게시글은 자동 삭제됩니다 )
-          </p>
-        </div>
-        <div className="shrink-0">
-          <Link
-            href="/hagwon-requests/new"
-            className={buttonClasses({ size: 'sm' })}
-          >
-            학원 요청글 작성하기
-          </Link>
-        </div>
-      </section>
+      <RequestBoardHeader
+        title="학원 요청 게시판"
+        description="학생/학부모님께서 올린 학원 요청글을 확인하고 직접 연락해 보세요."
+        writeHref="/hagwon-requests/new"
+        writeLabel="학원 요청글 작성하기"
+      />
 
       <section>
         <div className="flex items-baseline justify-between mb-3">
           <h2 className="text-lg font-semibold">최근 학원 요청</h2>
-          <span className="text-xs text-gray-500">총 {requests.length}건</span>
+          <span className="text-xs text-gray-500">오래된 글은 자동 삭제 · 총 {requests.length}건</span>
         </div>
 
         {error && (
@@ -224,7 +211,7 @@ export default function HagwonRequestsPageClient() {
           <p className="text-sm text-gray-600">학원 요청을 불러오는 중입니다…</p>
         ) : requests.length === 0 ? (
           <p className="text-sm text-gray-600">
-            아직 등록된 학원 요청이 없습니다. 상단의 &quot;요청하기&quot; 버튼을 눌러 첫 번째 글을 올려보세요!
+            아직 등록된 학원 요청이 없습니다.
           </p>
         ) : (
           <div className="space-y-3">

@@ -4,6 +4,7 @@ import {
   getNeisEntry, feeRange, formatManwon, formatWon, formatPeriod,
   establishedYear, fieldLabel, formatDate, neisUpdatedAt,
 } from '@/lib/hagwonNeis';
+import HagwonFeeDisclaimer from '@/components/HagwonFeeDisclaimer';
 
 export default function HagwonNeisInfo({ neis }) {
   const entry = getNeisEntry(neis);
@@ -26,15 +27,15 @@ export default function HagwonNeisInfo({ neis }) {
   return (
     <div className="mt-4 text-sm">
       <p className="m-0 text-gray-800">
-        <strong>수업료:</strong> {range} <span className="text-gray-500">(교육청 등록 기준)</span>
+        <strong>교육청 등록 교습비:</strong> {range}
       </p>
       {meta && <p className="m-0 mt-1 text-gray-500">{meta}</p>}
 
       <details className="mt-2">
-        <summary className="cursor-pointer text-blue-600 hover:underline w-fit">수업료 상세 보기</summary>
+        <summary className="cursor-pointer text-blue-600 hover:underline w-fit">등록 교습비 상세 보기</summary>
         <div className="mt-2 max-h-80 overflow-auto rounded-lg border border-gray-200">
           <table className="w-full text-xs text-left text-gray-700 m-0 [&_th]:px-3 [&_th]:py-2 [&_th]:font-semibold [&_th]:whitespace-nowrap [&_td]:px-3 [&_td]:py-1.5 [&_td]:whitespace-nowrap [&_tbody_tr]:border-t [&_tbody_tr]:border-gray-100 [&_.num]:text-right">
-            <caption className="sr-only">{entry.name} 교육청 등록 수업료</caption>
+            <caption className="sr-only">{entry.name} 교육청 등록 교습비</caption>
             <thead className="bg-gray-50 sticky top-0">
               <tr>
                 <th scope="col">과목</th>
@@ -42,7 +43,7 @@ export default function HagwonNeisInfo({ neis }) {
                 <th scope="col">총 교습시간</th>
                 {showOtherFee && <th scope="col" className="num">교습비</th>}
                 {showOtherFee && <th scope="col" className="num">기타경비</th>}
-                <th scope="col" className="num">수업료</th>
+                <th scope="col" className="num">합계</th>
               </tr>
             </thead>
             <tbody>
@@ -60,9 +61,10 @@ export default function HagwonNeisInfo({ neis }) {
           </table>
         </div>
         <p className="mt-2 mb-0 text-xs text-gray-500">
-          출처: 교육청 학원·교습소 정보 ({entry.name}, {formatDate(neisUpdatedAt)} 기준). 실제 수업료는 학원에 문의하세요.
+          출처: 교육청 학원·교습소 정보 ({entry.name}, {formatDate(neisUpdatedAt)} 기준).
         </p>
       </details>
+      <HagwonFeeDisclaimer className="mt-1" />
     </div>
   );
 }

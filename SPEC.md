@@ -11,8 +11,9 @@ Show official tuition fees (교육청 등록 기준) and basic registry info on 
   - 개원일 and 교습분야 from the official open API (`NEIS_API_KEY`).
   - Pages read only this file at build time; no runtime calls to NEIS.
 - **Cards (`HagwonCard`, `SATHagwonCard`):**
-  - One-line summary: `수업료: OO만~OO만원 (교육청 등록 기준)`. No "월", because course periods vary.
-  - A `수업료 상세 보기` toggle (`<details>`) that opens the course table (과목 / 교습기간 / 총 교습시간 / 수업료). The table is in the HTML even when closed.
+  - One-line summary: `교육청 등록 교습비: OO만~OO만원`. No "월", because course periods vary.
+  - A `실제 수업료와 다른가요?` toggle explaining why registered fees can be lower than real fees (fee cap, group-class basis, 1:1/특강, 자습시간 in hours, extra costs, consulting). Also shown in the fee section.
+  - A `등록 교습비 상세 보기` toggle (`<details>`) that opens the course table (과목 / 교습기간 / 총 교습시간 / 수업료). The table is in the HTML even when closed.
   - `OOOO년 개원` and the registered field (e.g. `국제화 / 외국어`).
   - No data → `수업료: 학원 문의`, and the 개원 and field lines are hidden.
 - **Fee section** above each list (`IB 학원 수업료 안내` / `SAT 학원 수업료 안내`): price range, median, how many hagwons and courses, a per-hagwon range table, the data date, and a source note.
@@ -36,7 +37,7 @@ Show official tuition fees (교육청 등록 기준) and basic registry info on 
 ## Done when
 - [x] Each confidently matched hagwon in both data files has NEIS IDs; the report lists matched, uncertain, and unmatched hagwons.
 - [x] `node scripts/update-hagwon-neis.mjs` produces `data/hagwon-neis.json` with courses for every matched hagwon.
-- [x] Cards with data show the fee summary, a working `수업료 상세 보기` toggle, 개원 year, and field.
+- [x] Cards with data show the fee summary, a working `등록 교습비 상세 보기` toggle and the `실제 수업료와 다른가요?` explanation, 개원 year, and field.
 - [x] Cards without data show `수업료: 학원 문의` and no 개원 or field line.
 - [x] The fee section shows range, median, counts, and date, and is hidden when no hagwon has fee data.
 - [x] The page HTML contains the fee tables and valid JSON-LD with `priceRange`.

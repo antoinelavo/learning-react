@@ -3,6 +3,7 @@
 import {
   getNeisEntry, feeRange, feeStats, formatManwon, establishedYear, formatDate, neisUpdatedAt,
 } from '@/lib/hagwonNeis';
+import HagwonFeeDisclaimer from '@/components/HagwonFeeDisclaimer';
 
 export default function HagwonFeeSummary({ hagwons, label }) {
   const stats = feeStats(hagwons);
@@ -19,19 +20,20 @@ export default function HagwonFeeSummary({ hagwons, label }) {
       <h2>{label} 학원 수업료 안내</h2>
       <p>
         교육청에 등록된 {label} 학원 {stats.hagwonCount}곳의 강좌 {stats.courseCount.toLocaleString('ko-KR')}개를 기준으로,
-        수업료는 강좌당 <strong>{formatManwon(stats.min)}~{formatManwon(stats.max)}원</strong>이며
+        교육청 등록 교습비는 강좌당 <strong>{formatManwon(stats.min)}~{formatManwon(stats.max)}원</strong>이며
         중앙값은 <strong>{formatManwon(stats.median)}원</strong>입니다.
-        수업료는 교습기간(며칠 단기 특강부터 수개월 정규반까지)과 수업 시간에 따라 크게 달라지므로,
-        각 학원의 &lsquo;수업료 상세 보기&rsquo;에서 강좌별 교습기간과 총 교습시간을 함께 확인하세요.
+        교습비는 교습기간(며칠 단기 특강부터 수개월 정규반까지)과 수업 시간에 따라 크게 달라지므로,
+        각 학원의 &lsquo;등록 교습비 상세 보기&rsquo;에서 강좌별 교습기간과 총 교습시간을 함께 확인하세요.
+        등록 교습비는 실제 수업료보다 낮게 보일 수 있습니다.
       </p>
 
       <div className="overflow-x-auto rounded-lg border border-gray-200">
         <table className="w-full text-sm text-left text-gray-700 m-0">
-          <caption className="sr-only">{label} 학원별 교육청 등록 수업료 범위</caption>
+          <caption className="sr-only">{label} 학원별 교육청 등록 교습비 범위</caption>
           <thead className="bg-gray-50">
             <tr>
               <th scope="col" className="px-3 py-2 font-semibold">학원</th>
-              <th scope="col" className="px-3 py-2 font-semibold whitespace-nowrap">수업료 범위</th>
+              <th scope="col" className="px-3 py-2 font-semibold whitespace-nowrap">등록 교습비</th>
               <th scope="col" className="px-3 py-2 font-semibold whitespace-nowrap">개원</th>
             </tr>
           </thead>
@@ -49,8 +51,10 @@ export default function HagwonFeeSummary({ hagwons, label }) {
         </table>
       </div>
 
+      <HagwonFeeDisclaimer className="mt-3 text-sm" />
+
       <p className="mt-2 text-xs text-gray-500">
-        출처: 교육청 학원·교습소 정보 ({formatDate(neisUpdatedAt)} 기준). 교육청에 등록된 수업료이며, 실제 수업료는 학원에 문의하세요.
+        출처: 교육청 학원·교습소 정보 ({formatDate(neisUpdatedAt)} 기준).
       </p>
     </section>
   );

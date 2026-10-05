@@ -9,7 +9,7 @@ import { buttonClasses, cardClasses } from '@/components/ui';
 
 export const metadata = {
   title: 'SAT 학원 29곳 추천 및 비교 [2026년 최신]',
-  description: 'SAT 학원 추천, 비교, 선택 가이드 – 교육청 등록 수업료(교습비)와 개원 연도까지 한눈에, 2026년 최신 업데이트',
+  description: 'SAT 학원 추천, 비교, 선택 가이드 – 교육청 등록 교습비와 개원 연도까지 한눈에, 2026년 최신 업데이트',
   robots: {
     index: true,
     follow: true,
@@ -27,7 +27,7 @@ export const metadata = {
 
   openGraph: {
     title: 'SAT 학원 29곳 추천 및 비교 [2026년 최신]',
-    description: 'SAT 학원 추천, 비교, 선택 가이드 – 교육청 등록 수업료(교습비)와 개원 연도까지 한눈에, 2026년 최신 업데이트',
+    description: 'SAT 학원 추천, 비교, 선택 가이드 – 교육청 등록 교습비와 개원 연도까지 한눈에, 2026년 최신 업데이트',
     url: 'https://ibmaster.net/sat-hagwons',
     siteName: 'IB Master',
     locale: 'ko-KR',

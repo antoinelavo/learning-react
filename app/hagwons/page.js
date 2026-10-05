@@ -1,6 +1,5 @@
 import HagwonCard from '@/components/HagwonCard';
-import HagwonNeisInfo from '@/components/HagwonNeisInfo';
-import HagwonFeeSummary from '@/components/HagwonFeeSummary';
+import { HagwonFeeLine, HagwonFeeDetails } from '@/components/HagwonNeisInfo';
 import { hagwonJsonLd, jsonLdString } from '@/lib/hagwonNeis';
 import allHagwonsData from '@/data/hagwons';
 import FilterLinksClient from './FilterLogic.client';
@@ -67,8 +66,6 @@ export default function HagwonsPage() {
         </div>
       </div>
 
-      <HagwonFeeSummary hagwons={allHagwonsData} label="IB" />
-
       <div className="space-y-5 flex flex-col mt-6" id="hagwon-list">
         {allHagwonsData.map((card, i) => (
           <div
@@ -79,7 +76,8 @@ export default function HagwonsPage() {
             data-format={card.format}
             data-service={card.ia_ee_tok ? 'IA,EE,TOK' : ''}
           >
-            <HagwonCard {...card} priority={i === 0} neisInfo={<HagwonNeisInfo neis={card.neis} />} />
+            <HagwonCard {...card} priority={i === 0} feeLine={<HagwonFeeLine neis={card.neis} />}
+              feeDetails={<HagwonFeeDetails neis={card.neis} />} />
           </div>
         ))}
       </div>

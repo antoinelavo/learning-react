@@ -76,8 +76,42 @@ async function logContactClick({ hagwonName, contactType }) {
   }
 }
 
-export default function HagwonCard({ image, name, region, format, lessonType, services, description, address, url, kakaotalk, feeLine, feeDetails }) {
+async function logExpand({ hagwonName, hasFee }) {
+  if (typeof window === 'undefined') return;
+
+  const sessionId = localStorage.getItem('user_session_id') || crypto.randomUUID();
+  localStorage.setItem('user_session_id', sessionId);
+
+  // Only log once per browser session per hagwon
+  const expandKey = `expanded-sat_hagwons-${hagwonName}`;
+  try {
+    if (sessionStorage.getItem(expandKey)) return;
+    sessionStorage.setItem(expandKey, 'true');
+  } catch {}
+
+  const { error } = await supabase.from('page_events').insert({
+    page: 'sat_hagwons',
+    event_type: 'card_expand',
+    device_type: getDeviceType(),
+    timestamp: new Date().toISOString(),
+    user_session_id: sessionId,
+    details: {
+      action: 'card_expand',
+      hagwon_name: hagwonName,
+      has_fee: hasFee,
+    },
+  });
+
+  if (error) console.error('❌ Failed to insert expand event:', error);
+}
+
+export default function HagwonCard({ image, name, region, format, lessonType, services, description, address, url, kakaotalk, feeDetails, hasFee }) {
   const [showDetails, setShowDetails] = useState(false);
+
+  const toggleDetails = () => {
+    if (!showDetails) logExpand({ hagwonName: name, hasFee });
+    setShowDetails(prev => !prev);
+  };
 
     useEffect(() => {
     const observer = new IntersectionObserver(
@@ -139,7 +173,7 @@ export default function HagwonCard({ image, name, region, format, lessonType, se
 
 
           {/* Show More Button */}
-          <button onClick={() => setShowDetails(prev => !prev)} className="hidden sm:block my-auto" >
+          <button onClick={toggleDetails} className="hidden sm:block my-auto" >
             {showDetails ? 
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-up-icon lucide-chevron-up"><path d="m18 15-6-6-6 6"/></svg>
             :
@@ -148,11 +182,8 @@ export default function HagwonCard({ image, name, region, format, lessonType, se
           </button>
         </div>
 
-        {/* Registered fee one-liner (NEIS) */}
-        {feeLine}
-
-        {showDetails && (
-          <div className="pt-4 text-gray-600 w-full mt-[1em]">
+        {/* Expanded details: always rendered (hidden until opened) so search engines index them */}
+          <div className={`pt-4 text-gray-600 w-full mt-[1em] ${showDetails ? '' : 'hidden'}`}>
                 {/* Subjects */}
               <div className="gap-2 w-[20em] hidden md:flex flex-wrap">
                 {[...format, ...lessonType].map((tag, i) => (
@@ -192,10 +223,9 @@ export default function HagwonCard({ image, name, region, format, lessonType, se
               </a>
             </div>
           </div>
-        )}
 
           {/* Show More Button Mobile */}
-          <button onClick={() => setShowDetails(prev => !prev)} className="block sm:hidden mt-[1em] mx-auto" >
+          <button onClick={toggleDetails} className="block sm:hidden mt-[1em] mx-auto" >
             {showDetails ? 
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-up-icon lucide-chevron-up"><path d="m18 15-6-6-6 6"/></svg>
             :

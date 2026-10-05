@@ -1,18 +1,16 @@
-// Server components: registered fees (NEIS) for one hagwon card.
-// HagwonFeeLine is the one-liner on the collapsed card; HagwonFeeDetails is the
-// fee box shown when the card is expanded.
+// Server component: registered fees (NEIS) shown in a hagwon card's expanded section.
 import {
   getNeisEntry, feeRange, formatManwon, formatWon, formatPeriod,
   establishedYear, fieldLabel, formatDate, neisUpdatedAt,
 } from '@/lib/hagwonNeis';
 
 const REASONS = [
-  ['등록 상한', '교육청이 정한 분당 기준 안에서만 등록해요'],
-  ['단체반 기준', '1:1·소수정예 수업은 더 비쌀 수 있어요'],
-  ['특강 별도', '단기·방학 특강은 금액이 다를 수 있어요'],
-  ['자습시간 포함', '교습시간에 자습이 포함되면 실제 단가는 더 높아요'],
-  ['기타경비', '교재비·모의고사비는 따로 청구될 수 있어요'],
-  ['컨설팅 별도', '입시 컨설팅 비용은 보통 별도예요'],
+  ['등록 기준', '교습비는 교육지원청이 정한 분당 교습비 기준 이내에서 등록됩니다.'],
+  ['수업 형태', '등록 금액은 주로 단체 수업 기준이며, 1:1·소수 정예 수업은 금액이 다를 수 있습니다.'],
+  ['특강', '단기 특강과 방학 집중 과정은 정규 과정과 금액이 다를 수 있습니다.'],
+  ['교습시간', '총 교습시간에 자습 시간이 포함된 경우, 수업 시간당 금액은 더 높을 수 있습니다.'],
+  ['기타경비', '교재비, 모의고사비 등은 교습비와 별도로 청구될 수 있습니다.'],
+  ['컨설팅', '입시 컨설팅 비용은 일반적으로 교습비에 포함되지 않습니다.'],
 ];
 
 function rangeText(entry) {
@@ -39,18 +37,11 @@ function Row({ title, children }) {
   );
 }
 
-export function HagwonFeeLine({ neis }) {
+export default function HagwonFeeDetails({ neis }) {
   const entry = getNeisEntry(neis);
-  return (
-    <p className="mt-4 mb-0 text-sm text-gray-800">
-      <strong>수업료:</strong> {entry ? rangeText(entry) : '학원 문의'}
-    </p>
-  );
-}
-
-export function HagwonFeeDetails({ neis }) {
-  const entry = getNeisEntry(neis);
-  if (!entry) return null;
+  if (!entry) {
+    return <p className="mb-4 text-sm text-gray-800"><strong>수업료:</strong> 학원 문의</p>;
+  }
 
   const year = establishedYear(entry);
   const field = fieldLabel(entry);
@@ -60,9 +51,10 @@ export function HagwonFeeDetails({ neis }) {
     <div className="mb-4 rounded-xl border border-gray-200 overflow-hidden">
       {/* Header */}
       <div className="px-4 py-3">
+        <p className="m-0 text-xs text-gray-500">수업료</p>
         <div className="flex items-baseline justify-between gap-2 flex-wrap">
           <p className="m-0 text-base font-bold text-gray-900">{rangeText(entry)}</p>
-          <span className="text-xs text-gray-500">교육청 등록 교습비 · {formatDate(neisUpdatedAt)} 기준</span>
+          <span className="text-xs text-gray-500">교육청 등록 교습비 기준 · {formatDate(neisUpdatedAt)}</span>
         </div>
         {(year || field) && (
           <div className="flex gap-1.5 flex-wrap mt-2">
@@ -104,18 +96,16 @@ export function HagwonFeeDetails({ neis }) {
         <p className="mt-2 mb-0 text-xs text-gray-400">출처: 교육청 학원·교습소 정보 ({entry.name})</p>
       </Row>
 
-      <Row title="실제 수업료와 다를 수 있는 이유">
-        <ul className="grid sm:grid-cols-2 gap-2 m-0 p-0 list-none">
-          {REASONS.map(([title, text]) => (
-            <li key={title} className="rounded-lg bg-gray-50 px-3 py-2">
-              <p className="m-0 text-xs font-semibold text-gray-800">{title}</p>
-              <p className="m-0 text-xs text-gray-500 leading-relaxed">{text}</p>
-            </li>
+      <Row title="수업료 참고 사항">
+        <dl className="m-0 divide-y divide-gray-100 text-xs">
+          {REASONS.map(([term, text]) => (
+            <div key={term} className="flex gap-3 py-2">
+              <dt className="w-16 shrink-0 font-semibold text-gray-700">{term}</dt>
+              <dd className="m-0 text-gray-600 leading-relaxed">{text}</dd>
+            </div>
           ))}
-        </ul>
-        <p className="mt-3 mb-0 text-xs text-gray-500 leading-relaxed">
-          등록 금액보다 많이 받는 것은 학원법 위반이에요. 상담 시 등록 교습비를 함께 확인하세요.
-        </p>
+        </dl>
+        <p className="mt-2 mb-0 text-xs text-gray-500">정확한 수업료는 학원 상담 시 확인하시기 바랍니다.</p>
       </Row>
     </div>
   );

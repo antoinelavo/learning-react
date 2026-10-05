@@ -1,6 +1,6 @@
 import HagwonCard from '@/components/HagwonCard';
-import { HagwonFeeLine, HagwonFeeDetails } from '@/components/HagwonNeisInfo';
-import { hagwonJsonLd, jsonLdString } from '@/lib/hagwonNeis';
+import HagwonFeeDetails from '@/components/HagwonNeisInfo';
+import { getNeisEntry, hagwonJsonLd, jsonLdString } from '@/lib/hagwonNeis';
 import allHagwonsData from '@/data/hagwons';
 import FilterLinksClient from './FilterLogic.client';
 import FeedbackPopup from './components/FeedbackPopup';
@@ -76,8 +76,8 @@ export default function HagwonsPage() {
             data-format={card.format}
             data-service={card.ia_ee_tok ? 'IA,EE,TOK' : ''}
           >
-            <HagwonCard {...card} priority={i === 0} feeLine={<HagwonFeeLine neis={card.neis} />}
-              feeDetails={<HagwonFeeDetails neis={card.neis} />} />
+            <HagwonCard {...card} priority={i === 0} feeDetails={<HagwonFeeDetails neis={card.neis} />}
+              hasFee={Boolean(getNeisEntry(card.neis))} />
           </div>
         ))}
       </div>

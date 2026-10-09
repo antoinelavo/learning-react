@@ -1,51 +1,42 @@
-# Spec: NEIS hagwon fees and info on hagwon pages
+# Spec: Weekly SEO blog post routine
 
 ## Goal
-Show official tuition fees (교육청 등록 기준) and basic registry info on `/hagwons` and `/sat-hagwons`, refreshed weekly, so parents and students get useful, current, search-friendly information.
+A scheduled Claude Code routine writes one SEO-focused, fact-checked blog post a week for a target keyword and opens a PR for review, so the blog grows steadily with posts useful to IB/SAT students and parents.
 
 ## Included
-- **Data link:** add NEIS identifiers (`neis: { office, zone, id, name }`) to each confidently matched entry in `data/hagwons.js` and `data/sat-hagwons.js`. Hagwons in both files get the same IDs.
-- **ID lookup (done during build):** match by name and address against the NEIS registry. Uncertain matches get a code comment and are listed in the build report. No match means no ID.
-- **Snapshot:** `scripts/update-hagwon-neis.mjs` writes a committed `data/hagwon-neis.json`:
-  - Per-course fees from the hakwon.neis.go.kr search site. The official open API has no 학원 fees.
-  - 개원일 and 교습분야 from the official open API (`NEIS_API_KEY`).
-  - Pages read only this file at build time; no runtime calls to NEIS.
-- **Cards (`HagwonCard`, `SATHagwonCard`):**
-  - Collapsed card: a clickable `수업료 …` teaser (no amount) that opens the card.
-  - Expanded section is always rendered and hidden with CSS until opened, so descriptions and fees are in the page HTML for SEO. The YouTube embed still loads only on expand.
-  - Fee box in the expanded section: `수업료` with the range, `교육청 등록 교습비 기준 · date`, 개원 year and field chips, and two click-to-reveal rows:
-    - `강좌별 교습비 (N개)`: course table (과목 / 기간 · 총 시간 / 합계), with right/bottom fades while more rows or columns are off-screen.
-    - `수업료 참고 사항`: six neutral notes (등록 기준, 수업 형태, 특강, 교습시간, 기타경비, 컨설팅).
-  - No data → `수업료: 학원 문의` in the expanded section.
-  - Opening a card logs a `card_expand` event to `page_events` (once per browser session per hagwon) with `hagwon_name`, `has_fee`, and `source` (`fee_teaser` or `chevron`).
-- **Page header (`/hagwons`, `/sat-hagwons`):** tighter title spacing, update date and view count on one line.
-- **Order:** hagwons with fee data first, otherwise the existing order.
-- **SEO:** titles use the real hagwon count and 수업료 (`IB 학원 28곳 추천 및 수업료 비교 [2026년 최신]`); canonical and OpenGraph URLs use `https://www.ibmaster.net`; 최신 업데이트 and sitemap `lastmod` set to 2026-10-09; JSON-LD `ItemList` has `name` and `numberOfItems`.
-- **SEO:** JSON-LD `ItemList` of `EducationalOrganization` with `priceRange` where known; meta and OpenGraph descriptions mention 수업료.
+- **Guide** `content/seo/guide.md`: written from the best existing posts in `content/blog/`. Covers tone (Korean, 존댓말), length, title and `description` patterns (keyword near the front, description ~120–160 chars), heading structure, internal links (at least 3 to existing posts or pages like `/hagwons`, `/sat-hagwons`, `/find`), CTA fields (`ctaDescription`, `ctaLabel`, `ctaLink`), categories (`IB`, `SAT`, `특례입학`), and slug format (lowercase English kebab-case).
+- **Keyword list** `content/seo/keywords.md`: a table of keyword, category, status (`planned` / `done` / `suggested`), and post slug. Seeded with the keywords existing posts already cover (marked `done`) and a starter set of `planned` keywords for you to approve.
+- **Routine prompt** `content/seo/routine-prompt.md`: the full set of instructions each run follows (see Rules).
+- **Routine:** a Claude Code routine that runs weekly on Monday at 9am KST, starts a fresh session each time on this repo, and points to `routine-prompt.md`.
 
 ## Not included
-- Live or ISR fetching from NEIS.
-- Official 도로명주소 and 정원 fields.
-- Storing NEIS data in Supabase, or adding an admin UI for IDs.
-- Hagwon detail pages, the hagwon dashboard, and request forms.
-- Changes to filters.
-- A page-level fee overview section (removed as repetitive).
-- Setting up the weekly refresh routine (offered separately after the build).
+- New page types or routes. Posts only.
+- Editing or refreshing existing posts or pages.
+- Auto-merging or publishing. A human merges every PR.
+- Changes to the blog template, sitemap script, or `publish-blog.sh`.
+- Images for posts.
 
 ## Rules
-- A failed fetch keeps that hagwon's previous snapshot entry; the script never wipes data on errors.
-- `NEIS_API_KEY` stays in `.env.local` / environment settings and is never committed.
-- Never label a hagwon as unregistered.
-- Site text is Korean; code is English.
-- Touches no "Ask before changing" areas (no payments, DB, blog, or legal pages).
+- **Each run:**
+  1. Pick the first `planned` keyword. If there is none, stop and open no PR.
+  2. Check that no existing post already targets that keyword. If one does, mark the keyword `done` with that slug, skip it, and move to the next one.
+  3. Research facts on official sources (IBO, College Board, 대교협, university and school sites). Leave out any claim it can't verify.
+  4. Write one `content/blog/<slug>.mdx` following the guide, with `date` set to the run date.
+  5. Add one `<url>` entry for the post to `public/sitemap.xml` by hand. Don't run the sitemap script, because it needs `.env.local`.
+  6. Mark the keyword `done` with the slug, and add 2–3 new `suggested` keywords drawn from research and gaps in existing posts.
+  7. Run `npm run build` (with placeholder Supabase env vars if no real ones are set). The build must pass.
+  8. Push a `blog/<slug>` branch and open a PR.
+- **PR body:** the target keyword, title and description, the internal links used, the source URLs for each fact, the new suggested keywords, and anything it was unsure about.
+- `suggested` keywords are used only after you change them to `planned`.
+- Never push to `main` or run `scripts/publish-blog.sh`.
+- Site text is Korean. Branch names, slugs, and commit messages are English.
+- No payments, database, or legal-page changes.
+- **Ask before changing (blog posts):** the user approved automated new posts in `content/blog/`, as long as each one goes through a PR. The routine never edits existing posts.
 
 ## Done when
-- [x] Each confidently matched hagwon in both data files has NEIS IDs; the report lists matched, uncertain, and unmatched hagwons.
-- [x] `node scripts/update-hagwon-neis.mjs` produces `data/hagwon-neis.json` with courses for every matched hagwon.
-- [x] Collapsed cards show a `수업료 …` teaser without the amount; expanded cards show the fee box with both click-to-reveal rows, 개원 year, and field.
-- [x] Fee tables and full descriptions are in the initial page HTML.
-- [x] Expanding a card logs one `card_expand` event per session per hagwon.
-- [x] Expanded cards without data show `수업료: 학원 문의`.
-- [x] The page HTML contains valid JSON-LD with `priceRange`.
-- [x] Meta descriptions mention 수업료.
-- [x] `npm run build` passes.
+- [ ] `content/seo/guide.md`, `keywords.md`, and `routine-prompt.md` exist and follow the rules above.
+- [ ] `keywords.md` lists every existing post's keyword as `done` and has at least 10 `planned` keywords.
+- [ ] Nothing new under `content/blog/` is picked up as a post (no non-post files added there).
+- [ ] The routine exists, is enabled, runs weekly on Monday at 9am KST, and its prompt points to `routine-prompt.md`.
+- [ ] One test run (fired manually) opens a PR with a valid new MDX post, a sitemap entry, keyword updates, and sources in the PR body.
+- [ ] `npm run build` passes.

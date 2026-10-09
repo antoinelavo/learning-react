@@ -34,9 +34,9 @@ A scheduled Claude Code routine writes one SEO-focused, fact-checked blog post a
 - **Ask before changing (blog posts):** the user approved automated new posts in `content/blog/`, as long as each one goes through a PR. The routine never edits existing posts.
 
 ## Done when
-- [ ] `content/seo/guide.md`, `keywords.md`, and `routine-prompt.md` exist and follow the rules above.
-- [ ] `keywords.md` lists every existing post's keyword as `done` and has at least 10 `planned` keywords.
-- [ ] Nothing new under `content/blog/` is picked up as a post (no non-post files added there).
-- [ ] The routine exists, is enabled, runs weekly on Monday at 9am KST, and its prompt points to `routine-prompt.md`.
+- [x] `content/seo/guide.md`, `keywords.md`, and `routine-prompt.md` exist and follow the rules above.
+- [x] `keywords.md` lists every existing post's keyword as `done` and has at least 10 `planned` keywords.
+- [x] Nothing new under `content/blog/` is picked up as a post (no non-post files added there).
+- [x] The routine exists, is enabled, runs weekly on Monday at 9am KST, and its prompt points to `routine-prompt.md`.
 - [ ] One test run (fired manually) opens a PR with a valid new MDX post, a sitemap entry, keyword updates, and sources in the PR body.
-- [ ] `npm run build` passes.
+- [x] `npm run build` passes.

@@ -1,51 +1,55 @@
-# Spec: NEIS hagwon fees and info on hagwon pages
+# Spec: PortOne payments (replace Toss)
 
 ## Goal
-Show official tuition fees (교육청 등록 기준) and basic registry info on `/hagwons` and `/sat-hagwons`, refreshed weekly, so parents and students get useful, current, search-friendly information.
+Move all card payments (premium listings and the 플러스 tier) from Toss to PortOne V2 using the approved KG이니시스 channel, add admin refunds, and remove the Toss and NicePay code.
 
 ## Included
-- **Data link:** add NEIS identifiers (`neis: { office, zone, id, name }`) to each confidently matched entry in `data/hagwons.js` and `data/sat-hagwons.js`. Hagwons in both files get the same IDs.
-- **ID lookup (done during build):** match by name and address against the NEIS registry. Uncertain matches get a code comment and are listed in the build report. No match means no ID.
-- **Snapshot:** `scripts/update-hagwon-neis.mjs` writes a committed `data/hagwon-neis.json`:
-  - Per-course fees from the hakwon.neis.go.kr search site. The official open API has no 학원 fees.
-  - 개원일 and 교습분야 from the official open API (`NEIS_API_KEY`).
-  - Pages read only this file at build time; no runtime calls to NEIS.
-- **Cards (`HagwonCard`, `SATHagwonCard`):**
-  - Collapsed card: a clickable `수업료 …` teaser (no amount) that opens the card.
-  - Expanded section is always rendered and hidden with CSS until opened, so descriptions and fees are in the page HTML for SEO. The YouTube embed still loads only on expand.
-  - Fee box in the expanded section: `수업료` with the range, `교육청 등록 교습비 기준 · date`, 개원 year and field chips, and two click-to-reveal rows:
-    - `강좌별 교습비 (N개)`: course table (과목 / 기간 · 총 시간 / 합계), with right/bottom fades while more rows or columns are off-screen.
-    - `수업료 참고 사항`: six neutral notes (등록 기준, 수업 형태, 특강, 교습시간, 기타경비, 컨설팅).
-  - No data → `수업료: 학원 문의` in the expanded section.
-  - Opening a card logs a `card_expand` event to `page_events` (once per browser session per hagwon) with `hagwon_name`, `has_fee`, and `source` (`fee_teaser` or `chevron`).
-- **Page header (`/hagwons`, `/sat-hagwons`):** tighter title spacing, update date and view count on one line.
-- **Order:** hagwons with fee data first, otherwise the existing order.
-- **SEO:** titles use the real hagwon count and 수업료 (`IB 학원 28곳 추천 및 수업료 비교 [2026년 최신]`); canonical and OpenGraph URLs use `https://www.ibmaster.net`; 최신 업데이트 and sitemap `lastmod` set to 2026-10-09; JSON-LD `ItemList` has `name` and `numberOfItems`.
-- **SEO:** JSON-LD `ItemList` of `EducationalOrganization` with `priceRange` where known; meta and OpenGraph descriptions mention 수업료.
+- **`lib/portone.js`** (server): get a payment by ID, cancel (full refund), and verify webhook signatures, using the PortOne V2 REST API with `PORTONE_API_SECRET`.
+- **Checkout:** `PremiumListingOffer` and `TierUpgradeOffer` use the PortOne browser SDK (`@portone/browser-sdk`) `requestPayment` with `storeId`, the KG이니시스 `channelKey`, `payMethod: 'CARD'`, the amount, and an order name.
+  - Before the payment window opens, the client inserts the pending row with a new `paymentId` (same pattern as today).
+  - PC popup: once the SDK promise resolves, the client calls the server complete route.
+  - Mobile redirect: `redirectUrl` points to the same complete route.
+- **Complete routes** (replace `app/api/toss/*`):
+  - `app/api/portone/complete`: premium listing.
+  - `app/api/portone/tier-complete`: 플러스.
+  - Each fetches the payment from PortOne, checks `status === 'PAID'` and that the amount matches the DB row, then calls the existing activation function. They redirect to the same dashboard success/fail URLs used today.
+- **Webhook** `app/api/portone/webhook`: verifies the signature with `PORTONE_WEBHOOK_SECRET`, re-fetches the payment, and on `PAID` routes it to premium or tier activation based on which table holds the `paymentId`. Always returns 200 once the signature is valid.
+- **Refunds:** a `환불` button on card-paid rows in `/admin/payments` and `/admin/plus-payments`, behind a confirm dialog. It calls an admin-only API route that:
+  - cancels the full amount through PortOne;
+  - sets the row to `refunded`;
+  - removes the premium listing (`teacher_premium` / `successful_payments` linked rows), or sets the teacher to `free` unless another paid payment backs 플러스 (same rule as `undoPlusBankTransfer`).
+- **카카오페이 flag:** an optional `NEXT_PUBLIC_PORTONE_CHANNEL_KEY_KAKAOPAY`. When it is set, a `카카오페이` button appears next to card checkout (`payMethod: 'EASY_PAY'`). When it is unset, the button is hidden.
+- **Migration** (new file in `supabase/migrations/`): add `portone_payment_id text unique` to `payments` and `payment_request`, and allow status `refunded` on both.
+- **Removals:** `lib/toss.js`, `lib/nicepay.js`, `app/api/toss/`, `app/api/nicepay/`, the Toss `<Script>` tags, and the TEMP DEBUG code in `TierUpgradeOffer`. Update `CLAUDE.md` to say PortOne instead of Toss/NicePay.
+- **Env vars:** `NEXT_PUBLIC_PORTONE_STORE_ID`, `NEXT_PUBLIC_PORTONE_CHANNEL_KEY` (KG이니시스, test or live), `NEXT_PUBLIC_PORTONE_CHANNEL_KEY_KAKAOPAY` (optional), `PORTONE_API_SECRET`, `PORTONE_WEBHOOK_SECRET`.
 
 ## Not included
-- Live or ISR fetching from NEIS.
-- Official 도로명주소 and 정원 fields.
-- Storing NEIS data in Supabase, or adding an admin UI for IDs.
-- Hagwon detail pages, the hagwon dashboard, and request forms.
-- Changes to filters.
-- A page-level fee overview section (removed as repetitive).
-- Setting up the weekly refresh routine (offered separately after the build).
+- 계좌이체, 가상계좌, partial refunds, subscriptions or auto-renewal.
+- Changes to prices, plan contents, or the premium spot limit.
+- Changes to the bank-transfer flow (it stays as is).
+- Moving old Toss payment rows; they keep their `toss_*` columns as history.
+- Receipt or refund emails.
+- Legal page edits. The privacy policy may need KG이니시스/PortOne listed as 처리위탁 recipients; that is a separate change for you to decide on.
 
 ## Rules
-- A failed fetch keeps that hagwon's previous snapshot entry; the script never wipes data on errors.
-- `NEIS_API_KEY` stays in `.env.local` / environment settings and is never committed.
-- Never label a hagwon as unregistered.
-- Site text is Korean; code is English.
-- Touches no "Ask before changing" areas (no payments, DB, blog, or legal pages).
+- **Ask before changing** areas touched (approved in this spec): payment code, `supabase/migrations/`.
+  - The migration must be run by hand in the Supabase dashboard **before** deploying.
+  - `PORTONE_WEBHOOK_SECRET` and the webhook URL (`https://www.ibmaster.net/api/portone/webhook`) are set in the PortOne console.
+- Never trust client- or redirect-supplied status or amounts. Always re-fetch from PortOne and compare against the DB row and the fixed prices.
+- Keep the idempotent `pending → paid` guard in `lib/premiumActivation.js` and `lib/tierActivation.js`; switch their lookups to `portone_payment_id`. Refunds use the same kind of guard (`paid → refunded` only once).
+- The refund API checks that the caller is an admin (`users.role`) before calling PortOne.
+- Secrets are server-only; only the store ID and channel keys are `NEXT_PUBLIC_`.
+- Korean user-facing text; English code and comments. Payment error messages stay the same as today's.
+- Rollout: Vercel preview with the KG이니시스 test channel first, then the live channel key in production.
 
 ## Done when
-- [x] Each confidently matched hagwon in both data files has NEIS IDs; the report lists matched, uncertain, and unmatched hagwons.
-- [x] `node scripts/update-hagwon-neis.mjs` produces `data/hagwon-neis.json` with courses for every matched hagwon.
-- [x] Collapsed cards show a `수업료 …` teaser without the amount; expanded cards show the fee box with both click-to-reveal rows, 개원 year, and field.
-- [x] Fee tables and full descriptions are in the initial page HTML.
-- [x] Expanding a card logs one `card_expand` event per session per hagwon.
-- [x] Expanded cards without data show `수업료: 학원 문의`.
-- [x] The page HTML contains valid JSON-LD with `priceRange`.
-- [x] Meta descriptions mention 수업료.
-- [x] `npm run build` passes.
+- [ ] No references to Toss or NicePay remain in `app/`, `components/`, or `lib/` (grep is clean), and the Toss/NicePay files are deleted.
+- [ ] On a preview deployment with the test channel, buying a premium listing by card activates it and the payment row shows `paid` with a `portone_payment_id`.
+- [ ] Buying 플러스 by card on preview sets `teachers.tier` to the paid tier, and the row shows `paid`.
+- [ ] Both purchases work on desktop (popup) and on mobile (redirect).
+- [ ] Firing the webhook after a payment is already `paid` changes nothing. A webhook with a bad signature is rejected and activates nothing.
+- [ ] Changing the amount on the client makes the complete route fail with `amount_mismatch`, and nothing is activated.
+- [ ] Admin `환불` on a card row cancels it in the PortOne console, sets the row to `refunded`, and removes the premium listing or 플러스 tier. Clicking twice does not refund twice. Non-admins get 403.
+- [ ] With `NEXT_PUBLIC_PORTONE_CHANNEL_KEY_KAKAOPAY` unset, no 카카오페이 button shows; with it set, the button shows.
+- [ ] The migration file exists and adds `portone_payment_id` plus the `refunded` status to both tables.
+- [ ] `npm run build` passes.

@@ -9,7 +9,11 @@ const BLOG_DIR = path.join(process.cwd(), 'content/blog')
 export const metadata = {
   title: '국제학교 입시 커뮤니티 | IB Master',
   description: 'IB, SAT, 특례입학 관련 정보와 질문을 나누는 커뮤니티입니다.',
+  alternates: {
+    canonical: '/blog',
+  },
   openGraph: {
+    url: '/blog',
     title: '국제학교 입시 커뮤니티 | IB Master',
     description: 'IB, SAT, 특례입학 관련 정보와 질문을 나누는 커뮤니티입니다.',
   },

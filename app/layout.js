@@ -5,6 +5,7 @@ import '@/styles/globals.css';
 import Script from 'next/script'
 
 export const metadata = {
+  metadataBase: new URL('https://www.ibmaster.net'),
   icons: {
     icon: '/favicon.ico',
   },

@@ -32,7 +32,8 @@ export async function generateMetadata({ params }) {
   return {
     title: post.title,
     description: post.description || undefined,
-    openGraph: { title: post.title, description: post.description || undefined },
+    alternates: { canonical: `/community/${params.slug}` },
+    openGraph: { title: post.title, description: post.description || undefined, url: `/community/${params.slug}` },
   }
 }
 

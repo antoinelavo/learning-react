@@ -3,6 +3,7 @@ import {
   getNeisEntry, feeRange, formatManwon, formatWon, formatPeriod,
   establishedYear, fieldLabel, formatDate, neisUpdatedAt,
 } from '@/lib/hagwonNeis';
+import ScrollFade from '@/components/ScrollFade.client';
 
 const REASONS = [
   ['등록 기준', '교습비는 교육지원청이 정한 분당 교습비 기준 이내에서 등록됩니다.'],
@@ -65,7 +66,7 @@ export default function HagwonFeeDetails({ neis }) {
       </div>
 
       <Row title={`강좌별 교습비 (${entry.courses.length}개)`}>
-        <div className="max-h-80 overflow-auto rounded-lg border border-gray-200">
+        <ScrollFade className="max-h-80 overflow-auto rounded-lg border border-gray-200">
           <table className="w-full text-xs text-left text-gray-700 m-0 [&_th]:px-2 sm:[&_th]:px-3 [&_th]:py-2 [&_th]:font-semibold [&_th]:whitespace-nowrap [&_td]:px-2 sm:[&_td]:px-3 [&_td]:py-1.5 [&_td]:whitespace-nowrap [&_tbody_tr]:border-t [&_tbody_tr]:border-gray-100 [&_.num]:text-right">
             <caption className="sr-only">{entry.name} 교육청 등록 교습비</caption>
             <thead className="bg-gray-50 sticky top-0">
@@ -92,7 +93,7 @@ export default function HagwonFeeDetails({ neis }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollFade>
         <p className="mt-2 mb-0 text-xs text-gray-400">출처: 교육청 학원·교습소 정보 ({entry.name})</p>
       </Row>
 

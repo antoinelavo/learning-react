@@ -76,7 +76,7 @@ async function logContactClick({ hagwonName, contactType }) {
   }
 }
 
-async function logExpand({ hagwonName, hasFee }) {
+async function logExpand({ hagwonName, hasFee, source }) {
   if (typeof window === 'undefined') return;
 
   const sessionId = localStorage.getItem('user_session_id') || crypto.randomUUID();
@@ -99,6 +99,7 @@ async function logExpand({ hagwonName, hasFee }) {
       action: 'card_expand',
       hagwon_name: hagwonName,
       has_fee: hasFee,
+      source,
     },
   });
 
@@ -108,8 +109,9 @@ async function logExpand({ hagwonName, hasFee }) {
 export default function HagwonCard({ image, name, region, format, lessonType, services, description, address, url, kakaotalk, feeDetails, hasFee }) {
   const [showDetails, setShowDetails] = useState(false);
 
-  const toggleDetails = () => {
-    if (!showDetails) logExpand({ hagwonName: name, hasFee });
+  // source: which control opened the card ('fee_teaser' or 'chevron')
+  const toggleDetails = (source) => {
+    if (!showDetails) logExpand({ hagwonName: name, hasFee, source });
     setShowDetails(prev => !prev);
   };
 
@@ -173,7 +175,7 @@ export default function HagwonCard({ image, name, region, format, lessonType, se
 
 
           {/* Show More Button */}
-          <button onClick={toggleDetails} className="hidden sm:block my-auto" >
+          <button onClick={() => toggleDetails('chevron')} className="hidden sm:block my-auto" >
             {showDetails ? 
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-up-icon lucide-chevron-up"><path d="m18 15-6-6-6 6"/></svg>
             :
@@ -181,6 +183,13 @@ export default function HagwonCard({ image, name, region, format, lessonType, se
             }
           </button>
         </div>
+
+        {/* Fee teaser: opens the card */}
+        {!showDetails && (
+          <button type="button" onClick={() => toggleDetails('fee_teaser')} className="block mt-3 text-sm text-gray-800 hover:underline">
+            <strong>수업료</strong> …
+          </button>
+        )}
 
         {/* Expanded details: always rendered (hidden until opened) so search engines index them */}
           <div className={`pt-4 text-gray-600 w-full mt-[1em] ${showDetails ? '' : 'hidden'}`}>
@@ -225,7 +234,7 @@ export default function HagwonCard({ image, name, region, format, lessonType, se
           </div>
 
           {/* Show More Button Mobile */}
-          <button onClick={toggleDetails} className="block sm:hidden mt-[1em] mx-auto" >
+          <button onClick={() => toggleDetails('chevron')} className="block sm:hidden mt-[1em] mx-auto" >
             {showDetails ? 
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-up-icon lucide-chevron-up"><path d="m18 15-6-6-6 6"/></svg>
             :

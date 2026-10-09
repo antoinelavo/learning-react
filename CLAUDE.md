@@ -8,7 +8,8 @@ IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, wi
 
 - Next.js 15, React 19, plain JavaScript (no TypeScript). Tailwind CSS 3.
 - Both routers are in use. Most pages and all real API routes are in `app/`. The blog post page (`pages/blog/[slug].js`) and teacher profile page (`pages/profile/[name].js`) are still in `pages/`. `pages/api/hello.js` is leftover boilerplate.
-- `next.config.js` sets `pageExtensions: ['js', 'jsx']`, so only `.js`/`.jsx` files become routes (a `.ts` or `.mdx` page file is ignored).
+- `next.config.js` sets `pageExtensions: ['js', 'jsx']`, so only `.js`/`.jsx` files become routes (a `.ts` or `.mdx` page file is ignored). Every `.js` file under `pages/` is a route, so `pages/profile/ContactButton.js` is also served at `/profile/ContactButton`; put new shared components in `components/`.
+- **Admin pages** (`app/admin/`) check `role === 'admin'` on the client only (via `useAuth`). Real protection has to come from RLS.
 - Supabase for auth and database. The shared client is in `lib/supabase.js`. File storage is Cloudflare R2 via `@aws-sdk/client-s3` (`app/api/upload-profile-picture`), not Supabase storage.
 - Toss Payments for payments (`lib/toss.js`). NicePay is legacy and can be removed if it gets in the way.
 - Resend for email (templates in `lib/email/`). Hosted on Vercel.
@@ -23,7 +24,7 @@ IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, wi
 
 ## Architecture
 
-- **One Supabase client everywhere.** `lib/supabase.js` uses the anon key only; there is no service-role client, even in API routes. Server-side writes therefore depend on RLS policies and on Postgres RPCs (`activate_plus_tier`, `reveal_student_job`, `get_or_create_conversation`, etc.) defined in `supabase/migrations/`. If a write fails silently, check RLS first.
+- **Anon key everywhere.** The shared client is `lib/supabase.js`; a few files (`app/api/cron/daily-digest`, `notify-subscribers`, `app/api/dashboard/*`, `pages/profile/ContactButton.js`) create their own, also with the anon key. There is no service-role client, even in API routes. Server-side writes therefore depend on RLS policies and on Postgres RPCs (`activate_plus_tier`, `reveal_student_job`, `get_or_create_conversation`, etc.) defined in `supabase/migrations/`. If a write fails silently, check RLS first.
 - **Auth and chat state** live in React contexts (`contexts/AuthContext.jsx`, `contexts/ChatContext.jsx`), wired up in `components/Providers.client.jsx`. Chat data access is in `lib/chat/chatClient.js`.
 - **Payments are idempotent by design.** Each purchase type has a success route and a webhook (`app/api/toss/success|webhook` for premium listings, `tier-success|tier-webhook` for the 플러스 tier). Both call the same activation function (`lib/premiumActivation.js`, `lib/tierActivation.js`), which only flips a `payments` row from `pending` to `paid` once. Keep that guard if you touch these.
 - **Blog** is MDX files in `content/blog/`, read from disk at build time by `pages/blog/[slug].js` (`getStaticPaths`/`getStaticProps`). The index is `app/blog/page.jsx`.

@@ -19,6 +19,8 @@ Show official tuition fees (교육청 등록 기준) and basic registry info on 
   - No data → `수업료: 학원 문의` in the expanded section.
   - Opening a card logs a `card_expand` event to `page_events` (once per browser session per hagwon) with `hagwon_name`, `has_fee`, and `source` (`fee_teaser` or `chevron`).
 - **Page header (`/hagwons`, `/sat-hagwons`):** tighter title spacing, update date and view count on one line.
+- **Order:** hagwons with fee data first, otherwise the existing order.
+- **SEO:** titles use the real hagwon count and 수업료 (`IB 학원 28곳 추천 및 수업료 비교 [2026년 최신]`); canonical and OpenGraph URLs use `https://www.ibmaster.net`; 최신 업데이트 and sitemap `lastmod` set to 2026-10-09; JSON-LD `ItemList` has `name` and `numberOfItems`.
 - **SEO:** JSON-LD `ItemList` of `EducationalOrganization` with `priceRange` where known; meta and OpenGraph descriptions mention 수업료.
 
 ## Not included
@@ -26,7 +28,7 @@ Show official tuition fees (교육청 등록 기준) and basic registry info on 
 - Official 도로명주소 and 정원 fields.
 - Storing NEIS data in Supabase, or adding an admin UI for IDs.
 - Hagwon detail pages, the hagwon dashboard, and request forms.
-- Changes to filters or card order.
+- Changes to filters.
 - A page-level fee overview section (removed as repetitive).
 - Setting up the weekly refresh routine (offered separately after the build).
 

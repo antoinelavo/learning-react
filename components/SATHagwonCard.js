@@ -76,8 +76,44 @@ async function logContactClick({ hagwonName, contactType }) {
   }
 }
 
-export default function HagwonCard({ image, name, region, format, lessonType, services, description, address, url, kakaotalk }) {
+async function logExpand({ hagwonName, hasFee, source }) {
+  if (typeof window === 'undefined') return;
+
+  const sessionId = localStorage.getItem('user_session_id') || crypto.randomUUID();
+  localStorage.setItem('user_session_id', sessionId);
+
+  // Only log once per browser session per hagwon
+  const expandKey = `expanded-sat_hagwons-${hagwonName}`;
+  try {
+    if (sessionStorage.getItem(expandKey)) return;
+    sessionStorage.setItem(expandKey, 'true');
+  } catch {}
+
+  const { error } = await supabase.from('page_events').insert({
+    page: 'sat_hagwons',
+    event_type: 'card_expand',
+    device_type: getDeviceType(),
+    timestamp: new Date().toISOString(),
+    user_session_id: sessionId,
+    details: {
+      action: 'card_expand',
+      hagwon_name: hagwonName,
+      has_fee: hasFee,
+      source,
+    },
+  });
+
+  if (error) console.error('❌ Failed to insert expand event:', error);
+}
+
+export default function HagwonCard({ image, name, region, format, lessonType, services, description, address, url, kakaotalk, feeDetails, hasFee }) {
   const [showDetails, setShowDetails] = useState(false);
+
+  // source: which control opened the card ('fee_teaser' or 'chevron')
+  const toggleDetails = (source) => {
+    if (!showDetails) logExpand({ hagwonName: name, hasFee, source });
+    setShowDetails(prev => !prev);
+  };
 
     useEffect(() => {
     const observer = new IntersectionObserver(
@@ -139,7 +175,7 @@ export default function HagwonCard({ image, name, region, format, lessonType, se
 
 
           {/* Show More Button */}
-          <button onClick={() => setShowDetails(prev => !prev)} className="hidden sm:block my-auto" >
+          <button onClick={() => toggleDetails('chevron')} className="hidden sm:block my-auto" >
             {showDetails ? 
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-up-icon lucide-chevron-up"><path d="m18 15-6-6-6 6"/></svg>
             :
@@ -148,8 +184,15 @@ export default function HagwonCard({ image, name, region, format, lessonType, se
           </button>
         </div>
 
-        {showDetails && (
-          <div className="pt-4 text-gray-600 w-full mt-[1em]">
+        {/* Fee teaser: opens the card */}
+        {!showDetails && (
+          <button type="button" onClick={() => toggleDetails('fee_teaser')} className="block mt-3 text-sm text-gray-800 hover:underline">
+            <strong>수업료</strong> …
+          </button>
+        )}
+
+        {/* Expanded details: always rendered (hidden until opened) so search engines index them */}
+          <div className={`pt-4 text-gray-600 w-full mt-[1em] ${showDetails ? '' : 'hidden'}`}>
                 {/* Subjects */}
               <div className="gap-2 w-[20em] hidden md:flex flex-wrap">
                 {[...format, ...lessonType].map((tag, i) => (
@@ -167,6 +210,9 @@ export default function HagwonCard({ image, name, region, format, lessonType, se
             
             {/* Description */}
             <p className="my-4 text-sm leading-[1.8em]">{description}</p>
+
+            {/* Registered fee details (NEIS) */}
+            {feeDetails}
 
             {/* Address */}
             <p className="mb-4 text-sm leading-[1.8em]">주소: {address}</p>
@@ -186,10 +232,9 @@ export default function HagwonCard({ image, name, region, format, lessonType, se
               </a>
             </div>
           </div>
-        )}
 
           {/* Show More Button Mobile */}
-          <button onClick={() => setShowDetails(prev => !prev)} className="block sm:hidden mt-[1em] mx-auto" >
+          <button onClick={() => toggleDetails('chevron')} className="block sm:hidden mt-[1em] mx-auto" >
             {showDetails ? 
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-up-icon lucide-chevron-up"><path d="m18 15-6-6-6 6"/></svg>
             :

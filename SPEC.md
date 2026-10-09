@@ -1,28 +1,51 @@
-# Spec: Tap to reveal 수업료 설명 on profiles
+# Spec: NEIS hagwon fees and info on hagwon pages
 
 ## Goal
-Keep the profile's info card tidy by hiding the teacher's rate note (`rate_description`) until the visitor taps the 수업료 pill.
+Show official tuition fees (교육청 등록 기준) and basic registry info on `/hagwons` and `/sat-hagwons`, refreshed weekly, so parents and students get useful, current, search-friendly information.
 
 ## Included
-- In `pages/profile/[name].js`, for logged-in visitors:
-  - Teachers **with** a `rate_description`: the 수업료 pill becomes a button with a small ⓘ icon at its end. Tapping it shows the note below the pills; tapping again hides it. Starts closed.
-  - Teachers **without** a `rate_description`: the pill looks and behaves exactly as now (no icon, not tappable), and no note area is rendered.
-- The note keeps its current style (small gray text, wraps, line breaks kept).
+- **Data link:** add NEIS identifiers (`neis: { office, zone, id, name }`) to each confidently matched entry in `data/hagwons.js` and `data/sat-hagwons.js`. Hagwons in both files get the same IDs.
+- **ID lookup (done during build):** match by name and address against the NEIS registry. Uncertain matches get a code comment and are listed in the build report. No match means no ID.
+- **Snapshot:** `scripts/update-hagwon-neis.mjs` writes a committed `data/hagwon-neis.json`:
+  - Per-course fees from the hakwon.neis.go.kr search site. The official open API has no 학원 fees.
+  - 개원일 and 교습분야 from the official open API (`NEIS_API_KEY`).
+  - Pages read only this file at build time; no runtime calls to NEIS.
+- **Cards (`HagwonCard`, `SATHagwonCard`):**
+  - Collapsed card: a clickable `수업료 …` teaser (no amount) that opens the card.
+  - Expanded section is always rendered and hidden with CSS until opened, so descriptions and fees are in the page HTML for SEO. The YouTube embed still loads only on expand.
+  - Fee box in the expanded section: `수업료` with the range, `교육청 등록 교습비 기준 · date`, 개원 year and field chips, and two click-to-reveal rows:
+    - `강좌별 교습비 (N개)`: course table (과목 / 기간 · 총 시간 / 합계), with right/bottom fades while more rows or columns are off-screen.
+    - `수업료 참고 사항`: six neutral notes (등록 기준, 수업 형태, 특강, 교습시간, 기타경비, 컨설팅).
+  - No data → `수업료: 학원 문의` in the expanded section.
+  - Opening a card logs a `card_expand` event to `page_events` (once per browser session per hagwon) with `hagwon_name`, `has_fee`, and `source` (`fee_teaser` or `chevron`).
+- **Page header (`/hagwons`, `/sat-hagwons`):** tighter title spacing, update date and view count on one line.
+- **Order:** hagwons with fee data first, otherwise the existing order.
+- **SEO:** titles use the real hagwon count and 수업료 (`IB 학원 28곳 추천 및 수업료 비교 [2026년 최신]`); canonical and OpenGraph URLs use `https://www.ibmaster.net`; 최신 업데이트 and sitemap `lastmod` set to 2026-10-09; JSON-LD `ItemList` has `name` and `numberOfItems`.
+- **SEO:** JSON-LD `ItemList` of `EducationalOrganization` with `priceRange` where known; meta and OpenGraph descriptions mention 수업료.
 
 ## Not included
-- Logged-out view (still the "수업료: 로그인 후 확인" link pill; the note stays hidden).
-- SEO, meta description, JSON-LD.
-- Rate entry forms or any data change.
+- Live or ISR fetching from NEIS.
+- Official 도로명주소 and 정원 fields.
+- Storing NEIS data in Supabase, or adding an admin UI for IDs.
+- Hagwon detail pages, the hagwon dashboard, and request forms.
+- Changes to filters.
+- A page-level fee overview section (removed as repetitive).
+- Setting up the weekly refresh routine (offered separately after the build).
 
 ## Rules
-- No arrow/chevron icons; use an info (ⓘ) icon.
-- The button has `aria-expanded` and is keyboard-accessible.
-- Whitespace-only notes count as no note.
-- Same behavior at 390px and 1280px.
+- A failed fetch keeps that hagwon's previous snapshot entry; the script never wipes data on errors.
+- `NEIS_API_KEY` stays in `.env.local` / environment settings and is never committed.
+- Never label a hagwon as unregistered.
+- Site text is Korean; code is English.
+- Touches no "Ask before changing" areas (no payments, DB, blog, or legal pages).
 
 ## Done when
-- [x] Logged in, a teacher with a note shows the pill with an ⓘ icon and no note text until tapped.
-- [x] Tapping the pill shows the note; tapping again hides it.
-- [x] A teacher without a note shows a plain pill (no icon, not a button) and no note.
-- [x] Logged out, nothing changes from the current behavior.
+- [x] Each confidently matched hagwon in both data files has NEIS IDs; the report lists matched, uncertain, and unmatched hagwons.
+- [x] `node scripts/update-hagwon-neis.mjs` produces `data/hagwon-neis.json` with courses for every matched hagwon.
+- [x] Collapsed cards show a `수업료 …` teaser without the amount; expanded cards show the fee box with both click-to-reveal rows, 개원 year, and field.
+- [x] Fee tables and full descriptions are in the initial page HTML.
+- [x] Expanding a card logs one `card_expand` event per session per hagwon.
+- [x] Expanded cards without data show `수업료: 학원 문의`.
+- [x] The page HTML contains valid JSON-LD with `priceRange`.
+- [x] Meta descriptions mention 수업료.
 - [x] `npm run build` passes.

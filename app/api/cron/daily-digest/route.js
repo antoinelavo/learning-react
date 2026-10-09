@@ -9,7 +9,7 @@ const supabase = createClient(
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const SITE_URL = 'https://ibmaster.net';
+const SITE_URL = 'https://www.ibmaster.net';
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'IBMaster <onboarding@resend.dev>';
 
 export async function GET(request) {

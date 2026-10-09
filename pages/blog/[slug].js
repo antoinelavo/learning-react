@@ -110,6 +110,7 @@ export async function getStaticProps({ params }) {
 
     return {
       props: {
+        slug: params.slug,
         frontmatter: data,
         mdxHtml: String(file),
         mdxSource: null,
@@ -129,6 +130,7 @@ export async function getStaticProps({ params }) {
 
   return {
     props: {
+      slug: params.slug,
       frontmatter: data,
       mdxHtml: null,
       mdxSource,
@@ -138,7 +140,7 @@ export async function getStaticProps({ params }) {
   }
 }
 
-export default function BlogPost({ frontmatter, mdxHtml, mdxSource, toc, isLegacy }) {
+export default function BlogPost({ slug, frontmatter, mdxHtml, mdxSource, toc, isLegacy }) {
   return (
     <>
       <Head>
@@ -147,6 +149,8 @@ export default function BlogPost({ frontmatter, mdxHtml, mdxSource, toc, isLegac
         <meta name="robots" content="index, follow" />
         <link rel="icon" href="/images/favicon.ico" />
         <meta name="description" content={frontmatter.description} />
+        <link rel="canonical" href={`https://www.ibmaster.net/blog/${encodeURIComponent(slug)}`} />
+        <meta property="og:url" content={`https://www.ibmaster.net/blog/${encodeURIComponent(slug)}`} />
         <meta property="og:type" content="article" />
         <meta property="og:title" content={frontmatter.title} />
         <meta property="og:description" content={frontmatter.description} />

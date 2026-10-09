@@ -2,6 +2,9 @@ import { buttonClasses, cardClasses } from '@/components/ui';
 export const metadata = {
   title: '수수료 없는 IB 전문 과외 플랫폼 | IB Master',
   description: '선생, 학생 모두 수수료 없는 IB 과외 전문 플랫폼. IB 수학, 영어, 물리 과외를 믿고 맡길 수 있는 곳, IB Master',
+  alternates: {
+    canonical: '/',
+  },
   robots: {
     index: true,
     follow: true,
@@ -20,7 +23,7 @@ export const metadata = {
   openGraph: {
     title: '수수료 없는 IB 전문 과외 플랫폼 | IB Master',
     description: '선생, 학생 모두 수수료 없는 IB 과외 전문 플랫폼. IB 수학, 영어, 물리 과외를 믿고 맡길 수 있는 곳, IB Master',
-    url: 'https://ibmaster.net/',
+    url: 'https://www.ibmaster.net/',
     siteName: 'IB Master',
     locale: 'ko-KR',
     type: 'website',

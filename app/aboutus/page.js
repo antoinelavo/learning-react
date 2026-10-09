@@ -1,4 +1,11 @@
 import { cardClasses } from '@/components/ui';
+
+export const metadata = {
+  alternates: {
+    canonical: '/aboutus',
+  },
+};
+
 export default function AboutPage() {
   return (
     <main className="min-h-screen bg-gray-50 py-16 px-4">

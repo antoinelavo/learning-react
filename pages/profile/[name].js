@@ -177,6 +177,8 @@ export default function ProfilePage({ teacher }) {
       <Head>
         <title>{`${teacher.name} | IB 과외 선생님`}</title>
         <meta name="description" content={description} />
+        <link rel="canonical" href={`https://www.ibmaster.net/profile/${encodeURIComponent(teacher.name)}`} />
+        <meta property="og:url" content={`https://www.ibmaster.net/profile/${encodeURIComponent(teacher.name)}`} />
         <meta
           property="og:title"
           content={`${teacher.name} | IB 과외 선생님`}

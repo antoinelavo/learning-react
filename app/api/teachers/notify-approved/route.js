@@ -14,7 +14,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // Hardcoded on purpose — NEXT_PUBLIC_SITE_URL is shared with the NicePay
 // integration and can point elsewhere (e.g. a preview URL) depending on
 // deploy config; this email should always link to the real site.
-const DASHBOARD_URL = 'https://ibmaster.net/dashboard';
+const DASHBOARD_URL = 'https://www.ibmaster.net/dashboard';
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'IBMaster <onboarding@resend.dev>';
 
 export async function POST(request) {

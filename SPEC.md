@@ -1,42 +1,55 @@
-# Spec: Weekly SEO blog post routine
+# Spec: PortOne payments (replace Toss)
 
 ## Goal
-A scheduled Claude Code routine writes one SEO-focused, fact-checked blog post a week for a target keyword and opens a PR for review, so the blog grows steadily with posts useful to IB/SAT students and parents.
+Move all card payments (premium listings and the 플러스 tier) from Toss to PortOne V2 using the approved KG이니시스 channel, add admin refunds, and remove the Toss and NicePay code.
 
 ## Included
-- **Guide** `content/seo/guide.md`: written from the best existing posts in `content/blog/`. Covers tone (Korean, 존댓말), length, title and `description` patterns (keyword near the front, description ~120–160 chars), heading structure, internal links (at least 3 to existing posts or pages like `/hagwons`, `/sat-hagwons`, `/find`), CTA fields (`ctaDescription`, `ctaLabel`, `ctaLink`), categories (`IB`, `SAT`, `특례입학`), and slug format (lowercase English kebab-case).
-- **Keyword list** `content/seo/keywords.md`: a table of keyword, category, status (`planned` / `done` / `suggested`), and post slug. Seeded with the keywords existing posts already cover (marked `done`) and a starter set of `planned` keywords for you to approve.
-- **Routine prompt** `content/seo/routine-prompt.md`: the full set of instructions each run follows (see Rules).
-- **Routine:** a Claude Code routine that runs weekly on Monday at 9am KST, starts a fresh session each time on this repo, and points to `routine-prompt.md`.
+- **`lib/portone.js`** (server): get a payment by ID, cancel (full refund), and verify webhook signatures, using the PortOne V2 REST API with `PORTONE_API_SECRET`.
+- **Checkout:** `PremiumListingOffer` and `TierUpgradeOffer` use the PortOne browser SDK (`@portone/browser-sdk`) `requestPayment` with `storeId`, the KG이니시스 `channelKey`, `payMethod: 'CARD'`, the amount, and an order name.
+  - Before the payment window opens, the client inserts the pending row with a new `paymentId` (same pattern as today).
+  - PC popup: once the SDK promise resolves, the client calls the server complete route.
+  - Mobile redirect: `redirectUrl` points to the same complete route.
+- **Complete routes** (replace `app/api/toss/*`):
+  - `app/api/portone/complete`: premium listing.
+  - `app/api/portone/tier-complete`: 플러스.
+  - Each fetches the payment from PortOne, checks `status === 'PAID'` and that the amount matches the DB row, then calls the existing activation function. They redirect to the same dashboard success/fail URLs used today.
+- **Webhook** `app/api/portone/webhook`: verifies the signature with `PORTONE_WEBHOOK_SECRET`, re-fetches the payment, and on `PAID` routes it to premium or tier activation based on which table holds the `paymentId`. Always returns 200 once the signature is valid.
+- **Refunds:** a `환불` button on card-paid rows in `/admin/payments` and `/admin/plus-payments`, behind a confirm dialog. It calls an admin-only API route that:
+  - cancels the full amount through PortOne;
+  - sets the row to `refunded`;
+  - removes the premium listing (`teacher_premium` / `successful_payments` linked rows), or sets the teacher to `free` unless another paid payment backs 플러스 (same rule as `undoPlusBankTransfer`).
+- **카카오페이 flag:** an optional `NEXT_PUBLIC_PORTONE_CHANNEL_KEY_KAKAOPAY`. When it is set, a `카카오페이` button appears next to card checkout (`payMethod: 'EASY_PAY'`). When it is unset, the button is hidden.
+- **Migration** (new file in `supabase/migrations/`): add `portone_payment_id text unique` to `payments` and `payment_request`, and allow status `refunded` on both.
+- **Removals:** `lib/toss.js`, `lib/nicepay.js`, `app/api/toss/`, `app/api/nicepay/`, the Toss `<Script>` tags, and the TEMP DEBUG code in `TierUpgradeOffer`. Update `CLAUDE.md` to say PortOne instead of Toss/NicePay.
+- **Env vars:** `NEXT_PUBLIC_PORTONE_STORE_ID`, `NEXT_PUBLIC_PORTONE_CHANNEL_KEY` (KG이니시스, test or live), `NEXT_PUBLIC_PORTONE_CHANNEL_KEY_KAKAOPAY` (optional), `PORTONE_API_SECRET`, `PORTONE_WEBHOOK_SECRET`.
 
 ## Not included
-- New page types or routes. Posts only.
-- Editing or refreshing existing posts or pages.
-- Auto-merging or publishing. A human merges every PR.
-- Changes to the blog template, sitemap script, or `publish-blog.sh`.
-- Images for posts.
+- 계좌이체, 가상계좌, partial refunds, subscriptions or auto-renewal.
+- Changes to prices, plan contents, or the premium spot limit.
+- Changes to the bank-transfer flow (it stays as is).
+- Moving old Toss payment rows; they keep their `toss_*` columns as history.
+- Receipt or refund emails.
+- Legal page edits. The privacy policy may need KG이니시스/PortOne listed as 처리위탁 recipients; that is a separate change for you to decide on.
 
 ## Rules
-- **Each run:**
-  1. Pick the first `planned` keyword. If there is none, stop and open no PR.
-  2. Check that no existing post already targets that keyword. If one does, mark the keyword `done` with that slug, skip it, and move to the next one.
-  3. Research facts on official sources (IBO, College Board, 대교협, university and school sites). Leave out any claim it can't verify.
-  4. Write one `content/blog/<slug>.mdx` following the guide, with `date` set to the run date.
-  5. Add one `<url>` entry for the post to `public/sitemap.xml` by hand. Don't run the sitemap script, because it needs `.env.local`.
-  6. Mark the keyword `done` with the slug, and add 2–3 new `suggested` keywords drawn from research and gaps in existing posts.
-  7. Run `npm run build` (with placeholder Supabase env vars if no real ones are set). The build must pass.
-  8. Push a `blog/<slug>` branch and open a PR.
-- **PR body:** the target keyword, title and description, the internal links used, the source URLs for each fact, the new suggested keywords, and anything it was unsure about.
-- `suggested` keywords are used only after you change them to `planned`.
-- Never push to `main` or run `scripts/publish-blog.sh`.
-- Site text is Korean. Branch names, slugs, and commit messages are English.
-- No payments, database, or legal-page changes.
-- **Ask before changing (blog posts):** the user approved automated new posts in `content/blog/`, as long as each one goes through a PR. The routine never edits existing posts.
+- **Ask before changing** areas touched (approved in this spec): payment code, `supabase/migrations/`.
+  - The migration must be run by hand in the Supabase dashboard **before** deploying.
+  - `PORTONE_WEBHOOK_SECRET` and the webhook URL (`https://www.ibmaster.net/api/portone/webhook`) are set in the PortOne console.
+- Never trust client- or redirect-supplied status or amounts. Always re-fetch from PortOne and compare against the DB row and the fixed prices.
+- Keep the idempotent `pending → paid` guard in `lib/premiumActivation.js` and `lib/tierActivation.js`; switch their lookups to `portone_payment_id`. Refunds use the same kind of guard (`paid → refunded` only once).
+- The refund API checks that the caller is an admin (`users.role`) before calling PortOne.
+- Secrets are server-only; only the store ID and channel keys are `NEXT_PUBLIC_`.
+- Korean user-facing text; English code and comments. Payment error messages stay the same as today's.
+- Rollout: Vercel preview with the KG이니시스 test channel first, then the live channel key in production.
 
 ## Done when
-- [x] `content/seo/guide.md`, `keywords.md`, and `routine-prompt.md` exist and follow the rules above.
-- [x] `keywords.md` lists every existing post's keyword as `done` and has at least 10 `planned` keywords.
-- [x] Nothing new under `content/blog/` is picked up as a post (no non-post files added there).
-- [x] The routine exists, is enabled, runs weekly on Monday at 9am KST, and its prompt points to `routine-prompt.md`.
-- [ ] One test run (fired manually) opens a PR with a valid new MDX post, a sitemap entry, keyword updates, and sources in the PR body.
+- [x] No references to Toss or NicePay remain in `app/`, `components/`, or `lib/` (grep is clean), and the Toss/NicePay files are deleted.
+- [ ] On a preview deployment with the test channel, buying a premium listing by card activates it and the payment row shows `paid` with a `portone_payment_id`.
+- [ ] Buying 플러스 by card on preview sets `teachers.tier` to the paid tier, and the row shows `paid`.
+- [ ] Both purchases work on desktop (popup) and on mobile (redirect).
+- [ ] Firing the webhook after a payment is already `paid` changes nothing. A webhook with a bad signature is rejected and activates nothing.
+- [ ] Changing the amount on the client makes the complete route fail with `amount_mismatch`, and nothing is activated.
+- [ ] Admin `환불` on a card row cancels it in the PortOne console, sets the row to `refunded`, and removes the premium listing or 플러스 tier. Clicking twice does not refund twice. Non-admins get 403.
+- [ ] With `NEXT_PUBLIC_PORTONE_CHANNEL_KEY_KAKAOPAY` unset, no 카카오페이 button shows; with it set, the button shows.
+- [x] The migration file exists and adds `portone_payment_id` plus the `refunded` status to both tables.
 - [x] `npm run build` passes.

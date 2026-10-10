@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import Script from 'next/script';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import PremiumListingOffer from '@/components/PremiumListingOffer';
@@ -96,7 +95,7 @@ export default function DashboardPage() {
 
   // Support deep-linking straight to the pricing tab (e.g. from the
   // student board when a free-tier teacher hits their reveal limit), and
-  // keep it selected across the Toss tier-upgrade redirect
+  // keep it selected across the PortOne tier-upgrade redirect
   // (?tab=pricing&tier=success|failed).
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -297,8 +296,6 @@ export default function DashboardPage() {
           
       {role === 'teacher' && teacher && (
         <>
-        <Script src="https://js.tosspayments.com/v1/payment" strategy="afterInteractive" />
-
         {/* Tabs — mobile-friendly: full-width, evenly split buttons rather
             than a horizontal scroller, since there are only two. Not
             sticky: the site's own header is already sticky at top:0, and

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import VerifiedBadge from './VerifiedBadge.client'
+import VerifiedBadge from './VerifiedBadge'
 
 const DEFAULT_TEACHER_PHOTO = 'https://ibmaster.antoinelavo.com/teachers/default.jpg'
 

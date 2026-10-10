@@ -2,31 +2,31 @@
 
 ## Community Board
 
-- Run the Supabase SQL migrations before this feature works in production:
-  - `supabase/migrations/20260605_create_posts.sql` (legacy admin-authored posts — may already be applied)
-  - `supabase/migrations/20260908_create_community_board.sql` (new user community board — posts, threaded comments, likes, reports)
-  - Run in Supabase dashboard → SQL Editor
-- Add `SUPABASE_SERVICE_ROLE_KEY` to `.env.local` and to Vercel (Production + Preview) — required by the new `/api/community/*` routes (`lib/supabaseAdmin.js`)
-- Rebuilt from scratch: posts, threaded comments (1 level deep), likes, anonymous posting
-  (Goondori-style generated nicknames), image uploads (Cloudflare R2, ≤5/post), and
-  report/flag moderation with an admin review queue at `/admin/community/reports`.
-  See the board at `/community` (feed) and `/community/post/[slug]` (detail) — the
-  legacy `/community/[slug]` admin/blog detail page is unchanged.
-- Add 커뮤니티 to the navigation menu when ready to launch
-  - Link is already built and commented out in DesktopNav.client.jsx and MobileMenuToggle.client.jsx
-  - Just uncomment the relevant blocks to make it visible
-- Follow-ups not in this build: notifications on reply, member level/activity badges,
-  orphaned-R2-image cleanup cron, a real rate limiter (current one is a DB count check)
+Built and hidden: `/community` works but is not in the nav or sitemap.
+
+Launch checklist, in order:
+1. Run `supabase/migrations/20261010_community_launch.sql` in the Supabase dashboard (SQL Editor).
+   The two earlier community migrations (`20260908_…`, `20260927_…`) are already applied.
+   Pinning, scraps, bans and the admin-deleted label fail until this runs.
+2. Add `SUPABASE_SERVICE_ROLE_KEY` to `.env.local` and to Vercel (Production + Preview).
+   Every `/api/community/*` route needs it (`lib/supabaseAdmin.js`).
+3. Delete the 2 test posts ("as", "sdf") in `community_posts`.
+4. Uncomment the 커뮤니티 links in `components/DesktopNav.client.jsx` and
+   `components/MobileMenuToggle.client.jsx`.
+5. Add `/community` and `/community/post/[slug]` pages to `scripts/generate-sitemap.js`
+   and regenerate `public/sitemap.xml`.
+
+Follow-ups not in this build: reply/comment notifications, member grades and 등업,
+polls, 출석부, word filter, orphaned-R2-image cleanup, a real rate limiter
+(the current one is a DB count check).
 
 ## Teacher Profiles
 
-- Allow teachers to write community posts
 - On each teacher's profile page, show a list of posts they have written
   - Link from profile → post, and from post → teacher profile
 
 ## General
 
-- Add SEO sitemap entries for /community posts
 - Notifications (e.g. notify user when someone replies to their post)
 - Update the footer
 - Fix formatting issues on the /aboutus page

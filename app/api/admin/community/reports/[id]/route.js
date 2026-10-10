@@ -6,6 +6,7 @@ import { requireAdminUser, withCommunityErrors } from '@/lib/communityAuth'
 export const PATCH = withCommunityErrors(async function PATCH(request, { params }) {
   const admin = await requireAdminUser(request)
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const { id } = await params
 
   const body = await request.json().catch(() => null)
   if (!['resolved', 'dismissed'].includes(body?.status)) {
@@ -15,7 +16,7 @@ export const PATCH = withCommunityErrors(async function PATCH(request, { params 
   const { data: report, error: reportError } = await supabaseAdmin
     .from('community_reports')
     .update({ status: body.status, resolved_by: admin.id, resolved_at: new Date().toISOString() })
-    .eq('id', params.id)
+    .eq('id', id)
     .select('id, post_id, comment_id')
     .single()
 
@@ -25,13 +26,15 @@ export const PATCH = withCommunityErrors(async function PATCH(request, { params 
     if (report.post_id) {
       await supabaseAdmin
         .from('community_posts')
-        .update({ deleted_at: new Date().toISOString(), content: '[삭제된 게시글]', image_urls: [] })
+        .update({ deleted_at: new Date().toISOString(), deleted_by_admin: true, is_pinned: false })
         .eq('id', report.post_id)
+        .is('deleted_at', null)
     } else if (report.comment_id) {
       await supabaseAdmin
         .from('community_comments')
-        .update({ deleted_at: new Date().toISOString() })
+        .update({ deleted_at: new Date().toISOString(), deleted_by_admin: true })
         .eq('id', report.comment_id)
+        .is('deleted_at', null)
     }
   }
 

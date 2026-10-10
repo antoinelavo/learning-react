@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { getCommunityUser, withCommunityErrors } from '@/lib/communityAuth'
+import { requireCommunityWriter, withCommunityErrors } from '@/lib/communityAuth'
 
 export const POST = withCommunityErrors(async function POST(request) {
-  const user = await getCommunityUser(request)
-  if (!user) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+  const { user, response } = await requireCommunityWriter(request)
+  if (response) return response
 
   const body = await request.json().catch(() => null)
   const postId = body?.postId
@@ -19,6 +19,15 @@ export const POST = withCommunityErrors(async function POST(request) {
   const idColumn = isPost ? 'post_id' : 'comment_id'
   const targetId = postId || commentId
   const targetTable = isPost ? 'community_posts' : 'community_comments'
+
+  const { data: target } = await supabaseAdmin
+    .from(targetTable)
+    .select('id, deleted_at')
+    .eq('id', targetId)
+    .maybeSingle()
+  if (!target || target.deleted_at) {
+    return NextResponse.json({ error: '대상을 찾을 수 없습니다.' }, { status: 404 })
+  }
 
   const { data: existingLike } = await supabaseAdmin
     .from(likesTable)
@@ -44,11 +53,11 @@ export const POST = withCommunityErrors(async function POST(request) {
     liked = true
   }
 
-  const { data: target } = await supabaseAdmin
+  const { data: updated } = await supabaseAdmin
     .from(targetTable)
     .select('like_count')
     .eq('id', targetId)
     .single()
 
-  return NextResponse.json({ liked, likeCount: target?.like_count ?? 0 })
+  return NextResponse.json({ liked, likeCount: updated?.like_count ?? 0 })
 })

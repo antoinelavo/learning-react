@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { Button, Notice, Textarea, choiceClasses } from '@/components/ui';
 import { communityAuthHeaders } from '@/lib/communityClient';
 
 const REASONS = [
-  { value: 'spam', label: '스팸/광고' },
+  { value: 'spam', label: '스팸/홍보/광고' },
   { value: 'abuse', label: '욕설/비방' },
   { value: 'harassment', label: '괴롭힘' },
   { value: 'off_topic', label: '주제와 무관함' },
@@ -42,20 +43,22 @@ export default function ReportModal({ postId, commentId, onClose }) {
   return (
     <div className="fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50 px-4" onClick={onClose}>
       <div
-        className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm p-5 animate-slide-up"
+        role="dialog"
+        aria-modal="true"
+        className="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm p-5"
         onClick={e => e.stopPropagation()}
       >
         {done ? (
           <div className="text-center py-4">
-            <p className="text-sm font-medium text-gray-900 mb-4">신고가 접수되었습니다.</p>
-            <button onClick={onClose} className="text-sm text-blue-500 hover:underline">닫기</button>
+            <p className="text-sm font-medium text-gray-900 mt-0 mb-4">신고가 접수되었습니다.</p>
+            <Button variant="secondary" size="sm" onClick={onClose}>닫기</Button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <h2 className="text-base font-bold text-gray-900">신고하기</h2>
+            <h2 className="text-base font-bold text-gray-900 m-0">신고하기</h2>
             <div className="space-y-2">
               {REASONS.map(r => (
-                <label key={r.value} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                <label key={r.value} className={choiceClasses({ selected: reason === r.value, className: 'flex items-center gap-2 text-sm text-gray-700 cursor-pointer' })}>
                   <input
                     type="radio"
                     name="reason"
@@ -67,30 +70,20 @@ export default function ReportModal({ postId, commentId, onClose }) {
                 </label>
               ))}
             </div>
-            <textarea
+            <Textarea
               value={detail}
               onChange={e => setDetail(e.target.value)}
               placeholder="상세 내용 (선택)"
               rows={3}
               maxLength={500}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+              className="text-sm resize-none"
             />
-            {error && <p className="text-xs text-red-500">{error}</p>}
+            {error && <Notice color="red" compact>{error}</Notice>}
             <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="flex-1 text-sm font-medium py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50"
-              >
-                취소
-              </button>
-              <button
-                type="submit"
-                disabled={submitting}
-                className="flex-1 text-sm font-medium py-2 rounded-lg bg-red-500 hover:bg-red-600 disabled:bg-red-300 text-white"
-              >
+              <Button variant="secondary" fullWidth onClick={onClose}>취소</Button>
+              <Button type="submit" variant="danger" fullWidth disabled={submitting}>
                 {submitting ? '접수 중...' : '신고하기'}
-              </button>
+              </Button>
             </div>
           </form>
         )}

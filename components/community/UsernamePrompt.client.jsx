@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { Button, Input, Notice } from '@/components/ui';
 import { communityAuthHeaders } from '@/lib/communityClient';
 
 // Shown in place of the post/comment composer for a logged-in user who has
@@ -37,28 +38,27 @@ export default function UsernamePrompt({ onDone }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
-      <p className="text-sm text-gray-700 font-medium">
-        커뮤니티에서 사용할 닉네임을 먼저 설정해주세요.
-      </p>
-      <div className="flex gap-2">
-        <input
-          type="text"
-          value={value}
-          onChange={e => setValue(e.target.value)}
-          placeholder="닉네임 (2~20자)"
-          maxLength={20}
-          className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
-        <button
-          type="submit"
-          disabled={submitting || !value.trim()}
-          className="text-sm font-medium px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white shrink-0"
-        >
-          {submitting ? '확인 중...' : '설정하기'}
-        </button>
-      </div>
-      {error && <p className="text-xs text-red-500">{error}</p>}
-    </form>
+    <Notice color="blue">
+      <form onSubmit={handleSubmit} className="space-y-3">
+        <p className="text-sm text-gray-700 font-medium m-0">
+          커뮤니티에서 사용할 닉네임을 먼저 설정해주세요.
+        </p>
+        <div className="flex gap-2">
+          <Input
+            type="text"
+            value={value}
+            onChange={e => setValue(e.target.value)}
+            placeholder="닉네임 (2~20자)"
+            maxLength={20}
+            aria-label="닉네임"
+            className="flex-1 min-w-0 w-auto"
+          />
+          <Button type="submit" disabled={submitting || !value.trim()} className="shrink-0">
+            {submitting ? '확인 중...' : '설정하기'}
+          </Button>
+        </div>
+        {error && <p className="text-xs text-red-600 m-0">{error}</p>}
+      </form>
+    </Notice>
   );
 }

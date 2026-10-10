@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { getCommunityUser, checkRateLimit, withCommunityErrors } from '@/lib/communityAuth'
+import { getCommunityUser, requireCommunityWriter, checkRateLimit, withCommunityErrors } from '@/lib/communityAuth'
+import { isCommunityImageUrl } from '@/lib/community'
 import { labelComments } from '@/lib/communityAnon'
 
 async function getPost(slug) {
@@ -8,19 +9,20 @@ async function getPost(slug) {
     .from('community_posts')
     .select('id, user_id, is_anonymous, deleted_at')
     .eq('slug', slug)
-    .single()
+    .maybeSingle()
   return data
 }
 
 export const GET = withCommunityErrors(async function GET(request, { params }) {
-  const post = await getPost(params.slug)
+  const { slug } = await params
+  const post = await getPost(slug)
   if (!post || post.deleted_at) {
     return NextResponse.json({ error: '게시글을 찾을 수 없습니다.' }, { status: 404 })
   }
 
   const { data: rawComments, error } = await supabaseAdmin
     .from('community_comments')
-    .select('id, post_id, parent_comment_id, depth, user_id, content, is_anonymous, image_url, like_count, deleted_at, created_at')
+    .select('id, post_id, parent_comment_id, depth, user_id, content, is_anonymous, image_url, like_count, deleted_at, deleted_by_admin, created_at')
     .eq('post_id', post.id)
     .order('created_at', { ascending: true })
 
@@ -36,7 +38,7 @@ export const GET = withCommunityErrors(async function GET(request, { params }) {
   if (nonAnonUserIds.length > 0) {
     const [{ data: users }, { data: teachers }] = await Promise.all([
       supabaseAdmin.from('users').select('id, username').in('id', nonAnonUserIds),
-      supabaseAdmin.from('teachers').select('user_id, name, profile_picture').eq('status', 'approved').in('user_id', nonAnonUserIds),
+      supabaseAdmin.from('teachers').select('user_id, name, profile_picture').eq('status', 'approved').eq('is_test', false).in('user_id', nonAnonUserIds),
     ])
     usernameById = Object.fromEntries((users || []).map(u => [u.id, u.username]))
     teacherByUserId = Object.fromEntries((teachers || []).map(t => [t.user_id, t]))
@@ -67,7 +69,7 @@ export const GET = withCommunityErrors(async function GET(request, { params }) {
   const masked = withLiked.map(c => c.deleted_at
     ? {
         ...c,
-        content: '[삭제된 댓글]',
+        content: c.deleted_by_admin ? '관리자에 의해 삭제된 댓글입니다.' : '삭제된 댓글입니다.',
         image_url: null,
         author_display_name: '[삭제됨]',
         is_teacher: false,
@@ -89,16 +91,17 @@ export const GET = withCommunityErrors(async function GET(request, { params }) {
 })
 
 export const POST = withCommunityErrors(async function POST(request, { params }) {
-  const user = await getCommunityUser(request)
-  if (!user) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+  const { slug } = await params
+  const { user, profile, response } = await requireCommunityWriter(request)
+  if (response) return response
 
-  const post = await getPost(params.slug)
+  const post = await getPost(slug)
   if (!post || post.deleted_at) {
     return NextResponse.json({ error: '게시글을 찾을 수 없습니다.' }, { status: 404 })
   }
 
   const body = await request.json().catch(() => null)
-  if (!body?.content?.trim()) {
+  if (typeof body?.content !== 'string' || !body.content.trim()) {
     return NextResponse.json({ error: '댓글 내용을 입력해주세요.' }, { status: 400 })
   }
   if (body.content.length > 1000) {
@@ -120,7 +123,7 @@ export const POST = withCommunityErrors(async function POST(request, { params })
       .from('community_comments')
       .select('id, parent_comment_id, depth, post_id')
       .eq('id', body.parent_comment_id)
-      .single()
+      .maybeSingle()
 
     if (!parent || parent.post_id !== post.id) {
       return NextResponse.json({ error: '원본 댓글을 찾을 수 없습니다.' }, { status: 404 })
@@ -138,7 +141,7 @@ export const POST = withCommunityErrors(async function POST(request, { params })
       user_id: user.id,
       content: body.content.trim(),
       is_anonymous: !!body.is_anonymous,
-      image_url: typeof body.image_url === 'string' ? body.image_url : null,
+      image_url: isCommunityImageUrl(body.image_url) ? body.image_url : null,
     })
     .select('id, post_id, parent_comment_id, depth, user_id, content, is_anonymous, image_url, like_count, created_at')
     .single()
@@ -151,11 +154,14 @@ export const POST = withCommunityErrors(async function POST(request, { params })
   let username = null
   let teacher = null
   if (!created.is_anonymous) {
-    const [{ data: userRow }, { data: teacherRow }] = await Promise.all([
-      supabaseAdmin.from('users').select('username').eq('id', user.id).single(),
-      supabaseAdmin.from('teachers').select('user_id, name, profile_picture').eq('status', 'approved').eq('user_id', user.id).maybeSingle(),
-    ])
-    username = userRow?.username ?? null
+    const { data: teacherRow } = await supabaseAdmin
+      .from('teachers')
+      .select('user_id, name, profile_picture')
+      .eq('status', 'approved')
+      .eq('is_test', false)
+      .eq('user_id', user.id)
+      .maybeSingle()
+    username = profile.username
     teacher = teacherRow || null
   }
 

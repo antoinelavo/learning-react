@@ -1,6 +1,6 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { NextResponse } from 'next/server'
-import { getCommunityUser, withCommunityErrors } from '@/lib/communityAuth'
+import { requireCommunityWriter, withCommunityErrors } from '@/lib/communityAuth'
 
 const s3 = new S3Client({
   region: 'auto',
@@ -11,13 +11,14 @@ const s3 = new S3Client({
   },
 })
 
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+const EXTENSIONS = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' }
+const ALLOWED_TYPES = Object.keys(EXTENSIONS)
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const MAX_FILES = 5
 
 export const POST = withCommunityErrors(async function POST(request) {
-  const user = await getCommunityUser(request)
-  if (!user) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
+  const { user, response } = await requireCommunityWriter(request)
+  if (response) return response
 
   const formData = await request.formData()
   const files = formData.getAll('files')
@@ -30,7 +31,7 @@ export const POST = withCommunityErrors(async function POST(request) {
   }
 
   for (const file of files) {
-    if (!ALLOWED_TYPES.includes(file.type)) {
+    if (typeof file === 'string' || !ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json({ error: '지원하지 않는 파일 형식입니다.' }, { status: 400 })
     }
     if (file.size > MAX_FILE_SIZE) {
@@ -40,7 +41,7 @@ export const POST = withCommunityErrors(async function POST(request) {
 
   try {
     const urls = await Promise.all(files.map(async (file, i) => {
-      const fileExt = file.name.split('.').pop()
+      const fileExt = EXTENSIONS[file.type]
       const fileName = `community/${user.id}/${Date.now()}-${i}.${fileExt}`
       const buffer = Buffer.from(await file.arrayBuffer())
 

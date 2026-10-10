@@ -15,6 +15,7 @@ IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, wi
 - Toss Payments for payments (`lib/toss.js`). NicePay is legacy and can be removed if it gets in the way.
 - Resend for email (templates in `lib/email/`). Hosted on Vercel.
 - Import paths use the `@/` alias for the repo root.
+- UI uses the shared kit in `components/ui` (`Button`/`buttonClasses`, `chipClasses`, `Tabs`, `Input`/`Select`/`Textarea`, `cardClasses`, `Badge`, `Notice`). Match `/find` and `/hagwons`: real buttons for actions (no text links styled as actions, no arrow glyphs in labels), page shell `max-w-3xl mx-auto px-4 py-4`.
 
 ## Commands
 
@@ -27,13 +28,18 @@ IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, wi
 
 ## Architecture
 
-- **Anon key everywhere.** The shared client is `lib/supabase.js`; a few files (`app/api/cron/daily-digest`, `notify-subscribers`, `app/api/dashboard/*`, `pages/profile/ContactButton.js`) create their own, also with the anon key. There is no service-role client, even in API routes. Server-side writes therefore depend on RLS policies and on Postgres RPCs (`activate_plus_tier`, `reveal_student_job`, `get_or_create_conversation`, etc.) defined in `supabase/migrations/`. If a write fails silently, check RLS first.
-- **No server-side session.** There is no cookie or SSR auth helper and no `middleware.js`. `supabase.auth.getUser()` on the shared client inside an API route has no session, so it returns no user. The community and admin post routes (`app/api/community/posts`, `app/api/admin/posts`) do this and will always 401. A route that needs the user must receive the access token from the client and verify it.
+- **Anon key almost everywhere.** The shared client is `lib/supabase.js`; a few files (`app/api/cron/daily-digest`, `notify-subscribers`, `app/api/dashboard/*`, `pages/profile/ContactButton.js`) create their own, also with the anon key. The one exception is `lib/supabaseAdmin.js` (service role, needs `SUPABASE_SERVICE_ROLE_KEY`), used only by `app/api/community/*` and `app/api/admin/community/*` after the caller's token is verified. Never import it in client code. Server-side writes therefore depend on RLS policies and on Postgres RPCs (`activate_plus_tier`, `reveal_student_job`, `get_or_create_conversation`, etc.) defined in `supabase/migrations/`. If a write fails silently, check RLS first.
+- **No server-side session.** There is no cookie or SSR auth helper and no `middleware.js`. `supabase.auth.getUser()` on the shared client inside an API route has no session, so it returns no user. A route that needs the user must receive the access token from the client and verify it, as the community routes do (`communityAuthHeaders` in `lib/communityClient.js` on the client, `getCommunityUser`/`requireCommunityWriter`/`requireAdminUser` in `lib/communityAuth.js` on the server).
 - **Auth and chat state** live in React contexts (`contexts/AuthContext.jsx`, `contexts/ChatContext.jsx`), wired up in `components/Providers.client.jsx`. Chat data access is in `lib/chat/chatClient.js`.
 - **Payments are idempotent by design.** Each purchase type has a success route and a webhook (`app/api/toss/success|webhook` for premium listings, `tier-success|tier-webhook` for the 플러스 tier). Both call the same activation function (`lib/premiumActivation.js`, `lib/tierActivation.js`), which only flips a `payments` row from `pending` to `paid` once. Keep that guard if you touch these.
 - **Teacher tiers and reveals:** teachers browse student requests (`student_jobs`) and "reveal" contact info. Free tier gets 2 reveals per rolling 30 days; 플러스 is unlimited. The limit is enforced only in the `reveal_student_job` RPC (`20260924_teacher_tier_system.sql`); `lib/reveal.js` is a client wrapper and its remaining-count is display-only.
 - **Request boards:** `/students` (`student_jobs`, views in `student_job_views`) is the board teachers reveal from; `/hagwon-requests` (`hagwon_requests`, `hagwon_request_views`) is the hagwon equivalent. Both query Supabase directly from client components.
-- **Community board** (`app/community`, `posts` table from `20260605_create_posts.sql`) is built but not launched: its nav links are commented out in `DesktopNav.client.jsx` and `MobileMenuToggle.client.jsx` (see `TODO.md`).
+- **Community board** (`/community`, Naver-cafe style) is built but not launched: nav links are commented out and it's not in the sitemap (launch steps in `TODO.md`).
+  - Tables are `community_*`. Base tables have RLS on with no policies, so clients can't touch them; all reads and writes go through API routes with `supabaseAdmin`. The one public read path is the `community_posts_public` view (no `user_id`, hides deleted posts), which the feed and post page query with the anon key (`lib/communityFeed.js`, `lib/communityPost.js`).
+  - Every write route calls `requireCommunityWriter`, which returns 401 without a token and 403 when the user is banned (`users.community_banned_until`) or has no username.
+  - Anonymous posts and comments must never expose `user_id` or the real author in public responses; only `/api/admin/community/*` returns real authors. Anonymous comment labels (익명1, 익명2…) come from `lib/communityAnon.js`.
+  - Deletes are soft (`deleted_at`, plus `deleted_by_admin` for admin removals). Post markdown is rendered with `lib/communityMarkdown.js`, which drops raw HTML and unsafe link schemes.
+  - `/blog` has its own list component (`app/blog/BlogBoard.client.jsx`); it no longer shares the community board.
 - **Blog** is MDX files in `content/blog/`, read from disk at build time by `pages/blog/[slug].js` (`getStaticPaths`/`getStaticProps`). The index is `app/blog/page.jsx`.
 - **Teacher profiles** are ISR (`revalidate: 60`, `fallback: 'blocking'`) from the Supabase teachers table.
 - **Test teachers:** rows with `teachers.is_test = true` are excluded from `/find` (`app/find/TeacherList.jsx`) and from profile pages. Keep that filter on any new public teacher query.
@@ -44,7 +50,7 @@ IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, wi
 - **Roles:** user role is `users.role`; teacher approval state is `teachers.status` (helpers `getUserRole`/`getTeacherStatus` in `lib/supabase.js`).
 - Component filenames ending in `.client.jsx` / `.server.jsx` mark client vs. server components.
 - Features are planned in `SPEC.md` (written via `/spec`, implemented via `/build`).
-- `TODO.md` tracks planned work (community board launch, moderation, unsubscribe flows).
+- `TODO.md` tracks planned work (community board launch checklist, unsubscribe flows).
 
 ## Rules
 

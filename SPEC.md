@@ -38,5 +38,5 @@ A scheduled Claude Code routine writes one SEO-focused, fact-checked blog post a
 - [x] `keywords.md` lists every existing post's keyword as `done` and has at least 10 `planned` keywords.
 - [x] Nothing new under `content/blog/` is picked up as a post (no non-post files added there).
 - [x] The routine exists, is enabled, runs weekly on Monday at 9am KST, and its prompt points to `routine-prompt.md`.
-- [ ] One test run (fired manually) opens a PR with a valid new MDX post, a sitemap entry, keyword updates, and sources in the PR body.
+- [x] One test run (fired manually) opens a PR with a valid new MDX post, a sitemap entry, keyword updates, and sources in the PR body.
 - [x] `npm run build` passes.

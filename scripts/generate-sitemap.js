@@ -8,29 +8,36 @@
  *
  * Usage: node scripts/generate-sitemap.js
  *
- * Requires: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local
+ * Requires: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, from the
+ * environment or from .env.local (environment wins).
  */
 
 const fs = require('fs');
 const path = require('path');
 const matter = require('gray-matter');
 
-// Load .env.local
+// Load .env.local if present
 const envPath = path.join(__dirname, '..', '.env.local');
-const envContent = fs.readFileSync(envPath, 'utf8');
 const env = {};
-envContent.split('\n').forEach(line => {
-  const match = line.match(/^([^#=]+)=(.*)$/);
-  if (match) env[match[1].trim()] = match[2].trim();
-});
+if (fs.existsSync(envPath)) {
+  fs.readFileSync(envPath, 'utf8').split('\n').forEach(line => {
+    const match = line.match(/^([^#=]+)=(.*)$/);
+    if (match) env[match[1].trim()] = match[2].trim();
+  });
+}
 
-const SUPABASE_URL = env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_ANON_KEY = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error('Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY (set them in the environment or .env.local)');
+  process.exit(1);
+}
 const SITE_URL = 'https://www.ibmaster.net';
 const TODAY = new Date().toISOString().split('T')[0];
 
 async function fetchApprovedTeachers() {
-  const url = `${SUPABASE_URL}/rest/v1/teachers?select=name,last_updated,created_date&status=eq.approved`;
+  const url = `${SUPABASE_URL}/rest/v1/teachers?select=name,last_updated,created_date&status=eq.approved&is_test=eq.false`;
   const res = await fetch(url, {
     headers: {
       apikey: SUPABASE_ANON_KEY,
@@ -38,9 +45,9 @@ async function fetchApprovedTeachers() {
     },
   });
 
+  // Fail rather than write a sitemap with every teacher profile missing
   if (!res.ok) {
-    console.error('Failed to fetch teachers:', res.status, await res.text());
-    return [];
+    throw new Error(`Failed to fetch teachers: ${res.status} ${await res.text()}`);
   }
 
   return res.json();
@@ -119,4 +126,7 @@ ${entries.join('\n')}
   console.log(`Total URLs: ${entries.length}`);
 }
 
-main().catch(console.error);
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

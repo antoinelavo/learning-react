@@ -21,8 +21,9 @@ IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, wi
 - `npm run dev` starts the dev server on port 3000.
 - `npm run build` is the main check. There are no tests and no ESLint config (`npm run lint` is not set up). The build needs `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `RESEND_API_KEY` (`lib/supabase.js` and the Resend client throw at import without them). Placeholder values are enough for a build check; Supabase `fetch failed` logs are then expected.
 - **SEO blog routine:** a weekly Claude Code routine follows `content/seo/routine-prompt.md`, takes the next `planned` keyword from `content/seo/keywords.md`, writes one post per `content/seo/guide.md`, and opens a PR.
+- **SEO audit routine:** a weekly routine (Thursday 9am KST) follows `content/seo/audit-routine-prompt.md`: regenerates the sitemap, fixes SEO-only issues (metadata, JSON-LD, `robots.txt`, up to 5 blog posts' frontmatter and internal links), and opens a `seo-audit:` PR. Reports go in `content/seo/audits/`. Needs `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `PAGESPEED_API_KEY` in the routine's environment.
 - `ANALYZE=true npm run build` opens the bundle analyzer.
-- `node scripts/generate-sitemap.js` rebuilds `public/sitemap.xml`. It needs `.env.local`.
+- `node scripts/generate-sitemap.js` rebuilds `public/sitemap.xml`. It reads the Supabase URL and anon key from the environment or `.env.local`, and exits non-zero (without writing) if the teacher fetch fails.
 
 ## Architecture
 

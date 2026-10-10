@@ -41,8 +41,8 @@ A scheduled Claude Code routine audits ibmaster.net for SEO every week. Each run
 - Site text stays Korean, and the PR body and report are in English.
 
 ## Done when
-- [ ] `content/seo/audit-routine-prompt.md` exists and covers every check and rule above.
-- [ ] `node scripts/generate-sitemap.js` works with env vars set in the shell and no `.env.local`, and still works with `.env.local`.
-- [ ] A routine exists that runs Thursday at 9am KST in a fresh session, pointing to the prompt.
-- [ ] `CLAUDE.md` mentions the audit routine.
-- [ ] `npm run build` passes.
+- [x] `content/seo/audit-routine-prompt.md` exists and covers every check and rule above.
+- [x] `node scripts/generate-sitemap.js` works with env vars set in the shell and no `.env.local`, and still works with `.env.local`.
+- [x] A routine exists that runs Thursday at 9am KST in a fresh session, pointing to the prompt.
+- [x] `CLAUDE.md` mentions the audit routine.
+- [x] `npm run build` passes.

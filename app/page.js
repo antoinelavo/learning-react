@@ -90,7 +90,7 @@ export default function Home() {
               src="/images/SampleProfiles.svg"
               alt="샘플 프로필"
               className="w-full h-full object-cover"
-              loading="lazy"
+              fetchPriority="high"
             />
           </div>
         </div>

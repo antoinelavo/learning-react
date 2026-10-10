@@ -37,13 +37,6 @@ export default function RootLayout({ children }) {
           />
         </noscript>
 
-        {/* Google Adsense */}
-        <Script
-          strategy="afterInteractive"
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6915654460353407"
-          crossOrigin="anonymous"
-        />
-
         <Script
           strategy="afterInteractive"
           src="https://www.googletagmanager.com/gtag/js?id=G-ZT9SKBMMYE"

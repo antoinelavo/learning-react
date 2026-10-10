@@ -6,15 +6,18 @@ import { supabase } from '@/lib/supabase';
 const AuthContext = createContext({
   user: null,
   role: null,
+  username: null,
   teacherStatus: null,
   teacherId: null,
   loading: true,
   signOut: async () => {},
+  refreshProfile: async () => {},
 });
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(null);
+  const [username, setUsername] = useState(null);
   const [teacherStatus, setTeacherStatus] = useState(null);
   const [teacherId, setTeacherId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -23,6 +26,7 @@ export function AuthProvider({ children }) {
     if (!supabaseUser) {
       setUser(null);
       setRole(null);
+      setUsername(null);
       setTeacherStatus(null);
       setTeacherId(null);
       setLoading(false);
@@ -31,11 +35,11 @@ export function AuthProvider({ children }) {
 
     setUser(supabaseUser);
 
-    // Fetch role and teacher info in parallel
+    // Fetch role/username and teacher info in parallel
     const [{ data: userData }, { data: teacher }] = await Promise.all([
       supabase
         .from('users')
-        .select('role')
+        .select('role, username')
         .eq('id', supabaseUser.id)
         .single(),
       supabase
@@ -47,6 +51,7 @@ export function AuthProvider({ children }) {
 
     const userRole = userData?.role ?? null;
     setRole(userRole);
+    setUsername(userData?.username ?? null);
     setTeacherStatus(teacher?.status ?? null);
     setTeacherId(teacher?.id ?? null);
     setLoading(false);
@@ -73,6 +78,13 @@ export function AuthProvider({ children }) {
     // onAuthStateChange will clear state
   };
 
+  // Re-runs the profile fetch for the current user — call after an action
+  // that changes profile data server-side (e.g. setting a username) so
+  // context state picks it up without a full page reload.
+  const refreshProfile = async () => {
+    await loadProfile(user);
+  };
+
   // Always render children immediately — auth loading only affects
   // components that check the `loading` flag (header, nav).
   return (
@@ -80,10 +92,12 @@ export function AuthProvider({ children }) {
       value={{
         user,
         role,
+        username,
         teacherStatus,
         teacherId,
         loading,
         signOut: handleSignOut,
+        refreshProfile,
       }}
     >
       {children}

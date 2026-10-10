@@ -45,6 +45,12 @@ export default function AdminPage() {
     <div className="max-w-screen-lg mx-auto pt-6 sm:pt-8 px-4 mb-[20dvh]">
       <div className="flex flex-wrap justify-end gap-2 mb-3">
         <Link
+          href="/admin/community/reports"
+          className={buttonClasses({ variant: 'tinted', size: 'sm' })}
+        >
+          커뮤니티 신고 관리
+        </Link>
+        <Link
           href="/admin/conversations"
           className={buttonClasses({ variant: 'tinted', size: 'sm' })}
         >

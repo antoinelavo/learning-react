@@ -43,7 +43,7 @@ Move all card payments (premium listings and the 플러스 tier) from Toss to Po
 - Rollout: Vercel preview with the KG이니시스 test channel first, then the live channel key in production.
 
 ## Done when
-- [ ] No references to Toss or NicePay remain in `app/`, `components/`, or `lib/` (grep is clean), and the Toss/NicePay files are deleted.
+- [x] No references to Toss or NicePay remain in `app/`, `components/`, or `lib/` (grep is clean), and the Toss/NicePay files are deleted.
 - [ ] On a preview deployment with the test channel, buying a premium listing by card activates it and the payment row shows `paid` with a `portone_payment_id`.
 - [ ] Buying 플러스 by card on preview sets `teachers.tier` to the paid tier, and the row shows `paid`.
 - [ ] Both purchases work on desktop (popup) and on mobile (redirect).
@@ -51,5 +51,5 @@ Move all card payments (premium listings and the 플러스 tier) from Toss to Po
 - [ ] Changing the amount on the client makes the complete route fail with `amount_mismatch`, and nothing is activated.
 - [ ] Admin `환불` on a card row cancels it in the PortOne console, sets the row to `refunded`, and removes the premium listing or 플러스 tier. Clicking twice does not refund twice. Non-admins get 403.
 - [ ] With `NEXT_PUBLIC_PORTONE_CHANNEL_KEY_KAKAOPAY` unset, no 카카오페이 button shows; with it set, the button shows.
-- [ ] The migration file exists and adds `portone_payment_id` plus the `refunded` status to both tables.
-- [ ] `npm run build` passes.
+- [x] The migration file exists and adds `portone_payment_id` plus the `refunded` status to both tables.
+- [x] `npm run build` passes.

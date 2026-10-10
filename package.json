@@ -16,6 +16,8 @@
     "@mdx-js/react": "^3.1.0",
     "@next/bundle-analyzer": "^15.3.4",
     "@next/mdx": "^15.3.4",
+    "@portone/browser-sdk": "^0.1.13",
+    "@portone/server-sdk": "^0.19.0",
     "@supabase/supabase-js": "^2.50.0",
     "framer-motion": "^12.18.1",
     "gray-matter": "^4.0.3",

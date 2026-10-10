@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { confirmPlusBankTransfer, undoPlusBankTransfer } from '@/lib/tierActivation';
-import { Notice, cardClasses, Badge } from '@/components/ui';
+import { requestRefund, refundErrorMessage } from '@/lib/adminRefund';
+import { Notice, cardClasses, Badge, Button } from '@/components/ui';
 
 const ERROR_MESSAGES = {
   record_payment_failed: '결제 기록 중 오류가 발생했습니다.',
@@ -74,8 +75,10 @@ export default function PlusPaymentsTable() {
     setLoading(true);
     const { data, error } = await supabase
       .from('payments')
-      .select('id, teacher_id, amount, status, created_at, teachers(name)')
-      .eq('provider', 'bank_transfer')
+      .select('id, teacher_id, amount, status, provider, created_at, teachers(name)')
+      // Bank transfers in any state; card payments only once they went
+      // through (a pending card row is just an abandoned checkout).
+      .or('provider.eq.bank_transfer,and(provider.eq.portone,status.neq.pending)')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -160,6 +163,32 @@ export default function PlusPaymentsTable() {
     }
   }
 
+  async function handleRefund(row) {
+    const name = row.teachers?.name || '—';
+    const confirmed = window.confirm(
+      `${name} 선생님의 카드 결제를 전액 환불하시겠습니까?\n금액: ₩${Number(row.amount).toLocaleString()}\n\n다른 확인된 결제가 없으면 즉시 무료 회원으로 변경됩니다.`
+    );
+    if (!confirmed) return;
+
+    setBusyId(row.id);
+    try {
+      const result = await requestRefund('plus', row.id);
+      if (!result.ok) {
+        alert(`❌ ${refundErrorMessage(result.error)}`);
+        await loadRows();
+        return;
+      }
+      if (result.warning) {
+        alert(`환불은 완료되었지만 플러스 해제 중 오류가 발생했습니다. (${result.warning})`);
+      } else if (result.tierKept) {
+        alert('다른 확인된 결제가 있어 플러스 회원은 유지됩니다.');
+      }
+      setRowStatus(row.id, 'refunded');
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   if (loading) {
     return <div className="text-center text-gray-500 py-10">불러오는 중...</div>;
   }
@@ -181,15 +210,18 @@ export default function PlusPaymentsTable() {
               <tr>
                 <th className="px-4 py-2">선생님</th>
                 <th className="px-4 py-2">금액</th>
+                <th className="px-4 py-2">결제 방식</th>
                 <th className="px-4 py-2">요청일</th>
                 <th className="px-4 py-2">상태</th>
-                <th className="px-4 py-2">입금 확인</th>
+                <th className="px-4 py-2">처리</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((row) => {
                 const name = row.teachers?.name;
+                const isCard = row.provider === 'portone';
                 const isConfirmed = row.status === 'paid';
+                const isRefunded = row.status === 'refunded';
                 const isBusy = busyId === row.id;
 
                 return (
@@ -209,9 +241,14 @@ export default function PlusPaymentsTable() {
                       )}
                     </td>
                     <td className="px-4 py-2 whitespace-nowrap">₩{Number(row.amount).toLocaleString()}</td>
+                    <td className="px-4 py-2 whitespace-nowrap">{isCard ? '카드' : '계좌이체'}</td>
                     <td className="px-4 py-2 whitespace-nowrap text-gray-500">{formatDate(row.created_at)}</td>
                     <td className="px-4 py-2 whitespace-nowrap">
-                      {isConfirmed ? (
+                      {isRefunded ? (
+                        <Badge color="red">
+                          환불됨
+                        </Badge>
+                      ) : isConfirmed ? (
                         <Badge color="green">
                           확인됨
                         </Badge>
@@ -222,12 +259,22 @@ export default function PlusPaymentsTable() {
                       )}
                     </td>
                     <td className="px-4 py-2">
+                      {isCard ? (
+                        isConfirmed ? (
+                          <Button variant="danger" size="sm" disabled={isBusy} onClick={() => handleRefund(row)}>
+                            {isBusy ? '처리 중...' : '환불'}
+                          </Button>
+                        ) : (
+                          <span className="text-xs text-gray-400">—</span>
+                        )
+                      ) : (
                       <StatusSwitch
                         checked={isConfirmed}
                         disabled={isBusy}
                         busy={isBusy}
                         onClick={() => handleToggle(row)}
                       />
+                      )}
                     </td>
                   </tr>
                 );

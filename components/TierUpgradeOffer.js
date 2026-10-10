@@ -1,23 +1,24 @@
 'use client';
 // components/TierUpgradeOffer.js
 // The 플러스(Plus) tier upgrade checkout — ₩9,000, one-time. Framed to the
-// buyer as a 12-month term that renews for free afterward (Toss's payment
-// review policy disallows selling an indefinite/"lifetime" service), but
-// nothing in teachers.tier actually expires — a free renewal forever has
-// the same real-world effect as never expiring, so there's no separate
-// expiry/renewal mechanism to build. Adapted from PremiumListingOffer.js's
-// Toss integration (same Script tag, window.TossPayments(...).requestPayment
-// pattern, order-logged-before-checkout flow) rather than built fresh,
-// just without the subject/duration selection that feature needs.
+// buyer as a 12-month term that renews for free afterward (PG review
+// policy disallows selling an indefinite/"lifetime" service), but nothing
+// in teachers.tier actually expires — a free renewal forever has the same
+// real-world effect as never expiring, so there's no separate
+// expiry/renewal mechanism to build. Same PortOne checkout as
+// PremiumListingOffer.js (order logged before checkout, server-verified
+// on return), just without the subject/duration selection.
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Info } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { revealsRemaining } from '@/lib/reveal';
+import { PLUS_TIER_AMOUNT } from '@/lib/tierActivation';
+import { buyerEmail, newPaymentId, startPortOnePayment } from '@/lib/portoneCheckout';
 import ScrollFadeIn from '@/components/ScrollFadeIn';
+import PortOnePayButtons from '@/components/PortOnePayButtons';
 import { Button, cardClasses } from '@/components/ui';
 
-const PLUS_TIER_AMOUNT = 9000;
 const FREE_TIER_LIMIT = 2;
 const PLUS_TERM_MONTHS = 12;
 const RENEWAL_NOTE = `${PLUS_TERM_MONTHS}개월 동안 이용할 수 있으며, 이후에는 무료로 연장할 수 있습니다.`;
@@ -45,13 +46,6 @@ function InfoTooltip({ text }) {
       )}
     </span>
   );
-}
-
-// Generate a random order ID to hand to Toss's payment window.
-function randomId() {
-  return [...crypto.getRandomValues(new Uint32Array(2))]
-    .map((word) => word.toString(16).padStart(8, '0'))
-    .join('');
 }
 
 // Fades a feature-list item up into place a beat after the card mounts,
@@ -113,7 +107,7 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
   const [showAccountNumber, setShowAccountNumber] = useState(false);
   const [bankTransferRequested, setBankTransferRequested] = useState(false);
 
-  // Toss confirms payment via a server-side redirect back to this page
+  // PortOne payments are verified by a server route that redirects back here
   // (?tab=pricing&tier=success|failed), not a JS callback — surface the
   // result here, same as PremiumListingOffer's ?payment=success|failed.
   useEffect(() => {
@@ -125,10 +119,7 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
       alert('결제가 완료되었습니다! 플러스 회원으로 전환되었습니다.');
       onUpgraded?.();
     } else if (tier === 'failed') {
-      // TEMP DEBUG — surfaces which step the server-side route failed at.
-      // Remove once diagnosed.
-      const reason = params.get('reason') || 'unknown';
-      alert(`결제에 실패했습니다. 다시 시도해주세요.\n[debug] reason: ${reason}`);
+      alert('결제에 실패했습니다. 다시 시도해주세요.');
     }
 
     // Strip tier/reason but keep ?tab=pricing so a refresh stays on this tab.
@@ -139,7 +130,7 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleUpgrade = async () => {
+  const handleUpgrade = async (method, phone) => {
     if (!teacher?.id) {
       alert('로그인이 필요합니다.');
       router.push('/login');
@@ -147,70 +138,47 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
     }
 
     if (paymentProcessing) return;
-
-    if (typeof window === 'undefined' || typeof window.TossPayments === 'undefined') {
-      alert('결제 모듈을 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.');
-      return;
-    }
-
     setPaymentProcessing(true);
 
     try {
-      const orderId = randomId();
+      const paymentId = newPaymentId('plus');
 
       const { error: logError } = await supabase.from('payments').insert([
         {
           teacher_id: teacher.id,
           amount: PLUS_TIER_AMOUNT,
           currency: 'KRW',
-          provider: 'toss',
-          toss_order_id: orderId,
+          provider: 'portone',
+          portone_payment_id: paymentId,
           status: 'pending',
         },
       ]);
 
       if (logError) {
-        // Without this row the successUrl callback can't look up who paid —
-        // don't send the buyer into Toss's payment window for nothing.
-        // TEMP DEBUG — surfaces the real Supabase error so we can diagnose
-        // the "결제 준비 중 오류" report. Remove once diagnosed.
+        // Without this row the complete route can't look up who paid —
+        // don't send the buyer into the payment window for nothing.
         console.error('TierUpgradeOffer: payments insert failed', logError);
-        alert(
-          `결제 준비 중 오류가 발생했습니다.\n[debug]\ncode: ${logError?.code ?? 'none'}\nmessage: ${
-            logError?.message ?? String(logError)
-          }\ndetails: ${logError?.details ?? 'none'}\nhint: ${logError?.hint ?? 'none'}`
-        );
+        alert('결제 준비 중 오류가 발생했습니다. 다시 시도해주세요.');
         setPaymentProcessing(false);
         return;
       }
 
-      // Hand off to Toss's payment window. There is no success callback
-      // here — Toss redirects the browser straight to successUrl/failUrl,
-      // which confirm/activate the tier server-side before landing back on
-      // this tab. The promise below only rejects for failures that happen
-      // before that handoff (e.g. the buyer closing the window).
-      const tossPayments = window.TossPayments(process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY);
-      tossPayments
-        .requestPayment('CARD', {
-          amount: PLUS_TIER_AMOUNT,
-          orderId,
-          orderName: 'IB Master 플러스 회원 전환',
-          customerName: teacher.name,
-          successUrl: `${window.location.origin}/api/toss/tier-success`,
-          failUrl: `${window.location.origin}/api/toss/tier-fail`,
-        })
-        .catch((result) => {
-          if (result?.code === 'USER_CANCEL') {
-            setPaymentProcessing(false);
-            return;
-          }
-          alert(`결제 실패: ${result?.message || '알 수 없는 오류'}`);
-          setPaymentProcessing(false);
-        });
+      const { error } = await startPortOnePayment({
+        method,
+        paymentId,
+        orderName: 'IB Master 플러스 회원 전환',
+        amount: PLUS_TIER_AMOUNT,
+        customer: { fullName: teacher.name, email: await buyerEmail(teacher), phoneNumber: phone },
+        completePath: '/api/portone/tier-complete',
+      });
+
+      if (error) {
+        alert(`결제 실패: ${error}`);
+        setPaymentProcessing(false);
+      }
     } catch (error) {
-      // TEMP DEBUG — see the payments-insert branch above. Remove once diagnosed.
       console.error('TierUpgradeOffer: unhandled error', error);
-      alert(`결제 처리 중 오류가 발생했습니다.\n[debug] ${error?.message ?? String(error)}`);
+      alert('결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
       setPaymentProcessing(false);
     }
   };
@@ -330,16 +298,8 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
         </span>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-2">
-        <Button
-          onClick={handleUpgrade}
-          disabled={paymentProcessing}
-          size="lg" className="flex-1"
-        >
-          {paymentProcessing
-            ? '결제 진행 중...'
-            : '결제하기 (카드 - 현재 테스트 중입니다. 실결제로 이어지지 않습니다)'}
-        </Button>
+      <div className="flex flex-col sm:flex-row sm:items-end gap-2">
+        <PortOnePayButtons processing={paymentProcessing} onPay={handleUpgrade} className="flex-1" />
 
         <Button
           onClick={handleBankTransfer}

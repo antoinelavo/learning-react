@@ -10,14 +10,14 @@ IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, wi
 - Both routers are in use. Most pages and all real API routes are in `app/`. The blog post page (`pages/blog/[slug].js`) and teacher profile page (`pages/profile/[name].js`) are still in `pages/`. `pages/api/hello.js` is leftover boilerplate.
 - `next.config.js` sets `pageExtensions: ['js', 'jsx']`, so only `.js`/`.jsx` files become routes (a `.ts` or `.mdx` page file is ignored).
 - Supabase for auth and database. The shared client is in `lib/supabase.js`. File storage is Cloudflare R2 via `@aws-sdk/client-s3` (`app/api/upload-profile-picture`), not Supabase storage.
-- Toss Payments for payments (`lib/toss.js`). NicePay is legacy and can be removed if it gets in the way.
+- PortOne V2 for card payments (KG이니시스 channel; 카카오페이 appears when `NEXT_PUBLIC_PORTONE_CHANNEL_KEY_KAKAOPAY` is set). Server helpers in `lib/portone.js`, browser checkout in `lib/portoneCheckout.js`. Toss and NicePay were removed; old rows keep their `toss_*` / `order_id` columns as history.
 - Resend for email (templates in `lib/email/`). Hosted on Vercel.
 - Import paths use the `@/` alias for the repo root.
 
 ## Commands
 
 - `npm run dev` starts the dev server on port 3000.
-- `npm run build` is the main check. There are no tests and no ESLint config (`npm run lint` is not set up). The build needs `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`, because `lib/supabase.js` throws at import without them.
+- `npm run build` is the main check. There are no tests and no ESLint config (`npm run lint` is not set up). The build needs `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (`lib/supabase.js` throws at import without them) and `RESEND_API_KEY` (the Resend client throws at import). Dummy values are enough for a local build.
 - `ANALYZE=true npm run build` opens the bundle analyzer.
 - `node scripts/generate-sitemap.js` rebuilds `public/sitemap.xml`. It needs `.env.local`.
 
@@ -25,7 +25,8 @@ IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, wi
 
 - **One Supabase client everywhere.** `lib/supabase.js` uses the anon key only; there is no service-role client, even in API routes. Server-side writes therefore depend on RLS policies and on Postgres RPCs (`activate_plus_tier`, `reveal_student_job`, `get_or_create_conversation`, etc.) defined in `supabase/migrations/`. If a write fails silently, check RLS first.
 - **Auth and chat state** live in React contexts (`contexts/AuthContext.jsx`, `contexts/ChatContext.jsx`), wired up in `components/Providers.client.jsx`. Chat data access is in `lib/chat/chatClient.js`.
-- **Payments are idempotent by design.** Each purchase type has a success route and a webhook (`app/api/toss/success|webhook` for premium listings, `tier-success|tier-webhook` for the 플러스 tier). Both call the same activation function (`lib/premiumActivation.js`, `lib/tierActivation.js`), which only flips a `payments` row from `pending` to `paid` once. Keep that guard if you touch these.
+- **Payments are idempotent by design.** The client inserts a pending row keyed by `portone_payment_id`, then opens PortOne. `app/api/portone/complete` (premium listings) and `tier-complete` (플러스) handle the return from both the PC popup and the mobile redirect, and `app/api/portone/webhook` (signature-verified) is the backstop. All three go through `lib/portoneOrders.js`, which re-fetches the payment from PortOne, checks the amount against server-side prices (`premiumPrice`, `PLUS_TIER_AMOUNT`), then calls the activation function (`lib/premiumActivation.js`, `lib/tierActivation.js`), which only activates once. Keep those guards if you touch these.
+- **Refunds:** admins refund card payments from `/admin/payments` and `/admin/plus-payments` via `app/api/portone/refund` (`lib/refunds.js`), which claims the row (`paid → refunded`, or `payment_request.refunded_at`) before cancelling at PortOne.
 - **Teacher tiers:** 플러스 teachers get unlimited reveals of student request contacts; free teachers get 2 per rolling 30 days. The limit is enforced in the `reveal_student_job` RPC; `lib/reveal.js` is only a client wrapper.
 - **Blog** is MDX files in `content/blog/`, read from disk at build time by `pages/blog/[slug].js` (`getStaticPaths`/`getStaticProps`). The index is `app/blog/page.jsx`.
 - **Teacher profiles** are ISR (`revalidate: 60`, `fallback: 'blocking'`) from the Supabase teachers table.
@@ -48,7 +49,7 @@ IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, wi
 
 ## Ask before changing
 
-- Payment code: Toss routes, `lib/toss.js`, tier and premium activation, and prices.
+- Payment code: PortOne routes, `lib/portone*.js`, `lib/refunds.js`, tier and premium activation, and prices.
 - Database: anything in `supabase/migrations/`, schema, or RLS policies. New migrations are run by hand in the Supabase dashboard.
 - Blog posts in `content/blog/`.
 - Legal pages (terms, privacy, refund policy) and the footer's business info.

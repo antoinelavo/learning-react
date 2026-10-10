@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { activatePremium, deactivatePayment } from '@/lib/premiumActivation';
-import { cardClasses, Badge, Notice } from '@/components/ui';
+import { requestRefund, refundErrorMessage } from '@/lib/adminRefund';
+import { cardClasses, Badge, Notice, Button } from '@/components/ui';
 
 const ERROR_MESSAGES = {
   spots_unavailable: '선택한 과목의 프리미엄 자리가 모두 찼습니다.',
@@ -74,7 +75,9 @@ export default function PaymentRequestsTable() {
       setFetchError(error.message);
     } else {
       setFetchError(null);
-      setRows(data || []);
+      // An unconfirmed, unrefunded PortOne row is an abandoned (or still
+      // processing) checkout — paid ones are activated or auto-refunded.
+      setRows((data || []).filter((r) => !r.portone_payment_id || r.admin_confirmed || r.refunded_at));
     }
     setLoading(false);
   }
@@ -97,8 +100,8 @@ export default function PaymentRequestsTable() {
     setConfirmingId(row.id);
     try {
       const result = await activatePremium({
-        // Bank-transfer requests never touch Toss/NicePay, so there's no
-        // real paymentKey — this row's own id (unique) stands in for one,
+        // Bank-transfer requests never touch PortOne, so there's no real
+        // payment id — this row's own id (unique) stands in for one,
         // keeping activatePremium's idempotency check meaningful.
         paymentId: `bank_${row.id}`,
         teacherId: row.teacher_id,
@@ -152,6 +155,30 @@ export default function PaymentRequestsTable() {
     }
   }
 
+  async function handleRefund(row) {
+    const subjectList = (row.subjects || []).join(', ');
+    const confirmed = window.confirm(
+      `${row.name} 선생님의 카드 결제를 전액 환불하시겠습니까?\n과목: ${subjectList}\n금액: ₩${Number(row.amount).toLocaleString()}\n\n환불 즉시 이 결제로 활성화된 프리미엄이 제거됩니다.`
+    );
+    if (!confirmed) return;
+
+    setConfirmingId(row.id);
+    try {
+      const result = await requestRefund('premium', row.id);
+      if (!result.ok) {
+        alert(`❌ ${refundErrorMessage(result.error)}`);
+        await loadRows();
+        return;
+      }
+      if (result.warning) {
+        alert(`환불은 완료되었지만 프리미엄 제거 중 오류가 발생했습니다. (${result.warning})`);
+      }
+      await loadRows();
+    } finally {
+      setConfirmingId(null);
+    }
+  }
+
   if (loading) {
     return <div className="text-center text-gray-500 py-10">불러오는 중...</div>;
   }
@@ -178,12 +205,15 @@ export default function PaymentRequestsTable() {
                 <th className="px-4 py-2">결제 방식</th>
                 <th className="px-4 py-2">요청일</th>
                 <th className="px-4 py-2">상태</th>
-                <th className="px-4 py-2">입금 확인</th>
+                <th className="px-4 py-2">처리</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((row) => {
-                const isCardPayment = Boolean(row.order_id);
+                // order_id = a card payment from the previous PG; portone_payment_id = PortOne.
+                const isPortOne = Boolean(row.portone_payment_id);
+                const isCardPayment = Boolean(row.order_id) || isPortOne;
+                const isRefunded = Boolean(row.refunded_at);
                 const isConfirmed = row.admin_confirmed === true;
                 const isBusy = confirmingId === row.id;
 
@@ -205,7 +235,11 @@ export default function PaymentRequestsTable() {
                     <td className="px-4 py-2 whitespace-nowrap">{isCardPayment ? '카드' : '계좌이체'}</td>
                     <td className="px-4 py-2 whitespace-nowrap text-gray-500">{formatDate(row.requested_at)}</td>
                     <td className="px-4 py-2 whitespace-nowrap">
-                      {isConfirmed ? (
+                      {isRefunded ? (
+                        <Badge color="red">
+                          환불됨
+                        </Badge>
+                      ) : isConfirmed ? (
                         <Badge color="green">
                           확인됨
                         </Badge>
@@ -216,7 +250,13 @@ export default function PaymentRequestsTable() {
                       )}
                     </td>
                     <td className="px-4 py-2">
-                      {isCardPayment && !isConfirmed ? (
+                      {isRefunded ? (
+                        <span className="text-xs text-gray-400">—</span>
+                      ) : isPortOne && isConfirmed ? (
+                        <Button variant="danger" size="sm" disabled={isBusy} onClick={() => handleRefund(row)}>
+                          {isBusy ? '처리 중...' : '환불'}
+                        </Button>
+                      ) : isCardPayment && !isConfirmed ? (
                         <span className="text-xs text-gray-400">카드 결제 자동 처리 대기</span>
                       ) : (
                         <StatusSwitch

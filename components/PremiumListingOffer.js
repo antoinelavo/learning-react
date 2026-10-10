@@ -1,10 +1,12 @@
 'use client';
-import Script from 'next/script';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { premiumPrice } from '@/lib/premiumActivation';
+import { buyerEmail, newPaymentId, startPortOnePayment } from '@/lib/portoneCheckout';
 import TeacherCard from '@/components/TeacherCard';
 import ScrollFadeIn from '@/components/ScrollFadeIn';
+import PortOnePayButtons from '@/components/PortOnePayButtons';
 import { Select, Button, cardClasses, Notice } from '@/components/ui';
 
 const tiers = [
@@ -50,7 +52,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-// Toss's per-transaction review policy caps how large a single card/bank
+// The PG's per-transaction review policy caps how large a single card/bank
 // charge can be — above this, the buyer needs to split it into multiple
 // smaller purchases instead.
 const MAX_SINGLE_PAYMENT = 60000;
@@ -95,13 +97,6 @@ function CountUp({ target, duration = 1200 }) {
   }, [target, duration]);
 
   return <span>{count.toLocaleString()}</span>;
-}
-
-// Generate a random order ID to hand to Toss's payment window.
-function randomId() {
-  return [...crypto.getRandomValues(new Uint32Array(2))]
-    .map((word) => word.toString(16).padStart(8, "0"))
-    .join("")
 }
 
 // Check premium spot availability
@@ -250,7 +245,7 @@ const checkAvailability = async (subjectsToCheck) => {
     }
   }, [subjects]);
 
-  // Toss confirms payment via a server-side redirect back to this page
+  // PortOne payments are verified by a server route that redirects back here
   // (?payment=success|failed), not a JS callback — surface the result here.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -283,20 +278,9 @@ const checkAvailability = async (subjectsToCheck) => {
 
   const [duration, setDuration] = useState(1); // in months
 
-  const calculateTotal = () => {
-    const count = selectedSubjects.length;
-    if (count === 0) return 0;
+  const calculateTotal = () => premiumPrice(selectedSubjects.length, duration);
 
-    let base;
-    if (count === 1) base = 5000;
-    else if (count === 2) base = 10000;
-    else if (count === 3) base = 12000;
-    else base = count * 4000;
-
-    return base * duration;
-  };
-
-  const handlePayment = async () => {
+  const handlePayment = async (method, phone) => {
     // Validation
     if (selectedSubjects.length === 0) {
       alert('과목을 선택해주세요.');
@@ -318,16 +302,10 @@ const checkAvailability = async (subjectsToCheck) => {
       return;
     }
 
-    if (typeof window === 'undefined' || typeof window.TossPayments === 'undefined') {
-      alert('결제 모듈을 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.');
-      return;
-    }
-
     setPaymentProcessing(true);
 
     try {
-      // Generate unique order ID
-      const orderId = randomId();
+      const paymentId = newPaymentId('premium');
       const totalAmount = calculateTotal();
 
       const { error: logError } = await supabase.from('payment_request').insert([
@@ -338,42 +316,31 @@ const checkAvailability = async (subjectsToCheck) => {
           duration_months: duration,
           amount: totalAmount,
           requested_at: new Date().toISOString(),
-          order_id: orderId,
+          portone_payment_id: paymentId,
         },
       ]);
 
       if (logError) {
-        // Without this row the successUrl callback can't look up who paid —
-        // don't send the buyer into Toss's payment window for nothing.
+        // Without this row the complete route can't look up who paid —
+        // don't send the buyer into the payment window for nothing.
         alert('결제 준비 중 오류가 발생했습니다. 다시 시도해주세요.');
         setPaymentProcessing(false);
         return;
       }
 
-      // Hand off to Toss's payment window. There is no success callback
-      // here — Toss redirects the browser straight to successUrl/failUrl,
-      // which confirm/activate premium server-side before landing on
-      // /dashboard?payment=success|failed. The promise below only rejects
-      // for failures that happen before that handoff (e.g. the buyer
-      // closing the window).
-      const tossPayments = window.TossPayments(process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY);
-      tossPayments
-        .requestPayment('CARD', {
-          amount: totalAmount,
-          orderId,
-          orderName: `프리미엄 프로필 ${selectedSubjects.join(', ')} (${duration}개월)`,
-          customerName: teacher.name,
-          successUrl: `${window.location.origin}/api/toss/success`,
-          failUrl: `${window.location.origin}/api/toss/fail`,
-        })
-        .catch((result) => {
-          if (result?.code === 'USER_CANCEL') {
-            setPaymentProcessing(false);
-            return;
-          }
-          alert(`결제 실패: ${result?.message || '알 수 없는 오류'}`);
-          setPaymentProcessing(false);
-        });
+      const { error } = await startPortOnePayment({
+        method,
+        paymentId,
+        orderName: `프리미엄 프로필 ${selectedSubjects.join(', ')} (${duration}개월)`,
+        amount: totalAmount,
+        customer: { fullName: teacher.name, email: await buyerEmail(teacher), phoneNumber: phone },
+        completePath: '/api/portone/complete',
+      });
+
+      if (error) {
+        alert(`결제 실패: ${error}`);
+        setPaymentProcessing(false);
+      }
     } catch (error) {
       alert('결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
       setPaymentProcessing(false);
@@ -431,8 +398,6 @@ const checkAvailability = async (subjectsToCheck) => {
 
   return (
     <ScrollFadeIn className={cardClasses({ className: 'p-6 sm:p-8' })}>
-      <Script src="https://js.tosspayments.com/v1/payment" strategy="afterInteractive" />
-
       <h2 className="text-lg font-bold mb-1">프리미엄 프로필</h2>
       <p className="text-sm text-gray-500 mb-6">
         과목별 검색 결과에서 <span className="font-semibold text-blue-600">상단 노출</span> · 평균 클릭 수{' '}
@@ -584,16 +549,13 @@ const checkAvailability = async (subjectsToCheck) => {
             1회 결제 금액은 ₩{MAX_SINGLE_PAYMENT.toLocaleString()}을 초과할 수 없습니다. 과목이나 기간을 나누어 여러 번 결제해주세요.
           </Notice>
         ) : (
-        <div className="mx-auto text-center flex flex-col sm:flex-row justify-center gap-2">
-          <Button
-            onClick={handlePayment}
-            disabled={paymentProcessing || selectedSubjects.length === 0}
-            size="lg" className="mt-6"
-          >
-            {paymentProcessing
-              ? '결제 진행 중...'
-              : '결제하기 (카드 - 현재 테스트 중입니다. 실결제로 이어지지 않습니다)'}
-          </Button>
+        <div className="mx-auto text-center flex flex-col sm:flex-row sm:items-end justify-center gap-2">
+          <PortOnePayButtons
+            processing={paymentProcessing}
+            disabled={selectedSubjects.length === 0}
+            onPay={handlePayment}
+            className="mt-6"
+          />
 
           <div className="text-center">
             <Button

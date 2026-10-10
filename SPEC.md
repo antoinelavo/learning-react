@@ -1,48 +1,54 @@
-# Spec: Weekly SEO audit routine
+# Spec: Security hardening + monthly security audit routine
 
 ## Goal
-A scheduled Claude Code routine audits ibmaster.net for SEO every week. Each run opens one PR that applies safe fixes and lists the bigger weak points in the PR body for a human to act on.
+Close the current Supabase RLS gaps without breaking any site feature, and add a monthly Claude Code routine that scans the database, code and live site for security risks and opens a PR with a report and proposed fixes.
 
 ## Included
-- **Routine prompt** `content/seo/audit-routine-prompt.md`: the full instructions each run follows (see Rules).
-- **Sitemap script change** `scripts/generate-sitemap.js`: read `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` from `process.env`, falling back to `.env.local` when it exists (no crash if the file is missing).
-- **Routine:** a Claude Code routine that runs weekly on Thursday at 9am KST in a fresh session on this repo and follows `audit-routine-prompt.md`.
-- **Checks each run:**
-  - Sitemap: regenerated with the script. Flags URLs that return non-200 or are missing from the sitemap.
-  - `robots.txt`: stale rules (paths that don't exist), public routes accidentally blocked, private routes not blocked.
-  - Code: pages missing or with weak `metadata` (title, description, canonical, Open Graph), missing JSON-LD where it fits, images without `alt`, broken internal links.
-  - Live site: fetches every sitemap URL for status codes, redirects, rendered title, description, canonical, and JSON-LD.
-  - Blog posts: missing, too short, or too long `title`/`description`, and posts with fewer than 3 internal links.
-  - PageSpeed (mobile) for `/`, `/find`, `/hagwons`, `/sat-hagwons`, `/blog`: performance score plus LCP, CLS, and INP.
-- **CLAUDE.md:** one line describing the audit routine next to the existing blog routine line.
+
+**Part 1: one-time hardening**
+- `lib/supabaseAdmin.js`: server-only Supabase client using `SUPABASE_SERVICE_ROLE_KEY` (throws if imported in the browser or if the key is missing).
+- Switch server code that runs without a user session to that client: Toss success/webhook and tier routes, `lib/premiumActivation.js`, `lib/tierActivation.js`, NicePay routes, `app/api/cron/daily-digest`, `app/api/notify-subscribers`, `app/api/dashboard/*`, `app/api/admin/posts`, `app/api/teachers/notify-approved`.
+- Auth checks on API routes that are open today: `dashboard/*` and `admin/posts` require a logged-in admin; webhooks keep/verify their signature or server-side payment confirmation.
+- Remove `pages/api/hello.js` and `app/api/test-email`.
+- One migration file, `supabase/migrations/2026MMDD_security_rls.sql`:
+  - `public.is_admin()` (`SECURITY DEFINER`, fixed `search_path`) based on `users.role = 'admin'`.
+  - Enable RLS on: `student_jobs`, `payment_request`, `successful_payments`, `teacher_premium`, `newsletter_subscriptions`, `page_events`, `student_job_views`, `hagwon_request_views`, `hagwons`, with policies matching how the site uses each table today (public insert where visitors submit forms or log events, owner/admin read, admin-only for payment tables).
+  - `student_jobs`: revoke `select` on `kakao_contact` and the password hash column from `anon`/`authenticated`; public reads use explicit columns. New RPCs: contact info for 플러스 teachers and owners, and `update_student_job_status` that checks the password server-side. `reveal_student_job` stays the free-tier path.
+  - Fixed `search_path` on existing `SECURITY DEFINER` functions that lack it.
+- Update `/students` pages to select explicit columns, get contact info only via RPCs, and edit via the password RPC. No visible change for users.
+
+**Part 2: monthly routine**
+- `content/security/audit-routine-prompt.md`: instructions for the routine, following the style of `content/seo/audit-routine-prompt.md`.
+- Checks:
+  1. Supabase (read-only via connector): RLS on every public table, broad write policies (`using (true)`), `SECURITY DEFINER` without `search_path`, `anon` grants on sensitive columns, security advisors.
+  2. API routes: every route in `app/api/` has the right auth; webhooks verify payments.
+  3. Secrets: no service-role key or secrets in client code, `NEXT_PUBLIC_*`, or git history of the month.
+  4. `npm audit` (high/critical).
+  5. Live site: security headers on https://www.ibmaster.net, and that `.env`, source maps and removed routes return 404.
+- Output: report at `content/security/audits/YYYY-MM-DD.md` (findings with severity `critical`/`high`/`medium`/`low`, file or table, proposed fix), code fixes, and any proposed SQL as a new migration file. Opens one `security-audit:` PR.
+- Create the routine: fresh session each run, 10th of every month around 9am KST (`CRON_TZ=Asia/Seoul`, jittered minute before 9:00), Supabase connector attached.
+- Add both routines/files to `CLAUDE.md`.
 
 ## Not included
-- Google Search Console and Analytics (can be added later through a connector).
-- Performance fixes. PageSpeed results are reported only.
-- Layout or visual changes, and edits to payment, legal, or admin pages.
-- Changes to the weekly blog routine.
-- Auto-merging. A human merges every PR.
+- The routine never writes to the live database, never merges, and never changes Toss/payment logic or prices beyond the client swap above.
+- Policies for the unlaunched community tables (they stay locked: RLS on, no policies); handled when the board launches.
+- Rate limiting, WAF, CSP rollout (CSP is reported, not added, this round).
+- Removing NicePay.
 
 ## Rules
-- **Each run:**
-  - Starts from the latest `main` and works on a branch `seo-audit/YYYY-MM-DD`.
-  - If an open PR whose title starts with `seo-audit:` already exists, stop and report it. Don't open a second one.
-  - Opens one PR titled `seo-audit: YYYY-MM-DD` with:
-    - **Fixed:** each change and why.
-    - **Weak points (not fixed):** grouped by severity, each with a page or file and a suggested fix.
-    - **PageSpeed:** a table of score, LCP, CLS, and INP per page.
-    - **Unsure about:** anything that needs a human check.
-  - Always commits the report to `content/seo/audits/YYYY-MM-DD.md`, so past audits stay in the repo and a run with no fixes still has a PR.
-  - Runs `npm run build` with placeholder env vars, which must exit 0 before the PR is opened.
-- **Allowed fixes:** `public/sitemap.xml` (only via the script), `public/robots.txt`, SEO-only page code (`metadata`, canonical, JSON-LD, `alt`), and blog posts (see below).
-- **Blog posts (an "ask before changing" area, approved here):** may edit frontmatter `title`/`description` and add internal links in post bodies. Facts, wording, and structure stay untouched, and the slug and `date` never change. At most 5 posts per run, and each change is listed in the PR.
-- **Never:** push to `main`, run `scripts/publish-blog.sh`, touch payments, `supabase/`, legal pages, or the footer's business info, or commit secrets.
-- **Environment variables the routine needs** (set by the user in the routine's environment): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `PAGESPEED_API_KEY`. If `PAGESPEED_API_KEY` is missing or PageSpeed fails, skip that section and say so in the report. If the Supabase vars are missing, skip sitemap regeneration and say so.
-- Site text stays Korean, and the PR body and report are in English.
+- "Ask before changing" areas touched, approved in this interview: payment code (client swap only, the `pending` → `paid` guard stays), and a new migration. The migration is run by hand in the Supabase dashboard.
+- Rollout order: (1) add `SUPABASE_SERVICE_ROLE_KEY` in Vercel, (2) merge and deploy the code, (3) run the migration. The PR description states this order.
+- `SUPABASE_SERVICE_ROLE_KEY` is never `NEXT_PUBLIC_`, never imported by a client component.
+- Keep the `is_test` filter on public teacher queries.
+- Routine: skip if a `security-audit:` PR is already open; Supabase access read-only (`select` queries and advisors only); never print secret values; never weaken an existing policy.
+- Site text Korean; code, comments, report English.
 
 ## Done when
-- [x] `content/seo/audit-routine-prompt.md` exists and covers every check and rule above.
-- [x] `node scripts/generate-sitemap.js` works with env vars set in the shell and no `.env.local`, and still works with `.env.local`.
-- [x] A routine exists that runs Thursday at 9am KST in a fresh session, pointing to the prompt.
-- [x] `CLAUDE.md` mentions the audit routine.
-- [x] `npm run build` passes.
+- [ ] No file imported by a client component imports `lib/supabaseAdmin.js` (grep check).
+- [ ] Every table listed above has `enable row level security` and at least one policy in the migration; `kakao_contact` and the password hash are not selectable by `anon`.
+- [ ] Before the migration is applied, each policy is checked against every `.from('<table>')` call in the code, with a table → operation → role → policy list in the PR description showing nothing the site does is blocked.
+- [ ] `/students` no longer uses `select('*')` on `student_jobs`; reveal, 플러스 auto-reveal, and password edit go through RPCs.
+- [ ] `dashboard/*` and `admin/posts` return 401/403 without an admin session; `hello` and `test-email` are gone.
+- [ ] `content/security/audit-routine-prompt.md` exists and covers all five checks; the routine exists (10th monthly, ~9am KST, Supabase connector).
+- [ ] `CLAUDE.md` mentions the service-role client and the security routine.
+- [ ] `npm run build` passes.

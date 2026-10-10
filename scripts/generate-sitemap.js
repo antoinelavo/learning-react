@@ -95,7 +95,9 @@ async function main() {
   entries.push(urlEntry(`${SITE_URL}/aboutus`, TODAY, 'monthly', '0.5'));
   entries.push(urlEntry(`${SITE_URL}/hagwons`, TODAY, 'monthly', '0.9'));
   entries.push(urlEntry(`${SITE_URL}/sat-hagwons`, TODAY, 'weekly', '1.0'));
-  entries.push(urlEntry(`${SITE_URL}/blog/`, TODAY, 'weekly', '0.7'));
+  entries.push(urlEntry(`${SITE_URL}/blog`, TODAY, 'weekly', '0.7'));
+  entries.push(urlEntry(`${SITE_URL}/students`, TODAY, 'daily', '0.7'));
+  entries.push(urlEntry(`${SITE_URL}/hagwon-requests`, TODAY, 'daily', '0.7'));
 
   // Teacher profiles
   for (const teacher of teachers) {

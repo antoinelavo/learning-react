@@ -13,7 +13,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="ko">
       <head>
         {/* Noto Sans KR — loaded async to avoid render-blocking 24 KiB of @font-face CSS */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -36,13 +36,6 @@ export default function RootLayout({ children }) {
             href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap"
           />
         </noscript>
-
-        {/* Google Adsense */}
-        <Script
-          strategy="afterInteractive"
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6915654460353407"
-          crossOrigin="anonymous"
-        />
 
         <Script
           strategy="afterInteractive"

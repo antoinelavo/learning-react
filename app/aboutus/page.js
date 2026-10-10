@@ -1,8 +1,15 @@
 import { cardClasses } from '@/components/ui';
 
 export const metadata = {
+  title: 'IB Master 소개 | 수수료 없는 IB 과외 플랫폼',
+  description: 'IB Master는 수수료 없이 IB 학생과 과외 선생님을 연결하는 IB 전문 과외 플랫폼입니다. 만든 이유와 운영 원칙을 소개합니다.',
   alternates: {
     canonical: '/aboutus',
+  },
+  openGraph: {
+    url: '/aboutus',
+    title: 'IB Master 소개 | 수수료 없는 IB 과외 플랫폼',
+    description: 'IB Master는 수수료 없이 IB 학생과 과외 선생님을 연결하는 IB 전문 과외 플랫폼입니다. 만든 이유와 운영 원칙을 소개합니다.',
   },
 };
 

@@ -3,7 +3,7 @@ import Script from 'next/script'
 
 export default function Document() {
   return (
-    <Html lang="en">
+    <Html lang="ko">
       <Head>
         {/* ✅ Google Fonts - Noto Sans KR */}
         <link
@@ -14,8 +14,6 @@ export default function Document() {
           strategy="afterInteractive"
           src="https://www.googletagmanager.com/gtag/js?id=G-ZT9SKBMMYE"
         />
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6915654460353407"
-        crossorigin="anonymous"></script>
         <Script
           id="gtag-init"
           strategy="afterInteractive"

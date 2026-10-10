@@ -1,4 +1,28 @@
 import { buttonClasses, cardClasses } from '@/components/ui';
+import { jsonLdString } from '@/lib/hagwonNeis';
+
+const SITE_URL = 'https://www.ibmaster.net';
+
+const HOME_JSON_LD = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${SITE_URL}/#organization`,
+      name: 'IB Master',
+      url: `${SITE_URL}/`,
+      logo: `${SITE_URL}/images/mainlogo.jpg`,
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE_URL}/#website`,
+      name: 'IB Master',
+      url: `${SITE_URL}/`,
+      inLanguage: 'ko-KR',
+      publisher: { '@id': `${SITE_URL}/#organization` },
+    },
+  ],
+};
 export const metadata = {
   title: '수수료 없는 IB 전문 과외 플랫폼 | IB Master',
   description: '선생, 학생 모두 수수료 없는 IB 과외 전문 플랫폼. IB 수학, 영어, 물리 과외를 믿고 맡길 수 있는 곳, IB Master',
@@ -33,6 +57,10 @@ export const metadata = {
 export default function Home() {
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdString(HOME_JSON_LD) }}
+      />
       {/* Hero Section */}
       <div
           id="heroSection"
@@ -62,7 +90,7 @@ export default function Home() {
               src="/images/SampleProfiles.svg"
               alt="샘플 프로필"
               className="w-full h-full object-cover"
-              loading="lazy"
+              fetchPriority="high"
             />
           </div>
         </div>

@@ -17,7 +17,7 @@ export const metadata = {
 
 export default function RootLayout({ Component, pageProps }) {
   return (
-    <html lang="en" className={notoSansKR.className}>
+    <html lang="ko" className={notoSansKR.className}>
       <body className="min-h-screen min-w-screen bg-gray-50">
         <Providers>
           <Header />

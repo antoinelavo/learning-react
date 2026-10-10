@@ -255,7 +255,10 @@ const checkAvailability = async (subjectsToCheck) => {
     if (payment === 'success') {
       alert('결제가 완료되었습니다! 프리미엄 기능이 활성화되었습니다.');
     } else if (payment === 'failed') {
-      alert('결제에 실패했습니다. 다시 시도해주세요.');
+      // TEMP DEBUG — shows why the payment failed. Remove once checkout works.
+      const reason = params.get('reason') || 'unknown';
+      const detail = params.get('detail');
+      alert(`결제에 실패했습니다. 다시 시도해주세요.\n[debug] ${reason}${detail ? `\n${detail}` : ''}`);
     }
 
     // Strip the query params so a refresh doesn't re-trigger the alert.

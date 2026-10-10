@@ -122,7 +122,11 @@ export default function TierUpgradeOffer({ teacher, onUpgraded }) {
       // TEMP DEBUG — shows why the payment failed. Remove once checkout works.
       const reason = params.get('reason') || 'unknown';
       const detail = params.get('detail');
-      alert(`결제에 실패했습니다. 다시 시도해주세요.\n[debug] ${reason}${detail ? `\n${detail}` : ''}`);
+      alert(
+        `결제에 실패했습니다. 다시 시도해주세요.\n[debug] ${reason}${detail ? `\n${detail}` : ''}` +
+          `\nstore=${process.env.NEXT_PUBLIC_PORTONE_STORE_ID || '(없음)'}` +
+          `\nchannel=${process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY || '(없음)'}`
+      );
     }
 
     // Strip tier/reason but keep ?tab=pricing so a refresh stays on this tab.

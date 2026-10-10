@@ -25,7 +25,7 @@ export const GET = withCommunityErrors(async function GET(request, { params }) {
   // best-effort IP when logged out). Awaited so the serverless function
   // doesn't freeze before the RPC is sent.
   const viewerKey = viewer ? `user:${viewer.id}` : `ip:${getClientIp(request)}`
-  await supabase.rpc('record_community_post_view', { p_post_id: post.id, p_viewer_key: viewerKey })
+  await supabaseAdmin.rpc('record_community_post_view', { p_post_id: post.id, p_viewer_key: viewerKey })
 
   let isMine = false
   let liked = false

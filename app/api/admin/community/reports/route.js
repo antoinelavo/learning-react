@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { requireAdminUser, withCommunityErrors } from '@/lib/communityAuth'
+import { requireAdminUser, loadAuthors, withCommunityErrors } from '@/lib/communityAuth'
 
 export const GET = withCommunityErrors(async function GET(request) {
   const admin = await requireAdminUser(request)
@@ -37,11 +37,7 @@ export const GET = withCommunityErrors(async function GET(request) {
   const commentById = Object.fromEntries((comments || []).map(c => [c.id, c]))
 
   // Real authors (including anonymous ones) so admins can ban from here.
-  const authorIds = [...new Set([...(posts || []), ...(comments || [])].map(x => x.user_id).filter(Boolean))]
-  const { data: authors } = authorIds.length
-    ? await supabaseAdmin.from('users').select('id, username, email, community_banned_until').in('id', authorIds)
-    : { data: [] }
-  const authorById = Object.fromEntries((authors || []).map(u => [u.id, u]))
+  const authorById = await loadAuthors([...(posts || []), ...(comments || [])].map(x => x.user_id))
 
   const enriched = reports.map(r => {
     const post = r.post_id ? postById[r.post_id] || null : null

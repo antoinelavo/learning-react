@@ -42,7 +42,9 @@ export const POST = withCommunityErrors(async function POST(request) {
   try {
     const urls = await Promise.all(files.map(async (file, i) => {
       const fileExt = EXTENSIONS[file.type]
-      const fileName = `community/${user.id}/${Date.now()}-${i}.${fileExt}`
+      // Random key: the URL is public on anonymous posts, so it must not
+      // contain the uploader's user id.
+      const fileName = `community/${crypto.randomUUID()}.${fileExt}`
       const buffer = Buffer.from(await file.arrayBuffer())
 
       await s3.send(new PutObjectCommand({

@@ -33,9 +33,26 @@ revoke all on community_post_scraps from anon, authenticated;
 grant all on community_post_scraps to service_role;
 
 -- ── Community bans ──────────────────────────────────────────────────
--- Null = not banned. Permanent bans use 9999-12-31.
-alter table public.users
-  add column if not exists community_banned_until timestamptz;
+-- Own table, not a column on `users`: users can update their own `users`
+-- row with the anon key, so a ban stored there could be lifted by the
+-- banned user. Only the service role can touch this table.
+-- Permanent bans use 9999-12-31; lifting a ban deletes the row.
+create table if not exists community_bans (
+  user_id      uuid primary key references auth.users(id) on delete cascade,
+  banned_until timestamptz not null,
+  banned_by    uuid references auth.users(id) on delete set null,
+  created_at   timestamptz not null default now()
+);
+
+alter table community_bans enable row level security;
+revoke all on community_bans from anon, authenticated;
+grant all on community_bans to service_role;
+
+-- ── View counting: server only ──────────────────────────────────────
+-- The API calls this with the service role; anon could otherwise call it
+-- directly with made-up viewer keys and inflate view counts.
+revoke execute on function record_community_post_view(uuid, text) from public, anon, authenticated;
+grant execute on function record_community_post_view(uuid, text) to service_role;
 
 -- ── Public read view: add is_pinned, hide test teachers' identity ───
 -- Dropped and recreated because new columns are added mid-list.

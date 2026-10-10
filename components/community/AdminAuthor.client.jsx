@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Select } from '@/components/ui';
 import { communityAuthHeaders } from '@/lib/communityClient';
 import { formatKstDate } from '@/lib/community';
@@ -20,7 +20,12 @@ function activeBan(until) {
 // and a control to ban them from the community.
 export default function AdminAuthor({ author }) {
   const [duration, setDuration] = useState('7');
-  const [bannedUntil, setBannedUntil] = useState(activeBan(author?.community_banned_until));
+  const [bannedUntil, setBannedUntil] = useState(activeBan(author?.banned_until));
+
+  // The author often arrives after mount (fetched by the parent).
+  useEffect(() => {
+    setBannedUntil(activeBan(author?.banned_until));
+  }, [author?.id, author?.banned_until]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -38,7 +43,7 @@ export default function AdminAuthor({ author }) {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || '처리에 실패했습니다.');
-      setBannedUntil(activeBan(json.community_banned_until));
+      setBannedUntil(activeBan(json.banned_until));
     } catch (err) {
       setError(err.message);
     } finally {

@@ -49,7 +49,8 @@ export const POST = withCommunityErrors(async function POST(request) {
     const { error } = await supabaseAdmin
       .from(likesTable)
       .insert({ [idColumn]: targetId, user_id: user.id })
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    // 23505 = a concurrent request (double tap) already inserted it.
+    if (error && error.code !== '23505') return NextResponse.json({ error: error.message }, { status: 500 })
     liked = true
   }
 

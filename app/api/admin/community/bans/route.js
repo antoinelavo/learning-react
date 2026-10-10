@@ -26,14 +26,15 @@ export const POST = withCommunityErrors(async function POST(request) {
       ? PERMANENT_BAN_UNTIL
       : new Date(Date.now() + DURATIONS[duration] * 24 * 60 * 60 * 1000).toISOString()
 
-  const { data, error } = await supabaseAdmin
-    .from('users')
-    .update({ community_banned_until: bannedUntil })
-    .eq('id', userId)
-    .select('id, community_banned_until')
-    .maybeSingle()
+  const { data: target } = await supabaseAdmin.from('users').select('id').eq('id', userId).maybeSingle()
+  if (!target) return NextResponse.json({ error: '사용자를 찾을 수 없습니다.' }, { status: 404 })
+
+  const { error } = bannedUntil
+    ? await supabaseAdmin
+        .from('community_bans')
+        .upsert({ user_id: userId, banned_until: bannedUntil, banned_by: admin.id, created_at: new Date().toISOString() })
+    : await supabaseAdmin.from('community_bans').delete().eq('user_id', userId)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  if (!data) return NextResponse.json({ error: '사용자를 찾을 수 없습니다.' }, { status: 404 })
-  return NextResponse.json(data)
+  return NextResponse.json({ user_id: userId, banned_until: bannedUntil })
 })

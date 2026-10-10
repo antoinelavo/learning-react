@@ -1,16 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { requireAdminUser, withCommunityErrors } from '@/lib/communityAuth'
-
-async function loadAuthors(userIds) {
-  const ids = [...new Set(userIds.filter(Boolean))]
-  if (!ids.length) return {}
-  const { data } = await supabaseAdmin
-    .from('users')
-    .select('id, username, email, community_banned_until')
-    .in('id', ids)
-  return Object.fromEntries((data || []).map(u => [u.id, u]))
-}
+import { requireAdminUser, loadAuthors, withCommunityErrors } from '@/lib/communityAuth'
 
 // Real authors of a post and its comments, including anonymous ones.
 // Returns { post: { id, is_pinned, author }, commentAuthors: { [commentId]: author } }

@@ -25,7 +25,7 @@ Finish the community board started on `claude/community-board-system-u6fkyq` and
 - **Admin tools:**
   - Hide or delete any post or comment from the post page (admin only) and from `/admin/community/reports`. Both are soft deletes using `deleted_at`, shown as "관리자에 의해 삭제된 게시글입니다." / "…댓글입니다."
   - Admins see the real author of anonymous posts and comments.
-  - Ban a user for 7 days, 30 days or permanently, using `users.community_banned_until`. Permanent is stored as a far-future date.
+  - Ban a user for 7 days, 30 days or permanently, stored in a new service-role-only `community_bans` table (not on `users`, which users can update themselves). Permanent is stored as a far-future date.
 - **Ban behavior:** a banned user can still read. Every write route (post, comment, like, scrap, report, image upload) returns 403, and the UI shows "커뮤니티 이용이 제한되었습니다 (YYYY-MM-DD까지)".
 - **SEO:** each post gets `generateMetadata` (title, description, canonical, Open Graph) and `DiscussionForumPosting` JSON-LD. The feed page gets a canonical URL.
 - **Remove the legacy community pieces:**
@@ -37,7 +37,7 @@ Finish the community board started on `claude/community-board-system-u6fkyq` and
 - **One new migration** `supabase/migrations/<date>_community_launch.sql`. It adds:
   - `is_pinned`
   - `community_post_scraps` with RLS enabled
-  - `users.community_banned_until`
+  - `community_bans` (service-role only)
   - updates to `community_posts_public` to expose `is_pinned`
   - dropping `posts` and `increment_post_views`
   It also copies the two branch migrations that are already applied in the live DB as-is.
@@ -69,15 +69,15 @@ Finish the community board started on `claude/community-board-system-u6fkyq` and
 - Work on `claude/init-tfsut8` and open a PR. Never push to `main`.
 
 ## Done when
-- [ ] The branch contains the community rebuild merged with current `main`, and there are no conflict markers.
-- [ ] `npm run build` passes, using placeholder env values plus a placeholder `SUPABASE_SERVICE_ROLE_KEY`.
-- [ ] Every community write route verifies a bearer token and returns 401 without one and 403 for a banned user (checked by reading the code).
-- [ ] The feed shows pinned posts first, the 인기글 tab uses the 7-day formula, `?q=` searches title and content, and `?page=` paginates 20 per page.
-- [ ] Admins can pin or unpin, hide or delete any post or comment, see anonymous authors, and ban for 7, 30 or permanent days. These controls don't render for non-admins, and their API routes reject non-admins.
-- [ ] Scrap toggles on a post, and `/community/me` lists my posts, comments and scraps.
-- [ ] Post pages render metadata, a canonical URL and `DiscussionForumPosting` JSON-LD.
-- [ ] `/community/[slug]`, `/admin/posts`, `app/api/admin/posts/*` and the announcements strip are gone, and nothing imports them.
-- [ ] The new migration file exists and covers `is_pinned`, `community_post_scraps` with RLS, `community_banned_until`, the view update, and dropping `posts`.
-- [ ] Community and admin-community files use `components/ui` for all buttons, chips, tabs and form fields. Grep finds no `→`/`←` in their labels and no hand-rolled `<button className="bg-...">` styles.
-- [ ] The nav links are still commented out and `/community` is not in `public/sitemap.xml`.
-- [ ] `TODO.md` lists the launch steps: run the migration, set `SUPABASE_SERVICE_ROLE_KEY` in Vercel, delete the 2 test posts, uncomment the nav links, add `/community` and posts to the sitemap.
+- [x] The branch contains the community rebuild merged with current `main`, and there are no conflict markers.
+- [x] `npm run build` passes, using placeholder env values plus a placeholder `SUPABASE_SERVICE_ROLE_KEY`.
+- [x] Every community write route verifies a bearer token and returns 401 without one and 403 for a banned user (checked by reading the code).
+- [x] The feed shows pinned posts first, the 인기글 tab uses the 7-day formula, `?q=` searches title and content, and `?page=` paginates 20 per page.
+- [x] Admins can pin or unpin, hide or delete any post or comment, see anonymous authors, and ban for 7, 30 or permanent days. These controls don't render for non-admins, and their API routes reject non-admins.
+- [x] Scrap toggles on a post, and `/community/me` lists my posts, comments and scraps.
+- [x] Post pages render metadata, a canonical URL and `DiscussionForumPosting` JSON-LD.
+- [x] `/community/[slug]`, `/admin/posts`, `app/api/admin/posts/*` and the announcements strip are gone, and nothing imports them.
+- [x] The new migration file exists and covers `is_pinned`, `community_post_scraps` with RLS, `community_bans`, the view update, and dropping `posts`.
+- [x] Community and admin-community files use `components/ui` for all buttons, chips, tabs and form fields. Grep finds no `→`/`←` in their labels and no hand-rolled `<button className="bg-...">` styles.
+- [x] The nav links are still commented out and `/community` is not in `public/sitemap.xml`.
+- [x] `TODO.md` lists the launch steps: run the migration, set `SUPABASE_SERVICE_ROLE_KEY` in Vercel, delete the 2 test posts, uncomment the nav links, add `/community` and posts to the sitemap.

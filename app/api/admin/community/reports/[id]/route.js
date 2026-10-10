@@ -23,19 +23,27 @@ export const PATCH = withCommunityErrors(async function PATCH(request, { params 
   if (reportError) return NextResponse.json({ error: reportError.message }, { status: 500 })
 
   if (body.deleteContent) {
-    if (report.post_id) {
-      await supabaseAdmin
-        .from('community_posts')
-        .update({ deleted_at: new Date().toISOString(), deleted_by_admin: true, is_pinned: false })
-        .eq('id', report.post_id)
-        .is('deleted_at', null)
-    } else if (report.comment_id) {
-      await supabaseAdmin
-        .from('community_comments')
-        .update({ deleted_at: new Date().toISOString(), deleted_by_admin: true })
-        .eq('id', report.comment_id)
-        .is('deleted_at', null)
-    }
+    const now = new Date().toISOString()
+    const { error: deleteError } = report.post_id
+      ? await supabaseAdmin
+          .from('community_posts')
+          .update({ deleted_at: now, deleted_by_admin: true, is_pinned: false })
+          .eq('id', report.post_id)
+          .is('deleted_at', null)
+      : await supabaseAdmin
+          .from('community_comments')
+          .update({ deleted_at: now, deleted_by_admin: true })
+          .eq('id', report.comment_id)
+          .is('deleted_at', null)
+    if (deleteError) return NextResponse.json({ error: deleteError.message }, { status: 500 })
+
+    // Other pending reports on the same content are resolved with it.
+    const target = report.post_id ? { post_id: report.post_id } : { comment_id: report.comment_id }
+    await supabaseAdmin
+      .from('community_reports')
+      .update({ status: 'resolved', resolved_by: admin.id, resolved_at: now })
+      .match(target)
+      .eq('status', 'pending')
   }
 
   return NextResponse.json({ success: true })

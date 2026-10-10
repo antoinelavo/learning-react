@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
-import { getCommunityUser, withCommunityErrors } from '@/lib/communityAuth'
+import { getCommunityUser, getActiveBan, withCommunityErrors } from '@/lib/communityAuth'
 import { PAGE_SIZE } from '@/lib/community'
 
 // 내 활동. GET ?tab=posts|comments|scraps|status&page=N
@@ -16,13 +16,7 @@ export const GET = withCommunityErrors(async function GET(request) {
   const to = from + PAGE_SIZE - 1
 
   if (tab === 'status') {
-    const { data } = await supabaseAdmin
-      .from('users')
-      .select('community_banned_until')
-      .eq('id', user.id)
-      .single()
-    const until = data?.community_banned_until
-    return NextResponse.json({ banned_until: until && new Date(until) > new Date() ? until : null })
+    return NextResponse.json({ banned_until: await getActiveBan(user.id) })
   }
 
   let query

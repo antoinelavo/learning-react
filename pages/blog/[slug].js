@@ -170,17 +170,18 @@ export default function BlogPost({ slug, frontmatter, mdxHtml, mdxSource, toc, i
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "Article",
+              "@type": "BlogPosting",
               headline: frontmatter.title,
               description: frontmatter.description,
               datePublished: frontmatter.date,
-              author: { "@type": "Person", name: "IB Master" },
+              mainEntityOfPage: `https://www.ibmaster.net/blog/${encodeURIComponent(slug)}`,
+              author: { "@type": "Organization", name: "IB Master", url: "https://www.ibmaster.net" },
               publisher: {
                 "@type": "Organization",
                 name: "IB Master",
-                logo: { "@type": "ImageObject" },
+                logo: { "@type": "ImageObject", url: "https://www.ibmaster.net/images/mainlogo.jpg" },
               },
-            }),
+            }).replace(/</g, '\\u003c'),
           }}
         />
       </Head>

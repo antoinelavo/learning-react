@@ -9,6 +9,7 @@ IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, wi
 - Next.js 15, React 19, plain JavaScript (no TypeScript). Tailwind CSS 3.
 - Both routers are in use. Most pages and all real API routes are in `app/`. The blog post page (`pages/blog/[slug].js`) and teacher profile page (`pages/profile/[name].js`) are still in `pages/`. `pages/api/hello.js` is leftover boilerplate.
 - `next.config.js` sets `pageExtensions: ['js', 'jsx']`, so only `.js`/`.jsx` files become routes (a `.ts` or `.mdx` page file is ignored). Every `.js` file under `pages/` is a route, so `pages/profile/ContactButton.js` is also served at `/profile/ContactButton`; put new shared components in `components/`.
+- Both `postcss.config.js` and `postcss.config.mjs` exist with identical content; edit both or remove one.
 - **Admin pages** (`app/admin/`) check `role === 'admin'` on the client only (via `useAuth`). Real protection has to come from RLS.
 - Supabase for auth and database. The shared client is in `lib/supabase.js`. File storage is Cloudflare R2 via `@aws-sdk/client-s3` (`app/api/upload-profile-picture`), not Supabase storage.
 - Toss Payments for payments (`lib/toss.js`). NicePay is legacy and can be removed if it gets in the way.
@@ -20,14 +21,16 @@ IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, wi
 - `npm run dev` starts the dev server on port 3000.
 - `npm run build` is the main check. There are no tests and no ESLint config (`npm run lint` is not set up). The build needs `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `RESEND_API_KEY` (`lib/supabase.js` and the Resend client throw at import without them). Placeholder values are enough for a build check; Supabase `fetch failed` logs are then expected.
 - **SEO blog routine:** a weekly Claude Code routine follows `content/seo/routine-prompt.md`, takes the next `planned` keyword from `content/seo/keywords.md`, writes one post per `content/seo/guide.md`, and opens a PR.
+- **SEO audit routine:** a weekly routine (Thursday 9am KST) follows `content/seo/audit-routine-prompt.md`: regenerates the sitemap, fixes SEO-only issues (metadata, JSON-LD, `robots.txt`, up to 5 blog posts' frontmatter and internal links), and opens a `seo-audit:` PR. Reports go in `content/seo/audits/`. Needs `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `PAGESPEED_API_KEY` in the routine's environment.
 - `ANALYZE=true npm run build` opens the bundle analyzer.
-- `node scripts/generate-sitemap.js` rebuilds `public/sitemap.xml`. It needs `.env.local`.
+- `node scripts/generate-sitemap.js` rebuilds `public/sitemap.xml`. It reads the Supabase URL and anon key from the environment or `.env.local`, and exits non-zero (without writing) if the teacher fetch fails.
 
 ## Architecture
 
 - **Anon key everywhere.** The shared client is `lib/supabase.js`; a few files (`app/api/cron/daily-digest`, `notify-subscribers`, `app/api/dashboard/*`, `pages/profile/ContactButton.js`) create their own, also with the anon key. There is no service-role client, even in API routes. Server-side writes therefore depend on RLS policies and on Postgres RPCs (`activate_plus_tier`, `reveal_student_job`, `get_or_create_conversation`, etc.) defined in `supabase/migrations/`. If a write fails silently, check RLS first.
 - **Auth and chat state** live in React contexts (`contexts/AuthContext.jsx`, `contexts/ChatContext.jsx`), wired up in `components/Providers.client.jsx`. Chat data access is in `lib/chat/chatClient.js`.
 - **Payments are idempotent by design.** Each purchase type has a success route and a webhook (`app/api/toss/success|webhook` for premium listings, `tier-success|tier-webhook` for the 플러스 tier). Both call the same activation function (`lib/premiumActivation.js`, `lib/tierActivation.js`), which only flips a `payments` row from `pending` to `paid` once. Keep that guard if you touch these.
+- **Teacher tiers and reveals:** teachers browse student requests (`student_jobs`) and "reveal" contact info. Free tier gets 2 reveals per rolling 30 days; 플러스 is unlimited. The limit is enforced only in the `reveal_student_job` RPC (`20260924_teacher_tier_system.sql`); `lib/reveal.js` is a client wrapper and its remaining-count is display-only.
 - **Blog** is MDX files in `content/blog/`, read from disk at build time by `pages/blog/[slug].js` (`getStaticPaths`/`getStaticProps`). The index is `app/blog/page.jsx`.
 - **Teacher profiles** are ISR (`revalidate: 60`, `fallback: 'blocking'`) from the Supabase teachers table.
 - **Test teachers:** rows with `teachers.is_test = true` are excluded from `/find` (`app/find/TeacherList.jsx`) and from profile pages. Keep that filter on any new public teacher query.

@@ -26,6 +26,7 @@ Repository: `antoinelavo/learning-react` (IBMaster, ibmaster.net). Read `CLAUDE.
 
 - Search the web for the keyword in Korean. Look at what currently ranks: which questions it answers and what it misses.
 - Verify every changeable fact (dates, fees, rules, score policies, school or university lists) against an official or primary source (ibo.org, collegeboard.org, adiga.kr / 대교협, university admissions pages, 교육부 / 교육청, school sites).
+- ibo.org blocks direct access from this environment (Cloudflare bot check, `403`). Don't retry it or try to get around it. Use search results that quote ibo.org pages, and cite the ibo.org URL they show. If an IB fact can't be confirmed that way or from another official source (a school or university site), leave it out.
 - Keep a list: claim → source URL. If a claim can't be verified, leave it out of the post.
 - Use repo data where it fits: hagwon listings in `data/hagwons.js` and `data/sat-hagwons.js`, and fees in `data/hagwon-neis.json`.
 

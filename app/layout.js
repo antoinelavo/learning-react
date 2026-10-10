@@ -13,7 +13,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="ko">
       <head>
         {/* Noto Sans KR — loaded async to avoid render-blocking 24 KiB of @font-face CSS */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

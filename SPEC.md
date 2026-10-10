@@ -32,7 +32,8 @@ Finish the community board started on `claude/community-board-system-u6fkyq` and
   - the announcements strip on `/community` (blog MDX + old `posts` table)
   - `/community/[slug]`, `/admin/posts` and `app/api/admin/posts/*`
   - the old `posts` table and `increment_post_views` (dropped in the migration)
-  - Add a single "블로그 보기 →" link to `/blog` on the feed.
+  - Add a single "블로그 보기" secondary button linking to `/blog` on the feed.
+- **UI consistency pass** over every community and admin-community screen (including the branch's existing ones) so they match `/find` and `/hagwons` (see Rules).
 - **One new migration** `supabase/migrations/<date>_community_launch.sql`. It adds:
   - `is_pinned`
   - `community_post_scraps` with RLS enabled
@@ -58,6 +59,12 @@ Finish the community board started on `claude/community-board-system-u6fkyq` and
 - Approved teachers posting non-anonymously show their teacher name, photo and badge, linked to `/profile/[name]`. Exclude `is_test` teachers from that link.
 - Deleted and hidden content never appears in feeds, search, 인기글 or 내 활동 (except to show the owner a "삭제됨" entry).
 - Site text is Korean; code and comments are English.
+- **UI matches `/find` and `/hagwons`:**
+  - Use the shared kit in `components/ui`: `Button`/`buttonClasses` for every action, `chipClasses` for board filters, `Tabs` for 전체/인기글 and the 내 활동 tabs, `Input`/`Select`/`Textarea` for forms, `cardClasses`, `Badge` and `Notice`.
+  - No text links styled as actions, no arrow glyphs (`→`, `←`, `›`) in button or link labels, and no one-off color or size classes on buttons.
+  - Back navigation is a `secondary` or `ghost` `Button`, e.g. "목록으로".
+  - Page shell matches `/find`: `max-w-3xl mx-auto px-4 py-4`, `h1` `text-lg sm:text-xl font-bold text-gray-900`.
+  - Empty states use the same style as `/find`'s `text-center text-sm text-gray-400`.
 - Mobile first: the feed, post page, write form and 내 활동 work at 375px width with no horizontal scroll.
 - Work on `claude/init-tfsut8` and open a PR. Never push to `main`.
 
@@ -71,5 +78,6 @@ Finish the community board started on `claude/community-board-system-u6fkyq` and
 - [ ] Post pages render metadata, a canonical URL and `DiscussionForumPosting` JSON-LD.
 - [ ] `/community/[slug]`, `/admin/posts`, `app/api/admin/posts/*` and the announcements strip are gone, and nothing imports them.
 - [ ] The new migration file exists and covers `is_pinned`, `community_post_scraps` with RLS, `community_banned_until`, the view update, and dropping `posts`.
+- [ ] Community and admin-community files use `components/ui` for all buttons, chips, tabs and form fields. Grep finds no `→`/`←` in their labels and no hand-rolled `<button className="bg-...">` styles.
 - [ ] The nav links are still commented out and `/community` is not in `public/sitemap.xml`.
 - [ ] `TODO.md` lists the launch steps: run the migration, set `SUPABASE_SERVICE_ROLE_KEY` in Vercel, delete the 2 test posts, uncomment the nav links, add `/community` and posts to the sitemap.

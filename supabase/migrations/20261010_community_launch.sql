@@ -55,17 +55,17 @@ revoke execute on function record_community_post_view(uuid, text) from public, a
 grant execute on function record_community_post_view(uuid, text) to service_role;
 
 -- ── Public read view: add is_pinned, hide test teachers' identity ───
--- Dropped and recreated because new columns are added mid-list.
-drop view if exists community_posts_public;
-create view community_posts_public
+-- is_pinned is appended last so this can be create-or-replace (no drop).
+create or replace view community_posts_public
   with (security_barrier) as
   select
     p.id, p.slug, p.category, p.title, p.content, p.is_anonymous,
     p.image_urls, p.view_count, p.like_count, p.comment_count,
-    p.is_pinned, p.created_at, p.updated_at,
+    p.created_at, p.updated_at,
     case when p.is_anonymous then null else u.username end as author_username,
     case when p.is_anonymous then null else t.name end as teacher_name,
-    case when p.is_anonymous then null else t.profile_picture end as teacher_profile_picture
+    case when p.is_anonymous then null else t.profile_picture end as teacher_profile_picture,
+    p.is_pinned
   from community_posts p
   left join public.users u on u.id = p.user_id
   left join teachers t

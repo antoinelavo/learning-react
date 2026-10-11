@@ -34,9 +34,9 @@ Publish six useful resource posts to `/community` as the `Admin` account, one po
 - Writes to the production DB through the service-role key. This touches no migrations or RLS.
 
 ## Done when
-- [ ] Six Markdown files exist in `content/community-seed/` with valid frontmatter and categories from `CATEGORY_LIST`.
-- [ ] `node scripts/community-seed.mjs` with no arg, or with `7`, exits non-zero with a usage message.
-- [ ] Without Supabase env vars, the script exits non-zero with a clear error.
-- [ ] Code review confirms the `Admin` role check and duplicate-title check run before any insert.
-- [ ] Post #1 inserts with `is_pinned: true`, and the others with `false`.
-- [ ] `npm run build` passes.
+- [x] Six Markdown files exist in `content/community-seed/` with valid frontmatter and categories from `CATEGORY_LIST`.
+- [x] `node scripts/community-seed.mjs` with no arg, or with `7`, exits non-zero with a usage message.
+- [x] Without Supabase env vars, the script exits non-zero with a clear error.
+- [x] Code review confirms the `Admin` role check and duplicate-title check run before any insert.
+- [x] Post #1 inserts with `is_pinned: true`, and the others with `false`.
+- [x] `npm run build` passes.

@@ -3,7 +3,7 @@ import { Badge, Notice, cardClasses } from '@/components/ui'
 import { CategoryBadges } from '@/components/community/CategoryBadge'
 import { listSeedFiles, loadSeedPost } from '@/lib/communitySeed'
 
-// Dev-only (page.dev.jsx, see next.config.js) list of the admin seed posts in content/community-seed/.
+// Dev and Vercel preview only (page.dev.jsx, see next.config.js) list of the admin seed posts in content/community-seed/.
 export const dynamic = 'force-dynamic'
 export const metadata = { title: '시드 게시글 미리보기', robots: { index: false } }
 
@@ -12,7 +12,9 @@ export default function CommunitySeedPreviewListPage() {
 
   return (
     <main className="max-w-3xl mx-auto px-4 py-4 min-h-screen">
-      <Notice color="yellow" className="mb-4">미리보기: 아직 게시되지 않은 글입니다.</Notice>
+      <Notice color="yellow" className="mb-4 font-semibold">
+        미리보기: 아직 게시되지 않은 글입니다. 실제 사이트에는 보이지 않아요.
+      </Notice>
 
       <ul className="flex flex-col gap-3 list-none p-0 m-0">
         {seeds.map(({ n, file, post, error }) => (
@@ -21,6 +23,7 @@ export default function CommunitySeedPreviewListPage() {
               <Link href={`/community/preview/${n}`} className={`${cardClasses({ padding: 'md' })} block no-underline hover:bg-gray-50`}>
                 <div className="flex flex-wrap items-center gap-1.5">
                   <span className="text-xs font-semibold text-gray-400 mr-1">#{n}</span>
+                  <Badge color="purple">미리보기</Badge>
                   {post.pinned && <Badge color="red">공지</Badge>}
                   <CategoryBadges post={post} />
                 </div>
@@ -35,6 +38,9 @@ export default function CommunitySeedPreviewListPage() {
           </li>
         ))}
       </ul>
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 rounded-full bg-purple-600 text-white text-sm font-semibold px-4 py-2 shadow-lg pointer-events-none">
+        미리보기 모드
+      </div>
     </main>
   )
 }

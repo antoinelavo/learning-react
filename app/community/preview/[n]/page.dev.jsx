@@ -8,7 +8,7 @@ import { communityMarkdownToHtml } from '@/lib/communityMarkdown'
 import { formatKstDate } from '@/lib/community'
 import { loadSeedPost } from '@/lib/communitySeed'
 
-// Dev-only (page.dev.jsx, see next.config.js) preview of one admin seed post, laid out like
+// Dev and Vercel preview only (page.dev.jsx, see next.config.js) preview of one admin seed post, laid out like
 // app/community/post/[slug]/page.jsx. Reads from disk only.
 export const dynamic = 'force-dynamic'
 
@@ -39,11 +39,14 @@ export default async function CommunitySeedPreviewPage({ params }) {
     <main className="max-w-3xl mx-auto px-4 py-4 min-h-screen mb-16">
       <BackButton href="/community/preview" />
 
-      <Notice color="yellow" className="mb-4">미리보기: 아직 게시되지 않은 글입니다.</Notice>
+      <Notice color="yellow" className="mb-4 font-semibold">
+        미리보기: 아직 게시되지 않은 글입니다. 실제 사이트에는 보이지 않아요.
+      </Notice>
 
       <article className={cardClasses({ padding: 'md' })}>
         <header className="mb-6">
           <div className="flex flex-wrap items-center gap-1.5">
+            <Badge color="purple">미리보기</Badge>
             {post.pinned && <Badge color="red">공지</Badge>}
             <CategoryBadges post={post} />
           </div>
@@ -63,6 +66,9 @@ export default async function CommunitySeedPreviewPage({ params }) {
           dangerouslySetInnerHTML={{ __html: html }}
         />
       </article>
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 rounded-full bg-purple-600 text-white text-sm font-semibold px-4 py-2 shadow-lg pointer-events-none">
+        미리보기 모드
+      </div>
     </main>
   )
 }

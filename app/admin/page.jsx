@@ -44,6 +44,14 @@ export default function AdminPage() {
   return (
     <div className="max-w-screen-lg mx-auto pt-6 sm:pt-8 px-4 mb-[20dvh]">
       <div className="flex flex-wrap justify-end gap-2 mb-3">
+        {process.env.NEXT_PUBLIC_SEED_PREVIEW === '1' && (
+          <Link
+            href="/community/preview"
+            className={buttonClasses({ variant: 'tinted', size: 'sm' })}
+          >
+            시드 게시글 미리보기
+          </Link>
+        )}
         <Link
           href="/admin/community/reports"
           className={buttonClasses({ variant: 'tinted', size: 'sm' })}

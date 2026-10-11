@@ -38,11 +38,8 @@ export default async function CommunityPage({ searchParams }) {
   return (
     <FeedNavigationProvider>
       <main className="max-w-3xl mx-auto px-4 pt-4 pb-32 min-h-screen">
-        <div className="flex items-start justify-between gap-3 mb-4">
-          <div className="min-w-0">
-            <h1 className="text-lg sm:text-xl font-bold text-gray-900 mt-0 mb-1 leading-snug">국제학교 입시 커뮤니티</h1>
-            <p className="text-sm text-gray-500 m-0">IB, SAT, 특례입학 정보와 질문을 나눠보세요.</p>
-          </div>
+        <div className="flex items-center justify-between gap-3 mb-3 min-h-[36px]">
+          <h1 className="text-base sm:text-lg font-bold text-gray-900 m-0 leading-snug">IB·SAT 입시 커뮤니티</h1>
           <CommunityHeaderActions />
         </div>
 

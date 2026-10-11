@@ -2,18 +2,16 @@
 
 ## Community Board
 
-Built and hidden: `/community` works but is not in the nav or sitemap.
+`/community` is in the nav but not yet in the sitemap.
 
 Launch checklist, in order:
-1. Run `supabase/migrations/20261010_community_launch.sql` in the Supabase dashboard (SQL Editor).
-   The two earlier community migrations (`20260908_…`, `20260927_…`) are already applied.
-   Pinning, scraps, bans and the admin-deleted label fail until this runs.
+1. `20261010_community_launch.sql` is applied except its last three cleanup lines
+   (drop `increment_community_post_views`, `increment_post_views` and the empty `posts`
+   table). Run those in the Supabase SQL Editor.
 2. Add `SUPABASE_SERVICE_ROLE_KEY` to `.env.local` and to Vercel (Production + Preview).
    Every `/api/community/*` route needs it (`lib/supabaseAdmin.js`).
 3. Delete the 2 test posts ("as", "sdf") in `community_posts`.
-4. Uncomment the 커뮤니티 links in `components/DesktopNav.client.jsx` and
-   `components/MobileMenuToggle.client.jsx`.
-5. Add `/community` and `/community/post/[slug]` pages to `scripts/generate-sitemap.js`
+4. Add `/community` and `/community/post/[slug]` pages to `scripts/generate-sitemap.js`
    and regenerate `public/sitemap.xml`.
 
 Follow-ups not in this build: reply/comment notifications, member grades and 등업,

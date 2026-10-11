@@ -18,18 +18,17 @@ export default function DesktopNav() {
 
   return (
     <nav className="flex justify-center">
-      <ul className="menu_items flex gap-[30px] items-center">
-        {/* 커뮤니티 — hidden until launch
-        <li className="px-5">
-          <a href="/blog" className="text-sm text-black font-normal hover:text-blue-500">
+      <ul className="menu_items flex gap-1 xl:gap-4 items-center whitespace-nowrap">
+        {/* 커뮤니티 — everyone */}
+        <li className="px-3">
+          <a href="/community" className="text-sm text-black font-normal hover:text-blue-500">
             커뮤니티
           </a>
         </li>
-        */}
 
         {/* 선생님 찾기 — not for teachers */}
         {!isTeacher && (
-          <li className="px-5">
+          <li className="px-3">
             <a href="/find" className="text-sm text-black font-normal hover:text-blue-500">
               선생님 찾기
             </a>
@@ -38,7 +37,7 @@ export default function DesktopNav() {
 
         {/* 학생 찾기 — not for students */}
         {!isStudent && (
-          <li className="px-5">
+          <li className="px-3">
             <a href="/students" className="text-sm text-black font-normal hover:text-blue-500">
               학생 찾기
             </a>
@@ -49,7 +48,7 @@ export default function DesktopNav() {
             sign up as a teacher; students and teachers both have no use
             for it (내 정보 already routes an unapproved teacher to /apply). */}
         {!isStudent && !isTeacher && (
-          <li className="px-5">
+          <li className="px-3">
             <a href="/apply" className="text-sm text-black font-normal hover:text-blue-500">
               선생님 등록하기
             </a>
@@ -58,7 +57,7 @@ export default function DesktopNav() {
 
         {/* 학원 추천 (with dropdown) — not for teachers */}
         {!isTeacher && (
-          <li className="px-5 relative group">
+          <li className="px-3 relative group">
             <button className="text-sm text-black font-normal hover:text-blue-500 flex items-center gap-1">
               학원 추천
               <svg

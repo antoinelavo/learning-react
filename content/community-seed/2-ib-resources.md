@@ -1,5 +1,5 @@
 ---
-title: "IB 필수 자료 모음 (공식 사이트 위주)"
+title: "IB 필수 자료 모음"
 categories: ["IB", "정보공유"]
 pinned: false
 ---

@@ -1,5 +1,5 @@
 ---
-title: "SAT 준비 공식 자료 정리 (무료 자료 포함)"
+title: "SAT 준비 자료 정리"
 categories: ["SAT", "정보공유"]
 pinned: false
 ---

@@ -15,7 +15,8 @@ const ROLE_LABELS = {
 
 // Renders an author's name and a role pill (`role` is null for anonymous
 // authors). Approved teachers also get their profile photo, the verified
-// badge, and a link to /profile/[name].
+// badge, and a link to /profile/[name]. `showBadge={false}` hides the pill
+// (the feed list, to keep cards uncluttered).
 export default function AuthorLine({
   name,
   isTeacher,
@@ -25,6 +26,7 @@ export default function AuthorLine({
   size = 'sm',
   className = '',
   linkable = true,
+  showBadge = true,
 }) {
   const avatarPx = size === 'sm' ? 16 : 28
   const textClass = size === 'sm' ? 'text-xs' : 'text-sm'
@@ -50,7 +52,7 @@ export default function AuthorLine({
         />
       )}
       {nameEl}
-      {isTeacher ? (
+      {!showBadge ? null : isTeacher ? (
         <VerifiedBadge />
       ) : ROLE_LABELS[role] ? (
         <Badge color="gray" className="px-1.5 shrink-0">{ROLE_LABELS[role]}</Badge>

@@ -41,9 +41,9 @@ export default function PostListItem({ post, rank }) {
           <AuthorLine
             name={post.author_display_name}
             isTeacher={post.is_teacher}
-            role={post.author_role}
             profilePicture={post.author_profile_picture}
             linkable={false}
+            showBadge={false}
             className="truncate"
           />
           <span aria-hidden="true">·</span>

@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import RequestBoardHeader from '@/components/RequestBoardHeader';
 import HagwonNewsletterPopup from '@/components/HagwonNewsletterPopup';
 import { Input, Button, choiceClasses, cardClasses, Badge, Notice } from '@/components/ui';
+import { HAGWON_REQUEST_PUBLIC_COLUMNS, hashPassword } from '@/lib/requestColumns';
 
 export default function HagwonRequestsPageClient() {
   const [requests, setRequests] = useState([]);
@@ -17,12 +18,30 @@ export default function HagwonRequestsPageClient() {
   const [editingRequestId, setEditingRequestId] = useState(null);
   const [passwordInput, setPasswordInput] = useState('');
   const [passwordVerified, setPasswordVerified] = useState(false);
+  const [verifiedHash, setVerifiedHash] = useState(null);
   const [newStatus, setNewStatus] = useState('OPEN');
   const [modalError, setModalError] = useState('');
   const [saving, setSaving] = useState(false);
   const [showFeedbackQuestion, setShowFeedbackQuestion] = useState(false);
   const [viewedListings, setViewedListings] = useState(new Set());
   const [showContactModal, setShowContactModal] = useState(false);
+  // Contact info per request id. Returned by the server only for hagwon
+  // accounts on open requests.
+  const [contacts, setContacts] = useState({});
+
+  useEffect(() => {
+    const id = expandedRequestId;
+    if (!id || role !== 'hagwon' || contacts[id]) return;
+    const request = requests.find((r) => r.id === id);
+    if (!request || request.status !== 'OPEN') return;
+    supabase
+      .rpc('get_hagwon_request_contact', { p_request_id: id })
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (error) console.error('Error loading contact:', error);
+        else if (data) setContacts((prev) => ({ ...prev, [id]: data }));
+      });
+  }, [expandedRequestId, role, requests, contacts]);
 
   useEffect(() => {
     async function loadRequests() {
@@ -31,7 +50,7 @@ export default function HagwonRequestsPageClient() {
 
       const { data, error: dbError } = await supabase
         .from('hagwon_requests')
-        .select('*')
+        .select(HAGWON_REQUEST_PUBLIC_COLUMNS)
         .order('created_at', { ascending: false });
 
       // Sort OPEN listings before CLOSED, then by creation date
@@ -84,14 +103,6 @@ export default function HagwonRequestsPageClient() {
     }
   };
 
-  async function hashPassword(password) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  }
-
   async function handleVerifyPassword() {
     if (!passwordInput.trim()) {
       setModalError('비밀번호를 입력해 주세요.');
@@ -99,18 +110,31 @@ export default function HagwonRequestsPageClient() {
     }
 
     const request = requests.find(r => r.id === editingRequestId);
-    if (!request || !request.edit_password_hash) {
+    if (!request) {
       setModalError('비밀번호를 확인할 수 없습니다.');
       return;
     }
 
     const enteredHash = await hashPassword(passwordInput.trim());
 
-    if (enteredHash !== request.edit_password_hash) {
+    // An empty change set only checks the password server-side.
+    const { data: match, error: verifyError } = await supabase.rpc('update_hagwon_request_with_password', {
+      p_id: editingRequestId,
+      p_password_hash: enteredHash,
+      p_changes: {},
+    });
+
+    if (verifyError) {
+      console.error('Error verifying password:', verifyError);
+      setModalError('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+    if (!match) {
       setModalError('비밀번호가 올바르지 않습니다.');
       return;
     }
 
+    setVerifiedHash(enteredHash);
     setPasswordVerified(true);
     setNewStatus(request.status);
     setModalError('');
@@ -124,12 +148,13 @@ export default function HagwonRequestsPageClient() {
     const isChangingToClosed = request?.status === 'OPEN' && newStatus === 'CLOSED';
 
     try {
-      const { error: updateError } = await supabase
-        .from('hagwon_requests')
-        .update({ status: newStatus })
-        .eq('id', editingRequestId);
+      const { data: updated, error: updateError } = await supabase.rpc('update_hagwon_request_with_password', {
+        p_id: editingRequestId,
+        p_password_hash: verifiedHash,
+        p_changes: { status: newStatus },
+      });
 
-      if (updateError) {
+      if (updateError || !updated) {
         console.error('Error updating status:', updateError);
         setModalError('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
         setSaving(false);
@@ -157,10 +182,11 @@ export default function HagwonRequestsPageClient() {
 
   async function handleFeedbackSubmit(answer) {
     try {
-      const { error: updateError } = await supabase
-        .from('hagwon_requests')
-        .update({ found_hagwon_through_platform: answer })
-        .eq('id', editingRequestId);
+      const { error: updateError } = await supabase.rpc('update_hagwon_request_with_password', {
+        p_id: editingRequestId,
+        p_password_hash: verifiedHash,
+        p_changes: { found_hagwon_through_platform: answer },
+      });
 
       if (updateError) {
         console.error('Error saving feedback:', updateError);
@@ -181,6 +207,7 @@ export default function HagwonRequestsPageClient() {
     setPasswordInput('');
     setEditingRequestId(null);
     setPasswordVerified(false);
+    setVerifiedHash(null);
     setNewStatus('OPEN');
     setModalError('');
     setShowFeedbackQuestion(false);
@@ -219,6 +246,7 @@ export default function HagwonRequestsPageClient() {
               const isExpanded = expandedRequestId === request.id;
               const isHagwon = role === 'hagwon';
               const canViewContact = isHagwon && request.status === 'OPEN';
+              const contact = contacts[request.id];
 
               // Parse program types
               const programTypes = Array.isArray(request.program_type)
@@ -371,22 +399,28 @@ export default function HagwonRequestsPageClient() {
                           </div>
                         ) : (
                           <div className="space-y-3 text-sm text-gray-800 rounded-md p-3">
-                            <p>
-                              <span className="font-medium">이메일:</span>{' '}
-                              <a href={`mailto:${request.email}`} className="text-blue-600 hover:underline">
-                                {request.email}
-                              </a>
-                            </p>
-                            {request.kakao_contact && (
-                              <p>
-                                <span className="font-medium">카카오톡:</span>{' '}
-                                <a
-                                  href={request.kakao_contact.startsWith('http') ? request.kakao_contact : undefined}
-                                  className="text-blue-600 hover:underline break-all"
-                                >
-                                  {request.kakao_contact}
-                                </a>
-                              </p>
+                            {!contact ? (
+                              <p className="text-gray-500">연락처를 불러오는 중입니다…</p>
+                            ) : (
+                              <>
+                                <p>
+                                  <span className="font-medium">이메일:</span>{' '}
+                                  <a href={`mailto:${contact.email}`} className="text-blue-600 hover:underline">
+                                    {contact.email}
+                                  </a>
+                                </p>
+                                {contact.kakao_contact && (
+                                  <p>
+                                    <span className="font-medium">카카오톡:</span>{' '}
+                                    <a
+                                      href={contact.kakao_contact.startsWith('http') ? contact.kakao_contact : undefined}
+                                      className="text-blue-600 hover:underline break-all"
+                                    >
+                                      {contact.kakao_contact}
+                                    </a>
+                                  </p>
+                                )}
+                              </>
                             )}
                             {request.created_at && (
                               <p>

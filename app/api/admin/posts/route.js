@@ -1,18 +1,5 @@
-import { supabase } from '@/lib/supabase'
 import { NextResponse } from 'next/server'
-
-async function requireAdmin() {
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
-
-  const { data } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  return data?.role === 'admin' ? user : null
-}
+import { getSupabaseAdmin, getAdminFromRequest } from '@/lib/supabaseAdmin'
 
 function generateSlug(title) {
   const base = title
@@ -22,9 +9,10 @@ function generateSlug(title) {
   return `${base}-${Date.now().toString(36)}`
 }
 
-export async function GET() {
-  const admin = await requireAdmin()
+export async function GET(request) {
+  const admin = await getAdminFromRequest(request)
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const supabase = getSupabaseAdmin()
 
   const { data, error } = await supabase
     .from('posts')
@@ -37,8 +25,9 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  const admin = await requireAdmin()
+  const admin = await getAdminFromRequest(request)
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const supabase = getSupabaseAdmin()
 
   const body = await request.json()
   const { title, content, description, category, featured, published, slug: customSlug, date } = body

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Input, Select, Textarea, Button } from '@/components/ui';
 import { supabase } from '@/lib/supabase';
+import { authFetch } from '@/lib/authFetch';
 
 const CATEGORIES = ['IB', 'SAT', '특례입학', '일반'];
 
@@ -49,7 +50,7 @@ export default function AdminEditPostPage({ params }) {
     }
     setSubmitting(true);
     try {
-      const res = await fetch(`/api/admin/posts/${post.id}`, {
+      const res = await authFetch(`/api/admin/posts/${post.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(post),

@@ -107,9 +107,13 @@ export default function HagwonRequestsCreateClient() {
 
       const combinedSATSubject = selectedSATSubjects.join(', ');
 
-      const { data, error: insertError } = await supabase
+      // id is generated here so the insert doesn't need to read the row back
+      // (most columns aren't readable by the public; see lib/requestColumns.js).
+      const newId = crypto.randomUUID();
+      const { error: insertError } = await supabase
         .from('hagwon_requests')
         .insert({
+          id: newId,
           program_type: form.programType,
           ib_subjects: combinedIBSubject || null,
           sat_subjects: combinedSATSubject || null,
@@ -124,9 +128,7 @@ export default function HagwonRequestsCreateClient() {
           hourly_rate_max: hourlyRate[1],
           status: 'OPEN',
           edit_password_hash: passwordHash,
-        })
-        .select('*')
-        .single();
+        });
 
       if (insertError) {
         console.error('Error creating hagwon request:', insertError);
@@ -139,7 +141,7 @@ export default function HagwonRequestsCreateClient() {
       fetch('/api/notify-subscribers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'hagwon', post: data }),
+        body: JSON.stringify({ type: 'hagwon', id: newId }),
       }).catch(() => {});
 
       router.push('/hagwon-requests');

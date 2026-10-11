@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Input, Select, Textarea, Button } from '@/components/ui';
+import { authFetch } from '@/lib/authFetch';
 
 const CATEGORIES = ['IB', 'SAT', '특례입학', '일반'];
 
@@ -42,7 +43,7 @@ export default function AdminNewPostPage() {
     }
     setSubmitting(true);
     try {
-      const res = await fetch('/api/admin/posts', {
+      const res = await authFetch('/api/admin/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, content, description, category, featured, published, slug, date }),

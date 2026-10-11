@@ -64,9 +64,7 @@ export default function DashboardPage() {
     const loadTeacherProfile = async () => {
       if (role === 'teacher') {
         const { data: profile, error: teacherError } = await supabase
-          .from('teachers')
-          .select('*')
-          .eq('user_id', user.id)
+          .rpc('get_my_teacher_profile')
           .single();
 
         if (teacherError || !profile) {
@@ -125,7 +123,7 @@ export default function DashboardPage() {
 
   const refreshTeacherProfile = async () => {
     if (!user) return;
-    const { data: profile } = await supabase.from('teachers').select('*').eq('user_id', user.id).single();
+    const { data: profile } = await supabase.rpc('get_my_teacher_profile').single();
     if (profile) setTeacher(profile);
   };
 

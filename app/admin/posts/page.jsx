@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { buttonClasses, Badge, cardClasses } from '@/components/ui';
+import { authFetch } from '@/lib/authFetch';
 
 export default function AdminPostsPage() {
   const { role, loading } = useAuth();
@@ -21,7 +22,7 @@ export default function AdminPostsPage() {
 
   useEffect(() => {
     if (role === 'admin') {
-      fetch('/api/admin/posts')
+      authFetch('/api/admin/posts')
         .then(r => r.json())
         .then(data => { setPosts(Array.isArray(data) ? data : []); setFetching(false); })
         .catch(() => setFetching(false));
@@ -29,7 +30,7 @@ export default function AdminPostsPage() {
   }, [role]);
 
   async function togglePublished(post) {
-    const res = await fetch(`/api/admin/posts/${post.id}`, {
+    const res = await authFetch(`/api/admin/posts/${post.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ published: !post.published }),
@@ -41,7 +42,7 @@ export default function AdminPostsPage() {
 
   async function deletePost(post) {
     if (!confirm(`"${post.title}" 을(를) 삭제하시겠습니까?`)) return;
-    const res = await fetch(`/api/admin/posts/${post.id}`, { method: 'DELETE' });
+    const res = await authFetch(`/api/admin/posts/${post.id}`, { method: 'DELETE' });
     if (res.ok) setPosts(prev => prev.filter(p => p.id !== post.id));
   }
 

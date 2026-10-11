@@ -7,7 +7,7 @@
 // carries no signature to verify, so this never trusts the payload
 // directly — it re-fetches the real payment status from Toss's API
 // before acting on it.
-import { supabase } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { getPaymentByOrderId } from '@/lib/toss';
 import { activatePlusTier } from '@/lib/tierActivation';
 
@@ -29,7 +29,7 @@ export async function POST(request) {
       return ack();
     }
 
-    const { data: order, error } = await supabase
+    const { data: order, error } = await getSupabaseAdmin()
       .from('payments')
       .select('teacher_id, amount')
       .eq('toss_order_id', orderId)
@@ -41,6 +41,7 @@ export async function POST(request) {
     }
 
     const result = await activatePlusTier({
+      db: getSupabaseAdmin(),
       orderId,
       paymentKey: payment.paymentKey,
       teacherId: order.teacher_id,

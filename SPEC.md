@@ -28,7 +28,7 @@ Publish six useful resource posts to `/community` as the `Admin` account, one po
   - user `Admin` doesn't exist or its role isn't `admin`
   - a non-deleted post with the same title by `Admin` already exists (prevents double posting)
 - Inserts match what `POST /api/community/posts` writes: same slug format, `category` = first of `categories`, `is_anonymous: false`, no images. Categories are checked with `normalizeCategories` from `lib/community.js`. Title is at most 100 characters and content at most 20,000.
-- Content: Korean, friendly 운영자 tone. Links only to official or well-known sources (ibo.org, collegeboard.org, khanacademy.org, adiga.kr, commonapp.org, ucas.com, ibmaster.net pages). No exact exam dates, deadlines or prices that go stale. Point to the official page instead.
+- Content: Korean, friendly 운영자 tone. Links to official sources, IB Master pages and blog posts, and widely used third-party study resources (e.g. Clastify, Revision Village, OnePrep). No links to pirated or leaked exam material. No exact exam dates, deadlines or prices that go stale. Point to the official page instead.
 - 특례 content stays general and tells readers to check each university's 모집요강.
 - Markdown must render with `lib/communityMarkdown.js`, so no raw HTML.
 - Writes to the production DB through the service-role key. This touches no migrations or RLS.

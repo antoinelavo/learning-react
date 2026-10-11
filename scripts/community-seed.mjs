@@ -5,6 +5,7 @@
  * the `Admin` user. Run it once per post.
  *
  * Usage: node scripts/community-seed.mjs <n>   (n = the file's number prefix, 1-6)
+ * Preview first under `npm run dev` at /community/preview/<n>.
  *
  * Requires: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY, from the
  * environment or from .env.local (environment wins). Writes to whichever
@@ -14,9 +15,8 @@
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import matter from 'gray-matter'
 import { createClient } from '@supabase/supabase-js'
-import { normalizeCategories } from '../lib/community.js'
+import { listSeedFiles, loadSeedPost } from '../lib/communitySeed.js'
 
 const ADMIN_USERNAME = 'Admin'
 const SITE_URL = 'https://www.ibmaster.net'
@@ -34,27 +34,13 @@ function generateSlug(title) {
   return `${base || 'post'}-${Date.now().toString(36)}`
 }
 
-function loadPost(n) {
-  const files = fs.readdirSync(SEED_DIR).filter(f => f.endsWith('.md'))
-  const file = files.find(f => f.startsWith(`${n}-`))
-  if (!file) fail(`Usage: node scripts/community-seed.mjs <n>\nNo seed post numbered ${n}. Available: ${files.map(f => f.split('-')[0]).join(', ')}`)
-
-  const { data, content } = matter(fs.readFileSync(path.join(SEED_DIR, file), 'utf8'))
-  const title = typeof data.title === 'string' ? data.title.trim() : ''
-  const body = content.trim()
-  const categories = normalizeCategories(data.categories)
-
-  if (!title || !body) fail(`${file}: title and content are required`)
-  if (title.length > 100) fail(`${file}: title is over 100 characters`)
-  if (body.length > 20000) fail(`${file}: content is over 20,000 characters`)
-  if (!categories) fail(`${file}: categories must be 1-3 known boards`)
-
-  return { file, title, content: body, categories, pinned: data.pinned === true }
-}
-
 const arg = process.argv[2]
 if (!/^[1-9]\d*$/.test(arg || '')) fail('Usage: node scripts/community-seed.mjs <n>   (n = seed post number, e.g. 1)')
-const post = loadPost(Number(arg))
+const { post, error } = loadSeedPost(Number(arg), SEED_DIR)
+if (error) {
+  const available = listSeedFiles(SEED_DIR).map(f => f.n).join(', ')
+  fail(`Usage: node scripts/community-seed.mjs <n>\n${error}. Available: ${available}`)
+}
 
 const envPath = path.join(ROOT, '.env.local')
 const env = {}

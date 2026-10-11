@@ -11,7 +11,9 @@ const nextConfig = {
       'scdoramzssnimcbsojml.supabase.co',
     ],
   },
-  pageExtensions: ['js', 'jsx'],
+  // `page.dev.jsx` routes (the community seed preview) exist only under
+  // `next dev`; production builds don't include them, so they 404.
+  pageExtensions: process.env.NODE_ENV === 'production' ? ['js', 'jsx'] : ['dev.jsx', 'js', 'jsx'],
 };
 
 module.exports = withBundleAnalyzer(nextConfig);

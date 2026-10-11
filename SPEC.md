@@ -29,6 +29,10 @@ Close the current Supabase RLS gaps without breaking any site feature, and add a
 - Create the routine: fresh session each run, 10th of every month around 9am KST (`CRON_TZ=Asia/Seoul`, jittered minute before 9:00), Supabase connector attached.
 - Add both routines/files to `CLAUDE.md`.
 
+**Added during /build (approved):** `users` (role self-escalation to admin, public email reads), `payments` and `teacher_revealed_requests` (open read/write), `teachers` (public bank details, public update of any column), `hagwon_requests` (same leak as `student_jobs`). Also hardened `notify-subscribers` and `chat/notify-message` (no arbitrary email content), `get_or_create_conversation` (caller must be a participant), and fixed the daily digest's hagwon query (selected a non-existent `type` column).
+
+**Changed during /build:** `app/api/dashboard/*` stays public. The EduSphere partner dashboard (`app/hagwon-dashboard/edusphere`) calls it without a Supabase login, and it returns only aggregate click/impression data for that one hagwon.
+
 ## Not included
 - The routine never writes to the live database, never merges, and never changes Toss/payment logic or prices beyond the client swap above.
 - Policies for the unlaunched community tables (they stay locked: RLS on, no policies); handled when the board launches.
@@ -44,11 +48,11 @@ Close the current Supabase RLS gaps without breaking any site feature, and add a
 - Site text Korean; code, comments, report English.
 
 ## Done when
-- [ ] No file imported by a client component imports `lib/supabaseAdmin.js` (grep check).
-- [ ] Every table listed above has `enable row level security` and at least one policy in the migration; `kakao_contact` and the password hash are not selectable by `anon`.
-- [ ] Before the migration is applied, each policy is checked against every `.from('<table>')` call in the code, with a table → operation → role → policy list in the PR description showing nothing the site does is blocked.
-- [ ] `/students` no longer uses `select('*')` on `student_jobs`; reveal, 플러스 auto-reveal, and password edit go through RPCs.
-- [ ] `dashboard/*` and `admin/posts` return 401/403 without an admin session; `hello` and `test-email` are gone.
-- [ ] `content/security/audit-routine-prompt.md` exists and covers all five checks; the routine exists (10th monthly, ~9am KST, Supabase connector).
-- [ ] `CLAUDE.md` mentions the service-role client and the security routine.
-- [ ] `npm run build` passes.
+- [x] No file imported by a client component imports `lib/supabaseAdmin.js` (grep check).
+- [x] Every table listed above has `enable row level security` and at least one policy in the migration; `kakao_contact` and the password hash are not selectable by `anon`.
+- [x] Before the migration is applied, each policy is checked against every `.from('<table>')` call in the code, with a table → operation → role → policy list in the PR description showing nothing the site does is blocked.
+- [x] `/students` no longer uses `select('*')` on `student_jobs`; reveal, 플러스 auto-reveal, and password edit go through RPCs.
+- [ ] `dashboard/*` and `admin/posts` return 401/403 without an admin session; `hello` and `test-email` are gone. (Partly: `admin/posts` and `teachers/notify-approved` return 401, `hello`/`test-email` removed; `dashboard/*` intentionally stays public, see above.)
+- [ ] `content/security/audit-routine-prompt.md` exists and covers all five checks; the routine exists (10th monthly, ~9am KST, Supabase connector). (Partly: prompt and routine exist; the Supabase connector must be added in the claude.ai routines UI.)
+- [x] `CLAUDE.md` mentions the service-role client and the security routine.
+- [x] `npm run build` passes.

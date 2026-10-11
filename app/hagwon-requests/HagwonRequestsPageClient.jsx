@@ -117,11 +117,10 @@ export default function HagwonRequestsPageClient() {
 
     const enteredHash = await hashPassword(passwordInput.trim());
 
-    // An empty change set only checks the password server-side.
-    const { data: match, error: verifyError } = await supabase.rpc('update_hagwon_request_with_password', {
+    // Checked server-side; the hash itself is not readable.
+    const { data: match, error: verifyError } = await supabase.rpc('verify_hagwon_request_password', {
       p_id: editingRequestId,
       p_password_hash: enteredHash,
-      p_changes: {},
     });
 
     if (verifyError) {

@@ -477,6 +477,20 @@ as $$
     );
 $$;
 
+-- Read-only password check for the hagwon request edit modal.
+create or replace function public.verify_hagwon_request_password(p_id uuid, p_password_hash text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.hagwon_requests
+    where id = p_id and edit_password_hash is not null and edit_password_hash = p_password_hash
+  );
+$$;
+
 create or replace function public.update_hagwon_request_with_password(
   p_id uuid, p_password_hash text, p_changes jsonb
 )

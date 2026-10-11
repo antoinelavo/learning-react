@@ -7,7 +7,7 @@
 // {ok:false} rather than thrown.
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
-import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
+import { getSupabaseAdmin, getUserFromRequest } from '@/lib/supabaseAdmin';
 import { buildChatMessageEmailHtml } from '@/lib/email/chatMessageTemplate';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -32,9 +32,7 @@ export async function POST(request) {
     // The caller must be the logged-in sender of an existing message; the
     // recipient and text are read from the database, not the request body.
     const supabase = getSupabaseAdmin();
-    const header = request.headers.get('authorization') || '';
-    const token = header.startsWith('Bearer ') ? header.slice(7) : null;
-    const { data: { user } = {} } = token ? await supabase.auth.getUser(token) : { data: {} };
+    const user = await getUserFromRequest(request);
     if (!user) {
       return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
     }

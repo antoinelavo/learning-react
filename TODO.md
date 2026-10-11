@@ -4,14 +4,10 @@
 
 `/community` is in the nav but not yet in the sitemap.
 
-Launch checklist, in order:
-1. `20261010_community_launch.sql` is applied except its last three cleanup lines
-   (drop `increment_community_post_views`, `increment_post_views` and the empty `posts`
-   table). Run those in the Supabase SQL Editor.
-2. Add `SUPABASE_SERVICE_ROLE_KEY` to `.env.local` and to Vercel (Production + Preview).
+Remaining launch steps:
+1. Add `SUPABASE_SERVICE_ROLE_KEY` to Vercel (Production + Preview) if not already set.
    Every `/api/community/*` route needs it (`lib/supabaseAdmin.js`).
-3. Delete the 2 test posts ("as", "sdf") in `community_posts`.
-4. Add `/community` and `/community/post/[slug]` pages to `scripts/generate-sitemap.js`
+2. Add `/community` and `/community/post/[slug]` pages to `scripts/generate-sitemap.js`
    and regenerate `public/sitemap.xml`.
 
 Follow-ups not in this build: reply/comment notifications, member grades and 등업,

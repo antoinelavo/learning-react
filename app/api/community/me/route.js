@@ -32,12 +32,14 @@ export const GET = withCommunityErrors(async function GET(request) {
       .select('created_at, post:community_posts!inner(id, slug, title, category, categories, created_at, deleted_at, like_count, comment_count, view_count)', { count: 'exact' })
       .eq('user_id', user.id)
       .is('post.deleted_at', null)
+      .eq('post.is_draft', false)
       .order('created_at', { ascending: false })
   } else {
     query = supabaseAdmin
       .from('community_posts')
       .select('id, slug, title, category, categories, is_anonymous, created_at, deleted_at, deleted_by_admin, like_count, comment_count, view_count', { count: 'exact' })
       .eq('user_id', user.id)
+      .eq('is_draft', false)
       .order('created_at', { ascending: false })
   }
 

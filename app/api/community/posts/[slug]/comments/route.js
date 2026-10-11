@@ -7,7 +7,7 @@ import { labelComments } from '@/lib/communityAnon'
 async function getPost(slug) {
   const { data } = await supabaseAdmin
     .from('community_posts')
-    .select('id, user_id, is_anonymous, deleted_at')
+    .select('id, user_id, is_anonymous, deleted_at, is_draft')
     .eq('slug', slug)
     .maybeSingle()
   return data
@@ -16,7 +16,7 @@ async function getPost(slug) {
 export const GET = withCommunityErrors(async function GET(request, { params }) {
   const slug = decodeSlug((await params).slug)
   const post = await getPost(slug)
-  if (!post || post.deleted_at) {
+  if (!post || post.deleted_at || post.is_draft) {
     return NextResponse.json({ error: '게시글을 찾을 수 없습니다.' }, { status: 404 })
   }
 
@@ -100,7 +100,7 @@ export const POST = withCommunityErrors(async function POST(request, { params })
   if (response) return response
 
   const post = await getPost(slug)
-  if (!post || post.deleted_at) {
+  if (!post || post.deleted_at || post.is_draft) {
     return NextResponse.json({ error: '게시글을 찾을 수 없습니다.' }, { status: 404 })
   }
 

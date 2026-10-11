@@ -38,11 +38,11 @@ Claude writes community posts as hidden drafts in the database, the owner review
 - Site text in Korean: "커뮤니티 초안", "게시하기", "삭제", "게시되었습니다", "초안이 없습니다".
 
 ## Done when
-- [ ] The migration file adds `is_draft` and recreates the view with the draft filter.
-- [ ] `/admin` shows the "커뮤니티 초안" button, and the list and preview pages load drafts through the admin API.
-- [ ] Every admin draft route returns 401 without an admin token.
-- [ ] Publish sets `is_draft = false` and a new `created_at`, and a second publish returns 404.
-- [ ] Code review confirms each public route listed above treats a draft as not found.
-- [ ] The seed files, script, `lib/communitySeed.js`, `/community/preview` pages and `next.config.js` preview settings are removed. Nothing imports them.
+- [x] The migration file adds `is_draft` and recreates the view with the draft filter.
+- [ ] `/admin` shows the "커뮤니티 초안" button, and the list and preview pages load drafts through the admin API. (Built and wired; not yet tested with a real admin session, since the migration isn't run.)
+- [x] Every admin draft route returns 401 without an admin token.
+- [ ] Publish sets `is_draft = false` and a new `created_at`, and a second publish returns 404. (In code: the update filters on `is_draft = true`. Not yet run against the database.)
+- [x] Code review confirms each public route listed above treats a draft as not found.
+- [ ] The seed files, script, `lib/communitySeed.js`, `/community/preview` pages and `next.config.js` preview settings are removed. Nothing imports them. (All removed except `content/community-seed/*.md`, kept as the source until the six drafts are loaded.)
 - [ ] After the owner runs the migration: the six posts exist as drafts, are hidden from `/community`, and show in `/admin/community/drafts`.
-- [ ] `npm run build` passes.
+- [x] `npm run build` passes.

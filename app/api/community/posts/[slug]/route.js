@@ -51,11 +51,11 @@ export const PATCH = withCommunityErrors(async function PATCH(request, { params 
 
   const { data: existing } = await supabaseAdmin
     .from('community_posts')
-    .select('id, user_id, deleted_at')
+    .select('id, user_id, deleted_at, is_draft')
     .eq('slug', slug)
     .maybeSingle()
 
-  if (!existing || existing.deleted_at) {
+  if (!existing || existing.deleted_at || existing.is_draft) {
     return NextResponse.json({ error: '게시글을 찾을 수 없습니다.' }, { status: 404 })
   }
   if (existing.user_id !== user.id) {
@@ -121,11 +121,11 @@ export const DELETE = withCommunityErrors(async function DELETE(request, { param
 
   const { data: existing } = await supabaseAdmin
     .from('community_posts')
-    .select('id, user_id, deleted_at')
+    .select('id, user_id, deleted_at, is_draft')
     .eq('slug', slug)
     .maybeSingle()
 
-  if (!existing || existing.deleted_at) {
+  if (!existing || existing.deleted_at || existing.is_draft) {
     return NextResponse.json({ error: '게시글을 찾을 수 없습니다.' }, { status: 404 })
   }
 

@@ -22,10 +22,10 @@ export const POST = withCommunityErrors(async function POST(request) {
 
   const { data: target } = await supabaseAdmin
     .from(targetTable)
-    .select('id, deleted_at')
+    .select(isPost ? 'id, deleted_at, is_draft' : 'id, deleted_at')
     .eq('id', targetId)
     .maybeSingle()
-  if (!target || target.deleted_at) {
+  if (!target || target.deleted_at || target.is_draft) {
     return NextResponse.json({ error: '대상을 찾을 수 없습니다.' }, { status: 404 })
   }
 

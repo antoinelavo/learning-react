@@ -8,7 +8,7 @@ IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, wi
 
 - Next.js 15, React 19, plain JavaScript (no TypeScript). Tailwind CSS 3.
 - Both routers are in use. Most pages and all real API routes are in `app/`. The blog post page (`pages/blog/[slug].js`) and teacher profile page (`pages/profile/[name].js`) are still in `pages/`. `README.md` is unedited create-next-app boilerplate.
-- `next.config.js` sets `pageExtensions: ['js', 'jsx']`, so only `.js`/`.jsx` files become routes (a `.ts` or `.mdx` page file is ignored). Under `npm run dev` and on Vercel preview deployments (`VERCEL_ENV=preview`) it also adds `dev.jsx`, so `page.dev.jsx` routes (the community seed preview, `/community/preview`, linked from `/admin`) never exist on the production site. Every `.js` file under `pages/` is a route, so `pages/profile/ContactButton.js` is also served at `/profile/ContactButton`; put new shared components in `components/`.
+- `next.config.js` sets `pageExtensions: ['js', 'jsx']`, so only `.js`/`.jsx` files become routes (a `.ts` or `.mdx` page file is ignored). Every `.js` file under `pages/` is a route, so `pages/profile/ContactButton.js` is also served at `/profile/ContactButton`; put new shared components in `components/`.
 - Both `postcss.config.js` and `postcss.config.mjs` exist with identical content; edit both or remove one.
 - **Admin pages** (`app/admin/`) check `role === 'admin'` on the client only (via `useAuth`). Real protection comes from RLS (`is_admin()` policies) and from `getAdminFromRequest` in admin API routes, which the admin pages call through `authFetch` (`lib/authFetch.js`, sends the session as a Bearer token).
 - Supabase for auth and database. The shared client is in `lib/supabase.js`. File storage is Cloudflare R2 via `@aws-sdk/client-s3` (`app/api/upload-profile-picture`), not Supabase storage.
@@ -25,7 +25,6 @@ IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, wi
 - **Security audit routine:** a monthly routine (10th, ~9am KST) follows `content/security/audit-routine-prompt.md`: read-only checks of Supabase RLS/grants/functions (via the Supabase connector), API route auth, secrets, `npm audit`, and live-site headers. Opens a `security-audit:` PR with a report in `content/security/audits/` and any proposed SQL as a new migration file (never run by the routine).
 - **SEO audit routine:** a weekly routine (Thursday 9am KST) follows `content/seo/audit-routine-prompt.md`: regenerates the sitemap, fixes SEO-only issues (metadata, JSON-LD, `robots.txt`, up to 5 blog posts' frontmatter and internal links), and opens a `seo-audit:` PR. Reports go in `content/seo/audits/`. Needs `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `PAGESPEED_API_KEY` in the routine's environment.
 - `ANALYZE=true npm run build` opens the bundle analyzer.
-- `node scripts/community-seed.mjs <n>` publishes seed post `n` from `content/community-seed/` as the `Admin` user (writes to the DB in `.env.local`; needs `SUPABASE_SERVICE_ROLE_KEY`). Preview it first at `/community/preview/<n>` under `npm run dev` or on the PR's Vercel preview.
 - `node scripts/generate-sitemap.js` rebuilds `public/sitemap.xml`. It reads the Supabase URL and anon key from the environment or `.env.local`, and exits non-zero (without writing) if the teacher fetch fails.
 
 ## Architecture
@@ -42,6 +41,12 @@ IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, wi
   - Every write route calls `requireCommunityWriter`, which returns 401 without a token and 403 when the user is banned (`community_bans`, a service-role-only table) or has no username.
   - Anonymous posts and comments must never expose `user_id` or the real author in public responses; only `/api/admin/community/*` returns real authors. Anonymous comment labels (익명1, 익명2…) come from `lib/communityAnon.js`.
   - Board categories, page size and category validation live in `lib/community.js`, which client and server code both import. It has no Supabase or Node imports, so keep it that way.
+  - **Admin drafts:** `community_posts.is_draft` rows are hidden from the public view and from every public route (they 404 like missing posts). The owner reviews them at `/admin/community/drafts` (linked from `/admin`) and publishes with 게시하기, which sets `is_draft = false` and `created_at = now()`. User submissions default to `is_draft = false`.
+  - **Writing drafts (Claude):** only when the owner asks. Use the Supabase connector (project `scdoramzssnimcbsojml`):
+    - Insert into `community_posts` with `user_id` = the `users.id` of username `Admin` (check `role = 'admin'` first), `is_draft = true`, `is_anonymous = false`, `image_urls = '{}'`, `categories` from `CATEGORY_LIST` (1–3) and `category` = `categories[1]`.
+    - Use the slug format of `generateSlug` in `app/api/community/posts/route.js`, a title of at most 100 chars and content of at most 20,000.
+    - Revise with `update ... where slug = ... and is_draft`. Never touch published posts this way.
+    - Content is Korean Markdown with no raw HTML (`lib/communityMarkdown.js`).
   - Deletes are soft (`deleted_at`, plus `deleted_by_admin` for admin removals). Post markdown is rendered with `lib/communityMarkdown.js`, which drops raw HTML and unsafe link schemes.
   - `/blog` has its own list component (`app/blog/BlogBoard.client.jsx`); it no longer shares the community board.
 - **Blog** is MDX files in `content/blog/`, read from disk at build time by `pages/blog/[slug].js` (`getStaticPaths`/`getStaticProps`). The index is `app/blog/page.jsx`.

@@ -1,10 +1,10 @@
 import { notFound } from 'next/navigation'
 import { Badge, cardClasses } from '@/components/ui'
-import CategoryBadge from '@/components/community/CategoryBadge'
+import { CategoryBadges } from '@/components/community/CategoryBadge'
 import AuthorLine from '@/components/community/AuthorLine'
 import { getCommunityPostPage } from '@/lib/communityPost'
 import { communityMarkdownToHtml } from '@/lib/communityMarkdown'
-import { stripMarkdown, formatKstDate, decodeSlug } from '@/lib/community'
+import { stripMarkdown, formatKstDate, decodeSlug, postCategories } from '@/lib/community'
 import { jsonLdString } from '@/lib/hagwonNeis'
 import BackButton from '@/components/community/BackButton.client'
 import PostActions from './PostActions.client'
@@ -49,7 +49,7 @@ function postJsonLd(post) {
     text: stripMarkdown(post.content, 500),
     datePublished: post.created_at,
     dateModified: post.updated_at || post.created_at,
-    articleSection: post.category,
+    articleSection: postCategories(post),
     author: {
       '@type': 'Person',
       name: post.author_display_name,
@@ -95,9 +95,9 @@ export default async function CommunityPostDetailPage({ params }) {
 
       <article className={cardClasses({ padding: 'md' })}>
         <header className="mb-6">
-          <div className="flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1.5">
             {post.is_pinned && <Badge color="red">공지</Badge>}
-            <CategoryBadge category={post.category} />
+            <CategoryBadges post={post} />
           </div>
           <h1 className="text-lg sm:text-xl font-bold text-gray-900 leading-snug mt-3 mb-0 break-words">{post.title}</h1>
 

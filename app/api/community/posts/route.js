@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { requireCommunityWriter, checkRateLimit, withCommunityErrors } from '@/lib/communityAuth'
 import { getCommunityFeed } from '@/lib/communityFeed'
-import { CATEGORY_LIST, isCommunityImageUrl } from '@/lib/community'
+import { isCommunityImageUrl, normalizeCategories } from '@/lib/community'
 
 function generateSlug(title) {
   const base = title.trim().replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-+|-+$/g, '').slice(0, 50)
@@ -27,7 +27,8 @@ export const POST = withCommunityErrors(async function POST(request) {
   const body = await request.json().catch(() => null)
   if (!body) return NextResponse.json({ error: '잘못된 요청입니다.' }, { status: 400 })
 
-  const { title, category, content, is_anonymous, image_urls } = body
+  const { title, content, is_anonymous, image_urls } = body
+  const categories = normalizeCategories(body.categories, body.category)
 
   if (typeof title !== 'string' || typeof content !== 'string' || !title.trim() || !content.trim()) {
     return NextResponse.json({ error: '제목과 내용을 입력해주세요.' }, { status: 400 })
@@ -38,8 +39,8 @@ export const POST = withCommunityErrors(async function POST(request) {
   if (content.length > 20000) {
     return NextResponse.json({ error: '내용은 20,000자 이하로 입력해주세요.' }, { status: 400 })
   }
-  if (!CATEGORY_LIST.includes(category)) {
-    return NextResponse.json({ error: '올바른 카테고리를 선택해주세요.' }, { status: 400 })
+  if (!categories) {
+    return NextResponse.json({ error: '게시판을 1~3개 선택해주세요.' }, { status: 400 })
   }
   const images = Array.isArray(image_urls) ? image_urls.filter(isCommunityImageUrl) : []
   if (images.length > 5) {
@@ -56,7 +57,8 @@ export const POST = withCommunityErrors(async function POST(request) {
     .insert({
       slug: generateSlug(title),
       user_id: user.id,
-      category,
+      category: categories[0],
+      categories,
       title: title.trim(),
       content: content.trim(),
       is_anonymous: !!is_anonymous,

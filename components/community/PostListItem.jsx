@@ -3,7 +3,7 @@ import { ThumbsUp, MessageCircle, Eye } from 'lucide-react';
 import { Badge, cardClasses } from '@/components/ui';
 import { timeAgo } from '@/lib/timeAgo';
 import { stripMarkdown } from '@/lib/community';
-import CategoryBadge from './CategoryBadge';
+import { CategoryBadges } from './CategoryBadge';
 import AuthorLine from './AuthorLine';
 
 export default function PostListItem({ post }) {
@@ -16,9 +16,9 @@ export default function PostListItem({ post }) {
     >
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5 mb-1">
+          <div className="flex flex-wrap items-center gap-1.5 mb-1">
             {post.is_pinned && <Badge color="red">공지</Badge>}
-            <CategoryBadge category={post.category} />
+            <CategoryBadges post={post} />
           </div>
           <p className="text-sm font-semibold text-gray-900 leading-snug line-clamp-2 m-0">{post.title}</p>
           <p className="text-xs text-gray-500 mt-1 mb-0 line-clamp-1">{stripMarkdown(post.content)}</p>

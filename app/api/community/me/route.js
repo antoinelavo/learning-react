@@ -29,14 +29,14 @@ export const GET = withCommunityErrors(async function GET(request) {
   } else if (tab === 'scraps') {
     query = supabaseAdmin
       .from('community_post_scraps')
-      .select('created_at, post:community_posts!inner(id, slug, title, category, created_at, deleted_at, like_count, comment_count, view_count)', { count: 'exact' })
+      .select('created_at, post:community_posts!inner(id, slug, title, category, categories, created_at, deleted_at, like_count, comment_count, view_count)', { count: 'exact' })
       .eq('user_id', user.id)
       .is('post.deleted_at', null)
       .order('created_at', { ascending: false })
   } else {
     query = supabaseAdmin
       .from('community_posts')
-      .select('id, slug, title, category, is_anonymous, created_at, deleted_at, deleted_by_admin, like_count, comment_count, view_count', { count: 'exact' })
+      .select('id, slug, title, category, categories, is_anonymous, created_at, deleted_at, deleted_by_admin, like_count, comment_count, view_count', { count: 'exact' })
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
   }

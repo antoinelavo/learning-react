@@ -1,4 +1,5 @@
 import { Badge } from '@/components/ui'
+import { postCategories } from '@/lib/community'
 
 export { CATEGORY_LIST } from '@/lib/community'
 
@@ -13,4 +14,9 @@ const CATEGORY_COLORS = {
 
 export default function CategoryBadge({ category }) {
   return <Badge color={CATEGORY_COLORS[category] || 'gray'}>{category}</Badge>
+}
+
+// All of a post's boards, as badges.
+export function CategoryBadges({ post }) {
+  return postCategories(post).map(c => <CategoryBadge key={c} category={c} />)
 }

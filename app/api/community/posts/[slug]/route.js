@@ -4,7 +4,7 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import {
   getCommunityUser, requireCommunityWriter, getClientIp, withCommunityErrors,
 } from '@/lib/communityAuth'
-import { CATEGORY_LIST, isCommunityImageUrl, toPublicPost, decodeSlug } from '@/lib/community'
+import { isCommunityImageUrl, normalizeCategories, toPublicPost, decodeSlug } from '@/lib/community'
 
 export const GET = withCommunityErrors(async function GET(request, { params }) {
   const slug = decodeSlug((await params).slug)
@@ -84,11 +84,13 @@ export const PATCH = withCommunityErrors(async function PATCH(request, { params 
     }
     updates.content = body.content.trim()
   }
-  if (body.category !== undefined) {
-    if (!CATEGORY_LIST.includes(body.category)) {
-      return NextResponse.json({ error: '올바른 카테고리를 선택해주세요.' }, { status: 400 })
+  if (body.categories !== undefined || body.category !== undefined) {
+    const categories = normalizeCategories(body.categories, body.category)
+    if (!categories) {
+      return NextResponse.json({ error: '게시판을 1~3개 선택해주세요.' }, { status: 400 })
     }
-    updates.category = body.category
+    updates.categories = categories
+    updates.category = categories[0]
   }
   if (body.is_anonymous !== undefined) updates.is_anonymous = !!body.is_anonymous
   if (Array.isArray(body.image_urls)) {

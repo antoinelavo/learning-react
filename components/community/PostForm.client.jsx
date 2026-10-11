@@ -2,20 +2,20 @@
 
 import { useState, useRef } from 'react';
 import { X, ImagePlus } from 'lucide-react';
-import { Button, Input, Notice, Select, Textarea } from '@/components/ui';
+import { Button, Input, Notice, Textarea, chipClasses } from '@/components/ui';
 import { communityAuthHeaders } from '@/lib/communityClient';
-import { CATEGORY_LIST } from '@/lib/community';
+import { CATEGORY_LIST, MAX_CATEGORIES, postCategories } from '@/lib/community';
 
 const MAX_IMAGES = 5;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
 // Write/edit form for community posts. Uploads any new images first, then
-// calls onSubmit({ title, category, content, is_anonymous, image_urls }),
+// calls onSubmit({ title, categories, content, is_anonymous, image_urls }),
 // which should throw an Error with a Korean message on failure.
 export default function PostForm({ initial, submitLabel, submittingLabel, onSubmit }) {
   const fileInputRef = useRef(null);
   const [title, setTitle] = useState(initial?.title || '');
-  const [category, setCategory] = useState(initial?.category || CATEGORY_LIST[0]);
+  const [categories, setCategories] = useState(initial ? postCategories(initial) : []);
   const [content, setContent] = useState(initial?.content || '');
   const [isAnonymous, setIsAnonymous] = useState(!!initial?.is_anonymous);
   // Each image is { url } (already uploaded) or { file, previewUrl } (new).
@@ -23,6 +23,18 @@ export default function PostForm({ initial, submitLabel, submittingLabel, onSubm
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+
+  function toggleCategory(cat) {
+    if (categories.includes(cat)) {
+      setError('');
+      setCategories(categories.filter(c => c !== cat));
+    } else if (categories.length >= MAX_CATEGORIES) {
+      setError(`게시판은 최대 ${MAX_CATEGORIES}개까지 선택할 수 있습니다.`);
+    } else {
+      setError('');
+      setCategories([...categories, cat]);
+    }
+  }
 
   function handleFilesSelected(e) {
     const files = Array.from(e.target.files || []);
@@ -70,6 +82,7 @@ export default function PostForm({ initial, submitLabel, submittingLabel, onSubm
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
+    if (!categories.length) { setError('게시판을 1개 이상 선택해주세요.'); return; }
     if (!title.trim()) { setError('제목을 입력해주세요.'); return; }
     if (!content.trim()) { setError('내용을 입력해주세요.'); return; }
 
@@ -78,7 +91,7 @@ export default function PostForm({ initial, submitLabel, submittingLabel, onSubm
       const imageUrls = await uploadNewImages();
       await onSubmit({
         title: title.trim(),
-        category,
+        categories,
         content: content.trim(),
         is_anonymous: isAnonymous,
         image_urls: imageUrls,
@@ -91,12 +104,27 @@ export default function PostForm({ initial, submitLabel, submittingLabel, onSubm
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <div>
-        <label htmlFor="post-category" className="block text-sm font-medium text-gray-700 mb-1">게시판</label>
-        <Select id="post-category" value={category} onChange={e => setCategory(e.target.value)}>
-          {CATEGORY_LIST.map(c => <option key={c} value={c}>{c}</option>)}
-        </Select>
-      </div>
+      <fieldset className="m-0 p-0 border-0">
+        <legend className="block text-sm font-medium text-gray-700 mb-1">
+          게시판 <span className="font-normal text-gray-400">(최대 {MAX_CATEGORIES}개)</span>
+        </legend>
+        <div className="flex flex-wrap gap-2">
+          {CATEGORY_LIST.map(c => {
+            const selected = categories.includes(c);
+            return (
+              <button
+                key={c}
+                type="button"
+                onClick={() => toggleCategory(c)}
+                aria-pressed={selected}
+                className={chipClasses({ selected })}
+              >
+                {c}
+              </button>
+            );
+          })}
+        </div>
+      </fieldset>
 
       <div>
         <label htmlFor="post-title" className="block text-sm font-medium text-gray-700 mb-1">제목</label>

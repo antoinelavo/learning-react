@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { communityAuthHeaders, fetchCommunityBan } from '@/lib/communityClient';
 import { banMessage } from '@/lib/community';
 import { timeAgo } from '@/lib/timeAgo';
-import CategoryBadge from '@/components/community/CategoryBadge';
+import { CategoryBadges } from '@/components/community/CategoryBadge';
 import Pagination from '@/components/community/Pagination';
 
 const TABS = [
@@ -51,7 +51,7 @@ function ItemRow({ tab, item }) {
     <Link href={`/community/post/${post.slug}`} className={cardClasses({ className: 'block p-4 hover:border-blue-300 transition-colors' })}>
       <div className="flex flex-wrap items-center gap-1.5 mb-1">
         {deleted && <Badge color="gray">{deletedLabel(post)}</Badge>}
-        <CategoryBadge category={post.category} />
+        <CategoryBadges post={post} />
         {post.is_anonymous && <Badge color="gray">익명</Badge>}
       </div>
       <p className={`text-sm font-semibold m-0 line-clamp-2 ${deleted ? 'text-gray-400' : 'text-gray-900'}`}>{post.title}</p>

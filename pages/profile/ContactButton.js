@@ -15,19 +15,8 @@ export default function ContactButton({ teacherName, contactInfo }) {
     if (!showContact) {
       setShowContact(true);
 
-      // Increment click count
-      const { data: record, error: countErr } = await supabaseClient
-        .from('teachers')
-        .select('click_count')
-        .eq('name', teacherName)
-        .single();
-
-      if (!countErr && record) {
-        await supabaseClient
-          .from('teachers')
-          .update({ click_count: (record.click_count || 0) + 1 })
-          .eq('name', teacherName);
-      }
+      // Increment click count (RPC; teachers is not directly writable).
+      await supabaseClient.rpc('increment_teacher_click', { p_name: teacherName });
     } else {
       setShowContact(false);
     }

@@ -8,7 +8,7 @@
 // row the client inserted (keyed by toss_order_id) before calling
 // requestPayment, same as payment_request does for the premium listing.
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { confirmPayment } from '@/lib/toss';
 import { activatePlusTier } from '@/lib/tierActivation';
 
@@ -38,7 +38,7 @@ export async function GET(request) {
     return failRedirect(request, 'missing_params');
   }
 
-  const { data: order, error: lookupError } = await supabase
+  const { data: order, error: lookupError } = await getSupabaseAdmin()
     .from('payments')
     .select('teacher_id, amount')
     .eq('toss_order_id', orderId)
@@ -64,6 +64,7 @@ export async function GET(request) {
   }
 
   const result = await activatePlusTier({
+    db: getSupabaseAdmin(),
     orderId,
     paymentKey,
     teacherId: order.teacher_id,

@@ -7,7 +7,7 @@
 // amount) is looked up from the payment_request row the client inserted
 // (keyed by order_id) before calling requestPayment.
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { confirmPayment } from '@/lib/toss';
 import { activatePremium } from '@/lib/premiumActivation';
 
@@ -34,7 +34,7 @@ export async function GET(request) {
     return failRedirect(request, 'missing_params');
   }
 
-  const { data: order, error: lookupError } = await supabase
+  const { data: order, error: lookupError } = await getSupabaseAdmin()
     .from('payment_request')
     .select('*')
     .eq('order_id', orderId)
@@ -61,6 +61,7 @@ export async function GET(request) {
   }
 
   const result = await activatePremium({
+    db: getSupabaseAdmin(),
     paymentId: paymentKey,
     teacherId: order.teacher_id,
     teacherName: order.name,

@@ -7,7 +7,7 @@
 // {ok:false} rather than thrown.
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseAdmin, getUserFromRequest } from '@/lib/supabaseAdmin';
 import { buildChatMessageEmailHtml } from '@/lib/email/chatMessageTemplate';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -16,7 +16,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const DASHBOARD_URL = 'https://www.ibmaster.net/dashboard';
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'IBMaster <onboarding@resend.dev>';
 
-async function studentDisplayName(userId) {
+async function studentDisplayName(supabase, userId) {
   const { data } = await supabase.from('users').select('username, email').eq('id', userId).single();
   if (!data) return '학생';
   return data.username || (data.email ? data.email.split('@')[0] : '학생');
@@ -24,10 +24,28 @@ async function studentDisplayName(userId) {
 
 export async function POST(request) {
   try {
-    const { conversationId, senderId, recipientId, messageBody } = await request.json();
-    if (!conversationId || !senderId || !recipientId || !messageBody) {
+    const { messageId } = await request.json();
+    if (!messageId) {
       return NextResponse.json({ ok: false, error: 'missing_fields' }, { status: 400 });
     }
+
+    // The caller must be the logged-in sender of an existing message; the
+    // recipient and text are read from the database, not the request body.
+    const supabase = getSupabaseAdmin();
+    const user = await getUserFromRequest(request);
+    if (!user) {
+      return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
+    }
+
+    const { data: message } = await supabase
+      .from('messages')
+      .select('conversation_id, sender_id, recipient_id, body')
+      .eq('id', messageId)
+      .maybeSingle();
+    if (!message || message.sender_id !== user.id) {
+      return NextResponse.json({ ok: false, error: 'message_not_found' }, { status: 404 });
+    }
+    const { conversation_id: conversationId, sender_id: senderId, recipient_id: recipientId, body: messageBody } = message;
 
     const { data: recipient, error: recipientError } = await supabase
       .from('users')
@@ -68,7 +86,7 @@ export async function POST(request) {
       const { data: teacher } = await supabase.from('teachers').select('name').eq('user_id', senderId).single();
       senderName = teacher?.name || '선생님';
     } else {
-      senderName = await studentDisplayName(senderId);
+      senderName = await studentDisplayName(supabase, senderId);
     }
 
     const { error: sendError } = await resend.emails.send({

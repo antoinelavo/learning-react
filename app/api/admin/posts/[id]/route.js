@@ -1,22 +1,10 @@
-import { supabase } from '@/lib/supabase'
 import { NextResponse } from 'next/server'
-
-async function requireAdmin() {
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
-
-  const { data } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  return data?.role === 'admin' ? user : null
-}
+import { getSupabaseAdmin, getAdminFromRequest } from '@/lib/supabaseAdmin'
 
 export async function PUT(request, { params }) {
-  const admin = await requireAdmin()
+  const admin = await getAdminFromRequest(request)
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const supabase = getSupabaseAdmin()
 
   const body = await request.json()
   const { title, content, description, category, featured, published, date } = body
@@ -46,8 +34,9 @@ export async function PUT(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
-  const admin = await requireAdmin()
+  const admin = await getAdminFromRequest(request)
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const supabase = getSupabaseAdmin()
 
   const { error } = await supabase
     .from('posts')

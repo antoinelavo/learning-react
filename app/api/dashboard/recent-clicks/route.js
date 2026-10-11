@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+// Public on purpose: the EduSphere partner dashboard (app/hagwon-dashboard)
+// calls this without a Supabase login. It returns only aggregate click and
+// impression data for that one hagwon.
 
 export async function GET() {
   try {
+    const supabase = getSupabaseAdmin()
     const hagwonName = '에듀스피어 (Edusphere)'
     
     // Get recent click events for this hagwon, ordered by timestamp (newest first)

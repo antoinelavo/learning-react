@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import TeacherCard from './TeacherCard';
 import { supabase } from '@/supabase';
+import { TEACHER_PUBLIC_COLUMNS } from '@/lib/teacherColumns';
 
 export default function TeacherList({ filters }) {
   const [teachers, setTeachers] = useState([]);
@@ -36,7 +37,7 @@ export default function TeacherList({ filters }) {
   async function fetchTeachers() {
     setLoading(true);
 
-    let query = supabase.from('teachers').select('*').eq('status', 'approved');
+    let query = supabase.from('teachers').select(TEACHER_PUBLIC_COLUMNS).eq('status', 'approved');
 
     if (filters.gender.length > 0) query = query.in('gender', filters.gender);
     if (filters.subject.length > 0) query = query.contains('subjects', filters.subject);

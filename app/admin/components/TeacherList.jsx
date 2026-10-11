@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Button, Tabs, cardClasses, Badge } from '@/components/ui';
+import { authFetch } from '@/lib/authFetch';
 
 const batchSize = 10;
 
@@ -16,10 +17,7 @@ export default function TeacherList() {
   useEffect(() => {
     async function loadTeachers() {
       const { data, error } = await supabase
-        .from('teachers')
-        .select('*')
-        .eq('status', 'pending')
-        .order('created_date', { ascending: false });
+        .rpc('admin_list_teachers', { p_status: 'pending' });
 
       if (!error && data) {
         // Look up each teacher's login email so we can flag ones missing
@@ -59,7 +57,7 @@ export default function TeacherList() {
       // Best-effort notification email — must never block/undo the
       // approval itself if this fails (e.g. teacher has no email on file).
       try {
-        await fetch('/api/teachers/notify-approved', {
+        await authFetch('/api/teachers/notify-approved', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ teacherId: id }),

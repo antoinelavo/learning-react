@@ -80,9 +80,13 @@ export default function StudentsCreateClient() {
         .filter(Boolean)
         .join(', ');
 
-      const { data, error: insertError } = await supabase
+      // id is generated here so the insert doesn't need to read the row back
+      // (most columns aren't readable by the public; see lib/requestColumns.js).
+      const newId = crypto.randomUUID();
+      const { error: insertError } = await supabase
         .from('student_jobs')
         .insert({
+          id: newId,
           title: selectedTitleOptions,
           subject: combinedSubject,
           level: form.level.trim() || null,
@@ -95,9 +99,7 @@ export default function StudentsCreateClient() {
           hourly_rate_max: hourlyRate[1],
           status: 'OPEN',
           edit_password_hash: passwordHash,
-        })
-        .select('*')
-        .single();
+        });
 
       if (insertError) {
         console.error('Error creating student request:', insertError);
@@ -128,7 +130,7 @@ export default function StudentsCreateClient() {
       fetch('/api/notify-subscribers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'student', post: data }),
+        body: JSON.stringify({ type: 'student', id: newId }),
       }).catch(() => {});
 
       router.push('/students');

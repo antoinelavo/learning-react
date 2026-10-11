@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChat } from '@/contexts/ChatContext';
 import { Button, cardClasses, Badge } from '@/components/ui';
+import { TEACHER_PUBLIC_COLUMNS } from '@/lib/teacherColumns';
 
 const MOBILE_SUBJECT_LIMIT = 6;
 const DESCRIPTION_MAX = 150;
@@ -116,7 +117,7 @@ export async function getStaticProps({ params }) {
   const decodedName = decodeURIComponent(params.name);
   const { data: teacher, error } = await supabase
     .from('teachers')
-    .select('*')
+    .select(TEACHER_PUBLIC_COLUMNS)
     .eq('name', decodedName)
     .single();
 

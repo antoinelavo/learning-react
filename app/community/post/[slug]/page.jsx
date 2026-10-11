@@ -105,6 +105,7 @@ export default async function CommunityPostDetailPage({ params }) {
             <AuthorLine
               name={post.author_display_name}
               isTeacher={post.is_teacher}
+              role={post.author_role}
               profilePicture={post.author_profile_picture}
               profileLink={post.author_profile_link}
               size="md"

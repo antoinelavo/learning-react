@@ -88,6 +88,7 @@ function CommentRow({ comment, isReply, ctx }) {
         <AuthorLine
           name={comment.author_display_name}
           isTeacher={comment.is_teacher}
+          role={comment.author_role}
           profilePicture={comment.author_profile_picture}
           profileLink={comment.author_profile_link}
         />

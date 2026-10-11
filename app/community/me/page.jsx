@@ -45,6 +45,7 @@ function ItemRow({ tab, item }) {
   }
 
   const post = tab === 'scraps' ? item.post : item;
+  if (!post) return null;
   const deleted = !!post.deleted_at;
   return (
     <Link href={`/community/post/${post.slug}`} className={cardClasses({ className: 'block p-4 hover:border-blue-300 transition-colors' })}>
@@ -89,7 +90,7 @@ export default function MyCommunityActivityPage() {
       const json = await res.json().catch(() => ({}));
       if (cancelled) return;
       if (!res.ok) setError(json.error || '불러오지 못했습니다.');
-      else setData(json);
+      else setData({ ...json, tab });
     })();
     return () => { cancelled = true; };
   }, [user, tab, page]);
@@ -115,7 +116,7 @@ export default function MyCommunityActivityPage() {
 
       {error ? (
         <Notice color="red" compact>{error}</Notice>
-      ) : !data ? (
+      ) : !data || data.tab !== tab ? (
         <p className="text-center text-sm text-gray-400 mt-10">불러오는 중…</p>
       ) : data.items.length === 0 ? (
         <p className="text-center text-sm text-gray-400 mt-10">{EMPTY_TEXT[tab]}</p>
@@ -127,7 +128,7 @@ export default function MyCommunityActivityPage() {
         </ul>
       )}
 
-      {data && (
+      {data && data.tab === tab && (
         <Pagination page={data.page} totalPages={data.totalPages} onChange={p => { setPage(p); window.scrollTo(0, 0); }} />
       )}
     </main>

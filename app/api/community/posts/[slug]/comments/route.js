@@ -34,13 +34,15 @@ export const GET = withCommunityErrors(async function GET(request, { params }) {
     (rawComments || []).filter(c => !c.is_anonymous && c.user_id).map(c => c.user_id)
   )]
   let usernameById = {}
+  let roleById = {}
   let teacherByUserId = {}
   if (nonAnonUserIds.length > 0) {
     const [{ data: users }, { data: teachers }] = await Promise.all([
-      supabaseAdmin.from('users').select('id, username').in('id', nonAnonUserIds),
+      supabaseAdmin.from('users').select('id, username, role').in('id', nonAnonUserIds),
       supabaseAdmin.from('teachers').select('user_id, name, profile_picture').eq('status', 'approved').eq('is_test', false).in('user_id', nonAnonUserIds),
     ])
     usernameById = Object.fromEntries((users || []).map(u => [u.id, u.username]))
+    roleById = Object.fromEntries((users || []).map(u => [u.id, u.role]))
     teacherByUserId = Object.fromEntries((teachers || []).map(t => [t.user_id, t]))
   }
 
@@ -48,6 +50,7 @@ export const GET = withCommunityErrors(async function GET(request, { params }) {
   const withUsername = (rawComments || []).map(c => ({
     ...c,
     username: usernameById[c.user_id],
+    role: roleById[c.user_id] || null,
     teacher: teacherByUserId[c.user_id] || null,
   }))
   const labeled = labelComments(post, withUsername, viewer?.id ?? null)
@@ -73,6 +76,7 @@ export const GET = withCommunityErrors(async function GET(request, { params }) {
         image_url: null,
         author_display_name: '[삭제됨]',
         is_teacher: false,
+        author_role: null,
         author_profile_picture: null,
         author_profile_link: null,
       }
@@ -165,6 +169,6 @@ export const POST = withCommunityErrors(async function POST(request, { params })
     teacher = teacherRow || null
   }
 
-  const [labeledComment] = labelComments(post, [{ ...created, username, teacher }], user.id)
+  const [labeledComment] = labelComments(post, [{ ...created, username, role: profile.role, teacher }], user.id)
   return NextResponse.json({ comment: labeledComment })
 })

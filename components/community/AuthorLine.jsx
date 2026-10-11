@@ -1,14 +1,25 @@
 import Link from 'next/link'
+import { Badge } from '@/components/ui'
 import VerifiedBadge from './VerifiedBadge'
 
 const DEFAULT_TEACHER_PHOTO = 'https://ibmaster.antoinelavo.com/teachers/default.jpg'
 
-// Renders an author's name, and — only when they're an approved teacher
-// posting non-anonymously — their teacher-profile photo, a verified badge,
-// and a link on the name to their public teacher profile at /profile/[name].
+// Role pill for named (non-anonymous) authors. Approved teachers get the
+// blue verified badge instead.
+const ROLE_LABELS = {
+  student: '학생',
+  teacher: '선생님',
+  hagwon: '학원',
+  admin: '운영자',
+}
+
+// Renders an author's name and a role pill (`role` is null for anonymous
+// authors). Approved teachers also get their profile photo, the verified
+// badge, and a link to /profile/[name].
 export default function AuthorLine({
   name,
   isTeacher,
+  role,
   profilePicture,
   profileLink,
   size = 'sm',
@@ -39,7 +50,11 @@ export default function AuthorLine({
         />
       )}
       {nameEl}
-      {isTeacher && <VerifiedBadge />}
+      {isTeacher ? (
+        <VerifiedBadge />
+      ) : ROLE_LABELS[role] ? (
+        <Badge color="gray" className="px-1.5 shrink-0">{ROLE_LABELS[role]}</Badge>
+      ) : null}
     </span>
   )
 }

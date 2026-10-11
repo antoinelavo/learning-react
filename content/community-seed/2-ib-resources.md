@@ -1,5 +1,5 @@
 ---
-title: "IB 공부할 때 실제로 쓰는 사이트 총정리 (무료, 유료, 과목별)"
+title: "IB 필수 자료 모음 (공식 사이트 위주)"
 categories: ["IB", "정보공유"]
 pinned: false
 ---

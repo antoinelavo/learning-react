@@ -1,5 +1,5 @@
 ---
-title: "디지털 SAT 실전 자료 총정리 (고득점자들이 실제로 쓰는 것)"
+title: "SAT 준비 공식 자료 정리 (무료 자료 포함)"
 categories: ["SAT", "정보공유"]
 pinned: false
 ---

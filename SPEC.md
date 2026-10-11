@@ -31,7 +31,7 @@ Let the owner see each seed post in `content/community-seed/` exactly as it will
 - [x] `/community/preview` lists all six seed posts under `npm run dev`.
 - [x] `/community/preview/1` shows the 공지 badge, and `/community/preview/2` does not.
 - [x] The preview body HTML matches `communityMarkdownToHtml` output for the same file (same function, same classes).
-- [x] `/community/preview/99` returns 404.
+- [ ] `/community/preview/99` returns 404. (Shows the 404 page, but with HTTP status 200 under `npm run dev`: `app/community/loading.jsx` streams the response first. Missing posts at `/community/post/<slug>` already behave the same way.)
 - [x] Both routes return 404 under `npm run build && npm start`.
 - [x] `scripts/community-seed.mjs` still passes its earlier checks (usage error, missing env, mock insert with `is_pinned`).
 - [x] Screenshots of posts 1–3 (desktop and mobile) are shared.

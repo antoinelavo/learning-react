@@ -61,8 +61,8 @@ export default async function CommunityPage({ searchParams }) {
               {feed.pinned.map(post => (
                 <li key={post.id}><PostListItem post={post} /></li>
               ))}
-              {feed.posts.map((post, i) => (
-                <li key={post.id}><PostListItem post={post} rank={tab === 'best' ? i + 1 : null} /></li>
+              {feed.posts.map(post => (
+                <li key={post.id}><PostListItem post={post} /></li>
               ))}
             </ul>
           )}

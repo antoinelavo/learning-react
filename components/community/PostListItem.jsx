@@ -6,7 +6,7 @@ import { stripMarkdown } from '@/lib/community';
 import CategoryBadge from './CategoryBadge';
 import AuthorLine from './AuthorLine';
 
-export default function PostListItem({ post, rank }) {
+export default function PostListItem({ post }) {
   return (
     <Link
       href={`/community/post/${post.slug}`}
@@ -15,9 +15,6 @@ export default function PostListItem({ post, rank }) {
       })}
     >
       <div className="flex items-start gap-3">
-        {rank != null && (
-          <span className="shrink-0 w-6 text-center text-base font-bold text-blue-600">{rank}</span>
-        )}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5 mb-1">
             {post.is_pinned && <Badge color="red">공지</Badge>}
@@ -36,7 +33,7 @@ export default function PostListItem({ post, rank }) {
 
       {/* Full-width footer so the counters line up on the right edge whether
           or not the post has a thumbnail. */}
-      <div className={`flex items-center gap-2 mt-2 text-xs text-gray-400 ${rank != null ? 'pl-9' : ''}`}>
+      <div className="flex items-center gap-2 mt-2 text-xs text-gray-400">
         <span className="flex min-w-0 items-center gap-2">
           <AuthorLine
             name={post.author_display_name}

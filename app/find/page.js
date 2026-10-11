@@ -1,5 +1,4 @@
 import TeacherList from './TeacherList';
-import ClientFind from './ClientFind';
 
 export const metadata = {
   title: 'IB 과외 찾기',
@@ -33,8 +32,6 @@ export const metadata = {
 
 export default function FindPage() {
   return (
-    <ClientFind>
-      <TeacherList />
-    </ClientFind>
+    <TeacherList />
   );
 }

@@ -7,6 +7,7 @@ const AuthContext = createContext({
   user: null,
   role: null,
   username: null,
+  profileLoaded: false,
   teacherStatus: null,
   teacherId: null,
   loading: true,
@@ -18,6 +19,9 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(null);
   const [username, setUsername] = useState(null);
+  // True once the users row was read (or confirmed missing). False after a
+  // failed query, so callers don't mistake a network error for "no role".
+  const [profileLoaded, setProfileLoaded] = useState(false);
   const [teacherStatus, setTeacherStatus] = useState(null);
   const [teacherId, setTeacherId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,6 +31,7 @@ export function AuthProvider({ children }) {
       setUser(null);
       setRole(null);
       setUsername(null);
+      setProfileLoaded(false);
       setTeacherStatus(null);
       setTeacherId(null);
       setLoading(false);
@@ -36,7 +41,7 @@ export function AuthProvider({ children }) {
     setUser(supabaseUser);
 
     // Fetch role/username and teacher info in parallel
-    const [{ data: userData }, { data: teacher }] = await Promise.all([
+    const [{ data: userData, error: userError }, { data: teacher }] = await Promise.all([
       supabase
         .from('users')
         .select('role, username')
@@ -52,6 +57,8 @@ export function AuthProvider({ children }) {
     const userRole = userData?.role ?? null;
     setRole(userRole);
     setUsername(userData?.username ?? null);
+    // PGRST116 = no users row, which is a real "missing profile".
+    setProfileLoaded(!userError || userError.code === 'PGRST116');
     setTeacherStatus(teacher?.status ?? null);
     setTeacherId(teacher?.id ?? null);
     setLoading(false);
@@ -93,6 +100,7 @@ export function AuthProvider({ children }) {
         user,
         role,
         username,
+        profileLoaded,
         teacherStatus,
         teacherId,
         loading,

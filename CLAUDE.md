@@ -48,6 +48,7 @@ IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, wi
 - **Cron:** `app/api/cron/daily-digest` requires `Authorization: Bearer $CRON_SECRET`. `vercel.json` is empty, so the schedule is configured outside this repo.
 - **Subscriber emails** (`daily-digest`, `notify-subscribers`): if `TEST_OVERRIDE_EMAIL` is set, every recipient is replaced with that address.
 - **Roles:** user role is `users.role`; teacher approval state is `teachers.status` (helpers `getUserRole`/`getTeacherStatus` in `lib/supabase.js`).
+- **Onboarding:** OAuth sign-ups (Kakao/Google) get a `users` row with no `role` or `username` (`handle_new_user` trigger). `components/OnboardingGate.client.jsx`, mounted in `Providers`, shows a blocking modal on every page except the auth flow pages until both are set. It waits for `profileLoaded` from `AuthContext`, so a failed profile query doesn't trigger it.
 - Component filenames ending in `.client.jsx` / `.server.jsx` mark client vs. server components.
 - Features are planned in `SPEC.md` (written via `/spec`, implemented via `/build`).
 - `TODO.md` tracks planned work (community board launch checklist, unsubscribe flows).

@@ -1,77 +1,88 @@
-import fs from 'fs'
-import path from 'path'
-import matter from 'gray-matter'
-import { supabase } from '@/lib/supabase'
-import CommunityBoard from './CommunityBoard.client'
+import { Button, Notice } from '@/components/ui'
+import PostListItem from '@/components/community/PostListItem'
+import Pagination from '@/components/community/Pagination'
+import { getCommunityFeed } from '@/lib/communityFeed'
+import { CATEGORY_LIST, communityHref, sanitizeSearch } from '@/lib/community'
+import CommunityControls from './CommunityControls.client'
+import CommunityHeaderActions from './CommunityHeaderActions.client'
+import CommunityWriteBar from './CommunityWriteBar.client'
+import { FeedNavigationProvider, FeedResults, FeedLink } from './FeedNavigation.client'
 
-const BLOG_DIR = path.join(process.cwd(), 'content/blog')
+const TITLE = '국제학교 입시 커뮤니티 | IB Master'
+const DESCRIPTION = 'IB, SAT, 특례입학 관련 정보와 질문을 나누는 커뮤니티입니다.'
 
 export const metadata = {
-  title: '국제학교 입시 커뮤니티 | IB Master',
-  description: 'IB, SAT, 특례입학 관련 정보와 질문을 나누는 커뮤니티입니다.',
-  alternates: {
-    canonical: '/community',
-  },
-  openGraph: {
-    url: '/community',
-    title: '국제학교 입시 커뮤니티 | IB Master',
-    description: 'IB, SAT, 특례입학 관련 정보와 질문을 나누는 커뮤니티입니다.',
-  },
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: '/community' },
+  openGraph: { url: '/community', title: TITLE, description: DESCRIPTION },
 }
 
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
-export default async function CommunityPage() {
-  // --- MDX SEO posts (filesystem) ---
-  const mdxPosts = fs
-    .readdirSync(BLOG_DIR)
-    .filter(f => f.endsWith('.mdx'))
-    .map(file => {
-      const { data } = matter(fs.readFileSync(path.join(BLOG_DIR, file), 'utf8'))
-      return {
-        slug: file.replace(/\.mdx$/, ''),
-        title: data.title || '',
-        description: data.description || '',
-        date: data.date || '',
-        category: data.category || '일반',
-        featured: data.featured || false,
-        type: 'mdx',
-        views: 0,
-        url: `/blog/${file.replace(/\.mdx$/, '')}`,
-      }
-    })
+export default async function CommunityPage({ searchParams }) {
+  const params = await searchParams
+  const tab = params?.tab === 'best' ? 'best' : 'all'
+  const category = CATEGORY_LIST.includes(params?.category) ? params.category : null
+  const q = sanitizeSearch(params?.q)
 
-  // --- Supabase posts (admin + user) ---
-  let supabasePosts = []
+  let feed = null
   try {
-    const { data } = await supabase
-      .from('posts')
-      .select('slug, title, description, category, type, featured, date, created_at, views')
-      .eq('published', true)
-      .order('created_at', { ascending: false })
-
-    supabasePosts = (data || []).map(p => ({
-      slug: p.slug,
-      title: p.title,
-      description: p.description || '',
-      date: p.date || p.created_at?.slice(0, 10) || '',
-      category: p.category || '일반',
-      featured: p.featured || false,
-      type: p.type,
-      views: p.views || 0,
-      url: `/community/${p.slug}`,
-    }))
-  } catch {
-    // posts table not yet created — degrade gracefully
+    feed = await getCommunityFeed({ tab, category, q, page: params?.page })
+  } catch (err) {
+    console.error('community feed error:', err)
   }
 
-  // Merge and sort by date desc
-  const allPosts = [...supabasePosts, ...mdxPosts].sort(
-    (a, b) => new Date(b.date) - new Date(a.date)
+  const isEmpty = feed && feed.pinned.length === 0 && feed.posts.length === 0
+
+  return (
+    <FeedNavigationProvider>
+      <main className="max-w-3xl mx-auto px-4 pt-4 pb-32 min-h-screen">
+        <div className="flex items-center justify-between gap-3 mb-3 min-h-[36px]">
+          <h1 className="text-base sm:text-lg font-bold text-gray-900 m-0 leading-snug">IB·SAT 입시 커뮤니티</h1>
+          <CommunityHeaderActions />
+        </div>
+
+        <CommunityControls tab={tab} category={category} q={q} page={feed?.page} />
+
+        <FeedResults>
+          {tab === 'best' && (
+            <p className="text-xs text-gray-500 mb-3">최근 7일 동안 좋아요, 댓글, 조회가 많은 글입니다.</p>
+          )}
+
+          {!feed ? (
+            <Notice color="red" compact>게시글을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.</Notice>
+          ) : isEmpty ? (
+            <p className="text-center text-sm text-gray-400 mt-10">
+              {q ? '검색 결과가 없습니다.' : '게시글이 없습니다.'}
+            </p>
+          ) : (
+            <ul className="space-y-2 list-none p-0 m-0">
+              {feed.pinned.map(post => (
+                <li key={post.id}><PostListItem post={post} /></li>
+              ))}
+              {feed.posts.map(post => (
+                <li key={post.id}><PostListItem post={post} /></li>
+              ))}
+            </ul>
+          )}
+
+          {feed && (
+            <Pagination
+              page={feed.page}
+              totalPages={feed.totalPages}
+              hrefFor={p => communityHref({ tab, category, q, page: p })}
+              LinkComponent={FeedLink}
+            />
+          )}
+        </FeedResults>
+
+        <div className="flex justify-center mt-10">
+          <Button href="/blog" variant="secondary" size="sm">블로그 보기</Button>
+        </div>
+
+        <CommunityWriteBar />
+      </main>
+    </FeedNavigationProvider>
   )
-
-  const featured = allPosts.filter(p => p.featured)
-  const regular = allPosts.filter(p => !p.featured)
-
-  return <CommunityBoard featured={featured} regular={regular} />
 }

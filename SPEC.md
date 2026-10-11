@@ -1,58 +1,83 @@
-# Spec: Security hardening + monthly security audit routine
+# Spec: Community board (Naver-cafe style)
 
 ## Goal
-Close the current Supabase RLS gaps without breaking any site feature, and add a monthly Claude Code routine that scans the database, code and live site for security risks and opens a PR with a report and proposed fixes.
+Finish the community board started on `claude/community-board-system-u6fkyq` and add the core Naver-cafe features (notices, best posts, search, scraps, my activity, moderation). Ship it ready to launch, but keep it hidden from navigation and the sitemap until the owner launches it.
 
 ## Included
-
-**Part 1: one-time hardening**
-- `lib/supabaseAdmin.js`: server-only Supabase client using `SUPABASE_SERVICE_ROLE_KEY` (throws if imported in the browser or if the key is missing).
-- Switch server code that runs without a user session to that client: Toss success/webhook and tier routes, `lib/premiumActivation.js`, `lib/tierActivation.js`, NicePay routes, `app/api/cron/daily-digest`, `app/api/notify-subscribers`, `app/api/dashboard/*`, `app/api/admin/posts`, `app/api/teachers/notify-approved`.
-- Auth checks on API routes that are open today: `dashboard/*` and `admin/posts` require a logged-in admin; webhooks keep/verify their signature or server-side payment confirmation.
-- Remove `pages/api/hello.js` and `app/api/test-email`.
-- One migration file, `supabase/migrations/2026MMDD_security_rls.sql`:
-  - `public.is_admin()` (`SECURITY DEFINER`, fixed `search_path`) based on `users.role = 'admin'`.
-  - Enable RLS on: `student_jobs`, `payment_request`, `successful_payments`, `teacher_premium`, `newsletter_subscriptions`, `page_events`, `student_job_views`, `hagwon_request_views`, `hagwons`, with policies matching how the site uses each table today (public insert where visitors submit forms or log events, owner/admin read, admin-only for payment tables).
-  - `student_jobs`: revoke `select` on `kakao_contact` and the password hash column from `anon`/`authenticated`; public reads use explicit columns. New RPCs: contact info for 플러스 teachers and owners, and `update_student_job_status` that checks the password server-side. `reveal_student_job` stays the free-tier path.
-  - Fixed `search_path` on existing `SECURITY DEFINER` functions that lack it.
-- Update `/students` pages to select explicit columns, get contact info only via RPCs, and edit via the password RPC. No visible change for users.
-
-**Part 2: monthly routine**
-- `content/security/audit-routine-prompt.md`: instructions for the routine, following the style of `content/seo/audit-routine-prompt.md`.
-- Checks:
-  1. Supabase (read-only via connector): RLS on every public table, broad write policies (`using (true)`), `SECURITY DEFINER` without `search_path`, `anon` grants on sensitive columns, security advisors.
-  2. API routes: every route in `app/api/` has the right auth; webhooks verify payments.
-  3. Secrets: no service-role key or secrets in client code, `NEXT_PUBLIC_*`, or git history of the month.
-  4. `npm audit` (high/critical).
-  5. Live site: security headers on https://www.ibmaster.net, and that `.env`, source maps and removed routes return 404.
-- Output: report at `content/security/audits/YYYY-MM-DD.md` (findings with severity `critical`/`high`/`medium`/`low`, file or table, proposed fix), code fixes, and any proposed SQL as a new migration file. Opens one `security-audit:` PR.
-- Create the routine: fresh session each run, 10th of every month around 9am KST (`CRON_TZ=Asia/Seoul`, jittered minute before 9:00), Supabase connector attached.
-- Add both routines/files to `CLAUDE.md`.
-
-**Added during /build (approved):** `users` (role self-escalation to admin, public email reads), `payments` and `teacher_revealed_requests` (open read/write), `teachers` (public bank details, public update of any column), `hagwon_requests` (same leak as `student_jobs`). Also hardened `notify-subscribers` and `chat/notify-message` (no arbitrary email content), `get_or_create_conversation` (caller must be a participant), and fixed the daily digest's hagwon query (selected a non-existent `type` column).
-
-**Changed during /build:** `app/api/dashboard/*` stays public. The EduSphere partner dashboard (`app/hagwon-dashboard/edusphere`) calls it without a Supabase login, and it returns only aggregate click/impression data for that one hagwon.
+- **Bring the branch up to date:** merge `claude/community-board-system-u6fkyq` into the working branch, merge in `main` (101 commits behind), and resolve conflicts. Keep the rebuild's existing features:
+  - 6 boards
+  - threaded comments, one reply level
+  - likes on posts and comments
+  - anonymous posting
+  - teacher identity
+  - username onboarding
+  - R2 image uploads, up to 5 per post
+  - reports with an admin review queue
+  - de-duplicated view counts
+  - rate limits
+- **Fix broken or stale parts** found while merging: build errors, Next 15 async `params`, anything still calling `supabase.auth.getUser()` server-side without a token, and the client sending its access token on every community API call.
+- **공지 (pinned notices):** admins can pin or unpin any post. Pinned posts appear at the top of their board and of the 전체 view, marked "공지". They are stored as `is_pinned` on `community_posts`.
+- **인기글:** a best-posts tab showing posts from the last 7 days, ranked by `like_count * 3 + comment_count * 2 + view_count / 10`, top 20.
+- **Search:** title and content search (`ilike`), combined with the board filter. The query is kept in the URL (`?q=`).
+- **Pagination:** 20 posts per page, numbered pages, with the page number in the URL (`?page=`).
+- **Scrap:** a scrap/unscrap toggle on the post page, stored in a new `community_post_scraps` table (`post_id`, `user_id`, `created_at`).
+- **내 활동** (`/community/me`): tabs for 내가 쓴 글, 내가 쓴 댓글 and 스크랩, each paginated. Anonymous posts and comments are included for their owner.
+- **Admin tools:**
+  - Hide or delete any post or comment from the post page (admin only) and from `/admin/community/reports`. Both are soft deletes using `deleted_at`, shown as "관리자에 의해 삭제된 게시글입니다." / "…댓글입니다."
+  - Admins see the real author of anonymous posts and comments.
+  - Ban a user for 7 days, 30 days or permanently, stored in a new service-role-only `community_bans` table (not on `users`, which users can update themselves). Permanent is stored as a far-future date.
+- **Ban behavior:** a banned user can still read. Every write route (post, comment, like, scrap, report, image upload) returns 403, and the UI shows "커뮤니티 이용이 제한되었습니다 (YYYY-MM-DD까지)".
+- **SEO:** each post gets `generateMetadata` (title, description, canonical, Open Graph) and `DiscussionForumPosting` JSON-LD. The feed page gets a canonical URL.
+- **Remove the legacy community pieces:**
+  - the announcements strip on `/community` (blog MDX + old `posts` table)
+  - `/community/[slug]`, `/admin/posts` and `app/api/admin/posts/*`
+  - the old `posts` table and `increment_post_views` (dropped in the migration)
+  - Add a single "블로그 보기" secondary button linking to `/blog` on the feed.
+- **UI consistency pass** over every community and admin-community screen (including the branch's existing ones) so they match `/find` and `/hagwons` (see Rules).
+- **One new migration** `supabase/migrations/<date>_community_launch.sql`. It adds:
+  - `is_pinned`
+  - `community_post_scraps` with RLS enabled
+  - `community_bans` (service-role only)
+  - updates to `community_posts_public` to expose `is_pinned`
+  - dropping `posts` and `increment_post_views`
+  It also copies the two branch migrations that are already applied in the live DB as-is.
+- **Docs:** update `TODO.md` (setup steps and launch checklist) and `CLAUDE.md` (community architecture, `lib/supabaseAdmin.js` as the one service-role exception).
 
 ## Not included
-- The routine never writes to the live database, never merges, and never changes Toss/payment logic or prices beyond the client swap above.
-- Policies for the unlaunched community tables (they stay locked: RLS on, no policies); handled when the board launches.
-- Rate limiting, WAF, CSP rollout (CSP is reported, not added, this round).
-- Removing NicePay.
+- Making the board public: the nav links stay commented out and `/community` stays out of the sitemap.
+- Reply or comment notifications (site or email), member grades and 등업, polls, 출석부, 쪽지, word filter.
+- Promotion rules: teachers and hagwons may post and comment, under their own identity or anonymously. Moderation is case by case through reports.
+- Changes to the legal pages (terms, privacy).
+- Turning on RLS for the 9 unrelated tables flagged by Supabase (separate task).
 
 ## Rules
-- "Ask before changing" areas touched, approved in this interview: payment code (client swap only, the `pending` → `paid` guard stays), and a new migration. The migration is run by hand in the Supabase dashboard.
-- Rollout order: (1) add `SUPABASE_SERVICE_ROLE_KEY` in Vercel, (2) merge and deploy the code, (3) run the migration. The PR description states this order.
-- `SUPABASE_SERVICE_ROLE_KEY` is never `NEXT_PUBLIC_`, never imported by a client component.
-- Keep the `is_test` filter on public teacher queries.
-- Routine: skip if a `security-audit:` PR is already open; Supabase access read-only (`select` queries and advisors only); never print secret values; never weaken an existing policy.
-- Site text Korean; code, comments, report English.
+- **Database (Ask before changing, approved):** the new migration is written to the repo and run by hand in the Supabase dashboard. Don't apply it through MCP. The build must not depend on it being applied; features that need it can fail at runtime until it is run.
+- **Service-role client (approved):** `lib/supabaseAdmin.js` is used only in community and admin-community API routes, and only after `getCommunityUser`/`requireAdminUser` has verified the caller. Never import it in client components. It needs `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` and in Vercel (Production + Preview).
+- Admin checks are server-side (`requireAdminUser`). Client-side `role === 'admin'` only hides UI.
+- Logged-out visitors can read the feed, posts and comments. Writing, liking, scrapping and reporting need a logged-in user with a username.
+- Anonymous is a per-post and per-comment checkbox, off by default, on every board. Public responses never include `user_id` or the real author for anonymous content; only admin responses do.
+- Approved teachers posting non-anonymously show their teacher name, photo and badge, linked to `/profile/[name]`. Exclude `is_test` teachers from that link.
+- Deleted and hidden content never appears in feeds, search, 인기글 or 내 활동 (except to show the owner a "삭제됨" entry).
+- Site text is Korean; code and comments are English.
+- **UI matches `/find` and `/hagwons`:**
+  - Use the shared kit in `components/ui`: `Button`/`buttonClasses` for every action, `chipClasses` for board filters, `Tabs` for 전체/인기글 and the 내 활동 tabs, `Input`/`Select`/`Textarea` for forms, `cardClasses`, `Badge` and `Notice`.
+  - No text links styled as actions, no arrow glyphs (`→`, `←`, `›`) in button or link labels, and no one-off color or size classes on buttons.
+  - Back navigation is a `secondary` or `ghost` `Button`, e.g. "목록으로".
+  - Page shell matches `/find`: `max-w-3xl mx-auto px-4 py-4`, `h1` `text-lg sm:text-xl font-bold text-gray-900`.
+  - Empty states use the same style as `/find`'s `text-center text-sm text-gray-400`.
+- Mobile first: the feed, post page, write form and 내 활동 work at 375px width with no horizontal scroll.
+- Work on `claude/init-tfsut8` and open a PR. Never push to `main`.
 
 ## Done when
-- [x] No file imported by a client component imports `lib/supabaseAdmin.js` (grep check).
-- [x] Every table listed above has `enable row level security` and at least one policy in the migration; `kakao_contact` and the password hash are not selectable by `anon`.
-- [x] Before the migration is applied, each policy is checked against every `.from('<table>')` call in the code, with a table → operation → role → policy list in the PR description showing nothing the site does is blocked.
-- [x] `/students` no longer uses `select('*')` on `student_jobs`; reveal, 플러스 auto-reveal, and password edit go through RPCs.
-- [ ] `dashboard/*` and `admin/posts` return 401/403 without an admin session; `hello` and `test-email` are gone. (Partly: `admin/posts` and `teachers/notify-approved` return 401, `hello`/`test-email` removed; `dashboard/*` intentionally stays public, see above.)
-- [ ] `content/security/audit-routine-prompt.md` exists and covers all five checks; the routine exists (10th monthly, ~9am KST, Supabase connector). (Partly: prompt and routine exist; the Supabase connector must be added in the claude.ai routines UI.)
-- [x] `CLAUDE.md` mentions the service-role client and the security routine.
-- [x] `npm run build` passes.
+- [x] The branch contains the community rebuild merged with current `main`, and there are no conflict markers.
+- [x] `npm run build` passes, using placeholder env values plus a placeholder `SUPABASE_SERVICE_ROLE_KEY`.
+- [x] Every community write route verifies a bearer token and returns 401 without one and 403 for a banned user (checked by reading the code).
+- [x] The feed shows pinned posts first, the 인기글 tab uses the 7-day formula, `?q=` searches title and content, and `?page=` paginates 20 per page.
+- [x] Admins can pin or unpin, hide or delete any post or comment, see anonymous authors, and ban for 7, 30 or permanent days. These controls don't render for non-admins, and their API routes reject non-admins.
+- [x] Scrap toggles on a post, and `/community/me` lists my posts, comments and scraps.
+- [x] Post pages render metadata, a canonical URL and `DiscussionForumPosting` JSON-LD.
+- [x] `/community/[slug]`, `/admin/posts`, `app/api/admin/posts/*` and the announcements strip are gone, and nothing imports them.
+- [x] The new migration file exists and covers `is_pinned`, `community_post_scraps` with RLS, `community_bans`, the view update, and dropping `posts`.
+- [x] Community and admin-community files use `components/ui` for all buttons, chips, tabs and form fields. Grep finds no `→`/`←` in their labels and no hand-rolled `<button className="bg-...">` styles.
+- [x] The nav links are still commented out and `/community` is not in `public/sitemap.xml`.
+- [x] `TODO.md` lists the launch steps: run the migration, set `SUPABASE_SERVICE_ROLE_KEY` in Vercel, delete the 2 test posts, uncomment the nav links, add `/community` and posts to the sitemap.

@@ -648,9 +648,7 @@ alter table public.hagwons enable row level security;
 create policy hagwons_select_public on public.hagwons
   for select to anon, authenticated using (true);
 
--- Admin post editor reads unpublished posts from the browser.
-create policy posts_admin_all on public.posts
-  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+-- (posts_admin_all removed: the legacy posts table was dropped by the community launch.)
 
 -- ---------------------------------------------------------------------------
 -- Chat
@@ -706,8 +704,6 @@ grant execute on function public.should_notify_chat_message(uuid, uuid, integer)
 -- Fixed search_path on the remaining SECURITY DEFINER functions
 -- ---------------------------------------------------------------------------
 
-alter function public.increment_community_post_views(text) set search_path = public;
-alter function public.increment_post_views(text) set search_path = public;
 alter function public.mark_conversation_read(uuid) set search_path = public;
 alter function public.record_community_post_view(uuid, text) set search_path = public;
 alter function public.should_notify_chat_message(uuid, uuid, integer) set search_path = public;

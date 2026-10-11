@@ -2,31 +2,25 @@
 
 ## Community Board
 
-- Run the Supabase SQL migration to activate post creation
-  - File: supabase/migrations/20260605_create_posts.sql
-  - Run in Supabase dashboard → SQL Editor
+`/community` is in the nav but not yet in the sitemap.
 
-- Add 커뮤니티 to the navigation menu when ready to launch
-  - Link is already built and commented out in DesktopNav.client.jsx and MobileMenuToggle.client.jsx
-  - Just uncomment the relevant blocks to make it visible
+Remaining launch steps:
+1. Add `SUPABASE_SERVICE_ROLE_KEY` to Vercel (Production + Preview) if not already set.
+   Every `/api/community/*` route needs it (`lib/supabaseAdmin.js`).
+2. Add `/community` and `/community/post/[slug]` pages to `scripts/generate-sitemap.js`
+   and regenerate `public/sitemap.xml`.
 
-- Implement post engagement features
-  - View count tracking (increment on each post visit)
-  - Likes / upvotes on posts
-  - Comments and replies on posts
-
-- Post moderation
-  - Admin queue to review and approve/reject user-submitted posts before they go live
+Follow-ups not in this build: reply/comment notifications, member grades and 등업,
+polls, 출석부, word filter, orphaned-R2-image cleanup, a real rate limiter
+(the current one is a DB count check).
 
 ## Teacher Profiles
 
-- Allow teachers to write community posts
 - On each teacher's profile page, show a list of posts they have written
   - Link from profile → post, and from post → teacher profile
 
 ## General
 
-- Add SEO sitemap entries for /community posts
 - Notifications (e.g. notify user when someone replies to their post)
 - Update the footer
 - Fix formatting issues on the /aboutus page

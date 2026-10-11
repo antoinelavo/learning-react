@@ -4,10 +4,10 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import {
   getCommunityUser, requireCommunityWriter, getClientIp, withCommunityErrors,
 } from '@/lib/communityAuth'
-import { CATEGORY_LIST, isCommunityImageUrl, toPublicPost } from '@/lib/community'
+import { CATEGORY_LIST, isCommunityImageUrl, toPublicPost, decodeSlug } from '@/lib/community'
 
 export const GET = withCommunityErrors(async function GET(request, { params }) {
-  const { slug } = await params
+  const slug = decodeSlug((await params).slug)
 
   const { data: post, error } = await supabase
     .from('community_posts_public')
@@ -45,7 +45,7 @@ export const GET = withCommunityErrors(async function GET(request, { params }) {
 })
 
 export const PATCH = withCommunityErrors(async function PATCH(request, { params }) {
-  const { slug } = await params
+  const slug = decodeSlug((await params).slug)
   const { user, response } = await requireCommunityWriter(request)
   if (response) return response
 
@@ -113,7 +113,7 @@ export const PATCH = withCommunityErrors(async function PATCH(request, { params 
 // Owners and admins can delete. Soft delete; an admin deleting someone
 // else's post marks it so the page shows "관리자에 의해 삭제된 게시글입니다."
 export const DELETE = withCommunityErrors(async function DELETE(request, { params }) {
-  const { slug } = await params
+  const slug = decodeSlug((await params).slug)
   const user = await getCommunityUser(request)
   if (!user) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
 

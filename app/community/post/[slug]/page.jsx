@@ -4,7 +4,7 @@ import CategoryBadge from '@/components/community/CategoryBadge'
 import AuthorLine from '@/components/community/AuthorLine'
 import { getCommunityPostPage } from '@/lib/communityPost'
 import { communityMarkdownToHtml } from '@/lib/communityMarkdown'
-import { stripMarkdown, formatKstDate } from '@/lib/community'
+import { stripMarkdown, formatKstDate, decodeSlug } from '@/lib/community'
 import { jsonLdString } from '@/lib/hagwonNeis'
 import BackButton from '@/components/community/BackButton.client'
 import PostActions from './PostActions.client'
@@ -15,7 +15,7 @@ const SITE_URL = 'https://www.ibmaster.net'
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }) {
-  const { slug } = await params
+  const slug = decodeSlug((await params).slug)
   const result = await getCommunityPostPage(slug)
   if (!result?.post) return { robots: { index: false } }
 
@@ -66,7 +66,7 @@ function postJsonLd(post) {
 }
 
 export default async function CommunityPostDetailPage({ params }) {
-  const { slug } = await params
+  const slug = decodeSlug((await params).slug)
   const result = await getCommunityPostPage(slug)
   if (!result) notFound()
 

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { getCommunityUser, requireCommunityWriter, checkRateLimit, withCommunityErrors } from '@/lib/communityAuth'
-import { isCommunityImageUrl } from '@/lib/community'
+import { isCommunityImageUrl, decodeSlug } from '@/lib/community'
 import { labelComments } from '@/lib/communityAnon'
 
 async function getPost(slug) {
@@ -14,7 +14,7 @@ async function getPost(slug) {
 }
 
 export const GET = withCommunityErrors(async function GET(request, { params }) {
-  const { slug } = await params
+  const slug = decodeSlug((await params).slug)
   const post = await getPost(slug)
   if (!post || post.deleted_at) {
     return NextResponse.json({ error: '게시글을 찾을 수 없습니다.' }, { status: 404 })
@@ -91,7 +91,7 @@ export const GET = withCommunityErrors(async function GET(request, { params }) {
 })
 
 export const POST = withCommunityErrors(async function POST(request, { params }) {
-  const { slug } = await params
+  const slug = decodeSlug((await params).slug)
   const { user, profile, response } = await requireCommunityWriter(request)
   if (response) return response
 

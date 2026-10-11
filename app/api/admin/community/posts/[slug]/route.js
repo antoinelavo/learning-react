@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabaseAdmin'
 import { requireAdminUser, loadAuthors, withCommunityErrors } from '@/lib/communityAuth'
+import { decodeSlug } from '@/lib/community'
 
 // Real authors of a post and its comments, including anonymous ones.
 // Returns { post: { id, is_pinned, author }, commentAuthors: { [commentId]: author } }
@@ -8,7 +9,7 @@ export const GET = withCommunityErrors(async function GET(request, { params }) {
   const admin = await requireAdminUser(request)
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { slug } = await params
+  const slug = decodeSlug((await params).slug)
   const { data: post } = await supabaseAdmin
     .from('community_posts')
     .select('id, user_id, is_pinned')
@@ -34,7 +35,7 @@ export const PATCH = withCommunityErrors(async function PATCH(request, { params 
   const admin = await requireAdminUser(request)
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { slug } = await params
+  const slug = decodeSlug((await params).slug)
   const body = await request.json().catch(() => null)
   if (typeof body?.is_pinned !== 'boolean') {
     return NextResponse.json({ error: 'is_pinned must be a boolean' }, { status: 400 })

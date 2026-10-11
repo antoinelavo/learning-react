@@ -2,8 +2,9 @@ import { buttonClasses } from '@/components/ui';
 import Link from 'next/link';
 
 // Numbered pages. Pass `hrefFor(page)` for link navigation (server pages)
-// or `onChange(page)` for client state.
-export default function Pagination({ page, totalPages, hrefFor, onChange }) {
+// or `onChange(page)` for client state. `LinkComponent` swaps in a custom
+// link (the feed uses FeedLink for its loading skeleton).
+export default function Pagination({ page, totalPages, hrefFor, onChange, LinkComponent = Link }) {
   if (totalPages <= 1) return null;
 
   const start = Math.max(1, Math.min(page - 2, totalPages - 4));
@@ -21,7 +22,7 @@ export default function Pagination({ page, totalPages, hrefFor, onChange }) {
       return <span key={key} className={`${className} opacity-50`} aria-disabled="true">{label}</span>;
     }
     if (hrefFor) {
-      return <Link key={key} href={hrefFor(p)} className={className} aria-current={current ? 'page' : undefined}>{label}</Link>;
+      return <LinkComponent key={key} href={hrefFor(p)} className={className} aria-current={current ? 'page' : undefined}>{label}</LinkComponent>;
     }
     return <button key={key} type="button" onClick={() => onChange(p)} className={className}>{label}</button>;
   }

@@ -1,11 +1,10 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Input, Tabs, chipClasses } from '@/components/ui';
 import { CATEGORY_LIST, communityHref } from '@/lib/community';
 import { FEED_URL_KEY } from '@/components/community/BackButton.client';
+import { FeedLink, useFeedNavigation } from './FeedNavigation.client';
 
 const TABS = [
   { value: 'all', label: '전체글' },
@@ -15,7 +14,10 @@ const TABS = [
 // Tabs, search box and board chips for /community. All state lives in the
 // URL so the server page renders the matching feed.
 export default function CommunityControls({ tab, category, q, page }) {
-  const router = useRouter();
+  const { navigate, pending } = useFeedNavigation();
+  // While a navigation is in flight, show the selection being loaded.
+  const shownTab = pending ? pending.tab : tab;
+  const shownCategory = pending ? pending.category : category;
   const [search, setSearch] = useState(q || '');
   const [showChipFade, setShowChipFade] = useState(false);
   const chipsRef = useRef(null);
@@ -45,15 +47,15 @@ export default function CommunityControls({ tab, category, q, page }) {
 
   function handleSearch(e) {
     e.preventDefault();
-    router.push(communityHref({ tab, category, q: search.trim() }));
+    navigate(communityHref({ tab, category, q: search.trim() }), { tab, category });
   }
 
   return (
     <div className="space-y-3 mb-4">
       <Tabs
         tabs={TABS}
-        value={tab}
-        onChange={value => router.push(communityHref({ tab: value, category, q }))}
+        value={shownTab}
+        onChange={value => navigate(communityHref({ tab: value, category, q }), { tab: value, category })}
       />
 
       <form onSubmit={handleSearch} role="search" className="relative">
@@ -79,14 +81,15 @@ export default function CommunityControls({ tab, category, q, page }) {
           className="flex items-center gap-1 sm:gap-2 overflow-x-auto sm:overflow-visible sm:flex-wrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {[null, ...CATEGORY_LIST].map(cat => (
-            <Link
+            <FeedLink
               key={cat || 'all'}
               href={communityHref({ tab, category: cat, q })}
-              className={chipClasses({ selected: (category || null) === cat, compact: true, className: 'shrink-0' })}
-              aria-current={(category || null) === cat ? 'page' : undefined}
+              pendingTarget={{ tab, category: cat }}
+              className={chipClasses({ selected: (shownCategory || null) === cat, compact: true, className: 'shrink-0' })}
+              aria-current={(shownCategory || null) === cat ? 'page' : undefined}
             >
               {cat || '전체'}
-            </Link>
+            </FeedLink>
           ))}
         </div>
         {showChipFade && (

@@ -5,12 +5,8 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export default function CommunityHeaderActions() {
   const { user } = useAuth();
+  if (!user) return null;
   return (
-    <div className="flex items-center gap-2 shrink-0">
-      {user && (
-        <Button href="/community/me" variant="secondary" size="sm">내 활동</Button>
-      )}
-      <Button href={user ? '/community/post/new' : '/login'} size="sm">글쓰기</Button>
-    </div>
+    <Button href="/community/me" variant="secondary" size="sm" className="shrink-0">내 활동</Button>
   );
 }

@@ -1,5 +1,7 @@
-// Shown instantly while the feed re-renders on the server (tab, board,
-// search or page change).
+import FeedSkeleton from './FeedSkeleton';
+
+// Shown on first navigation into /community. Board, tab, search and page
+// changes use FeedResults' skeleton instead (query-only changes skip this).
 function Bar({ className }) {
   return <div className={`rounded bg-gray-200 ${className}`} />;
 }
@@ -17,15 +19,7 @@ export default function CommunityLoading() {
             <div key={i} className="h-9 rounded-full bg-gray-100" style={{ width: `${w * 4}px` }} />
           ))}
         </div>
-        <ul className="space-y-2 list-none p-0 m-0">
-          {Array.from({ length: 6 }, (_, i) => (
-            <li key={i} className="bg-white border border-gray-200 shadow rounded-2xl p-4">
-              <Bar className="h-4 w-14 mb-2" />
-              <Bar className="h-4 w-3/4 mb-2" />
-              <Bar className="h-3 w-1/2" />
-            </li>
-          ))}
-        </ul>
+        <FeedSkeleton />
       </div>
     </main>
   );

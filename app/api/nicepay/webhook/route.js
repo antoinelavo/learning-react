@@ -10,7 +10,7 @@
 // Per NicePay's contract, this must always respond 200 with body exactly
 // "OK" — even when we internally fail to process it — so log failures
 // server-side instead of surfacing them in the response.
-import { supabase } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { verifyWebhookSignature } from '@/lib/nicepay';
 import { activatePremium } from '@/lib/premiumActivation';
 
@@ -32,7 +32,7 @@ export async function POST(request) {
       return ack();
     }
 
-    const { data: order, error } = await supabase
+    const { data: order, error } = await getSupabaseAdmin()
       .from('payment_request')
       .select('*')
       .eq('order_id', orderId)
@@ -44,6 +44,7 @@ export async function POST(request) {
     }
 
     const result = await activatePremium({
+      db: getSupabaseAdmin(),
       paymentId: tid,
       teacherId: order.teacher_id,
       teacherName: order.name,

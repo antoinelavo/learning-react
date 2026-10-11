@@ -8,7 +8,7 @@
 // payment_request row the client inserted (keyed by order_id) before
 // calling AUTHNICE.requestPay.
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { verifyAuthResultSignature, approvePayment } from '@/lib/nicepay';
 import { activatePremium } from '@/lib/premiumActivation';
 
@@ -44,7 +44,7 @@ export async function POST(request) {
     return failRedirect(request, 'bad_signature');
   }
 
-  const { data: order, error: lookupError } = await supabase
+  const { data: order, error: lookupError } = await getSupabaseAdmin()
     .from('payment_request')
     .select('*')
     .eq('order_id', orderId)
@@ -69,6 +69,7 @@ export async function POST(request) {
   }
 
   const result = await activatePremium({
+    db: getSupabaseAdmin(),
     paymentId: tid,
     teacherId: order.teacher_id,
     teacherName: order.name,

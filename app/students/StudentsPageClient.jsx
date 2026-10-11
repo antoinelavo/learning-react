@@ -6,7 +6,8 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import RequestBoardHeader from '@/components/RequestBoardHeader';
 import NewsletterPopup from '@/components/NewsletterPopup';
-import { revealStudentJob, getRevealedStudentJobIds, revealsRemaining } from '@/lib/reveal';
+import { revealStudentJob, getRevealedStudentJobIds, revealsRemaining, getStudentJobContact } from '@/lib/reveal';
+import { STUDENT_JOB_PUBLIC_COLUMNS, hashPassword } from '@/lib/requestColumns';
 import { Input, Button, buttonClasses, choiceClasses, cardClasses, Badge, Notice } from '@/components/ui';
 
 export default function StudentsPageClient() {
@@ -20,6 +21,8 @@ export default function StudentsPageClient() {
   const [editingStudentId, setEditingStudentId] = useState(null);
   const [passwordInput, setPasswordInput] = useState('');
   const [passwordVerified, setPasswordVerified] = useState(false);
+  // Hash of the verified edit password, sent with each edit RPC.
+  const [verifiedHash, setVerifiedHash] = useState(null);
   const [newStatus, setNewStatus] = useState('OPEN');
   const [modalError, setModalError] = useState('');
   const [saving, setSaving] = useState(false);
@@ -31,6 +34,19 @@ export default function StudentsPageClient() {
   const [teacherProfile, setTeacherProfile] = useState(null);
   const [revealedIds, setRevealedIds] = useState(new Set());
   const [revealingId, setRevealingId] = useState(null);
+  // Contact info per revealed request id, loaded on demand.
+  const [contacts, setContacts] = useState({});
+
+  // Load contact info for the expanded request once it's revealed.
+  useEffect(() => {
+    const id = expandedStudentId;
+    if (!id || !revealedIds.has(id) || contacts[id]) return;
+    getStudentJobContact(id)
+      .then((contact) => {
+        if (contact) setContacts((prev) => ({ ...prev, [id]: contact }));
+      })
+      .catch((err) => console.error('Error loading contact:', err));
+  }, [expandedStudentId, revealedIds, contacts]);
 
   useEffect(() => {
     async function loadTeacherRevealState() {
@@ -93,7 +109,7 @@ export default function StudentsPageClient() {
 
       const { data, error: dbError } = await supabase
         .from('student_jobs')
-        .select('*')
+        .select(STUDENT_JOB_PUBLIC_COLUMNS)
         .order('created_at', { ascending: false });
 
       // Sort OPEN listings before CLOSED, then by creation date
@@ -210,14 +226,6 @@ export default function StudentsPageClient() {
     }
   };
 
-  async function hashPassword(password) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  }
-
   async function handleVerifyPassword() {
     if (!passwordInput.trim()) {
       setModalError('비밀번호를 입력해 주세요.');
@@ -225,19 +233,30 @@ export default function StudentsPageClient() {
     }
 
     const student = students.find(s => s.id === editingStudentId);
-    if (!student || !student.edit_password_hash) {
+    if (!student) {
       setModalError('비밀번호를 확인할 수 없습니다.');
       return;
     }
 
     const enteredHash = await hashPassword(passwordInput.trim());
 
-    if (enteredHash !== student.edit_password_hash) {
+    // Checked server-side; returns no row on a wrong password.
+    const { data: match, error: verifyError } = await supabase
+      .rpc('get_student_job_for_edit', { p_id: editingStudentId, p_password_hash: enteredHash })
+      .maybeSingle();
+
+    if (verifyError) {
+      console.error('Error verifying password:', verifyError);
+      setModalError('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+    if (!match) {
       setModalError('비밀번호가 올바르지 않습니다.');
       return;
     }
 
     // Password verified - transform modal
+    setVerifiedHash(enteredHash);
     setPasswordVerified(true);
     setNewStatus(student.status);
     setModalError('');
@@ -251,12 +270,13 @@ export default function StudentsPageClient() {
     const isChangingToClosed = student?.status === 'OPEN' && newStatus === 'CLOSED';
 
     try {
-      const { error: updateError } = await supabase
-        .from('student_jobs')
-        .update({ status: newStatus })
-        .eq('id', editingStudentId);
+      const { data: updated, error: updateError } = await supabase.rpc('update_student_job_with_password', {
+        p_id: editingStudentId,
+        p_password_hash: verifiedHash,
+        p_changes: { status: newStatus },
+      });
 
-      if (updateError) {
+      if (updateError || !updated) {
         console.error('Error updating status:', updateError);
         setModalError('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
         setSaving(false);
@@ -286,10 +306,11 @@ export default function StudentsPageClient() {
 
   async function handleFeedbackSubmit(answer) {
     try {
-      const { error: updateError } = await supabase
-        .from('student_jobs')
-        .update({ found_teacher_through_platform: answer })
-        .eq('id', editingStudentId);
+      const { error: updateError } = await supabase.rpc('update_student_job_with_password', {
+        p_id: editingStudentId,
+        p_password_hash: verifiedHash,
+        p_changes: { found_teacher_through_platform: answer },
+      });
 
       if (updateError) {
         console.error('Error saving feedback:', updateError);
@@ -313,6 +334,7 @@ export default function StudentsPageClient() {
     setPasswordInput('');
     setEditingStudentId(null);
     setPasswordVerified(false);
+    setVerifiedHash(null);
     setNewStatus('OPEN');
     setModalError('');
     setShowFeedbackQuestion(false);
@@ -360,6 +382,7 @@ export default function StudentsPageClient() {
               const isExpanded = expandedStudentId === student.id;
               const isApprovedTeacher = role === 'teacher' && teacherStatus === 'approved';
               const isRevealed = revealedIds.has(student.id);
+              const contact = contacts[student.id];
 
               return (
                 <div
@@ -515,22 +538,28 @@ export default function StudentsPageClient() {
                           </div>
                         ) : (
                           <div className="space-y-1 text-sm text-gray-800 rounded-md p-3">
-                            <p>
-                              <span className="font-medium">이메일:</span>{' '}
-                              <a href={`mailto:${student.email}`} className="text-blue-600 hover:underline">
-                                {student.email}
-                              </a>
-                            </p>
-                            {student.kakao_contact && (
-                              <p>
-                                <span className="font-medium">카카오톡:</span>{' '}
-                                <a
-                                  href={student.kakao_contact.startsWith('http') ? student.kakao_contact : undefined}
-                                  className="text-blue-600 hover:underline break-all"
-                                >
-                                  {student.kakao_contact}
-                                </a>
-                              </p>
+                            {!contact ? (
+                              <p className="text-gray-500">연락처를 불러오는 중입니다…</p>
+                            ) : (
+                              <>
+                                <p>
+                                  <span className="font-medium">이메일:</span>{' '}
+                                  <a href={`mailto:${contact.email}`} className="text-blue-600 hover:underline">
+                                    {contact.email}
+                                  </a>
+                                </p>
+                                {contact.kakao_contact && (
+                                  <p>
+                                    <span className="font-medium">카카오톡:</span>{' '}
+                                    <a
+                                      href={contact.kakao_contact.startsWith('http') ? contact.kakao_contact : undefined}
+                                      className="text-blue-600 hover:underline break-all"
+                                    >
+                                      {contact.kakao_contact}
+                                    </a>
+                                  </p>
+                                )}
+                              </>
                             )}
                             <p className="text-xs text-gray-500 pt-1">
                               위 연락처는 학생이 직접 입력한 정보이며, 연락 시 예의를 지켜주시고 스팸/광고성 메시지는 자제해 주세요. 학생분께서 신고시, 계정 이용에 제한이 있을 수 있습니다. 

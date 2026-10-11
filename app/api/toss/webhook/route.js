@@ -11,7 +11,7 @@
 // signature to verify — so this never trusts the payload's status field
 // directly. It only uses the payload as a prompt to re-fetch the real
 // payment status from Toss's API with our secret key before acting on it.
-import { supabase } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { getPaymentByOrderId } from '@/lib/toss';
 import { activatePremium } from '@/lib/premiumActivation';
 
@@ -33,7 +33,7 @@ export async function POST(request) {
       return ack();
     }
 
-    const { data: order, error } = await supabase
+    const { data: order, error } = await getSupabaseAdmin()
       .from('payment_request')
       .select('*')
       .eq('order_id', orderId)
@@ -45,6 +45,7 @@ export async function POST(request) {
     }
 
     const result = await activatePremium({
+      db: getSupabaseAdmin(),
       paymentId: payment.paymentKey,
       teacherId: order.teacher_id,
       teacherName: order.name,

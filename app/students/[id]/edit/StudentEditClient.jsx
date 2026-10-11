@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Input, Textarea, Button, choiceClasses, cardClasses, Notice } from '@/components/ui';
+import { STUDENT_JOB_PUBLIC_COLUMNS, hashPassword } from '@/lib/requestColumns';
 
 const INITIAL_EDIT_FORM = {
   title: [],
@@ -22,8 +23,9 @@ export default function StudentEditClient({ studentId }) {
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [step, setStep] = useState<'password' | 'form'>('password');
+  const [step, setStep] = useState('password'); // 'password' | 'form'
   const [passwordInput, setPasswordInput] = useState('');
+  const [verifiedHash, setVerifiedHash] = useState(null);
   const [verifying, setVerifying] = useState(false);
   const [form, setForm] = useState(INITIAL_EDIT_FORM);
   const [saving, setSaving] = useState(false);
@@ -36,7 +38,7 @@ export default function StudentEditClient({ studentId }) {
 
       const { data, error: studentError } = await supabase
         .from('student_jobs')
-        .select('*')
+        .select(STUDENT_JOB_PUBLIC_COLUMNS)
         .eq('id', studentId)
         .single();
 
@@ -79,14 +81,6 @@ export default function StudentEditClient({ studentId }) {
     });
   }
 
-  async function hashPassword(password) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  }
-
   async function handleVerifyPassword(e) {
     e.preventDefault();
     if (!student) return;
@@ -97,19 +91,26 @@ export default function StudentEditClient({ studentId }) {
       return;
     }
 
-    if (!student.edit_password_hash) {
-      setError('이 학생 요청에는 비밀번호가 설정되어 있지 않습니다. 새 글을 작성해 주세요.');
-      return;
-    }
-
     setVerifying(true);
     const enteredHash = await hashPassword(passwordInput.trim());
 
-    if (enteredHash !== student.edit_password_hash) {
+    // Checked server-side; returns the private contact fields on a match.
+    const { data: privateFields, error: verifyError } = await supabase
+      .rpc('get_student_job_for_edit', { p_id: student.id, p_password_hash: enteredHash })
+      .maybeSingle();
+
+    if (verifyError) {
+      console.error('Error verifying password:', verifyError);
+      setError('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      setVerifying(false);
+      return;
+    }
+    if (!privateFields) {
       setError('비밀번호가 올바르지 않습니다.');
       setVerifying(false);
       return;
     }
+    setVerifiedHash(enteredHash);
 
     // Password OK – hydrate edit form
     setForm({
@@ -118,8 +119,8 @@ export default function StudentEditClient({ studentId }) {
       level: student.level ?? '',
       description: student.description ?? '',
       format: student.format ?? 'online',
-      email: student.email ?? '',
-      kakaoContact: student.kakao_contact ?? '',
+      email: privateFields.email ?? '',
+      kakaoContact: privateFields.kakao_contact ?? '',
     });
     setStep('form');
     setVerifying(false);
@@ -138,20 +139,21 @@ export default function StudentEditClient({ studentId }) {
 
     setSaving(true);
 
-    const { error: updateError } = await supabase
-      .from('student_jobs')
-      .update({
-        title: form.title.trim(),
+    const { data: updated, error: updateError } = await supabase.rpc('update_student_job_with_password', {
+      p_id: student.id,
+      p_password_hash: verifiedHash,
+      p_changes: {
+        title: form.title,
         subject: form.subject.trim(),
         level: form.level.trim() || null,
         description: form.description.trim(),
         format: form.format,
         email: form.email.trim(),
         kakao_contact: form.kakaoContact.trim() || null,
-      })
-      .eq('id', student.id);
+      },
+    });
 
-    if (updateError) {
+    if (updateError || !updated) {
       console.error('Error updating student:', updateError);
       setError('학생 요청을 저장하는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
       setSaving(false);

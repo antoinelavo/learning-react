@@ -41,9 +41,7 @@ export default function TeachersTable() {
   useEffect(() => {
     async function loadTeachers() {
       const { data, error } = await supabase
-        .from('teachers')
-        .select('*')
-        .order('created_date', { ascending: false });
+        .rpc('admin_list_teachers');
 
       if (!error && data) {
         setTeachers(data);

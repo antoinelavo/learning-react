@@ -1,11 +1,6 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -18,6 +13,8 @@ export async function GET(request) {
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  const supabase = getSupabaseAdmin();
 
   try {
     // TEMP: widen window for production test — revert to 24 hours after
@@ -33,7 +30,7 @@ export async function GET(request) {
         .order('created_at', { ascending: false }),
       supabase
         .from('hagwon_requests')
-        .select('id, title, type, ib_subjects, sat_subjects, level, format, region, hourly_rate_min, hourly_rate_max, created_at')
+        .select('id, title, program_type, ib_subjects, sat_subjects, level, format, region, hourly_rate_min, hourly_rate_max, created_at')
         .gte('created_at', twentyFourHoursAgo)
         .eq('status', 'OPEN')
         .order('created_at', { ascending: false }),
@@ -182,8 +179,9 @@ function buildHagwonDigestHtml(requests, unsubscribeUrl) {
     .map(
       (req) => {
         const pills = [];
-        if (req.type) {
-          req.type.split(', ').forEach((t) => pills.push(pill(t === 'both' ? 'IB + SAT' : t, '#faf5ff', '#7e22ce', '#e9d5ff')));
+        // hagwon_requests has no `type` column; selecting it made this query fail.
+        if (req.program_type) {
+          (Array.isArray(req.program_type) ? req.program_type : req.program_type.split(', ')).forEach((t) => pills.push(pill(t === 'both' ? 'IB + SAT' : t, '#faf5ff', '#7e22ce', '#e9d5ff')));
         }
         if (req.ib_subjects) {
           req.ib_subjects.split(', ').forEach((s) => pills.push(pill(s, '#eff6ff', '#1d4ed8', '#bfdbfe')));

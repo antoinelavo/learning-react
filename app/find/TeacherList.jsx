@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import { Button, Input, buttonClasses, chipClasses } from '@/components/ui';
+import { TEACHER_PUBLIC_COLUMNS } from '@/lib/teacherColumns';
 
 function shuffle(array) {
   const a = array.slice();
@@ -235,7 +236,7 @@ export default function TeacherList() {
       setLoading(true);
       const { data: teachers, error } = await supabase
         .from('teachers')
-        .select('*')
+        .select(TEACHER_PUBLIC_COLUMNS)
         .eq('status', 'approved')
         .eq('is_test', false);
 

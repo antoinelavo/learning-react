@@ -28,39 +28,23 @@ export default function SignupPage() {
 
     const { email, username, password, role } = form;
 
-    // Check email
-    const { data: emailExists, error: emailErr } = await supabase
-      .from('users')
-      .select('id')
-      .eq('email', email)
-      .maybeSingle();
+    // Check email / username (users is not publicly readable)
+    const { data: availability, error: availErr } = await supabase
+      .rpc('check_signup_available', { p_email: email, p_username: username })
+      .single();
 
-    if (emailErr) {
-      console.error(emailErr);
+    if (availErr) {
+      console.error(availErr);
       setMessage('오류가 발생했습니다. 다시 시도해주세요.');
       setLoading(false);
       return;
     }
-    if (emailExists) {
+    if (availability?.email_taken) {
       setMessage('Error: 이미 사용 중인 이메일입니다.');
       setLoading(false);
       return;
     }
-
-    // Check username
-    const { data: userExists, error: userErr } = await supabase
-      .from('users')
-      .select('id')
-      .eq('username', username)
-      .maybeSingle();
-
-    if (userErr) {
-      console.error(userErr);
-      setMessage('오류가 발생했습니다. 다시 시도해주세요.');
-      setLoading(false);
-      return;
-    }
-    if (userExists) {
+    if (availability?.username_taken) {
       setMessage('Error: 이미 사용 중인 아이디입니다.');
       setLoading(false);
       return;

@@ -5,7 +5,8 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { revealStudentJob, getRevealedStudentJobIds, revealsRemaining } from '@/lib/reveal';
+import { revealStudentJob, getRevealedStudentJobIds, revealsRemaining, getStudentJobContact } from '@/lib/reveal';
+import { STUDENT_JOB_PUBLIC_COLUMNS } from '@/lib/requestColumns';
 import { Button, cardClasses, Notice, Badge } from '@/components/ui';
 
 export default function StudentDetailClient({ studentId }) {
@@ -20,6 +21,16 @@ export default function StudentDetailClient({ studentId }) {
   const [teacherProfile, setTeacherProfile] = useState(null);
   const [isRevealed, setIsRevealed] = useState(false);
   const [revealing, setRevealing] = useState(false);
+  const [contact, setContact] = useState(null);
+
+  // Contact info is only returned by the server once this teacher has
+  // revealed the request.
+  useEffect(() => {
+    if (!isRevealed || contact || !studentId) return;
+    getStudentJobContact(studentId)
+      .then((data) => { if (data) setContact(data); })
+      .catch((err) => console.error('Error loading contact:', err));
+  }, [isRevealed, contact, studentId]);
 
   useEffect(() => {
     async function init() {
@@ -28,7 +39,7 @@ export default function StudentDetailClient({ studentId }) {
 
       const { data: studentData, error: studentError } = await supabase
         .from('student_jobs')
-        .select('*')
+        .select(STUDENT_JOB_PUBLIC_COLUMNS)
         .eq('id', studentId)
         .single();
 
@@ -270,22 +281,28 @@ export default function StudentDetailClient({ studentId }) {
             </div>
           ) : (
             <div className="space-y-1 text-sm text-gray-800">
-              <p>
-                <span className="font-medium">이메일:</span>{' '}
-                <a href={`mailto:${student.email}`} className="text-blue-600 hover:underline">
-                  {student.email}
-                </a>
-              </p>
-              {student.kakao_contact && (
-                <p>
-                  <span className="font-medium">카카오톡:</span>{' '}
-                  <a
-                    href={student.kakao_contact.startsWith('http') ? student.kakao_contact : undefined}
-                    className="text-blue-600 hover:underline break-all"
-                  >
-                    {student.kakao_contact}
-                  </a>
-                </p>
+              {!contact ? (
+                <p className="text-gray-500">연락처를 불러오는 중입니다…</p>
+              ) : (
+                <>
+                  <p>
+                    <span className="font-medium">이메일:</span>{' '}
+                    <a href={`mailto:${contact.email}`} className="text-blue-600 hover:underline">
+                      {contact.email}
+                    </a>
+                  </p>
+                  {contact.kakao_contact && (
+                    <p>
+                      <span className="font-medium">카카오톡:</span>{' '}
+                      <a
+                        href={contact.kakao_contact.startsWith('http') ? contact.kakao_contact : undefined}
+                        className="text-blue-600 hover:underline break-all"
+                      >
+                        {contact.kakao_contact}
+                      </a>
+                    </p>
+                  )}
+                </>
               )}
               <p className="text-xs text-gray-500 pt-1">
                 위 연락처는 학생이 직접 입력한 정보이며, 연락 시 예의를 지켜주시고 스팸/광고성 메시지는 자제해 주세요.

@@ -1,11 +1,6 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -14,15 +9,33 @@ const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'IBMaster <onboarding@resend
 
 export async function POST(request) {
   try {
-    const { type, post } = await request.json();
+    const { type, id } = await request.json();
 
-    if (!type || !post) {
-      return NextResponse.json({ error: 'Missing type or post data' }, { status: 400 });
+    if (!['student', 'hagwon'].includes(type) || !id) {
+      return NextResponse.json({ error: 'Missing type or id' }, { status: 400 });
     }
 
-    // Determine which subscriber table and build email
+    // The email content is loaded from the database, never taken from the
+    // request body, and only for a request created in the last few minutes,
+    // so this public route can't be used to mail arbitrary text or to
+    // re-send old posts.
+    const supabase = getSupabaseAdmin();
     const isStudent = type === 'student';
     const subscriberTable = isStudent ? 'newsletter_subscriptions' : 'hagwon_newsletter_subscriptions';
+    const postColumns = isStudent
+      ? 'id, title, subject, level, format, region, hourly_rate_min, hourly_rate_max, status, created_at'
+      : 'id, title, program_type, ib_subjects, sat_subjects, level, format, region, hourly_rate_min, hourly_rate_max, status, created_at';
+
+    const { data: post, error: postError } = await supabase
+      .from(isStudent ? 'student_jobs' : 'hagwon_requests')
+      .select(postColumns)
+      .eq('id', id)
+      .maybeSingle();
+
+    const MAX_AGE_MS = 10 * 60 * 1000;
+    if (postError || !post || post.status !== 'OPEN' || Date.now() - new Date(post.created_at).getTime() > MAX_AGE_MS) {
+      return NextResponse.json({ error: 'Post not found or too old' }, { status: 404 });
+    }
 
     const { data: subscribers, error: subError } = await supabase
       .from(subscriberTable)
@@ -103,7 +116,7 @@ function buildStudentEmailHtml(post, unsubscribeUrl) {
 function buildHagwonEmailHtml(post, unsubscribeUrl) {
   const pills = [];
   if (post.program_type) {
-    post.program_type.split(', ').forEach((t) => pills.push(pill(t === 'both' ? 'IB + SAT' : t, '#faf5ff', '#7e22ce', '#e9d5ff')));
+    (Array.isArray(post.program_type) ? post.program_type : post.program_type.split(', ')).forEach((t) => pills.push(pill(t === 'both' ? 'IB + SAT' : t, '#faf5ff', '#7e22ce', '#e9d5ff')));
   }
   if (post.ib_subjects) {
     post.ib_subjects.split(', ').forEach((s) => pills.push(pill(s, '#eff6ff', '#1d4ed8', '#bfdbfe')));

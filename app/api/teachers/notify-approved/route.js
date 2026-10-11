@@ -7,7 +7,7 @@
 // out, logged server-side, returned as {ok:false} rather than thrown.
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseAdmin, getAdminFromRequest } from '@/lib/supabaseAdmin';
 import { buildApprovalEmailHtml } from '@/lib/email/approvalTemplate';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -19,6 +19,12 @@ const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'IBMaster <onboarding@resend
 
 export async function POST(request) {
   try {
+    const admin = await getAdminFromRequest(request);
+    if (!admin) {
+      return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
+    }
+    const supabase = getSupabaseAdmin();
+
     const { teacherId } = await request.json();
     if (!teacherId) {
       return NextResponse.json({ ok: false, error: 'missing_teacher_id' }, { status: 400 });
@@ -28,6 +34,7 @@ export async function POST(request) {
       .from('teachers')
       .select('name, user_id')
       .eq('id', teacherId)
+      .eq('status', 'approved')
       .single();
 
     if (teacherError || !teacher?.user_id) {

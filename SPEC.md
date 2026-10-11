@@ -1,38 +1,48 @@
-# Spec: Dev-only preview for community seed posts
+# Spec: Admin draft posts for the community board
 
 ## Goal
-Let the owner see each seed post in `content/community-seed/` exactly as it will look on `/community` before publishing it with `scripts/community-seed.mjs`.
+Claude writes community posts as hidden drafts in the database, the owner reviews them on the live site from the admin panel, and publishes each one with a button. This replaces the file-based seed posts, publish script and dev-only preview.
 
 ## Included
-- `/community/preview`: a list of all seed posts (number, title, boards, 공지 if pinned), each linking to its preview.
-- `/community/preview/[n]`: renders seed post `n` with the same layout as `app/community/post/[slug]/page.jsx`:
-  - 공지 badge when `pinned: true`, board badges, title
-  - author line as `Admin` with the 운영자 badge, today's date, 조회 0
-  - body rendered with `communityMarkdownToHtml`, with the same prose classes
-- A banner at the top of both pages: "미리보기: 아직 게시되지 않은 글입니다."
-- Shared seed loading (read the file, parse frontmatter, validate) moved into `lib/communitySeed.js`, used by both the preview pages and `scripts/community-seed.mjs`, so the preview and the published post can't drift.
-- Desktop and mobile screenshots of posts 1–3 for the owner, taken with the dev server.
+- **Migration** (new file in `supabase/migrations/`, run by hand in the Supabase dashboard):
+  - `community_posts.is_draft boolean not null default false`
+  - recreate `community_posts_public` with `and not p.is_draft`, so drafts never appear in the feed, 인기글, search or the post page
+- **Admin API** (all `requireAdminUser`, service-role client):
+  - `GET /api/admin/community/drafts`: list drafts (slug, title, categories, is_pinned, created_at, updated_at)
+  - `GET /api/admin/community/drafts/[slug]`: one draft with content rendered by `communityMarkdownToHtml`
+  - `POST /api/admin/community/drafts/[slug]/publish`: sets `is_draft = false` and `created_at = now()`, so the post appears at the top of the feed dated on publish day
+  - `DELETE /api/admin/community/drafts/[slug]`: soft delete (`deleted_at`, `deleted_by_admin`)
+- **Admin pages** (client, `useAuth` admin check, `authFetch`):
+  - `/admin/community/drafts`: list of drafts, linked from a "커뮤니티 초안" button on `/admin`
+  - `/admin/community/drafts/[slug]`: the post in the real post layout with the 미리보기 badge, banner and floating "미리보기 모드" pill, plus a **게시하기** button (confirm dialog) and a **삭제** button (confirm dialog). After publishing, it links to the live post.
+- **Hide drafts everywhere else:** every public route that loads a post from the base table treats a draft as not found: post GET/PATCH/DELETE, comments, likes, scraps, reports, `/community/me`, and `lib/communityPost.js`.
+- **Drafting by Claude:** a short "Community drafts" section in `CLAUDE.md` saying how Claude inserts and updates drafts through the Supabase connector:
+  - author: user `Admin`, with an `admin` role check first
+  - `is_draft = true`
+  - slug in the same format as `app/api/community/posts/route.js`
+  - same title, length and category limits as the post API
+- **Load the six existing posts** into the database as drafts after the migration is run, then remove `content/community-seed/`, `scripts/community-seed.mjs`, `lib/communitySeed.js`, `app/community/preview/`, the `dev.jsx` `pageExtensions` and `env` and `outputFileTracingIncludes` settings in `next.config.js`, and the old admin preview button.
 
 ## Not included
-- No preview on the live site. Both routes return 404 when `NODE_ENV === 'production'`.
-- No comments, likes, scrap, report or admin actions on the preview.
-- No editing in the browser. Edit the Markdown file and reload.
-- No database reads or writes, and no changes to the publish behavior of the script.
+- No editing drafts in the browser. Changes go through Claude.
+- No scheduled publishing, unpublish (back to draft), or version history.
+- User submissions are unchanged: they default to `is_draft = false` and appear immediately.
+- No sitemap changes.
 
 ## Rules
-- Preview pages read only from disk and never call Supabase.
-- `robots: { index: false }` on both pages.
-- Unknown `n`, or a seed file that fails validation, shows `notFound()` (invalid files also log the reason to the server console).
-- `lib/communitySeed.js` uses Node `fs`, so it must never be imported from client components or from `lib/community.js`.
-- Page shell `max-w-3xl mx-auto px-4 py-4` and the `components/ui` kit, matching the post page.
-- No "Ask before changing" areas touched.
+- Drafts must never be visible to non-admins, including through API responses, counts, search or `/community/me`.
+- Only admins can list, view, publish or delete drafts. Publish and delete only act on rows where `is_draft = true` and `deleted_at is null`.
+- Publishing is a one-way flip. A second publish request returns 404.
+- `components/community/postBodyClasses.js` stays shared between the post page and the draft preview.
+- **Database** (an "Ask before changing" area): approved by the owner. Claude writes the migration but does not run it. Claude writes draft rows through the Supabase connector only when the owner asks, and each write is approved in the session.
+- Site text in Korean: "커뮤니티 초안", "게시하기", "삭제", "게시되었습니다", "초안이 없습니다".
 
 ## Done when
-- [x] `/community/preview` lists all six seed posts under `npm run dev`.
-- [x] `/community/preview/1` shows the 공지 badge, and `/community/preview/2` does not.
-- [x] The preview body HTML matches `communityMarkdownToHtml` output for the same file (same function, same classes).
-- [ ] `/community/preview/99` returns 404. (Shows the 404 page, but with HTTP status 200 under `npm run dev`: `app/community/loading.jsx` streams the response first. Missing posts at `/community/post/<slug>` already behave the same way.)
-- [x] Both routes return 404 under `npm run build && npm start`.
-- [x] `scripts/community-seed.mjs` still passes its earlier checks (usage error, missing env, mock insert with `is_pinned`).
-- [x] Screenshots of posts 1–3 (desktop and mobile) are shared.
-- [x] `npm run build` passes.
+- [ ] The migration file adds `is_draft` and recreates the view with the draft filter.
+- [ ] `/admin` shows the "커뮤니티 초안" button, and the list and preview pages load drafts through the admin API.
+- [ ] Every admin draft route returns 401 without an admin token.
+- [ ] Publish sets `is_draft = false` and a new `created_at`, and a second publish returns 404.
+- [ ] Code review confirms each public route listed above treats a draft as not found.
+- [ ] The seed files, script, `lib/communitySeed.js`, `/community/preview` pages and `next.config.js` preview settings are removed. Nothing imports them.
+- [ ] After the owner runs the migration: the six posts exist as drafts, are hidden from `/community`, and show in `/admin/community/drafts`.
+- [ ] `npm run build` passes.

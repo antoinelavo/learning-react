@@ -1,11 +1,12 @@
 import { notFound } from 'next/navigation'
-import { Badge, Button, cardClasses } from '@/components/ui'
+import { Badge, cardClasses } from '@/components/ui'
 import CategoryBadge from '@/components/community/CategoryBadge'
 import AuthorLine from '@/components/community/AuthorLine'
 import { getCommunityPostPage } from '@/lib/communityPost'
 import { communityMarkdownToHtml } from '@/lib/communityMarkdown'
 import { stripMarkdown, formatKstDate } from '@/lib/community'
 import { jsonLdString } from '@/lib/hagwonNeis'
+import BackButton from '@/components/community/BackButton.client'
 import PostActions from './PostActions.client'
 import CommentThread from './CommentThread.client'
 
@@ -72,7 +73,7 @@ export default async function CommunityPostDetailPage({ params }) {
   if (result.deleted) {
     return (
       <main className="max-w-3xl mx-auto px-4 py-4 min-h-screen">
-        <Button href="/community" variant="ghost" size="sm" className="mb-3">목록으로</Button>
+        <BackButton href="/community" />
         <p className="text-center text-sm text-gray-400 mt-10">
           {result.deleted.byAdmin ? '관리자에 의해 삭제된 게시글입니다.' : '삭제된 게시글입니다.'}
         </p>
@@ -90,7 +91,7 @@ export default async function CommunityPostDetailPage({ params }) {
         dangerouslySetInnerHTML={{ __html: jsonLdString(postJsonLd(post)) }}
       />
 
-      <Button href="/community" variant="ghost" size="sm" className="mb-3">목록으로</Button>
+      <BackButton href="/community" />
 
       <article className={cardClasses({ padding: 'md' })}>
         <header className="mb-6">

@@ -43,7 +43,7 @@ export default async function CommunityPage({ searchParams }) {
         <CommunityHeaderActions />
       </div>
 
-      <CommunityControls tab={tab} category={category} q={q} />
+      <CommunityControls tab={tab} category={category} q={q} page={feed?.page} />
 
       {tab === 'best' && (
         <p className="text-xs text-gray-500 mb-3">최근 7일 동안 좋아요, 댓글, 조회가 많은 글입니다.</p>

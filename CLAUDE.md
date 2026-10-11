@@ -15,7 +15,7 @@ IBMaster (ibmaster.net): a Korean site for finding IB/SAT tutors and hagwons, wi
 - Toss Payments for payments (`lib/toss.js`). NicePay is legacy and can be removed if it gets in the way.
 - Resend for email (templates in `lib/email/`). Hosted on Vercel.
 - Import paths use the `@/` alias for the repo root.
-- UI uses the shared kit in `components/ui` (`Button`/`buttonClasses`, `chipClasses`, `Tabs`, `Input`/`Select`/`Textarea`, `cardClasses`, `Badge`, `Notice`). Match `/find` and `/hagwons`: real buttons for actions (no text links styled as actions, no arrow glyphs in labels), page shell `max-w-3xl mx-auto px-4 py-4`.
+- UI uses the shared kit in `components/ui` (`Button`/`buttonClasses`, `chipClasses`, `Tabs`, `Input`/`Select`/`Textarea`, `cardClasses`, `Badge`, `Notice`). Match `/find` and `/hagwons`: real buttons for actions (no text links styled as actions, no arrow glyphs in labels), page shell `max-w-3xl mx-auto px-4 py-4`. On the community post page, back is a top-left `<` icon button (`components/community/BackButton.client.jsx`).
 
 ## Commands
 

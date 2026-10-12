@@ -19,6 +19,17 @@ export const POST = withCommunityErrors(async function POST(request) {
     return NextResponse.json({ error: '신고 사유를 선택해주세요.' }, { status: 400 })
   }
 
+  if (postId) {
+    const { data: post } = await supabaseAdmin
+      .from('community_posts')
+      .select('id, is_draft')
+      .eq('id', postId)
+      .maybeSingle()
+    if (!post || post.is_draft) {
+      return NextResponse.json({ error: '게시글을 찾을 수 없습니다.' }, { status: 404 })
+    }
+  }
+
   // One pending report per reporter per target.
   let existing = supabaseAdmin
     .from('community_reports')

@@ -1,0 +1,32 @@
+-- Admin drafts for the community board. A draft row is hidden from the
+-- public view (feed, 인기글, search, post page) until an admin publishes it
+-- from /admin/community/drafts, which flips is_draft to false.
+-- User submissions keep the default (false) and appear immediately.
+
+alter table community_posts
+  add column if not exists is_draft boolean not null default false;
+
+-- Same definition as 20261011_community_post_categories.sql, plus the
+-- draft filter. Column list unchanged, so create-or-replace is enough.
+create or replace view community_posts_public
+  with (security_barrier) as
+  select
+    p.id, p.slug, p.category, p.title, p.content, p.is_anonymous,
+    p.image_urls, p.view_count, p.like_count, p.comment_count,
+    p.created_at, p.updated_at,
+    case when p.is_anonymous then null else u.username end as author_username,
+    case when p.is_anonymous then null else t.name end as teacher_name,
+    case when p.is_anonymous then null else t.profile_picture end as teacher_profile_picture,
+    p.is_pinned,
+    case when p.is_anonymous then null else u.role end as author_role,
+    p.categories
+  from community_posts p
+  left join public.users u on u.id = p.user_id
+  left join teachers t
+    on t.user_id = p.user_id::text
+   and t.status = 'approved'
+   and coalesce(t.is_test, false) = false
+  where p.deleted_at is null
+    and not p.is_draft;
+
+grant select on community_posts_public to anon, authenticated;

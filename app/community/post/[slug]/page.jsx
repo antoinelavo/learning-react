@@ -7,6 +7,7 @@ import { communityMarkdownToHtml } from '@/lib/communityMarkdown'
 import { stripMarkdown, formatKstDate, decodeSlug, postCategories } from '@/lib/community'
 import { jsonLdString } from '@/lib/hagwonNeis'
 import BackButton from '@/components/community/BackButton.client'
+import { POST_BODY_CLASSES } from '@/components/community/postBodyClasses'
 import PostActions from './PostActions.client'
 import CommentThread from './CommentThread.client'
 
@@ -127,14 +128,7 @@ export default async function CommunityPostDetailPage({ params }) {
         )}
 
         <div
-          className="
-            prose max-w-none text-left break-words
-            prose-p:leading-relaxed
-            prose-h2:text-lg prose-h2:font-semibold prose-h2:mt-6 prose-h2:mb-3
-            prose-h3:text-base prose-h3:font-semibold prose-h3:mt-5 prose-h3:mb-2
-            prose-a:text-blue-600 prose-a:underline-offset-4
-            prose-img:rounded-xl
-          "
+          className={POST_BODY_CLASSES}
           dangerouslySetInnerHTML={{ __html: html }}
         />
 

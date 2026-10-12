@@ -15,10 +15,10 @@ export const POST = withCommunityErrors(async function POST(request) {
 
   const { data: post } = await supabaseAdmin
     .from('community_posts')
-    .select('id, deleted_at')
+    .select('id, deleted_at, is_draft')
     .eq('id', postId)
     .maybeSingle()
-  if (!post || post.deleted_at) {
+  if (!post || post.deleted_at || post.is_draft) {
     return NextResponse.json({ error: '게시글을 찾을 수 없습니다.' }, { status: 404 })
   }
 

@@ -1,83 +1,48 @@
-# Spec: Community board (Naver-cafe style)
+# Spec: Admin draft posts for the community board
 
 ## Goal
-Finish the community board started on `claude/community-board-system-u6fkyq` and add the core Naver-cafe features (notices, best posts, search, scraps, my activity, moderation). Ship it ready to launch, but keep it hidden from navigation and the sitemap until the owner launches it.
+Claude writes community posts as hidden drafts in the database, the owner reviews them on the live site from the admin panel, and publishes each one with a button. This replaces the file-based seed posts, publish script and dev-only preview.
 
 ## Included
-- **Bring the branch up to date:** merge `claude/community-board-system-u6fkyq` into the working branch, merge in `main` (101 commits behind), and resolve conflicts. Keep the rebuild's existing features:
-  - 6 boards
-  - threaded comments, one reply level
-  - likes on posts and comments
-  - anonymous posting
-  - teacher identity
-  - username onboarding
-  - R2 image uploads, up to 5 per post
-  - reports with an admin review queue
-  - de-duplicated view counts
-  - rate limits
-- **Fix broken or stale parts** found while merging: build errors, Next 15 async `params`, anything still calling `supabase.auth.getUser()` server-side without a token, and the client sending its access token on every community API call.
-- **공지 (pinned notices):** admins can pin or unpin any post. Pinned posts appear at the top of their board and of the 전체 view, marked "공지". They are stored as `is_pinned` on `community_posts`.
-- **인기글:** a best-posts tab showing posts from the last 7 days, ranked by `like_count * 3 + comment_count * 2 + view_count / 10`, top 20.
-- **Search:** title and content search (`ilike`), combined with the board filter. The query is kept in the URL (`?q=`).
-- **Pagination:** 20 posts per page, numbered pages, with the page number in the URL (`?page=`).
-- **Scrap:** a scrap/unscrap toggle on the post page, stored in a new `community_post_scraps` table (`post_id`, `user_id`, `created_at`).
-- **내 활동** (`/community/me`): tabs for 내가 쓴 글, 내가 쓴 댓글 and 스크랩, each paginated. Anonymous posts and comments are included for their owner.
-- **Admin tools:**
-  - Hide or delete any post or comment from the post page (admin only) and from `/admin/community/reports`. Both are soft deletes using `deleted_at`, shown as "관리자에 의해 삭제된 게시글입니다." / "…댓글입니다."
-  - Admins see the real author of anonymous posts and comments.
-  - Ban a user for 7 days, 30 days or permanently, stored in a new service-role-only `community_bans` table (not on `users`, which users can update themselves). Permanent is stored as a far-future date.
-- **Ban behavior:** a banned user can still read. Every write route (post, comment, like, scrap, report, image upload) returns 403, and the UI shows "커뮤니티 이용이 제한되었습니다 (YYYY-MM-DD까지)".
-- **SEO:** each post gets `generateMetadata` (title, description, canonical, Open Graph) and `DiscussionForumPosting` JSON-LD. The feed page gets a canonical URL.
-- **Remove the legacy community pieces:**
-  - the announcements strip on `/community` (blog MDX + old `posts` table)
-  - `/community/[slug]`, `/admin/posts` and `app/api/admin/posts/*`
-  - the old `posts` table and `increment_post_views` (dropped in the migration)
-  - Add a single "블로그 보기" secondary button linking to `/blog` on the feed.
-- **UI consistency pass** over every community and admin-community screen (including the branch's existing ones) so they match `/find` and `/hagwons` (see Rules).
-- **One new migration** `supabase/migrations/<date>_community_launch.sql`. It adds:
-  - `is_pinned`
-  - `community_post_scraps` with RLS enabled
-  - `community_bans` (service-role only)
-  - updates to `community_posts_public` to expose `is_pinned`
-  - dropping `posts` and `increment_post_views`
-  It also copies the two branch migrations that are already applied in the live DB as-is.
-- **Docs:** update `TODO.md` (setup steps and launch checklist) and `CLAUDE.md` (community architecture, `lib/supabaseAdmin.js` as the one service-role exception).
+- **Migration** (new file in `supabase/migrations/`, run by hand in the Supabase dashboard):
+  - `community_posts.is_draft boolean not null default false`
+  - recreate `community_posts_public` with `and not p.is_draft`, so drafts never appear in the feed, 인기글, search or the post page
+- **Admin API** (all `requireAdminUser`, service-role client):
+  - `GET /api/admin/community/drafts`: list drafts (slug, title, categories, is_pinned, created_at, updated_at)
+  - `GET /api/admin/community/drafts/[slug]`: one draft with content rendered by `communityMarkdownToHtml`
+  - `POST /api/admin/community/drafts/[slug]/publish`: sets `is_draft = false` and `created_at = now()`, so the post appears at the top of the feed dated on publish day
+  - `DELETE /api/admin/community/drafts/[slug]`: soft delete (`deleted_at`, `deleted_by_admin`)
+- **Admin pages** (client, `useAuth` admin check, `authFetch`):
+  - `/admin/community/drafts`: list of drafts, linked from a "커뮤니티 초안" button on `/admin`
+  - `/admin/community/drafts/[slug]`: the post in the real post layout with the 미리보기 badge, banner and floating "미리보기 모드" pill, plus a **게시하기** button (confirm dialog) and a **삭제** button (confirm dialog). After publishing, it links to the live post.
+- **Hide drafts everywhere else:** every public route that loads a post from the base table treats a draft as not found: post GET/PATCH/DELETE, comments, likes, scraps, reports, `/community/me`, and `lib/communityPost.js`.
+- **Drafting by Claude:** a short "Community drafts" section in `CLAUDE.md` saying how Claude inserts and updates drafts through the Supabase connector:
+  - author: user `Admin`, with an `admin` role check first
+  - `is_draft = true`
+  - slug in the same format as `app/api/community/posts/route.js`
+  - same title, length and category limits as the post API
+- **Load the six existing posts** into the database as drafts after the migration is run, then remove `content/community-seed/`, `scripts/community-seed.mjs`, `lib/communitySeed.js`, `app/community/preview/`, the `dev.jsx` `pageExtensions` and `env` and `outputFileTracingIncludes` settings in `next.config.js`, and the old admin preview button.
 
 ## Not included
-- Making the board public: the nav links stay commented out and `/community` stays out of the sitemap.
-- Reply or comment notifications (site or email), member grades and 등업, polls, 출석부, 쪽지, word filter.
-- Promotion rules: teachers and hagwons may post and comment, under their own identity or anonymously. Moderation is case by case through reports.
-- Changes to the legal pages (terms, privacy).
-- Turning on RLS for the 9 unrelated tables flagged by Supabase (separate task).
+- No editing drafts in the browser. Changes go through Claude.
+- No scheduled publishing, unpublish (back to draft), or version history.
+- User submissions are unchanged: they default to `is_draft = false` and appear immediately.
+- No sitemap changes.
 
 ## Rules
-- **Database (Ask before changing, approved):** the new migration is written to the repo and run by hand in the Supabase dashboard. Don't apply it through MCP. The build must not depend on it being applied; features that need it can fail at runtime until it is run.
-- **Service-role client (approved):** `lib/supabaseAdmin.js` is used only in community and admin-community API routes, and only after `getCommunityUser`/`requireAdminUser` has verified the caller. Never import it in client components. It needs `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` and in Vercel (Production + Preview).
-- Admin checks are server-side (`requireAdminUser`). Client-side `role === 'admin'` only hides UI.
-- Logged-out visitors can read the feed, posts and comments. Writing, liking, scrapping and reporting need a logged-in user with a username.
-- Anonymous is a per-post and per-comment checkbox, off by default, on every board. Public responses never include `user_id` or the real author for anonymous content; only admin responses do.
-- Approved teachers posting non-anonymously show their teacher name, photo and badge, linked to `/profile/[name]`. Exclude `is_test` teachers from that link.
-- Deleted and hidden content never appears in feeds, search, 인기글 or 내 활동 (except to show the owner a "삭제됨" entry).
-- Site text is Korean; code and comments are English.
-- **UI matches `/find` and `/hagwons`:**
-  - Use the shared kit in `components/ui`: `Button`/`buttonClasses` for every action, `chipClasses` for board filters, `Tabs` for 전체/인기글 and the 내 활동 tabs, `Input`/`Select`/`Textarea` for forms, `cardClasses`, `Badge` and `Notice`.
-  - No text links styled as actions, no arrow glyphs (`→`, `←`, `›`) in button or link labels, and no one-off color or size classes on buttons.
-  - Back navigation is a `secondary` or `ghost` `Button`, e.g. "목록으로".
-  - Page shell matches `/find`: `max-w-3xl mx-auto px-4 py-4`, `h1` `text-lg sm:text-xl font-bold text-gray-900`.
-  - Empty states use the same style as `/find`'s `text-center text-sm text-gray-400`.
-- Mobile first: the feed, post page, write form and 내 활동 work at 375px width with no horizontal scroll.
-- Work on `claude/init-tfsut8` and open a PR. Never push to `main`.
+- Drafts must never be visible to non-admins, including through API responses, counts, search or `/community/me`.
+- Only admins can list, view, publish or delete drafts. Publish and delete only act on rows where `is_draft = true` and `deleted_at is null`.
+- Publishing is a one-way flip. A second publish request returns 404.
+- `components/community/postBodyClasses.js` stays shared between the post page and the draft preview.
+- **Database** (an "Ask before changing" area): approved by the owner. Claude writes the migration but does not run it. Claude writes draft rows through the Supabase connector only when the owner asks, and each write is approved in the session.
+- Site text in Korean: "커뮤니티 초안", "게시하기", "삭제", "게시되었습니다", "초안이 없습니다".
 
 ## Done when
-- [x] The branch contains the community rebuild merged with current `main`, and there are no conflict markers.
-- [x] `npm run build` passes, using placeholder env values plus a placeholder `SUPABASE_SERVICE_ROLE_KEY`.
-- [x] Every community write route verifies a bearer token and returns 401 without one and 403 for a banned user (checked by reading the code).
-- [x] The feed shows pinned posts first, the 인기글 tab uses the 7-day formula, `?q=` searches title and content, and `?page=` paginates 20 per page.
-- [x] Admins can pin or unpin, hide or delete any post or comment, see anonymous authors, and ban for 7, 30 or permanent days. These controls don't render for non-admins, and their API routes reject non-admins.
-- [x] Scrap toggles on a post, and `/community/me` lists my posts, comments and scraps.
-- [x] Post pages render metadata, a canonical URL and `DiscussionForumPosting` JSON-LD.
-- [x] `/community/[slug]`, `/admin/posts`, `app/api/admin/posts/*` and the announcements strip are gone, and nothing imports them.
-- [x] The new migration file exists and covers `is_pinned`, `community_post_scraps` with RLS, `community_bans`, the view update, and dropping `posts`.
-- [x] Community and admin-community files use `components/ui` for all buttons, chips, tabs and form fields. Grep finds no `→`/`←` in their labels and no hand-rolled `<button className="bg-...">` styles.
-- [x] The nav links are still commented out and `/community` is not in `public/sitemap.xml`.
-- [x] `TODO.md` lists the launch steps: run the migration, set `SUPABASE_SERVICE_ROLE_KEY` in Vercel, delete the 2 test posts, uncomment the nav links, add `/community` and posts to the sitemap.
+- [x] The migration file adds `is_draft` and recreates the view with the draft filter.
+- [ ] `/admin` shows the "커뮤니티 초안" button, and the list and preview pages load drafts through the admin API. (Built and wired; not yet tested with a real admin session, since the migration isn't run.)
+- [x] Every admin draft route returns 401 without an admin token.
+- [ ] Publish sets `is_draft = false` and a new `created_at`, and a second publish returns 404. (In code: the update filters on `is_draft = true`. Not yet run against the database.)
+- [x] Code review confirms each public route listed above treats a draft as not found.
+- [x] The seed files, script, `lib/communitySeed.js`, `/community/preview` pages and `next.config.js` preview settings are removed. Nothing imports them.
+- [ ] After the owner runs the migration: the six posts exist as drafts, are hidden from `/community`, and show in `/admin/community/drafts`. (Six drafts inserted with content matching the files byte for byte, and 0 rows in `community_posts_public`. Showing in `/admin/community/drafts` needs PR #57 deployed.)
+- [x] `npm run build` passes.

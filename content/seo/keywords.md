@@ -10,7 +10,7 @@ Statuses:
 | Keyword | Category | Status | Slug |
 |---|---|---|---|
 | IB Math AA AI 차이 | IB | done | ib-math-aa-vs-ai |
-| IB IA 쓰는 법 | IB | planned | |
+| IB IA 쓰는 법 | IB | done | ib-ia-how-to-write |
 | IB EE 주제 | IB | planned | |
 | IB TOK 에세이 | IB | planned | |
 | IB 예상점수 predicted grade | IB | planned | |
@@ -25,6 +25,9 @@ Statuses:
 | IB Math AA HL 공부법 | IB | suggested | |
 | IB Math AI HL 난이도 | IB | suggested | |
 | IB 수학 계산기 허용 모델 | IB | suggested | |
+| IB IA 마감 일정 | IB | suggested | |
+| IB 과학 IA 주제 | IB | suggested | |
+| IB 영어 IO 준비 | IB | suggested | |
 | 3년 특례 | 특례입학 | done | 3-year-admission-program |
 | 3년 특례 부모 조건 | 특례입학 | done | 3-year-admission-program-parents |
 | 재외국민특별전형 | 특례입학 | done | overseas-citizen |

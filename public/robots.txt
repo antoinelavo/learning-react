@@ -17,3 +17,4 @@ Allow: /blog/
 Allow: /hagwons/
 Allow: /sat-hagwons
 Sitemap: https://www.ibmaster.net/sitemap.xml
+Sitemap: https://www.ibmaster.net/community/sitemap.xml

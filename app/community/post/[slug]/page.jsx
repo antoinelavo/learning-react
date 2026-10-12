@@ -3,6 +3,7 @@ import { Badge, cardClasses } from '@/components/ui'
 import { CategoryBadges } from '@/components/community/CategoryBadge'
 import AuthorLine from '@/components/community/AuthorLine'
 import { getCommunityPostPage } from '@/lib/communityPost'
+import { getPublicCommentTree } from '@/lib/communityComments'
 import { communityMarkdownToHtml } from '@/lib/communityMarkdown'
 import { stripMarkdown, formatKstDate, decodeSlug, postCategories } from '@/lib/community'
 import { jsonLdString } from '@/lib/hagwonNeis'
@@ -18,7 +19,8 @@ export const dynamic = 'force-dynamic'
 export async function generateMetadata({ params }) {
   const slug = decodeSlug((await params).slug)
   const result = await getCommunityPostPage(slug)
-  if (!result?.post) return { robots: { index: false } }
+  if (!result) notFound()
+  if (!result.post) return { robots: { index: false } }
 
   const { post } = result
   const path = `/community/post/${post.slug}`
@@ -39,7 +41,29 @@ export async function generateMetadata({ params }) {
   }
 }
 
-function postJsonLd(post) {
+// schema.org Comment for one visible comment (deleted ones are skipped),
+// with its replies nested. Names are the public labels (익명N etc.).
+function commentJsonLd(c) {
+  const replies = (c.replies || []).filter(r => !r.deleted_at)
+  return {
+    '@type': 'Comment',
+    text: c.content,
+    dateCreated: c.created_at,
+    author: { '@type': 'Person', name: c.author_display_name },
+    upvoteCount: c.like_count,
+    ...(replies.length ? { comment: replies.map(commentJsonLd) } : {}),
+  }
+}
+
+// A deleted top-level comment is dropped, but its live replies are kept
+// (moved up a level) since they're still shown on the page.
+function visibleCommentsJsonLd(comments) {
+  return comments.flatMap(c => c.deleted_at
+    ? (c.replies || []).filter(r => !r.deleted_at).map(commentJsonLd)
+    : [commentJsonLd(c)])
+}
+
+function postJsonLd(post, comments) {
   const url = `${SITE_URL}/community/post/${post.slug}`
   return {
     '@context': 'https://schema.org',
@@ -58,6 +82,7 @@ function postJsonLd(post) {
     },
     ...(post.image_urls?.length ? { image: post.image_urls } : {}),
     commentCount: post.comment_count,
+    comment: visibleCommentsJsonLd(comments),
     interactionStatistic: [
       { '@type': 'InteractionCounter', interactionType: 'https://schema.org/LikeAction', userInteractionCount: post.like_count },
       { '@type': 'InteractionCounter', interactionType: 'https://schema.org/CommentAction', userInteractionCount: post.comment_count },
@@ -83,13 +108,20 @@ export default async function CommunityPostDetailPage({ params }) {
   }
 
   const { post } = result
-  const html = await communityMarkdownToHtml(post.content)
+  // Comments are best-effort here: on failure the client loads them as before.
+  const [html, comments] = await Promise.all([
+    communityMarkdownToHtml(post.content),
+    getPublicCommentTree(post.id).catch(err => {
+      console.error('community comments prerender error:', err)
+      return null
+    }),
+  ])
 
   return (
     <main className="max-w-3xl mx-auto px-4 py-4 min-h-screen mb-16">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLdString(postJsonLd(post)) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdString(postJsonLd(post, comments || [])) }}
       />
 
       <BackButton href="/community" />
@@ -141,7 +173,7 @@ export default async function CommunityPostDetailPage({ params }) {
       </article>
 
       <div className="mt-4">
-        <CommentThread slug={post.slug} />
+        <CommentThread slug={post.slug} initialComments={comments} />
       </div>
     </main>
   )

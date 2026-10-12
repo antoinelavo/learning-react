@@ -2,13 +2,13 @@
 
 ## Community Board
 
-`/community` is in the nav but not yet in the sitemap.
+`/community` is in the nav. Its posts are listed in `/community/sitemap.xml` (in `robots.txt`).
 
 Remaining launch steps:
 1. Add `SUPABASE_SERVICE_ROLE_KEY` to Vercel (Production + Preview) if not already set.
    Every `/api/community/*` route needs it (`lib/supabaseAdmin.js`).
-2. Add `/community` and `/community/post/[slug]` pages to `scripts/generate-sitemap.js`
-   and regenerate `public/sitemap.xml`.
+2. Submit `https://www.ibmaster.net/community/sitemap.xml` in Google Search Console
+   and Naver Search Advisor.
 
 Follow-ups not in this build: reply/comment notifications, member grades and 등업,
 polls, 출석부, word filter, orphaned-R2-image cleanup, a real rate limiter

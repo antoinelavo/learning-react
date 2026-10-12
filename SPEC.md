@@ -1,45 +1,32 @@
-# Spec: Community SEO fixes
+# Spec: KakaoTalk open chat insights
 
 ## Goal
-Make every live community post easy for Google and Naver to find, index and understand, Reddit-style: in a sitemap, with honest status codes, and with comments in the HTML.
+Analyze chat logs from IB/SAT KakaoTalk open chat rooms to learn what students and parents need. Turn that into insights, feature ideas, content ideas, and a record of who mentions IBMaster and its competitors.
 
 ## Included
-- **Community sitemap:** a dynamic route at `/community/sitemap.xml`.
-  - Lists `/community` plus every live post (not deleted, not a draft). No `lastmod`, because a trigger bumps `updated_at` on every counter update.
-  - Built from the `community_posts_public` view with the anon key. Cached at the CDN for an hour.
-  - Added as a second `Sitemap:` line in `public/robots.txt`. The existing static `public/sitemap.xml` and its script are unchanged.
-- **Real 404s for missing posts:**
-  - Move the feed page and its `loading.jsx` into a route group, `app/community/(feed)/`, so the feed skeleton no longer wraps post pages.
-  - Remove `app/community/post/[slug]/loading.jsx`.
-  - `/community/post/<missing slug>` and draft slugs return HTTP 404.
-- **Deleted posts** keep the "삭제된 게시글입니다" page, with `robots: { index: false }` in `generateMetadata`.
-- **Database errors are not 404s:** if the post lookup itself fails (Supabase error or timeout), the page throws, giving a 500, so an outage never tells Google that posts are gone.
-- **Server-rendered comments:**
-  - Move the comment-tree building from `app/api/community/posts/[slug]/comments/route.js` into a shared server helper (e.g. `lib/communityComments.js`), used by both the API route and the post page.
-  - The post page passes the anonymous-viewer tree to `CommentThread` as initial data, so comments are in the first HTML.
-  - `CommentThread` renders the initial data immediately, then refetches as before for viewer-specific state (liked, 내 댓글, admin tools).
-- **JSON-LD:** the post's `DiscussionForumPosting` gets a `comment` array of `Comment` items, with replies nested via `comment`. Each has:
-  - author name, as shown publicly (익명N for anonymous comments)
-  - `text`, `dateCreated`, and `upvoteCount` from likes
+- Read every chat log file the user sends (several messages, up to 5 files each). Start only after the user says the last batch has been sent.
+- Write these files in `content/research/kakao/`:
+  - `insights.md`: top questions and topics, pain points, how people find tutors and hagwons, prices and fees people mention, and differences between rooms (IB, SAT, others). Each point comes with representative quotes.
+  - `feature-ideas.md`: ranked ideas for changes to IBMaster. Each one gives the evidence from the chats, the affected pages or routes, and a rough size (S/M/L).
+  - `content-ideas.md`: blog and community post topics, with Korean target keywords and how often each topic comes up.
+  - `ibmaster-mentions.md`: every mention of IBMaster, 아이비마스터 and ibmaster.net (including close spellings), with date, room, nickname, quote, context (recommendation, question or complaint) and sentiment. Ends with a short summary.
+  - `competitors.md`: the tutor platforms, hagwons and consultants people mention, with how often and what people say about them.
+- Start each file with a short header listing the source rooms, the date range and the message counts.
 
 ## Not included
-- No changes to the static sitemap, `scripts/generate-sitemap.js` or the SEO audit routine.
-- No Search Console or Naver Search Advisor setup (the owner does this; Claude gives the steps).
-- No 410 status for deleted posts, no pagination of comments, and no changes to the feed's SEO.
+- No changes to site code, the database, or `content/seo/keywords.md`.
+- Raw chat logs are not committed.
+- No blog posts are written.
 
 ## Rules
-- Anonymous posts and comments must never expose `user_id` or real author names in the HTML, the JSON-LD or the sitemap. Server-rendered comments use the same anonymous-viewer labeling as the public API.
-- Deleted comments are excluded from the JSON-LD and stay masked in the HTML, as they are today.
-- The sitemap and post page never include drafts.
-- Feed URLs stay unchanged (route groups don't change paths). `/community/me` and the other `/community` routes keep working.
-- No "Ask before changing" areas touched.
+- Chat nicknames may appear in quotes. If any contact info turns up (phone numbers, KakaoTalk IDs, emails), redact it.
+- Quotes stay in the original Korean. The analysis is written in Korean, with English section headings.
+- Every claim is backed by quotes or counts from the logs, never by guesses.
+- If a feature idea touches an "Ask before changing" area (payments, prices, database, legal pages), it says so.
+- Work on branch `claude/init-8bfa4u` and open a PR.
 
 ## Done when
-- [x] `/community/sitemap.xml` returns valid XML listing every live post and no drafts or deleted posts. `robots.txt` lists it.
-- [x] Under `npm run build && npm start`, `/community/post/does-not-exist` returns HTTP 404. A live post returns 200, and the feed still shows its skeleton.
-- [x] A deleted post's page includes `<meta name="robots" content="noindex">`.
-- [x] A failed Supabase lookup does not produce a 404 (code path verified).
-- [x] A post's raw HTML (curl, no JS) contains its comment text, and its JSON-LD has a `comment` array.
-- [x] Anonymous comments in the HTML and JSON-LD show 익명N and no user id.
-- [x] Code review confirms the comments API response is unchanged.
-- [x] `npm run build` passes.
+- [ ] All five files exist in `content/research/kakao/` and each covers every room the user sent.
+- [ ] `ibmaster-mentions.md` lists every match from a case-insensitive search of the logs for `ibmaster|아이비마스터|아이비 마스터|ib master`, or says there were none.
+- [ ] No raw log files are in the commit.
+- [ ] `npm run build` passes (no code changes, so this is a sanity check).

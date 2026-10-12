@@ -43,6 +43,6 @@ Claude writes community posts as hidden drafts in the database, the owner review
 - [x] Every admin draft route returns 401 without an admin token.
 - [ ] Publish sets `is_draft = false` and a new `created_at`, and a second publish returns 404. (In code: the update filters on `is_draft = true`. Not yet run against the database.)
 - [x] Code review confirms each public route listed above treats a draft as not found.
-- [ ] The seed files, script, `lib/communitySeed.js`, `/community/preview` pages and `next.config.js` preview settings are removed. Nothing imports them. (All removed except `content/community-seed/*.md`, kept as the source until the six drafts are loaded.)
-- [ ] After the owner runs the migration: the six posts exist as drafts, are hidden from `/community`, and show in `/admin/community/drafts`.
+- [x] The seed files, script, `lib/communitySeed.js`, `/community/preview` pages and `next.config.js` preview settings are removed. Nothing imports them.
+- [ ] After the owner runs the migration: the six posts exist as drafts, are hidden from `/community`, and show in `/admin/community/drafts`. (Six drafts inserted with content matching the files byte for byte, and 0 rows in `community_posts_public`. Showing in `/admin/community/drafts` needs PR #57 deployed.)
 - [x] `npm run build` passes.

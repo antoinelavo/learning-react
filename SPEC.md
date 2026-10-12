@@ -1,45 +1,36 @@
-# Spec: Community SEO fixes
+# Spec: Community section in the SEO audit routine
 
 ## Goal
-Make every live community post easy for Google and Naver to find, index and understand, Reddit-style: in a sitemap, with honest status codes, and with comments in the HTML.
+The weekly SEO audit also checks the community board (`/community`, its dynamic sitemap and its posts), so community pages stay indexable and correct alongside the rest of the site.
 
 ## Included
-- **Community sitemap:** a dynamic route at `/community/sitemap.xml`.
-  - Lists `/community` plus every live post (not deleted, not a draft). No `lastmod`, because a trigger bumps `updated_at` on every counter update.
-  - Built from the `community_posts_public` view with the anon key. Cached at the CDN for an hour.
-  - Added as a second `Sitemap:` line in `public/robots.txt`. The existing static `public/sitemap.xml` and its script are unchanged.
-- **Real 404s for missing posts:**
-  - Move the feed page and its `loading.jsx` into a route group, `app/community/(feed)/`, so the feed skeleton no longer wraps post pages.
-  - Remove `app/community/post/[slug]/loading.jsx`.
-  - `/community/post/<missing slug>` and draft slugs return HTTP 404.
-- **Deleted posts** keep the "삭제된 게시글입니다" page, with `robots: { index: false }` in `generateMetadata`.
-- **Database errors are not 404s:** if the post lookup itself fails (Supabase error or timeout), the page throws, giving a 500, so an outage never tells Google that posts are gone.
-- **Server-rendered comments:**
-  - Move the comment-tree building from `app/api/community/posts/[slug]/comments/route.js` into a shared server helper (e.g. `lib/communityComments.js`), used by both the API route and the post page.
-  - The post page passes the anonymous-viewer tree to `CommentThread` as initial data, so comments are in the first HTML.
-  - `CommentThread` renders the initial data immediately, then refetches as before for viewer-specific state (liked, 내 댓글, admin tools).
-- **JSON-LD:** the post's `DiscussionForumPosting` gets a `comment` array of `Comment` items, with replies nested via `comment`. Each has:
-  - author name, as shown publicly (익명N for anonymous comments)
-  - `text`, `dateCreated`, and `upvoteCount` from likes
+- **`content/seo/audit-routine-prompt.md`**, a new community step plus updates to existing steps:
+  - **Community sitemap:** fetch `https://www.ibmaster.net/community/sitemap.xml`. Check it returns 200 with valid XML. If the Supabase vars are set, compare its post slugs with `community_posts_public` (anon key, read-only) to confirm every live post is listed and that it contains nothing else (no drafts, deleted or missing posts).
+  - **Live community pages:** fetch `/community` and every post URL in that sitemap, checking status code, title, description, canonical, and the `DiscussionForumPosting` JSON-LD (valid JSON, headline, author, date, and comments when the post has any).
+  - **404 spot check:** `/community/post/<random nonexistent slug>` returns HTTP 404, not 200.
+  - **Private pages:** `/community/me`, `/community/post/new` and `/community/post/<slug>/edit` are `noindex` or blocked in `robots.txt`, and are not in either sitemap.
+  - **Anonymity check:** for anonymous posts, the HTML and JSON-LD contain no real author name or `user_id`. Any leak is a `high` weak point, reported only (no fix attempted by the routine).
+  - **Thin posts:** list live posts with a very short title or body, or no description, as `low` weak points with a suggested improvement. Never edit post content.
+  - **robots.txt (step 2):** keep both `Sitemap:` lines, and check the community private routes.
+  - **Live site (step 4):** cover both sitemaps.
+  - **Report:** a `## Community` section with sitemap URL count, live post count, and the checks above.
+- **Allowed community fixes:** SEO-only changes in `app/community/` page files (`metadata` / `generateMetadata`, canonical, Open Graph, `robots`, JSON-LD), following the same rules as other page code.
+- **`CLAUDE.md`:** update the audit routine line to mention the community checks.
 
 ## Not included
-- No changes to the static sitemap, `scripts/generate-sitemap.js` or the SEO audit routine.
-- No Search Console or Naver Search Advisor setup (the owner does this; Claude gives the steps).
-- No 410 status for deleted posts, no pagination of comments, and no changes to the feed's SEO.
+- Editing, publishing, or deleting community posts or comments (database content), or creating drafts.
+- Changes to community API routes, `lib/community*.js`, `lib/communityAuth.js`, auth, the community sitemap route's query logic, or the database.
+- Changes to the blog routine, the static sitemap script, or the routine's schedule.
 
 ## Rules
-- Anonymous posts and comments must never expose `user_id` or real author names in the HTML, the JSON-LD or the sitemap. Server-rendered comments use the same anonymous-viewer labeling as the public API.
-- Deleted comments are excluded from the JSON-LD and stay masked in the HTML, as they are today.
-- The sitemap and post page never include drafts.
-- Feed URLs stay unchanged (route groups don't change paths). `/community/me` and the other `/community` routes keep working.
-- No "Ask before changing" areas touched.
+- The routine only reads community data, through the public view with the anon key. No service-role key.
+- Community pages must never expose `user_id` or real author names for anonymous content. Any fix keeps the existing public labeling (익명N).
+- Draft posts must never appear in a sitemap, page, or the report's URL lists. Report only counts for drafts if visible at all (they shouldn't be).
+- Off-limits areas stay as in the existing prompt. No "Ask before changing" areas are touched.
 
 ## Done when
-- [x] `/community/sitemap.xml` returns valid XML listing every live post and no drafts or deleted posts. `robots.txt` lists it.
-- [x] Under `npm run build && npm start`, `/community/post/does-not-exist` returns HTTP 404. A live post returns 200, and the feed still shows its skeleton.
-- [x] A deleted post's page includes `<meta name="robots" content="noindex">`.
-- [x] A failed Supabase lookup does not produce a 404 (code path verified).
-- [x] A post's raw HTML (curl, no JS) contains its comment text, and its JSON-LD has a `comment` array.
-- [x] Anonymous comments in the HTML and JSON-LD show 익명N and no user id.
-- [x] Code review confirms the comments API response is unchanged.
-- [x] `npm run build` passes.
+- [ ] `content/seo/audit-routine-prompt.md` covers every community check above, both sitemaps in the live-site step, and a `## Community` report section.
+- [ ] The prompt lists the allowed community fixes and the community off-limits files.
+- [ ] Every community check is runnable from this environment: the community sitemap fetch, the post-page fetch, the 404 spot check, and the public-view query all succeed when run by hand once.
+- [ ] `CLAUDE.md` mentions the community checks.
+- [ ] `npm run build` passes.

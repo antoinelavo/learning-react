@@ -93,7 +93,8 @@ function CommentRow({ comment, isReply, ctx }) {
           profileLink={comment.author_profile_link}
         />
         <span className="text-gray-300" aria-hidden="true">·</span>
-        <span className="text-gray-400">{timeAgo(comment.created_at)}</span>
+        {/* Server-rendered too, and the relative time can differ by hydration. */}
+        <span className="text-gray-400" suppressHydrationWarning>{timeAgo(comment.created_at)}</span>
       </div>
       <p className={`text-sm mt-1 mb-0 whitespace-pre-wrap break-words ${isDeleted ? 'text-gray-400' : 'text-gray-800'}`}>
         {comment.content}
@@ -167,14 +168,17 @@ function updateCommentInTree(comment, targetId, patch) {
   return comment;
 }
 
-export default function CommentThread({ slug }) {
+// `initialComments` is the logged-out tree rendered on the server (so
+// comments are in the HTML for search engines); it's replaced by the
+// viewer's own tree (likes, 내 댓글, admin tools) once fetched.
+export default function CommentThread({ slug, initialComments = null }) {
   const { user, username, role } = useAuth();
   const isAdmin = role === 'admin';
   const needsUsername = !!user && !username;
   const router = useRouter();
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState(initialComments || []);
   const [adminAuthors, setAdminAuthors] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialComments);
   const [submitting, setSubmitting] = useState(false);
   const [replySubmitting, setReplySubmitting] = useState(false);
   const [replyTarget, setReplyTarget] = useState(null);
@@ -197,7 +201,14 @@ export default function CommentThread({ slug }) {
     }
   }, [slug, isAdmin]);
 
-  useEffect(() => { fetchComments(); }, [fetchComments, user?.id]);
+  // A logged-out viewer's tree is exactly the server-rendered one, so only
+  // fetch once someone is logged in (or there was no server tree).
+  const usedInitialComments = useRef(!!initialComments);
+  useEffect(() => {
+    if (!user && usedInitialComments.current) return;
+    usedInitialComments.current = false;
+    fetchComments();
+  }, [fetchComments, user?.id]);
 
   async function uploadImage(file, headers) {
     if (!file) return null;

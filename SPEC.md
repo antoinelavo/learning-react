@@ -5,8 +5,8 @@ Make every live community post easy for Google and Naver to find, index and unde
 
 ## Included
 - **Community sitemap:** a dynamic route at `/community/sitemap.xml`.
-  - Lists `/community` plus every live post (not deleted, not a draft), with `lastmod` from `updated_at`.
-  - Built from the `community_posts_public` view with the anon key. Revalidates hourly.
+  - Lists `/community` plus every live post (not deleted, not a draft). No `lastmod`, because a trigger bumps `updated_at` on every counter update.
+  - Built from the `community_posts_public` view with the anon key. Cached at the CDN for an hour.
   - Added as a second `Sitemap:` line in `public/robots.txt`. The existing static `public/sitemap.xml` and its script are unchanged.
 - **Real 404s for missing posts:**
   - Move the feed page and its `loading.jsx` into a route group, `app/community/(feed)/`, so the feed skeleton no longer wraps post pages.
@@ -35,11 +35,11 @@ Make every live community post easy for Google and Naver to find, index and unde
 - No "Ask before changing" areas touched.
 
 ## Done when
-- [ ] `/community/sitemap.xml` returns valid XML listing every live post and no drafts or deleted posts. `robots.txt` lists it.
-- [ ] Under `npm run build && npm start`, `/community/post/does-not-exist` returns HTTP 404. A live post returns 200, and the feed still shows its skeleton.
-- [ ] A deleted post's page includes `<meta name="robots" content="noindex">`.
-- [ ] A failed Supabase lookup does not produce a 404 (code path verified).
-- [ ] A post's raw HTML (curl, no JS) contains its comment text, and its JSON-LD has a `comment` array.
-- [ ] Anonymous comments in the HTML and JSON-LD show 익명N and no user id.
-- [ ] Code review confirms the comments API response is unchanged.
-- [ ] `npm run build` passes.
+- [x] `/community/sitemap.xml` returns valid XML listing every live post and no drafts or deleted posts. `robots.txt` lists it.
+- [x] Under `npm run build && npm start`, `/community/post/does-not-exist` returns HTTP 404. A live post returns 200, and the feed still shows its skeleton.
+- [x] A deleted post's page includes `<meta name="robots" content="noindex">`.
+- [x] A failed Supabase lookup does not produce a 404 (code path verified).
+- [x] A post's raw HTML (curl, no JS) contains its comment text, and its JSON-LD has a `comment` array.
+- [x] Anonymous comments in the HTML and JSON-LD show 익명N and no user id.
+- [x] Code review confirms the comments API response is unchanged.
+- [x] `npm run build` passes.

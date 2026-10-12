@@ -29,8 +29,8 @@ The weekly SEO audit also checks the community board (`/community`, its dynamic 
 - Off-limits areas stay as in the existing prompt. No "Ask before changing" areas are touched.
 
 ## Done when
-- [ ] `content/seo/audit-routine-prompt.md` covers every community check above, both sitemaps in the live-site step, and a `## Community` report section.
-- [ ] The prompt lists the allowed community fixes and the community off-limits files.
-- [ ] Every community check is runnable from this environment: the community sitemap fetch, the post-page fetch, the 404 spot check, and the public-view query all succeed when run by hand once.
-- [ ] `CLAUDE.md` mentions the community checks.
-- [ ] `npm run build` passes.
+- [x] `content/seo/audit-routine-prompt.md` covers every community check above, both sitemaps in the live-site step, and a `## Community` report section.
+- [x] The prompt lists the allowed community fixes and the community off-limits files.
+- [x] Every community check is runnable from this environment: the community sitemap fetch, the post-page fetch, the 404 spot check, and the public-view query all succeed when run by hand once.
+- [x] `CLAUDE.md` mentions the community checks.
+- [x] `npm run build` passes.

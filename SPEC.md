@@ -26,7 +26,7 @@ Analyze chat logs from IB/SAT KakaoTalk open chat rooms to learn what students a
 - Work on branch `claude/init-8bfa4u` and open a PR.
 
 ## Done when
-- [ ] All five files exist in `content/research/kakao/` and each covers every room the user sent.
-- [ ] `ibmaster-mentions.md` lists every match from a case-insensitive search of the logs for `ibmaster|아이비마스터|아이비 마스터|ib master`, or says there were none.
-- [ ] No raw log files are in the commit.
-- [ ] `npm run build` passes (no code changes, so this is a sanity check).
+- [x] All five files exist in `content/research/kakao/` and each covers every room the user sent.
+- [x] `ibmaster-mentions.md` lists every match from a case-insensitive search of the logs for `ibmaster|아이비마스터|아이비 마스터|ib master`, or says there were none.
+- [x] No raw log files are in the commit.
+- [x] `npm run build` passes (no code changes, so this is a sanity check).

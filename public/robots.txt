@@ -10,6 +10,9 @@ Disallow: /logout
 Disallow: /forgot-password
 Disallow: /reset-password
 Disallow: /unsubscribe
+Disallow: /community/me
+Disallow: /community/post/new$
+Disallow: /community/post/*/edit$
 Allow: /find/
 Allow: /profile/
 Allow: /aboutus/

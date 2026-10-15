@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation';
 import HagwonCard from '@/components/HagwonCard';
 import hagwonsData from '@/data/hagwons';
 import ibsolution from '@/data/ibsolution';
@@ -15,6 +16,9 @@ export const metadata = {
 }
 
 export default function IBSolutionMockupPage() {
+  // Hidden on the live site; still viewable locally and on Vercel previews.
+  if (process.env.VERCEL_ENV === 'production') notFound();
+
   return (
     <main className="min-h-screen max-w-4xl mx-[5dvw] lg:mx-auto mb-[10em]">
       <h1>IB 학원 29곳 추천 및 비교 [2026년 최신]</h1>

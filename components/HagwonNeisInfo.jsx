@@ -1,9 +1,9 @@
 // Server component: registered fees (NEIS) shown in a hagwon card's expanded section.
 import {
-  getNeisEntry, feeRange, formatManwon, formatWon, formatPeriod,
+  getNeisEntry, feeRange, formatManwon,
   establishedYear, fieldLabel, formatDate, neisUpdatedAt,
 } from '@/lib/hagwonNeis';
-import ScrollFade from '@/components/ScrollFade.client';
+import HagwonFeeCourses from '@/components/HagwonFeeCourses.client';
 
 const REASONS = [
   ['등록 기준', '교습비는 교육지원청이 정한 분당 교습비 기준 이내에서 등록됩니다.'],
@@ -25,11 +25,13 @@ function Chevron() {
   );
 }
 
+const SUMMARY_CLASSES = 'flex items-center justify-between gap-2 px-4 py-3 cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-gray-50 text-sm font-medium text-gray-800';
+
 // Accordion row: a full-width clickable summary with a chevron.
 function Row({ title, children }) {
   return (
     <details className="group border-t border-gray-200">
-      <summary className="flex items-center justify-between gap-2 px-4 py-3 cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-gray-50 text-sm font-medium text-gray-800">
+      <summary className={SUMMARY_CLASSES}>
         {title}
         <Chevron />
       </summary>
@@ -46,7 +48,6 @@ export default function HagwonFeeDetails({ neis }) {
 
   const year = establishedYear(entry);
   const field = fieldLabel(entry);
-  const showOtherFee = entry.courses.some(c => c.otherFee);
 
   return (
     <div className="mb-4 rounded-xl border border-gray-200 overflow-hidden">
@@ -65,37 +66,15 @@ export default function HagwonFeeDetails({ neis }) {
         )}
       </div>
 
-      <Row title={`강좌별 교습비 (${entry.courses.length}개)`}>
-        <ScrollFade className="max-h-80 overflow-auto rounded-lg border border-gray-200">
-          <table className="w-full text-xs text-left text-gray-700 m-0 [&_th]:px-2 sm:[&_th]:px-3 [&_th]:py-2 [&_th]:font-semibold [&_th]:whitespace-nowrap [&_td]:px-2 sm:[&_td]:px-3 [&_td]:py-1.5 [&_td]:whitespace-nowrap [&_tbody_tr]:border-t [&_tbody_tr]:border-gray-100 [&_.num]:text-right">
-            <caption className="sr-only">{entry.name} 교육청 등록 교습비</caption>
-            <thead className="bg-gray-50 sticky top-0">
-              <tr>
-                <th scope="col">과목</th>
-                <th scope="col">기간 · 총 시간</th>
-                {showOtherFee && <th scope="col" className="num">교습비</th>}
-                {showOtherFee && <th scope="col" className="num">기타경비</th>}
-                <th scope="col" className="num">합계</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entry.courses.map((c, i) => (
-                <tr key={i}>
-                  <td className="!whitespace-normal min-w-[5.5rem]">{c.subject || '-'}</td>
-                  <td>
-                    {formatPeriod(c.period)}
-                    {c.hours != null && <span className="block text-gray-400">{c.hours}시간</span>}
-                  </td>
-                  {showOtherFee && <td className="num">{c.fee != null ? formatWon(c.fee) : '-'}</td>}
-                  {showOtherFee && <td className="num">{c.otherFee != null ? formatWon(c.otherFee) : '-'}</td>}
-                  <td className="num">{c.total != null ? formatWon(c.total) : '-'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </ScrollFade>
-        <p className="mt-2 mb-0 text-xs text-gray-400">출처: 교육청 학원·교습소 정보 ({entry.name})</p>
-      </Row>
+      {/* The per-course table loads on open; the range above stays in the HTML. */}
+      <HagwonFeeCourses
+        neisId={neis.id}
+        name={entry.name}
+        count={entry.courses.length}
+        title={`강좌별 교습비 (${entry.courses.length}개)`}
+        chevron={<Chevron />}
+        summaryClassName={SUMMARY_CLASSES}
+      />
 
       <Row title="수업료 참고 사항">
         <dl className="m-0 divide-y divide-gray-100 text-xs">

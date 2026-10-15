@@ -138,6 +138,7 @@ export async function getStaticProps({ params }) {
     .from('teachers')
     .select(TEACHER_PUBLIC_COLUMNS)
     .eq('name', decodedName)
+    .eq('status', 'approved')
     .single();
 
   if (error || !teacher) {

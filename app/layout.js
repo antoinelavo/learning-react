@@ -48,6 +48,10 @@ export default function RootLayout({ children }) {
             __html: `
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
+              // Google Ads isn't used: deny ad consent and turn off Google
+              // signals so the tag sends no remarketing/conversion requests.
+              gtag('consent', 'default', { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'granted' });
+              gtag('set', { allow_google_signals: false, allow_ad_personalization_signals: false });
               gtag('js', new Date());
               gtag('config', 'G-ZT9SKBMMYE', { page_path: window.location.pathname });
             `,

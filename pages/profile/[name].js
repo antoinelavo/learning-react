@@ -57,32 +57,51 @@ function buildDescription(teacher, priceText) {
   return truncate(intro ? `${head} — ${intro}` : head, DESCRIPTION_MAX);
 }
 
-// schema.org Service with an hourly KRW price, for teachers who set a rate.
-function buildJsonLd(teacher) {
-  const price = teacher.rate * 10000;
-  const provider = { '@type': 'Person', name: teacher.name };
+// schema.org ProfilePage (with the teacher as a Person) for every profile,
+// plus a Service with an hourly KRW price for teachers who set a rate.
+function buildJsonLd(teacher, url, description) {
+  const person = { '@type': 'Person', '@id': `${url}#person`, name: teacher.name, url, description };
   if (teacher.school?.trim()) {
-    provider.alumniOf = { '@type': 'CollegeOrUniversity', name: teacher.school.trim() };
+    person.alumniOf = { '@type': 'CollegeOrUniversity', name: teacher.school.trim() };
   }
-  const data = {
+  // Skip the placeholder avatar given to teachers without a photo.
+  if (teacher.profile_picture && !/\/default\.\w+$/.test(teacher.profile_picture)) {
+    person.image = teacher.profile_picture;
+  }
+  if (teacher.subjects?.length) person.knowsAbout = teacher.subjects;
+
+  // No dateCreated/dateModified: last_updated is sometimes older than
+  // created_date, so the dates aren't reliable.
+  const data = [{
     '@context': 'https://schema.org',
-    '@type': 'Service',
-    name: 'IB 과외',
-    serviceType: 'IB 과외',
-    provider,
-    offers: {
-      '@type': 'Offer',
-      price,
-      priceCurrency: 'KRW',
-      priceSpecification: {
-        '@type': 'UnitPriceSpecification',
+    '@type': 'ProfilePage',
+    url,
+    name: `${teacher.name} | IB 과외 선생님`,
+    mainEntity: person,
+  }];
+
+  if (hasRate(teacher)) {
+    const price = teacher.rate * 10000;
+    data.push({
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      name: 'IB 과외',
+      serviceType: 'IB 과외',
+      provider: { '@id': `${url}#person` },
+      offers: {
+        '@type': 'Offer',
         price,
         priceCurrency: 'KRW',
-        unitText: 'HOUR',
-        unitCode: 'HUR',
+        priceSpecification: {
+          '@type': 'UnitPriceSpecification',
+          price,
+          priceCurrency: 'KRW',
+          unitText: 'HOUR',
+          unitCode: 'HUR',
+        },
       },
-    },
-  };
+    });
+  }
   // Escape "<" so teacher-written text can't close the script tag.
   return JSON.stringify(data).replace(/</g, '\\u003c');
 }
@@ -172,26 +191,25 @@ export default function ProfilePage({ teacher }) {
   const priceText = rateSet ? `시간당 ${teacher.rate}만원` : '수업료 협의';
   const rateNote = teacher.rate_description?.trim();
   const description = buildDescription(teacher, priceText) || '이 선생님의 프로필을 확인하세요.';
+  const profileUrl = `https://www.ibmaster.net/profile/${encodeURIComponent(teacher.name)}`;
 
   return (
     <>
       <Head>
         <title>{`${teacher.name} | IB 과외 선생님`}</title>
         <meta name="description" content={description} />
-        <link rel="canonical" href={`https://www.ibmaster.net/profile/${encodeURIComponent(teacher.name)}`} />
-        <meta property="og:url" content={`https://www.ibmaster.net/profile/${encodeURIComponent(teacher.name)}`} />
+        <link rel="canonical" href={profileUrl} />
+        <meta property="og:url" content={profileUrl} />
         <meta
           property="og:title"
           content={`${teacher.name} | IB 과외 선생님`}
         />
         <meta property="og:description" content={description} />
         <link rel="icon" href="/images/favicon.ico" />
-        {rateSet && (
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: buildJsonLd(teacher) }}
-          />
-        )}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: buildJsonLd(teacher, profileUrl, description) }}
+        />
       </Head>
 
       <main className="max-w-3xl mx-auto px-4 pt-6 md:pt-10 pb-24 md:pb-10 space-y-6 md:space-y-8">

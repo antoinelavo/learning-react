@@ -11,7 +11,7 @@ Statuses:
 |---|---|---|---|
 | IB Math AA AI 차이 | IB | done | ib-math-aa-vs-ai |
 | IB IA 쓰는 법 | IB | done | ib-ia-how-to-write |
-| IB EE 주제 | IB | planned | |
+| IB EE 주제 | IB | done | ib-ee-topics |
 | IB TOK 에세이 | IB | planned | |
 | IB 예상점수 predicted grade | IB | planned | |
 | IB 점수 국내 대학 입시 | IB | planned | |
@@ -28,6 +28,9 @@ Statuses:
 | IB IA 마감 일정 | IB | suggested | |
 | IB 과학 IA 주제 | IB | suggested | |
 | IB 영어 IO 준비 | IB | suggested | |
+| IB EE 연구 질문 예시 | IB | suggested | |
+| IB EE 2027 변경사항 | IB | suggested | |
+| IB EE 학제 간 경로 | IB | suggested | |
 | 3년 특례 | 특례입학 | done | 3-year-admission-program |
 | 3년 특례 부모 조건 | 특례입학 | done | 3-year-admission-program-parents |
 | 재외국민특별전형 | 특례입학 | done | overseas-citizen |

@@ -12,6 +12,11 @@ Rules for every new post in `content/blog/`. Based on the strongest existing pos
 
 - Korean, 존댓말 (`~합니다`, `~하세요`). Friendly, direct, expert.
 - Keep standard English terms as-is where Korean readers search them: IB, SAT, IA, EE, TOK, HL/SL, Math AA/AI, Diploma, AP.
+- IB and SAT work is written and graded in English, so anything a student would write or be graded on must be in English, with a Korean explanation next to it, never Korean only:
+  - Example research questions, essay titles, thesis statements, and topic examples for IA, EE, TOK and other graded work: write the English version first (as the student would write it), then its Korean meaning.
+  - Official names of assessment criteria, components and forms (e.g. `Criterion A: Framework for the essay`, `Individual Oral`, `viva voce`, `RPF`): give the English name, with a Korean gloss on first use.
+  - Command terms and question stems students must use (`To what extent`, `Evaluate`, `Discuss`): keep them in English.
+  - Everything else (explanations, advice, headings) stays in Korean.
 - Short paragraphs (2–4 sentences). Use **bold** for the key fact in a section.
 - Never invent statistics, quotes, prices, school names, or dates. If it can't be verified, leave it out.
 

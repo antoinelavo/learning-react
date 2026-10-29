@@ -1,5 +1,8 @@
 // components/TeacherCard.js
 import Link from 'next/link'
+import Image from 'next/image'
+
+const DEFAULT_PICTURE = "https://ibmaster.antoinelavo.com/teachers/default.jpg"
 
 // One row of a grouped teacher list. The parent supplies the border, corners
 // and dividers; premium (badge) rows get a soft yellow background.
@@ -7,9 +10,9 @@ export default function TeacherCard({
   name,
   school,
   shortintroduction,
-  profile_picture = "https://ibmaster.antoinelavo.com/teachers/default.jpg",
+  profile_picture,
   badge = null,
-
+  priority = false,
 }) {
   return (
     <Link
@@ -19,9 +22,14 @@ export default function TeacherCard({
       }`}
     >
       <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-gray-100">
-        <img
-          src={profile_picture}
+        {/* Originals on R2 can be several MB; next/image serves a small
+            resized copy and lazy-loads every card except the first. */}
+        <Image
+          src={profile_picture || DEFAULT_PICTURE}
           alt={`${name} 프로필 사진`}
+          width={80}
+          height={80}
+          priority={priority}
           className="w-full h-full object-cover"
         />
       </div>

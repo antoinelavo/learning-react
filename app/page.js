@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { buttonClasses, cardClasses } from '@/components/ui';
 import { jsonLdString } from '@/lib/hagwonNeis';
 
@@ -86,11 +87,18 @@ export default function Home() {
             id="heroSampleProfile"
             className="relative w-[95svw] max-w-[600px] h-[50svh] max-h-[500px] my-0 md:my-auto mx-auto md:mx-0 block"
           >
-            <img
-              src="/images/SampleProfiles.svg"
+            {/* LCP element. A raster render of SampleProfiles.svg: the SVG
+                (695 KB with embedded PNGs) was slow to download and paint. */}
+            <Image
+              src="/images/SampleProfiles.webp"
               alt="샘플 프로필"
-              className="w-full h-full object-cover"
+              width={1218}
+              height={982}
+              sizes="(min-width: 640px) 600px, 95vw"
+              quality={85}
+              priority
               fetchPriority="high"
+              className="w-full h-full object-cover"
             />
           </div>
         </div>

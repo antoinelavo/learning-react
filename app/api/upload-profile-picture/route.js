@@ -12,12 +12,14 @@ const s3 = new S3Client({
 });
 
 export async function POST(request) {
-  const user = await getUserFromRequest(request);
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
+    // Inside the try so a missing SUPABASE_SERVICE_ROLE_KEY comes back as a
+    // JSON error with a detail instead of an unhandled 500.
+    const user = await getUserFromRequest(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const file = formData.get('file');
 

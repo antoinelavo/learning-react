@@ -274,13 +274,31 @@ export default function DashboardPage() {
       if (pictureFile) {
         const uploadForm = new FormData();
         uploadForm.append('file', pictureFile);
-        const uploadRes = await authFetch('/api/upload-profile-picture', {
-          method: 'POST',
-          body: uploadForm,
-        });
-        const uploaded = uploadRes.ok ? await uploadRes.json().catch(() => null) : null;
-        if (!uploaded?.url) {
-          alert('프로필 사진 업로드가 실패하였습니다. 파일 크기가 10MB 이하인지 확인해주세요.');
+        let uploadRes;
+        try {
+          uploadRes = await authFetch('/api/upload-profile-picture', {
+            method: 'POST',
+            body: uploadForm,
+          });
+        } catch (err) {
+          console.error('Profile picture upload request failed', err);
+          alert(`프로필 사진 업로드가 실패하였습니다.\n\n[디버그] 요청 실패: ${err?.message || err}`);
+          return;
+        }
+        // TEMP debug: show why an upload failed (status + server error).
+        // Non-JSON bodies (e.g. Vercel's 413 for bodies over 4.5MB) are shown as text.
+        const raw = await uploadRes.text().catch(() => '');
+        let uploaded = null;
+        try { uploaded = JSON.parse(raw); } catch {}
+        if (!uploadRes.ok || !uploaded?.url) {
+          const reason = uploaded
+            ? [uploaded.error, uploaded.detail].filter(Boolean).join(' - ')
+            : raw.slice(0, 200);
+          console.error('Profile picture upload failed', uploadRes.status, raw);
+          alert(
+            '프로필 사진 업로드가 실패하였습니다. 파일 크기가 10MB 이하인지 확인해주세요.\n\n' +
+            `[디버그] ${uploadRes.status} ${reason || '(응답 없음)'}`
+          );
           return;
         }
         profilePictureUrl = uploaded.url;

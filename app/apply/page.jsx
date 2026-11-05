@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
 import { authFetch } from '@/lib/authFetch';
+import { resizeImage } from '@/lib/resizeImage';
 import { useForm } from 'react-hook-form';
 import { Input, Select, Textarea, Button, cardClasses } from '@/components/ui';
 
@@ -137,7 +138,9 @@ export default function ApplyPage() {
     const file = formData.profile_picture?.[0];
     if (file) {
       const uploadForm = new FormData();
-      uploadForm.append('file', file);
+      // Shrink first: Vercel rejects request bodies over 4.5MB (413).
+      const toUpload = await resizeImage(file).catch(() => file);
+      uploadForm.append('file', toUpload);
 
       const uploadRes = await authFetch('/api/upload-profile-picture', {
         method: 'POST',

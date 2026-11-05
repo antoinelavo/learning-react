@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 import { supabase } from '@/lib/supabase';
 import { authFetch } from '@/lib/authFetch';
+import { resizeImage } from '@/lib/resizeImage';
 import { useAuth } from '@/contexts/AuthContext';
 import PremiumListingOffer from '@/components/PremiumListingOffer';
 import TierUpgradeOffer from '@/components/TierUpgradeOffer';
@@ -273,7 +274,9 @@ export default function DashboardPage() {
       let profilePictureUrl = null;
       if (pictureFile) {
         const uploadForm = new FormData();
-        uploadForm.append('file', pictureFile);
+        // Shrink first: Vercel rejects request bodies over 4.5MB (413).
+        const toUpload = await resizeImage(pictureFile).catch(() => pictureFile);
+        uploadForm.append('file', toUpload);
         let uploadRes;
         try {
           uploadRes = await authFetch('/api/upload-profile-picture', {

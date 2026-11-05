@@ -1,5 +1,6 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { NextResponse } from 'next/server';
+import { getUserFromRequest } from '@/lib/supabaseAdmin';
 
 const s3 = new S3Client({
   region: 'auto',
@@ -11,6 +12,11 @@ const s3 = new S3Client({
 });
 
 export async function POST(request) {
+  const user = await getUserFromRequest(request);
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const formData = await request.formData();
     const file = formData.get('file');

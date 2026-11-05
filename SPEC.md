@@ -1,36 +1,37 @@
-# Spec: Community section in the SEO audit routine
+# Spec: Teacher profile picture upload/re-upload
 
 ## Goal
-The weekly SEO audit also checks the community board (`/community`, its dynamic sitemap and its posts), so community pages stay indexable and correct alongside the rest of the site.
+Teachers can add or replace their profile photo after submitting their profile, from the dashboard. Today the photo can only be set in `/apply`.
 
 ## Included
-- **`content/seo/audit-routine-prompt.md`**, a new community step plus updates to existing steps:
-  - **Community sitemap:** fetch `https://www.ibmaster.net/community/sitemap.xml`. Check it returns 200 with valid XML. If the Supabase vars are set, compare its post slugs with `community_posts_public` (anon key, read-only) to confirm every live post is listed and that it contains nothing else (no drafts, deleted or missing posts).
-  - **Live community pages:** fetch `/community` and every post URL in that sitemap, checking status code, title, description, canonical, and the `DiscussionForumPosting` JSON-LD (valid JSON, headline, author, date, and comments when the post has any).
-  - **404 spot check:** `/community/post/<random nonexistent slug>` returns HTTP 404, not 200.
-  - **Private pages:** `/community/me`, `/community/post/new` and `/community/post/<slug>/edit` are `noindex` or blocked in `robots.txt`, and are not in either sitemap.
-  - **Anonymity check:** for anonymous posts, the HTML and JSON-LD contain no real author name or `user_id`. Any leak is a `high` weak point, reported only (no fix attempted by the routine).
-  - **Thin posts:** list live posts with a very short title or body, or no description, as `low` weak points with a suggested improvement. Never edit post content.
-  - **robots.txt (step 2):** keep both `Sitemap:` lines, and check the community private routes.
-  - **Live site (step 4):** cover both sitemaps.
-  - **Report:** a `## Community` section with sitemap URL count, live post count, and the checks above.
-- **Allowed community fixes:** SEO-only changes in `app/community/` page files (`metadata` / `generateMetadata`, canonical, Open Graph, `robots`, JSON-LD), following the same rules as other page code.
-- **`CLAUDE.md`:** update the audit routine line to mention the community checks.
+- 내 정보 tab on `/dashboard`: the current photo (or the default image) at the top of the form, with a 사진 변경 button that opens a file picker.
+- Choosing a file shows a local preview right away. Nothing is uploaded yet.
+- On 저장하기, if a new file was chosen: upload it to `/api/upload-profile-picture`, then include `profile_picture` in the same `teachers` update as the other fields.
+- `/api/upload-profile-picture` requires a logged-in user (`getUserFromRequest`, 401 without a valid token).
+- `/apply` and the dashboard call the upload route with `authFetch`.
 
 ## Not included
-- Editing, publishing, or deleting community posts or comments (database content), or creating drafts.
-- Changes to community API routes, `lib/community*.js`, `lib/communityAuth.js`, auth, the community sitemap route's query logic, or the database.
-- Changes to the blog routine, the static sitemap script, or the routine's schedule.
+- Removing a photo / resetting it to the default.
+- Deleting old photos from R2.
+- Cropping or resizing in the browser.
+- Any database, RLS or migration change.
+- Admin-side photo tools.
 
 ## Rules
-- The routine only reads community data, through the public view with the anon key. No service-role key.
-- Community pages must never expose `user_id` or real author names for anonymous content. Any fix keeps the existing public labeling (익명N).
-- Draft posts must never appear in a sitemap, page, or the report's URL lists. Report only counts for drafts if visible at all (they shouldn't be).
-- Off-limits areas stay as in the existing prompt. No "Ask before changing" areas are touched.
+- A photo change follows the existing edit flow: saving sets `status = 'pending'`, so the profile goes back to admin review (same as other edits).
+- Allowed: JPEG, PNG, WEBP, GIF, max 10MB (same as the server). Check this in the browser before showing the preview; if it fails, show an error and keep the current photo.
+- If the upload fails on save, nothing is saved: show `프로필 사진 업로드가 실패하였습니다. 파일 크기가 10MB 이하인지 확인해주세요.` and keep the form as it is.
+- If no new file was chosen, `profile_picture` is not sent in the update (the current photo stays).
+- After a successful save, the dashboard shows the new photo.
+- Site text is Korean: button `사진 변경`, hint `JPG, PNG, WEBP, GIF · 최대 10MB`.
+- Use the `components/ui` kit (`Button`, etc.).
+- The upload route keeps its current type/size checks and response shape (`{ url }`).
 
 ## Done when
-- [x] `content/seo/audit-routine-prompt.md` covers every community check above, both sitemaps in the live-site step, and a `## Community` report section.
-- [x] The prompt lists the allowed community fixes and the community off-limits files.
-- [x] Every community check is runnable from this environment: the community sitemap fetch, the post-page fetch, the 404 spot check, and the public-view query all succeed when run by hand once.
-- [x] `CLAUDE.md` mentions the community checks.
+- [ ] A logged-in teacher with no custom photo can upload one from 내 정보, save, and see it on the dashboard; the profile is `pending`.
+- [ ] A teacher with a photo can replace it the same way.
+- [ ] Saving without choosing a file leaves `profile_picture` unchanged.
+- [ ] A wrong file type or a file over 10MB is rejected in the browser with an error, and the current photo stays.
+- [x] `POST /api/upload-profile-picture` without a token returns 401; with a valid token it uploads as before.
+- [ ] `/apply` photo upload still works (sends the token).
 - [x] `npm run build` passes.

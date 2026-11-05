@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 import { supabase } from '@/lib/supabase';
+import { authFetch } from '@/lib/authFetch';
 import { useAuth } from '@/contexts/AuthContext';
 import PremiumListingOffer from '@/components/PremiumListingOffer';
 import TierUpgradeOffer from '@/components/TierUpgradeOffer';
@@ -12,6 +13,11 @@ import EmailNotificationToggle from '@/components/chat/EmailNotificationToggle.c
 import { revealsRemaining } from '@/lib/reveal';
 import { Input, Select, Textarea, Button, Badge, Card, Tabs, Notice } from '@/components/ui';
 
+
+const DEFAULT_PICTURE = 'https://ibmaster.antoinelavo.com/teachers/default.jpg';
+// Same limits as /api/upload-profile-picture.
+const PICTURE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const PICTURE_MAX_BYTES = 10 * 1024 * 1024;
 
 export default function DashboardPage() {
 
@@ -40,6 +46,17 @@ export default function DashboardPage() {
   const quillExpInstanceRef   = useRef(null);
 
   const [showDetails, setShowDetails] = useState(false);
+
+  // New profile picture chosen in 내 정보; uploaded only on 저장하기.
+  const [pictureFile, setPictureFile] = useState(null);
+  const [picturePreview, setPicturePreview] = useState(null);
+  const pictureInputRef = useRef(null);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!picturePreview) return;
+    return () => URL.revokeObjectURL(picturePreview);
+  }, [picturePreview]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -124,7 +141,22 @@ export default function DashboardPage() {
   const refreshTeacherProfile = async () => {
     if (!user) return;
     const { data: profile } = await supabase.rpc('get_my_teacher_profile').single();
-    if (profile) setTeacher(profile);
+    if (profile) {
+      setTeacher(profile);
+      updateStatus(profile.status);
+    }
+  };
+
+  const handlePictureChange = (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    if (!PICTURE_TYPES.includes(file.type) || file.size > PICTURE_MAX_BYTES) {
+      alert('JPG, PNG, WEBP, GIF 파일만 올릴 수 있으며 최대 10MB까지 가능합니다.');
+      return;
+    }
+    setPictureFile(file);
+    setPicturePreview(URL.createObjectURL(file));
   };
 
   // Warm the Quill module cache as soon as the page mounts, in parallel
@@ -233,40 +265,64 @@ export default function DashboardPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user || !teacher || !quillReady) return;
+    if (!user || !teacher || !quillReady || saving) return;
 
     const form = formRef.current;
+    setSaving(true);
+    try {
+      let profilePictureUrl = null;
+      if (pictureFile) {
+        const uploadForm = new FormData();
+        uploadForm.append('file', pictureFile);
+        const uploadRes = await authFetch('/api/upload-profile-picture', {
+          method: 'POST',
+          body: uploadForm,
+        });
+        const uploaded = uploadRes.ok ? await uploadRes.json().catch(() => null) : null;
+        if (!uploaded?.url) {
+          alert('프로필 사진 업로드가 실패하였습니다. 파일 크기가 10MB 이하인지 확인해주세요.');
+          return;
+        }
+        profilePictureUrl = uploaded.url;
+      }
 
-    const updated = {
-      name: form.name.value,
-      extra_subject: form['extra-subject'].value,
-      preferred_lesson_time: form.preferred_lesson_time.value,
-      school: form.school.value,
-      student_id_number: form.student_id_number.value,
-      age: Number(form.age.value) || null,
-      gender: form.gender.value,
-      shortintroduction: form.shortintroduction.value,
-      contact_information: form.contact_information.value,
-      lesson_type: [...form.querySelectorAll('input[name="lesson_type"]:checked')].map((cb) => cb.value),
-      subjects: [...form.querySelectorAll('input[name="subjects"]:checked')].map((cb) => cb.value),
-      IB: form.querySelector('input[name="ib_status"]:checked')?.value === 'O',
-      longintroduction: quillLongInstanceRef.current.root.innerHTML,
-      experience:       quillExpInstanceRef.current.root.innerHTML,
-      rate: Number(form.rate.value) || null, 
-      rate_description: form.rate_description.value,
-      last_updated: new Date().toISOString(),
-      status: 'pending',
-    };
+      const updated = {
+        name: form.name.value,
+        extra_subject: form['extra-subject'].value,
+        preferred_lesson_time: form.preferred_lesson_time.value,
+        school: form.school.value,
+        student_id_number: form.student_id_number.value,
+        age: Number(form.age.value) || null,
+        gender: form.gender.value,
+        shortintroduction: form.shortintroduction.value,
+        contact_information: form.contact_information.value,
+        lesson_type: [...form.querySelectorAll('input[name="lesson_type"]:checked')].map((cb) => cb.value),
+        subjects: [...form.querySelectorAll('input[name="subjects"]:checked')].map((cb) => cb.value),
+        IB: form.querySelector('input[name="ib_status"]:checked')?.value === 'O',
+        longintroduction: quillLongInstanceRef.current.root.innerHTML,
+        experience:       quillExpInstanceRef.current.root.innerHTML,
+        rate: Number(form.rate.value) || null, 
+        rate_description: form.rate_description.value,
+        last_updated: new Date().toISOString(),
+        status: 'pending',
+      };
+      if (profilePictureUrl) updated.profile_picture = profilePictureUrl;
 
-    const { error } = await supabase
-      .from('teachers')
-      .update(updated)
-      .eq('user_id', user.id);
+      const { error } = await supabase
+        .from('teachers')
+        .update(updated)
+        .eq('user_id', user.id);
 
-    if (error) {
-      alert('저장에 실패했습니다.');
-    } else {
-      alert('저장되었습니다!');
+      if (error) {
+        alert('저장에 실패했습니다.');
+      } else {
+        setPictureFile(null);
+        setPicturePreview(null);
+        await refreshTeacherProfile();
+        alert('저장되었습니다!');
+      }
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -381,6 +437,34 @@ export default function DashboardPage() {
                   <p className="text-sm">※※ 수정 후에는 검토가 진행되어야 다시 사이트에 노출됩니다.</p>
                 
                 <div>
+                  <label className="block font-medium">프로필 사진</label>
+                  <div className="flex items-center gap-4 mt-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={picturePreview || teacher.profile_picture || DEFAULT_PICTURE}
+                      alt="프로필 사진"
+                      className="w-24 h-24 rounded-full object-cover bg-gray-100 shrink-0"
+                    />
+                    <div>
+                      <Button type="button" variant="secondary" onClick={() => pictureInputRef.current?.click()}>
+                        사진 변경
+                      </Button>
+                      <p className="text-xs text-gray-500 mt-2">JPG, PNG, WEBP, GIF · 최대 10MB</p>
+                      {pictureFile && (
+                        <p className="text-xs text-gray-500 mt-1">저장하기를 눌러야 사진이 변경됩니다.</p>
+                      )}
+                    </div>
+                    <input
+                      ref={pictureInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      onChange={handlePictureChange}
+                      className="hidden"
+                    />
+                  </div>
+                </div>
+
+                <div>
                   <label className="block font-medium">사이트 기재용 이름 *</label>
                   <Input name="name" type="text" defaultValue={teacher.name} required className="mt-2" />
                 </div>
@@ -483,7 +567,7 @@ export default function DashboardPage() {
                   <Input name="contact_information" type="text" defaultValue={teacher.contact_information} required className="mt-2" />
                 </div>
 
-                <Button type="submit" className="mx-auto">저장하기</Button>
+                <Button type="submit" className="mx-auto" disabled={saving}>{saving ? '저장 중...' : '저장하기'}</Button>
               </Card>
                         <div className="mt-8 flex gap-4 w-full">
             <Button onClick={handleLogout} variant="secondary" className="w-1/2">로그아웃</Button>

@@ -32,6 +32,6 @@ Teachers can add or replace their profile photo after submitting their profile, 
 - [ ] A teacher with a photo can replace it the same way.
 - [ ] Saving without choosing a file leaves `profile_picture` unchanged.
 - [ ] A wrong file type or a file over 10MB is rejected in the browser with an error, and the current photo stays.
-- [ ] `POST /api/upload-profile-picture` without a token returns 401; with a valid token it uploads as before.
+- [x] `POST /api/upload-profile-picture` without a token returns 401; with a valid token it uploads as before.
 - [ ] `/apply` photo upload still works (sends the token).
-- [ ] `npm run build` passes.
+- [x] `npm run build` passes.

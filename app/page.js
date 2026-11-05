@@ -95,7 +95,7 @@ export default function Home() {
               width={1218}
               height={982}
               sizes="(min-width: 640px) 600px, 95vw"
-              quality={85}
+              quality={75}
               priority
               fetchPriority="high"
               className="w-full h-full object-cover"

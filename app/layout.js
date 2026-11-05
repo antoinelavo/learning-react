@@ -37,10 +37,10 @@ export default function RootLayout({ children }) {
           />
         </noscript>
 
-        <Script
-          strategy="afterInteractive"
-          src="https://www.googletagmanager.com/gtag/js?id=G-ZT9SKBMMYE"
-        />
+        {/* GA4. The commands below only queue into dataLayer (cheap); the
+            190 KB gtag.js that processes them is fetched on the visitor's
+            first interaction, or a few seconds after the page has loaded,
+            so it never competes with the first render. */}
         <Script
           id="gtag-init"
           strategy="afterInteractive"
@@ -54,6 +54,23 @@ export default function RootLayout({ children }) {
               gtag('set', { allow_google_signals: false, allow_ad_personalization_signals: false });
               gtag('js', new Date());
               gtag('config', 'G-ZT9SKBMMYE', { page_path: window.location.pathname });
+              (function () {
+                var events = ['pointerdown', 'keydown', 'touchstart', 'scroll'];
+                var done = false;
+                function load() {
+                  if (done) return;
+                  done = true;
+                  events.forEach(function (e) { removeEventListener(e, load); });
+                  var s = document.createElement('script');
+                  s.async = true;
+                  s.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZT9SKBMMYE';
+                  document.head.appendChild(s);
+                }
+                events.forEach(function (e) { addEventListener(e, load, { passive: true }); });
+                function later() { setTimeout(load, 4000); }
+                if (document.readyState === 'complete') later();
+                else addEventListener('load', later);
+              })();
             `,
           }}
         />

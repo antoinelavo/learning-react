@@ -1,3 +1,32 @@
+# Cloudflare prepends its own managed block (AI-crawler rules and a
+# "User-agent: *" group with "Allow: /") to this file. Search crawlers get a
+# group of their own so these rules reach them however they handle the
+# duplicate "*" groups. Keep both groups below identical.
+User-agent: Googlebot
+User-agent: Yeti
+User-agent: Bingbot
+User-agent: Daumoa
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /hagwon-dashboard/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /login
+Disallow: /signup
+Disallow: /logout
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /unsubscribe
+Disallow: /community/me
+Disallow: /community/post/new$
+Disallow: /community/post/*/edit$
+Allow: /find/
+Allow: /profile/
+Allow: /aboutus/
+Allow: /blog/
+Allow: /hagwons/
+Allow: /sat-hagwons
+
 User-agent: *
 Disallow: /admin
 Disallow: /dashboard
@@ -19,5 +48,6 @@ Allow: /aboutus/
 Allow: /blog/
 Allow: /hagwons/
 Allow: /sat-hagwons
+
 Sitemap: https://www.ibmaster.net/sitemap.xml
 Sitemap: https://www.ibmaster.net/community/sitemap.xml

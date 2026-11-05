@@ -443,7 +443,7 @@ export default function DashboardPage() {
                     <img
                       src={picturePreview || teacher.profile_picture || DEFAULT_PICTURE}
                       alt="프로필 사진"
-                      className="w-24 h-24 rounded-full object-cover bg-gray-100 shrink-0"
+                      className="w-20 h-20 md:w-32 md:h-32 rounded-xl object-cover bg-gray-100 shrink-0"
                     />
                     <div>
                       <Button type="button" variant="secondary" onClick={() => pictureInputRef.current?.click()}>

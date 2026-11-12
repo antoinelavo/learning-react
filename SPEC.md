@@ -55,12 +55,12 @@ When an admin upgrades a teacher to 플러스 or turns on their premium profile 
   > [내 프로필 보기] → the teacher's `/profile/...` page; [대시보드에서 수정하기] → `/dashboard`
 
 ## Done when
-- [ ] Confirming a 플러스 bank transfer on `/admin/plus-payments` calls the 플러스 email route; undo does not.
-- [ ] Switching free → 플러스 on `/admin/tiers` calls the 플러스 email route; 플러스 → free does not.
-- [ ] Confirming a premium payment on `/admin/payments` calls the premium email route with the confirmed request; undo does not.
-- [ ] Email routes return 401 without an admin token.
-- [ ] A failed email shows the notice on the admin page and the upgrade remains.
-- [ ] Email text matches the Korean above exactly.
-- [ ] No diff in `app/api/toss/`, `lib/toss.js`, `lib/tierActivation.js`, `lib/premiumActivation.js`, or `supabase/`.
-- [ ] `app/api/cron/daily-digest/` is gone and no references to it remain.
-- [ ] `npm run build` passes.
+- [x] Confirming a 플러스 bank transfer on `/admin/plus-payments` calls the 플러스 email route; undo does not.
+- [x] Switching free → 플러스 on `/admin/tiers` calls the 플러스 email route; 플러스 → free does not.
+- [x] Confirming a premium payment on `/admin/payments` calls the premium email route with the confirmed request; undo does not.
+- [x] Email routes return 401 without an admin token.
+- [x] A failed email shows the notice on the admin page and the upgrade remains.
+- [x] Email text matches the Korean above exactly.
+- [x] No diff in `app/api/toss/`, `lib/toss.js`, `lib/tierActivation.js`, `lib/premiumActivation.js`, or `supabase/`.
+- [x] `app/api/cron/daily-digest/` is gone and no references to it remain.
+- [x] `npm run build` passes.

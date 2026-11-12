@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { activatePremium, deactivatePayment } from '@/lib/premiumActivation';
+import { sendPremiumEmail, UPGRADE_EMAIL_FAILED_MESSAGE } from '@/lib/upgradeEmail';
 import { cardClasses, Badge, Notice } from '@/components/ui';
 
 const ERROR_MESSAGES = {
@@ -57,6 +58,7 @@ export default function PaymentRequestsTable() {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
   const [confirmingId, setConfirmingId] = useState(null);
+  const [emailFailures, setEmailFailures] = useState([]);
 
   useEffect(() => {
     loadRows();
@@ -123,6 +125,13 @@ export default function PaymentRequestsTable() {
           r.id === row.id ? { ...r, admin_confirmed: true, confirmed_at: new Date().toISOString() } : r
         )
       );
+
+      // alreadyProcessed: this request's premium was activated earlier (not by
+      // this click), so no new upgrade happened here and no email is sent.
+      if (!result.alreadyProcessed) {
+        const sent = await sendPremiumEmail(row.id);
+        if (!sent) setEmailFailures((prev) => [...prev, row.name]);
+      }
     } finally {
       setConfirmingId(null);
     }
@@ -161,6 +170,12 @@ export default function PaymentRequestsTable() {
       {fetchError && (
         <Notice color="red" className="mb-4">
           데이터를 불러오지 못했습니다: {fetchError}
+        </Notice>
+      )}
+
+      {emailFailures.length > 0 && (
+        <Notice color="yellow" className="mb-4">
+          {UPGRADE_EMAIL_FAILED_MESSAGE} ({emailFailures.join(', ')})
         </Notice>
       )}
 

@@ -4,12 +4,8 @@
 Rewrite `/aboutus` as a short service introduction instead of a personal story, and fix its broken layout so it matches the rest of the site.
 
 ## Included
-- New Korean copy in `app/aboutus/page.js`:
-  - `<h1>` 소개, plus a one-line summary of IB Master (IB tutor platform, no commission).
-  - A short "what we value" section built on 무료 · 편리 · 자유, rewritten so it no longer says contact happens only by KakaoTalk or email.
-  - A section introducing 선생님 찾기, with a `Button` linking to `/find`.
-  - A note at the bottom: users (students and parents) must verify a teacher's identity themselves.
-- Layout: the page shell `max-w-3xl mx-auto px-4 py-4`, the `components/ui` kit (`cardClasses`, `Button`/`buttonClasses`, `Notice` for the disclaimer), real `<p>`/`<h2>` elements instead of `<br>` chains, and no fixed height.
+- New Korean copy in `app/aboutus/page.js`: a heading (소개) and a couple of plain, warm paragraphs. They cover what IB Master is, no commission, and finding a teacher and contacting them directly. A small closing line asks users (students and parents) to verify a teacher's identity themselves.
+- Layout: the page shell `max-w-3xl mx-auto px-4 py-4`, real `<p>` elements instead of `<br>` chains, and no fixed height or cards.
 
 ## Not included
 - Personal story (name, school, years of tutoring).
@@ -25,6 +21,6 @@ Rewrite `/aboutus` as a short service introduction instead of a personal story, 
 
 ## Done when
 - [x] `/aboutus` has no personal story, donation account or self-funded note.
-- [x] The page has the intro, values, a 선생님 찾기 section with a working button to `/find`, and the identity-verification note.
-- [x] The page uses the standard shell and the `components/ui` kit, has no fixed height and no `<br>` chains, and reads well at phone width (375px) without horizontal scroll.
+- [x] The page is a few plain paragraphs plus the identity-verification note, with no cards, value grid or buttons.
+- [x] The page uses the standard shell, has no fixed height and no `<br>` chains, and reads well at phone width (375px) without horizontal scroll.
 - [x] `npm run build` passes.

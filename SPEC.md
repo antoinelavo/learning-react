@@ -24,7 +24,7 @@ Rewrite `/aboutus` as a short service introduction instead of a personal story, 
 - Doesn't touch any "Ask before changing" areas.
 
 ## Done when
-- [ ] `/aboutus` has no personal story, donation account or self-funded note.
-- [ ] The page has the intro, values, a 선생님 찾기 section with a working button to `/find`, and the identity-verification note.
-- [ ] The page uses the standard shell and the `components/ui` kit, has no fixed height and no `<br>` chains, and reads well at phone width (375px) without horizontal scroll.
-- [ ] `npm run build` passes.
+- [x] `/aboutus` has no personal story, donation account or self-funded note.
+- [x] The page has the intro, values, a 선생님 찾기 section with a working button to `/find`, and the identity-verification note.
+- [x] The page uses the standard shell and the `components/ui` kit, has no fixed height and no `<br>` chains, and reads well at phone width (375px) without horizontal scroll.
+- [x] `npm run build` passes.

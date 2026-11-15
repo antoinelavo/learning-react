@@ -1,37 +1,51 @@
-# Spec: Teacher profile picture upload/re-upload
+# Spec: Chat fixes and admin chat overview
 
 ## Goal
-Teachers can add or replace their profile photo after submitting their profile, from the dashboard. Today the photo can only be set in `/apply`.
+Fix the chat bugs behind "can't send messages" reports, stop empty chats from piling up (118 of 127 today), and give the admin a clear view of who is chatting with whom.
 
 ## Included
-- 내 정보 tab on `/dashboard`: the current photo (or the default image) at the top of the form, with a 사진 변경 button that opens a file picker.
-- Choosing a file shows a local preview right away. Nothing is uploaded yet.
-- On 저장하기, if a new file was chosen: upload it to `/api/upload-profile-picture`, then include `profile_picture` in the same `teachers` update as the other fields.
-- `/api/upload-profile-picture` requires a logged-in user (`getUserFromRequest`, 401 without a valid token).
-- `/apply` and the dashboard call the upload route with `authFetch`.
+- **Reproduce send problems** on iOS Safari and the KakaoTalk in-app browser (Playwright device emulation plus a real-device check if possible). Fix whatever is found and write the findings in the PR description.
+- **Chats are created on the first message.** "메시지 보내기" on a teacher profile opens a draft thread in the chat panel, and nothing is saved. On the first send, call `get_or_create_conversation`, then insert the message. The panel then switches to the real conversation.
+- **Delete existing empty chats:** new migration `supabase/migrations/<date>_chat_cleanup_realtime.sql`:
+  - `delete from conversations c where not exists (select 1 from messages m where m.conversation_id = c.id);`
+  - add `public.messages` to the `supabase_realtime` publication, so live messages and the unread badge work.
+- **Email deep link:** the new-message email links to `https://www.ibmaster.net/?chat=<conversation id>`. On any page, `?chat=` opens the chat panel on that conversation (or the list if the user isn't a participant). Logged-out users go to `/login` and come back to the same URL afterwards.
+- **"메시지 보내기" visibility:** show the button only to logged-out visitors and students. Hide it for teachers, admins, and users without a role (today those users see the button, but clicking it fails).
+- **Send hardening:**
+  - Pressing Enter while Korean IME composition is active doesn't send (no double or partial send).
+  - On a failed send, the typed text goes back into the input, and an inline error appears instead of only an `alert`.
+  - The 전송 button is disabled while sending.
+- **Admin chat page** (`/admin/conversations`):
+  - Tabs: 전체 대화 / 선생님별 / 학생별.
+  - 전체 대화 rows: `[선생님] name ↔ [학생] name` with role badges, message count, and last activity.
+  - 선생님별 / 학생별 rows: one per person, with chat count, total messages, and last activity. Sortable by last activity or chat count.
+  - Search by name or email.
+  - Clicking a name anywhere opens `/admin/conversations/user/[id]`: name, role, email, and a list of that user's chats, each linking to `/admin/conversations/[id]`.
+  - The conversation detail page header shows both names with role badges, each linking to that user's page.
 
 ## Not included
-- Removing a photo / resetting it to the default.
-- Deleting old photos from R2.
-- Cropping or resizing in the browser.
-- Any database, RLS or migration change.
-- Admin-side photo tools.
+- Changing the RLS on `messages` or `conversations`, or the `get_or_create_conversation` logic.
+- Teachers starting chats with students.
+- Attachments, typing indicators, read receipts in the UI.
+- Changing the email cooldown or template design (only the link changes).
 
 ## Rules
-- A photo change follows the existing edit flow: saving sets `status = 'pending'`, so the profile goes back to admin review (same as other edits).
-- Allowed: JPEG, PNG, WEBP, GIF, max 10MB (same as the server). Check this in the browser before showing the preview; if it fails, show an error and keep the current photo.
-- If the upload fails on save, nothing is saved: show `프로필 사진 업로드가 실패하였습니다. 파일 크기가 10MB 이하인지 확인해주세요.` and keep the form as it is.
-- If no new file was chosen, `profile_picture` is not sent in the update (the current photo stays).
-- After a successful save, the dashboard shows the new photo.
-- Site text is Korean: button `사진 변경`, hint `JPG, PNG, WEBP, GIF · 최대 10MB`.
-- Use the `components/ui` kit (`Button`, etc.).
-- The upload route keeps its current type/size checks and response shape (`{ url }`).
+- **Database (Ask before changing, approved):** the cleanup and realtime changes go in one new migration file, run by hand in the Supabase dashboard. Code must not depend on it to send messages; without it, only live updates are missing.
+- Realtime still goes through RLS: users receive only messages where they are sender or recipient.
+- Admin data is read with the admin's session (existing `admin_select` RLS). Admin pages keep the client-side `role === 'admin'` check and the page shell `max-w-3xl mx-auto px-4 py-4`.
+- UI uses `components/ui` (`Tabs`, `Badge`, `Button`, `Input`, `cardClasses`). Real buttons for actions, no arrow glyphs in labels.
+- Site text is Korean. Role badges: `선생님`, `학생`.
+- Student display names keep the existing fallback (username, else email local part).
+- No payment, tier, or legal code is touched.
 
 ## Done when
-- [ ] A logged-in teacher with no custom photo can upload one from 내 정보, save, and see it on the dashboard; the profile is `pending`.
-- [ ] A teacher with a photo can replace it the same way.
-- [ ] Saving without choosing a file leaves `profile_picture` unchanged.
-- [ ] A wrong file type or a file over 10MB is rejected in the browser with an error, and the current photo stays.
-- [x] `POST /api/upload-profile-picture` without a token returns 401; with a valid token it uploads as before.
-- [ ] `/apply` photo upload still works (sends the token).
-- [x] `npm run build` passes.
+- [ ] Clicking "메시지 보내기" and closing the panel without sending creates no `conversations` row (no `get_or_create_conversation` request in a Playwright run).
+- [ ] Sending the first message creates the conversation and the message; later messages reuse it.
+- [ ] Playwright runs on iPhone (Safari) and Android emulation send a message successfully, including a Korean message submitted with Enter, which is sent exactly once.
+- [ ] A failed send keeps the typed text and shows an inline error.
+- [ ] Teachers, admins, and role-less users don't see "메시지 보내기".
+- [ ] `/?chat=<id>` opens the panel on that conversation for a participant; the email template uses that link.
+- [ ] The migration file exists with the cleanup delete and the publication change, and is listed in the PR as "run by hand".
+- [ ] `/admin/conversations` has the three tabs, role badges, sorting, and search; a name click opens `/admin/conversations/user/[id]` with that user's chats.
+- [ ] PR description lists the reproduction results for iOS Safari and the KakaoTalk in-app browser.
+- [ ] `npm run build` passes.

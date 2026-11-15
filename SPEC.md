@@ -45,7 +45,7 @@ Fix the chat bugs behind "can't send messages" reports, stop empty chats from pi
 - [x] A failed send keeps the typed text and shows an inline error.
 - [x] Teachers, admins, and role-less users don't see "메시지 보내기".
 - [x] `/?chat=<id>` opens the panel on that conversation for a participant; the email template uses that link.
-- [ ] The migration file exists with the cleanup delete and the publication change, and is listed in the PR as "run by hand".
+- [x] The migration file exists with the cleanup delete and the publication change, and is listed in the PR as "run by hand".
 - [x] `/admin/conversations` has the three tabs, role badges, sorting, and search; a name click opens `/admin/conversations/user/[id]` with that user's chats.
-- [ ] PR description lists the reproduction results for iOS Safari and the KakaoTalk in-app browser.
+- [x] PR description lists the reproduction results for iOS Safari and the KakaoTalk in-app browser.
 - [x] `npm run build` passes.

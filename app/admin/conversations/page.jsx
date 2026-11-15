@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { Button } from '@/components/ui';
 import ConversationsTable from './ConversationsTable';
 
 export default function AdminConversationsPage() {
@@ -21,10 +21,12 @@ export default function AdminConversationsPage() {
   if (role !== 'admin') return null;
 
   return (
-    <div className="max-w-screen-lg mx-auto pt-12 px-4 mb-20">
-      <div className="mb-6">
+    <div className="max-w-3xl mx-auto px-4 py-4 mb-20">
+      <div className="mb-6 flex items-center justify-between gap-3">
         <h1 className="text-xl font-bold">채팅 대화 목록</h1>
-        <Link href="/admin" className="text-sm font-medium text-blue-600 hover:text-blue-700">어드민 홈</Link>
+        <Button href="/admin" variant="secondary" size="sm">
+          어드민 홈
+        </Button>
       </div>
       <ConversationsTable />
     </div>

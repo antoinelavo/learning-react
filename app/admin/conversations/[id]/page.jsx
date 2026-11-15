@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { getConversationForAdmin, getMessages } from '@/lib/chat/chatClient';
-import { cardClasses } from '@/components/ui';
+import { Button, cardClasses } from '@/components/ui';
+import { PersonLink } from '../AdminChatParts';
 
 function formatTime(iso) {
   return new Date(iso).toLocaleString('ko-KR', {
@@ -52,14 +52,21 @@ export default function AdminConversationDetailPage() {
   if (role !== 'admin') return null;
 
   return (
-    <div className="max-w-screen-md mx-auto pt-12 px-4 mb-20">
-      <div className="mb-6">
-        <h1 className="text-xl font-bold">
-          {conversation ? `${conversation.teacherName} · ${conversation.studentName}` : '대화 보기'}
-        </h1>
-        <Link href="/admin/conversations" className="text-sm font-medium text-blue-600 hover:text-blue-700">
-          대화 목록
-        </Link>
+    <div className="max-w-3xl mx-auto px-4 py-4 mb-20">
+      <div className="mb-6 space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="text-xl font-bold">대화 보기</h1>
+          <Button href="/admin/conversations" variant="secondary" size="sm">
+            대화 목록
+          </Button>
+        </div>
+        {conversation && (
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <PersonLink person={conversation.teacher} />
+            <span className="text-gray-400" aria-hidden="true">↔</span>
+            <PersonLink person={conversation.student} />
+          </div>
+        )}
       </div>
 
       {loading ? (
@@ -71,7 +78,7 @@ export default function AdminConversationDetailPage() {
       ) : (
         <div className={cardClasses({ className: 'p-4 space-y-3' })}>
           {messages.map((m) => {
-            const fromTeacher = m.sender_id === conversation.teacherUserId;
+            const fromTeacher = m.sender_id === conversation.teacher.id;
             return (
               <div key={m.id} className={`flex ${fromTeacher ? 'justify-end' : 'justify-start'}`}>
                 <div
@@ -80,7 +87,7 @@ export default function AdminConversationDetailPage() {
                   }`}
                 >
                   <div className={`text-[10px] mb-1 font-medium ${fromTeacher ? 'text-blue-100' : 'text-gray-500'}`}>
-                    {fromTeacher ? conversation.teacherName : conversation.studentName}
+                    {fromTeacher ? `선생님 · ${conversation.teacher.name}` : `학생 · ${conversation.student.name}`}
                   </div>
                   {m.body}
                   <div className={`text-[10px] mt-1 ${fromTeacher ? 'text-blue-100' : 'text-gray-400'}`}>

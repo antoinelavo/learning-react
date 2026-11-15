@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChat } from '@/contexts/ChatContext';
-import { getMessages, sendMessage, markRead, subscribeToConversation } from '@/lib/chat/chatClient';
+import { getMessages, sendMessage, markRead, subscribeToConversation, startConversation } from '@/lib/chat/chatClient';
 import TeacherSummaryCard from './TeacherSummaryCard.client';
 import ChatInputBar from './ChatInputBar.client';
 
@@ -11,14 +11,24 @@ function formatTime(iso) {
   return new Date(iso).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
 }
 
-export default function MessageThread({ conversation }) {
+export default function MessageThread({ conversation, onCreated }) {
   const { user } = useAuth();
   const { decrementUnread } = useChat();
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
   const [messages, setMessages] = useState([]);
   const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState(null);
   const bottomRef = useRef(null);
 
   useEffect(() => {
+    // Draft thread: no conversation row yet, so nothing to load or watch.
+    if (!conversation.id) return;
     let cancelled = false;
 
     getMessages(conversation.id).then((data) => {
@@ -49,13 +59,23 @@ export default function MessageThread({ conversation }) {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages.length]);
 
+  // Returns true when the message was saved, so the input bar knows whether
+  // to keep or restore the typed text.
   const handleSend = async (body) => {
-    if (sending) return;
+    if (sending) return false;
 
     setSending(true);
+    setSendError(null);
+    let createdId = null;
     try {
+      let conversationId = conversation.id;
+      if (!conversationId) {
+        // First message of a draft: create the conversation row now.
+        createdId = await startConversation(user.id, conversation.otherUserId);
+        conversationId = createdId;
+      }
       const message = await sendMessage({
-        conversationId: conversation.id,
+        conversationId,
         senderId: user.id,
         recipientId: conversation.otherUserId,
         body,
@@ -63,10 +83,16 @@ export default function MessageThread({ conversation }) {
       if (message) {
         setMessages((prev) => (prev.some((m) => m.id === message.id) ? prev : [...prev, message]));
       }
+      return true;
     } catch (err) {
       console.error('메시지 전송 실패:', err);
-      alert('메시지 전송에 실패했습니다. 다시 시도해주세요.');
+      setSendError('메시지를 보내지 못했습니다. 다시 시도해주세요.');
+      return false;
     } finally {
+      // Hand the new id over only after the message is saved, so the thread's
+      // reload for that id already includes it. Skipped if the user already
+      // left this draft, so the panel doesn't jump back to it.
+      if (createdId && mountedRef.current) onCreated?.(createdId);
       setSending(false);
     }
   };
@@ -96,6 +122,11 @@ export default function MessageThread({ conversation }) {
         <div ref={bottomRef} />
       </div>
 
+      {sendError && (
+        <p role="alert" className="px-3 pt-2 text-sm text-red-600">
+          {sendError}
+        </p>
+      )}
       <ChatInputBar onSend={handleSend} disabled={sending} />
     </div>
   );

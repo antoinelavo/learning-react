@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { revealsRemaining } from '@/lib/reveal';
+import { sendPlusEmail, UPGRADE_EMAIL_FAILED_MESSAGE } from '@/lib/upgradeEmail';
 import { Input, cardClasses, Badge, Notice } from '@/components/ui';
 
 // Toggle switch: on (파란색) = 플러스, off (회색) = 무료. Mirrors
@@ -38,6 +39,7 @@ export default function TeacherTiersTable() {
   const [fetchError, setFetchError] = useState(null);
   const [query, setQuery] = useState('');
   const [busyId, setBusyId] = useState(null);
+  const [emailFailures, setEmailFailures] = useState([]);
 
   useEffect(() => {
     loadTeachers();
@@ -68,15 +70,25 @@ export default function TeacherTiersTable() {
 
     setBusyId(teacher.id);
     try {
-      const { error } = await supabase.from('teachers').update({ tier: nextTier }).eq('id', teacher.id);
+      // .select() so an update silently blocked by RLS (zero rows) counts as a failure.
+      const { data: updated, error } = await supabase
+        .from('teachers')
+        .update({ tier: nextTier })
+        .eq('id', teacher.id)
+        .select('id');
 
-      if (error) {
+      if (error || !updated?.length) {
         console.error('❌ tier update error:', error);
         alert('요금제 변경 중 오류가 발생했습니다.');
         return;
       }
 
       setTeachers((prev) => prev.map((t) => (t.id === teacher.id ? { ...t, tier: nextTier } : t)));
+
+      if (nextTier === 'premium') {
+        const sent = await sendPlusEmail(teacher.id);
+        if (!sent) setEmailFailures((prev) => [...prev, teacher.name]);
+      }
     } finally {
       setBusyId(null);
     }
@@ -105,6 +117,12 @@ export default function TeacherTiersTable() {
       {fetchError && (
         <Notice color="red" className="mb-4">
           데이터를 불러오지 못했습니다: {fetchError}
+        </Notice>
+      )}
+
+      {emailFailures.length > 0 && (
+        <Notice color="yellow">
+          {UPGRADE_EMAIL_FAILED_MESSAGE} ({emailFailures.join(', ')})
         </Notice>
       )}
 

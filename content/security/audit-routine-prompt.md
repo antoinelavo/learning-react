@@ -51,7 +51,7 @@ Read every file in `app/api/` and `pages/api/`.
 - Server routes that need to bypass RLS must use `getSupabaseAdmin()` from `lib/supabaseAdmin.js`. A server route that creates its own client with the service-role key, or uses the anon client for a write without a user session, is a finding.
 - Each route must check who is calling, or be safe to call by anyone:
   - Admin routes: `getAdminFromRequest(request)`.
-  - Cron: `Authorization: Bearer $CRON_SECRET`.
+  - Cron: there are none today. A new one must check `Authorization: Bearer $CRON_SECRET`.
   - Toss/NicePay: the amount is checked against the stored order and the payment is confirmed with the provider (or the webhook signature is verified) before activation. The `pending` → `paid` guard in `lib/premiumActivation.js` / `lib/tierActivation.js` stays.
   - Email-sending routes (`notify-subscribers`, `chat/notify-message`): content comes from the database, not the request body, and the caller can't choose recipients.
   - Public read routes (e.g. `app/api/dashboard/*`) return only aggregate, non-personal data.

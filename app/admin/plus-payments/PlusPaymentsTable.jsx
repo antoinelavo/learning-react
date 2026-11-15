@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { confirmPlusBankTransfer, undoPlusBankTransfer } from '@/lib/tierActivation';
+import { sendPlusEmail, UPGRADE_EMAIL_FAILED_MESSAGE } from '@/lib/upgradeEmail';
 import { Notice, cardClasses, Badge } from '@/components/ui';
 
 const ERROR_MESSAGES = {
@@ -65,6 +66,7 @@ export default function PlusPaymentsTable() {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
   const [busyId, setBusyId] = useState(null);
+  const [emailFailures, setEmailFailures] = useState([]);
 
   useEffect(() => {
     loadRows();
@@ -124,6 +126,9 @@ export default function PlusPaymentsTable() {
       }
 
       setRowStatus(row.id, 'paid');
+
+      const sent = await sendPlusEmail(row.teacher_id);
+      if (!sent) setEmailFailures((prev) => [...prev, name]);
     } finally {
       setBusyId(null);
     }
@@ -169,6 +174,12 @@ export default function PlusPaymentsTable() {
       {fetchError && (
         <Notice color="red" className="mb-4">
           데이터를 불러오지 못했습니다: {fetchError}
+        </Notice>
+      )}
+
+      {emailFailures.length > 0 && (
+        <Notice color="yellow" className="mb-4">
+          {UPGRADE_EMAIL_FAILED_MESSAGE} ({emailFailures.join(', ')})
         </Notice>
       )}
 

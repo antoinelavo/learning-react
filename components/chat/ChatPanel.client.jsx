@@ -13,7 +13,16 @@ import MessageThread from './MessageThread.client';
 // (fixed backdrop + translate-x transition + body scroll lock).
 export default function ChatPanel() {
   const { user } = useAuth();
-  const { isPanelOpen, closePanel, activeConversationId, listVersion } = useChat();
+  const {
+    isPanelOpen,
+    closePanel,
+    activeConversationId,
+    draft,
+    listVersion,
+    selectConversation,
+    clearSelection,
+    conversationCreated,
+  } = useChat();
   const [selected, setSelected] = useState(null);
 
   // NOTE: pinning body with position:fixed (the more "thorough" iOS
@@ -35,21 +44,59 @@ export default function ChatPanel() {
     if (!isPanelOpen) setSelected(null);
   }, [isPanelOpen]);
 
-  // Resolve activeConversationId (set e.g. by a teacher profile's "메시지
-  // 보내기" button, via openChatWithTeacher) into a full conversation
-  // object so the thread view has a display name/avatar to show.
+  // A draft (a teacher with no conversation row yet, from a profile's
+  // "메시지 보내기") shows an empty thread right away.
+  useEffect(() => {
+    if (!draft) return;
+    setSelected({
+      id: null,
+      otherUserId: draft.teacherUserId,
+      otherIsTeacher: true,
+      displayName: draft.name,
+      avatarUrl: draft.avatarUrl,
+    });
+  }, [draft]);
+
+  // Resolve activeConversationId (from an existing conversation or a deep
+  // link) into a full conversation object so the thread view has a display
+  // name/avatar.
   useEffect(() => {
     if (!activeConversationId || !user) return;
+    if (selected?.id === activeConversationId) return;
     let cancelled = false;
-    getConversationsWithParticipants(user.id).then((list) => {
-      if (cancelled) return;
-      const match = list.find((c) => c.id === activeConversationId);
-      if (match) setSelected(match);
-    });
+    getConversationsWithParticipants(user.id)
+      .then((list) => {
+        if (cancelled) return;
+        const match = list.find((c) => c.id === activeConversationId);
+        if (match) setSelected(match);
+        else clearSelection();
+      })
+      .catch((err) => console.error('채팅 불러오기 실패:', err));
     return () => {
       cancelled = true;
     };
+    // `selected` is read only to skip a refetch when it already matches;
+    // re-running on it would refetch after every selection.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeConversationId, user?.id]);
+
+  const backToList = () => {
+    setSelected(null);
+    clearSelection();
+  };
+
+  // The draft's first message created the conversation row: keep the open
+  // thread mounted and give it its id (same render as the context update,
+  // so the effect above sees a match and doesn't refetch).
+  const handleCreated = (id) => {
+    setSelected((s) => (s ? { ...s, id } : s));
+    conversationCreated(id);
+  };
+
+  const openFromList = (conversation) => {
+    setSelected(conversation);
+    selectConversation(conversation.id);
+  };
 
   if (!user || !isPanelOpen) return null;
 
@@ -72,7 +119,7 @@ export default function ChatPanel() {
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 flex-shrink-0">
           {selected ? (
             <button
-              onClick={() => setSelected(null)}
+              onClick={backToList}
               className="flex items-center gap-1 text-sm font-medium text-gray-700 hover:text-blue-500"
             >
               <ArrowLeft size={18} /> {selected.displayName}
@@ -87,10 +134,10 @@ export default function ChatPanel() {
 
         <div className="flex-1 min-h-0">
           {selected ? (
-            <MessageThread conversation={selected} />
+            <MessageThread conversation={selected} onCreated={handleCreated} />
           ) : (
             <div className="h-full overflow-y-auto overscroll-contain">
-              <ConversationList userId={user.id} refreshKey={listVersion} onSelect={setSelected} />
+              <ConversationList userId={user.id} refreshKey={listVersion} onSelect={openFromList} />
             </div>
           )}
         </div>

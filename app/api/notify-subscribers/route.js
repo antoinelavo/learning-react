@@ -69,17 +69,19 @@ export async function POST(request) {
         subject,
         html,
       });
-      results.push({ email: sub.email, success: !error, error: error?.message });
+      results.push({ success: !error });
+      if (error) console.error('Notify subscribers: send failed', error.message);
       await delay(600);
     }
 
+    // Never return recipient addresses: this route is public.
     return NextResponse.json({
-      emailsSent: results.length,
-      results,
+      emailsSent: results.filter((r) => r.success).length,
+      failed: results.filter((r) => !r.success).length,
     });
   } catch (err) {
     console.error('Notify subscribers error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 

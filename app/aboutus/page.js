@@ -1,37 +1,46 @@
-const DESCRIPTION =
-  'IB Master는 수수료 없이 IB 학생과 과외 선생님을 이어주는 IB 전문 과외 사이트입니다.';
+import { cardClasses } from '@/components/ui';
 
 export const metadata = {
   title: 'IB Master 소개 | 수수료 없는 IB 과외 플랫폼',
-  description: DESCRIPTION,
+  description: 'IB Master는 수수료 없이 IB 학생과 과외 선생님을 연결하는 IB 전문 과외 플랫폼입니다. 만든 이유와 운영 원칙을 소개합니다.',
   alternates: {
     canonical: '/aboutus',
   },
   openGraph: {
     url: '/aboutus',
     title: 'IB Master 소개 | 수수료 없는 IB 과외 플랫폼',
-    description: DESCRIPTION,
+    description: 'IB Master는 수수료 없이 IB 학생과 과외 선생님을 연결하는 IB 전문 과외 플랫폼입니다. 만든 이유와 운영 원칙을 소개합니다.',
   },
 };
 
 export default function AboutPage() {
   return (
     <main className="max-w-3xl mx-auto px-4 py-4">
-      <h1 className="text-lg sm:text-xl font-bold text-gray-900 leading-snug">소개</h1>
-      <div className="mt-4 space-y-4 text-gray-700 leading-relaxed">
-        <p>
-          IB 과외 선생님을 찾는 일이 생각보다 쉽지 않습니다. 일반 과외 사이트에는 IB를 제대로 아는 선생님이
-          드물고, 수수료 때문에 학생도 선생님도 부담이 커지곤 하죠. IB Master는 이런 불편을 줄이고 싶어서
-          만든 IB 전문 과외 사이트입니다.
-        </p>
-        <p>
-          수수료는 받지 않습니다. 선생님 프로필에서 과목과 경력, 수업 방식을 살펴보고 마음에 드는 분께 직접
-          연락하시면 됩니다. 수업 시간이나 비용도 두 분이 편하게 정하시면 돼요. IB를 준비하는 모든 학생이 잘
-          맞는 선생님을 만나 원하는 결과를 얻을 수 있도록 돕고 싶습니다.
-        </p>
-        <p className="text-sm text-gray-500">
-          선생님의 신원과 경력은 학생·학부모님께서 직접 확인해 주세요.
-        </p>
+      <div className={cardClasses({ className: 'p-5 sm:p-8' })}>
+        <h1 className="text-lg sm:text-xl font-bold text-gray-900 leading-snug">소개</h1>
+        <div className="mt-4 space-y-4 text-gray-700 leading-relaxed [&>p]:mb-0">
+          <p>안녕하세요, 성균관대학교 의과대학 21학번 박유진입니다.</p>
+          <p>
+            저는 지난 4년간 과외 선생님으로 활동했습니다. 제가 학생들과 만나기 위해 사용해본 사이트들은 전부
+            아쉬운 점이 한가지씩 있었습니다. 수수료를 받거나, IB 전문이 아니라서 정보가 부족하거나, 사이트가
+            사용하기 불편했습니다.
+          </p>
+          <p>
+            그래서 IB Master를 만들었습니다. 이 사이트는 &quot;무료 · 편리 · 자유&quot;를 가장 중요한 가치들로
+            여깁니다. 학생과 선생님이 쉽게 만날 수 있도록 수수료를 받지 않고, 필요한 정보만 게시하며, 사이트가
+            아닌 카카오톡이나 이메일을 통해 소통하도록 합니다.
+          </p>
+          <p>이 사이트의 목표는 누구나 손쉽게 사용할 수 있는 IB 관련 종합 포털이 되는 것입니다.</p>
+          <p>모든 학생이 IB Diploma에서 원하는 결과를 받을 수 있도록 조금이나마 도움이 되고자 합니다.</p>
+        </div>
+
+        <div className="mt-8 space-y-1 [&>p]:mb-0">
+          <p className="text-sm text-gray-500">*현재 사이트는 사비로 운영되고 있습니다.</p>
+          <p className="text-sm text-gray-500">**선생님의 신원은 사용자(학생·학부모)가 검증해야합니다.</p>
+          <p className="pt-3 text-sm text-gray-500">
+            후원 계좌: {process.env.NEXT_PUBLIC_BANK_ACCOUNT} {process.env.NEXT_PUBLIC_BANK_HOLDER}
+          </p>
+        </div>
       </div>
     </main>
   );

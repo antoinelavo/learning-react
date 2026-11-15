@@ -1,40 +1,71 @@
-import { cardClasses } from '@/components/ui';
+import { Button, Notice, cardClasses } from '@/components/ui';
+
+const DESCRIPTION =
+  'IB Master는 수수료 없이 IB 학생과 과외 선생님을 연결하는 IB 전문 과외 플랫폼입니다. IB Master가 추구하는 가치와 서비스를 소개합니다.';
 
 export const metadata = {
   title: 'IB Master 소개 | 수수료 없는 IB 과외 플랫폼',
-  description: 'IB Master는 수수료 없이 IB 학생과 과외 선생님을 연결하는 IB 전문 과외 플랫폼입니다. 만든 이유와 운영 원칙을 소개합니다.',
+  description: DESCRIPTION,
   alternates: {
     canonical: '/aboutus',
   },
   openGraph: {
     url: '/aboutus',
     title: 'IB Master 소개 | 수수료 없는 IB 과외 플랫폼',
-    description: 'IB Master는 수수료 없이 IB 학생과 과외 선생님을 연결하는 IB 전문 과외 플랫폼입니다. 만든 이유와 운영 원칙을 소개합니다.',
+    description: DESCRIPTION,
   },
 };
 
+const VALUES = [
+  {
+    title: '무료',
+    body: '수수료를 받지 않습니다. 학생과 선생님이 부담 없이 만날 수 있습니다.',
+  },
+  {
+    title: '편리',
+    body: 'IB 과목, 수업 방식, 수업료 등 꼭 필요한 정보만 담아 쉽게 비교할 수 있습니다.',
+  },
+  {
+    title: '자유',
+    body: '학생과 선생님이 직접 연락하고, 수업 조건도 자유롭게 정합니다.',
+  },
+];
+
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-gray-50 py-16 px-4">
-      <div className={cardClasses({ className: 'max-w-3xl mx-auto p-8 h-[80dvh]' })}>
-        <h1 className="text-4xl font-bold mb-4 text-center mb-16">소개</h1>
-        <p className="text-gray-700 leading-relaxed mb-6 m-[2em]">
-            안녕하세요, 성균관대학교 의과대학 21학번 박유진입니다.<br></br><br></br>
+    <main className="max-w-3xl mx-auto px-4 py-4">
+      <h1 className="text-lg sm:text-xl font-bold text-gray-900 leading-snug">IB Master 소개</h1>
+      <p className="mt-2 text-gray-700 leading-relaxed">
+        IB Master는 IB 학생과 과외 선생님을 연결하는 IB 전문 과외 플랫폼입니다. 수수료 없이 누구나 쉽게
+        원하는 선생님을 찾을 수 있습니다.
+      </p>
 
-            저는 지난 4년간 과외 선생님으로 활동했습니다. 제가 학생들과 만나기 위해 사용해본 사이트들은 전부 아쉬운 점이 한가지씩 있었습니다. 수수료를 받거나, IB 전문이 아니라서 정보가 부족하거나, 사이트가 사용하기 불편했습니다.<br></br><br></br>
-
-            그래서 IB Master를 만들었습니다. 이 사이트는 "무료 · 편리 · 자유"를 가장 중요한 가치들로 여깁니다. 학생과 선생님이 쉽게 만날 수 있도록 수수료를 받지 않고, 필요한 정보만 게시하며, 사이트가 아닌 카카오톡이나 이메일을 통해 소통하도록 합니다.<br></br><br></br>
-
-            이 사이트의 목표는 누구나 손쉽게 사용할 수 있는 IB 관련 종합 포털이 되는 것입니다.<br></br><br></br>
-
-            모든 학생이 IB Diploma에서 원하는 결과를 받을 수 있도록 조금이나마 도움이 되고자 합니다.​​<br></br><br></br>
-
-            *현재 사이트는 사비로 운영되고 있습니다.<br></br>
-            **선생님의 신원은 사용자(학생·학부모)가 검증해야합니다.<br></br><br></br>
-                        
-            후원 계좌: {process.env.NEXT_PUBLIC_BANK_ACCOUNT} {process.env.NEXT_PUBLIC_BANK_HOLDER}<br></br><br></br>
-        </p>
+      <section className="mt-8">
+        <h2 className="text-base font-semibold text-gray-900">IB Master가 지키는 가치</h2>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          {VALUES.map((value) => (
+            <div key={value.title} className={cardClasses({ className: 'p-4' })}>
+              <h3 className="font-semibold text-blue-600">{value.title}</h3>
+              <p className="mt-1 text-sm text-gray-700 leading-relaxed">{value.body}</p>
+            </div>
+          ))}
         </div>
+      </section>
+
+      <section className={cardClasses({ className: 'mt-8 p-5' })}>
+        <h2 className="text-base font-semibold text-gray-900">선생님 찾기</h2>
+        <p className="mt-2 text-gray-700 leading-relaxed">
+          과목, 수업 방식, 수업료로 IB 과외 선생님을 찾아보세요. 프로필에서 경력과 수업 정보를 확인하고 바로
+          연락할 수 있습니다.
+        </p>
+        <Button href="/find" className="mt-4">
+          선생님 찾기
+        </Button>
+      </section>
+
+      <Notice color="gray" className="mt-8">
+        선생님의 신원과 경력은 학생·학부모님께서 직접 확인해 주세요.
+      </Notice>
     </main>
   );
 }

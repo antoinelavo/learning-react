@@ -170,18 +170,17 @@ export default function ProfilePage({ teacher }) {
   }
 
   const isOwnProfile = user?.id === teacher.user_id;
-  const canMessage = !isOwnProfile && role !== 'teacher';
+  // Only students start chats (get_or_create_conversation rejects anyone
+  // else). Logged-out visitors see the button and are sent to log in.
+  const canMessage = !authLoading && !isOwnProfile && (!user || role === 'student');
   const subjects = teacher.subjects || [];
   const visibleMobileSubjects = showAllSubjects ? subjects : subjects.slice(0, MOBILE_SUBJECT_LIMIT);
   const hiddenSubjectCount = subjects.length - visibleMobileSubjects.length;
 
   const handleMessage = async () => {
-    if (!user) {
-      router.push('/login');
-      return;
-    }
     try {
-      await openChatWithTeacher(teacher.user_id);
+      // Logged-out users are sent to login and brought back here.
+      await openChatWithTeacher(teacher.user_id, { name: teacher.name, avatarUrl: teacher.profile_picture });
     } catch (err) {
       console.error(err);
       alert('메시지를 시작할 수 없습니다. 잠시 후 다시 시도해주세요.');

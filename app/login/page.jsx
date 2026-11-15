@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { takeReturnPath } from '@/lib/postLoginRedirect';
 import { Input, Button } from '@/components/ui';
 
 export default function LoginPage() {
@@ -41,7 +42,10 @@ export default function LoginPage() {
 
           const { role } = userData;
 
-          if (role === 'teacher') {
+          const returnPath = takeReturnPath();
+          if (returnPath) {
+            router.replace(returnPath);
+          } else if (role === 'teacher') {
             router.replace('/apply');
           } else {
             router.replace('/find');

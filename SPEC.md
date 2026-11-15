@@ -1,66 +1,51 @@
-# Spec: Upgrade emails for 플러스 and premium profile teachers
+# Spec: Chat fixes and admin chat overview
 
 ## Goal
-When an admin upgrades a teacher to 플러스 or turns on their premium profile from the admin pages, the teacher gets a Korean confirmation email. Also delete the unused daily digest cron.
+Fix the chat bugs behind "can't send messages" reports, stop empty chats from piling up (118 of 127 today), and give the admin a clear view of who is chatting with whom.
 
 ## Included
-- `/admin/plus-payments`: turning 입금 확인 on (after `confirmPlusBankTransfer` succeeds and was not `alreadyProcessed`) sends the 플러스 email.
-- `/admin/tiers`: switching a teacher from free to 플러스 (after the update succeeds) sends the 플러스 email.
-- `/admin/payments`: turning 입금 확인 on (after `activatePremium` succeeds and was not `alreadyProcessed`) sends the premium email.
-- New admin-only API route(s) under `app/api/teachers/` (e.g. `notify-plus`, `notify-premium`), following `app/api/teachers/notify-approved/route.js`: verify with `getAdminFromRequest`, look up the teacher and their `users.email` with `getSupabaseAdmin()`, send through Resend, return `{ ok }`.
-- Admin pages call them through `authFetch`.
-- New templates in `lib/email/` in the same style as `approvalTemplate.js` (no unsubscribe link).
-- Delete `app/api/cron/daily-digest/` and remove its mentions from `CLAUDE.md` and `content/security/audit-routine-prompt.md`. Repoint the comment in `lib/email/approvalTemplate.js` that cites the digest.
+- **Reproduce send problems** on iOS Safari and the KakaoTalk in-app browser (Playwright device emulation plus a real-device check if possible). Fix whatever is found and write the findings in the PR description.
+- **Chats are created on the first message.** "메시지 보내기" on a teacher profile opens a draft thread in the chat panel, and nothing is saved. On the first send, call `get_or_create_conversation`, then insert the message. The panel then switches to the real conversation.
+- **Delete existing empty chats:** new migration `supabase/migrations/<date>_chat_cleanup_realtime.sql`:
+  - `delete from conversations c where not exists (select 1 from messages m where m.conversation_id = c.id);`
+  - add `public.messages` to the `supabase_realtime` publication, so live messages and the unread badge work.
+- **Email deep link:** the new-message email links to `https://www.ibmaster.net/?chat=<conversation id>`. On any page, `?chat=` opens the chat panel on that conversation (or the list if the user isn't a participant). Logged-out users go to `/login` and come back to the same URL afterwards.
+- **"메시지 보내기" visibility:** show the button only to logged-out visitors and students. Hide it for teachers, admins, and users without a role (today those users see the button, but clicking it fails).
+- **Send hardening:**
+  - Pressing Enter while Korean IME composition is active doesn't send (no double or partial send).
+  - On a failed send, the typed text goes back into the input, and an inline error appears instead of only an `alert`.
+  - The 전송 button is disabled while sending.
+- **Admin chat page** (`/admin/conversations`):
+  - Tabs: 전체 대화 / 선생님별 / 학생별.
+  - 전체 대화 rows: `[선생님] name ↔ [학생] name` with role badges, message count, and last activity.
+  - 선생님별 / 학생별 rows: one per person, with chat count, total messages, and last activity. Sortable by last activity or chat count.
+  - Search by name or email.
+  - Clicking a name anywhere opens `/admin/conversations/user/[id]`: name, role, email, and a list of that user's chats, each linking to `/admin/conversations/[id]`.
+  - The conversation detail page header shows both names with role badges, each linking to that user's page.
 
 ## Not included
-- Toss card payments (`app/api/toss/*`, `lib/toss.js`): untouched, no email.
-- No changes to `lib/tierActivation.js` or `lib/premiumActivation.js`.
-- No email on undo or downgrade (turning 입금 확인 off, or 플러스 off in `/admin/tiers`).
-- No database or migration changes.
-- No guard against re-sending: undo then re-confirm sends the email again.
+- Changing the RLS on `messages` or `conversations`, or the `get_or_create_conversation` logic.
+- Teachers starting chats with students.
+- Attachments, typing indicators, read receipts in the UI.
+- Changing the email cooldown or template design (only the link changes).
 
 ## Rules
-- The email never blocks or reverts an upgrade. It is sent only after the upgrade succeeded.
-- If the email fails (no email on file, Resend error, route error), the admin page shows a notice: `업그레이드는 완료되었지만 이메일 발송에 실패했습니다.` The upgrade stays.
-- The premium email reads subjects and dates from the `teacher_premium` row created by that confirmation (matched by `payment_request_id`), not from the request body.
-- Recipient is the teacher's account email (`users.email` via `teachers.user_id`). `TEST_OVERRIDE_EMAIL` does not apply (it's only for subscriber emails), unless noted otherwise later.
-- Links use `https://www.ibmaster.net`. From address: `RESEND_FROM_EMAIL` (same fallback as the existing routes).
-- Dates in Korean format (e.g. `2026년 11월 12일`).
-- Touches admin payment pages (`/admin/payments`, `/admin/plus-payments`) only to add the email call after success. Activation logic, prices, and idempotency guards are unchanged.
-
-### 플러스 email
-- Subject: `[IBMaster] 플러스 업그레이드가 완료되었습니다`
-- Body:
-  > 축하합니다, {이름} 선생님!
-  >
-  > 플러스 업그레이드가 완료되었습니다. 지금부터 다음 혜택을 이용하실 수 있습니다.
-  > - 학생 요청글 연락처 무제한 열람
-  > - 별도의 갱신 없이 계속 유지
-  >
-  > 새로 올라오는 학생 요청을 가장 먼저 확인하고, 좋은 수업 인연을 만들어 보세요.
-  >
-  > [학생 찾기 바로가기] → `/students`
-
-### Premium email
-- Subject: `[IBMaster] 프리미엄 프로필 등록이 완료되었습니다`
-- Body:
-  > 축하합니다, {이름} 선생님!
-  >
-  > 입금이 확인되어 프리미엄 프로필 등록이 완료되었습니다.
-  > - 노출 과목: {과목 목록}
-  > - 노출 기간: {시작일} ~ {종료일}
-  >
-  > 기간 동안 해당 과목을 검색하는 학생과 학부모님께 선생님의 프로필이 가장 먼저 보여집니다. 프로필 사진과 소개글을 최신 상태로 유지하시면 더 많은 문의를 받으실 수 있습니다.
-  >
-  > [내 프로필 보기] → the teacher's `/profile/...` page; [대시보드에서 수정하기] → `/dashboard`
+- **Database (Ask before changing, approved):** the cleanup and realtime changes go in one new migration file, run by hand in the Supabase dashboard. Code must not depend on it to send messages; without it, only live updates are missing.
+- Realtime still goes through RLS: users receive only messages where they are sender or recipient.
+- Admin data is read with the admin's session (existing `admin_select` RLS). Admin pages keep the client-side `role === 'admin'` check and the page shell `max-w-3xl mx-auto px-4 py-4`.
+- UI uses `components/ui` (`Tabs`, `Badge`, `Button`, `Input`, `cardClasses`). Real buttons for actions, no arrow glyphs in labels.
+- Site text is Korean. Role badges: `선생님`, `학생`.
+- Student display names keep the existing fallback (username, else email local part).
+- No payment, tier, or legal code is touched.
 
 ## Done when
-- [x] Confirming a 플러스 bank transfer on `/admin/plus-payments` calls the 플러스 email route; undo does not.
-- [x] Switching free → 플러스 on `/admin/tiers` calls the 플러스 email route; 플러스 → free does not.
-- [x] Confirming a premium payment on `/admin/payments` calls the premium email route with the confirmed request; undo does not.
-- [x] Email routes return 401 without an admin token.
-- [x] A failed email shows the notice on the admin page and the upgrade remains.
-- [x] Email text matches the Korean above exactly.
-- [x] No diff in `app/api/toss/`, `lib/toss.js`, `lib/tierActivation.js`, `lib/premiumActivation.js`, or `supabase/`.
-- [x] `app/api/cron/daily-digest/` is gone and no references to it remain.
+- [x] Clicking "메시지 보내기" and closing the panel without sending creates no `conversations` row (no `get_or_create_conversation` request in a Playwright run).
+- [x] Sending the first message creates the conversation and the message; later messages reuse it.
+- [x] Playwright runs on iPhone (Safari) and Android emulation send a message successfully, including a Korean message submitted with Enter, which is sent exactly once.
+- [x] A failed send keeps the typed text and shows an inline error.
+- [x] Teachers, admins, and role-less users don't see "메시지 보내기".
+- [x] `/?chat=<id>` opens the panel on that conversation for a participant; the email template uses that link.
+- [x] The migration file exists with the cleanup delete and the publication change, and is listed in the PR as "run by hand".
+- [x] `/admin/conversations` has the three tabs, role badges, sorting, and search; a name click opens `/admin/conversations/user/[id]` with that user's chats.
+- [x] PR description lists the reproduction results for iOS Safari and the KakaoTalk in-app browser.
 - [x] `npm run build` passes.

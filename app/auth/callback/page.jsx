@@ -4,6 +4,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { takeReturnPath } from '@/lib/postLoginRedirect';
 
 export default function AuthCallback() {
   const router = useRouter();
@@ -25,6 +26,12 @@ export default function AuthCallback() {
       if (!session) {
         alert('로그인 세션을 찾을 수 없습니다.');
         router.replace('/login');
+        return;
+      }
+
+      const returnPath = takeReturnPath();
+      if (returnPath) {
+        router.replace(returnPath);
         return;
       }
 

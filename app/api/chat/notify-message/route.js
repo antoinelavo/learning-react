@@ -12,8 +12,9 @@ import { buildChatMessageEmailHtml } from '@/lib/email/chatMessageTemplate';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 // Hardcoded on purpose — see notify-approved/route.js for why
-// NEXT_PUBLIC_SITE_URL isn't used here.
-const DASHBOARD_URL = 'https://www.ibmaster.net/dashboard';
+// NEXT_PUBLIC_SITE_URL isn't used here. ?chat= opens the chat panel on the
+// conversation (ChatContext), after login if needed.
+const SITE_URL = 'https://www.ibmaster.net';
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'IBMaster <onboarding@resend.dev>';
 
 async function studentDisplayName(supabase, userId) {
@@ -96,7 +97,7 @@ export async function POST(request) {
       html: buildChatMessageEmailHtml({
         senderName,
         messagePreview: messageBody,
-        dashboardUrl: DASHBOARD_URL,
+        chatUrl: `${SITE_URL}/?chat=${encodeURIComponent(conversationId)}`,
       }),
     });
 

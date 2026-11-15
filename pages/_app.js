@@ -15,16 +15,20 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ Component, pageProps }) {
+// No <html>/<body> here: in the pages router this component renders inside
+// _document's <div id="__next">. React 19 hoists <html>/<body> elements to
+// the real document ones, so rendering them here left the DOM out of sync
+// with React's tree. Events inside the header (e.g. typing in the chat
+// panel's input on a teacher profile) then sent React's event dispatch into
+// an endless loop and froze the tab. Body classes live in _document.js.
+export default function App({ Component, pageProps }) {
   return (
-    <html lang="ko" className={notoSansKR.className}>
-      <body className="min-h-screen min-w-screen bg-gray-50">
-        <Providers>
-          <Header />
-          <Component {...pageProps} />
-          <Footer />
-        </Providers>
-      </body>
-    </html>
+    <div className={notoSansKR.className}>
+      <Providers>
+        <Header />
+        <Component {...pageProps} />
+        <Footer />
+      </Providers>
+    </div>
   );
 }

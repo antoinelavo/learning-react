@@ -12,12 +12,29 @@ import { Input, Button } from '@/components/ui';
 export default function ChatInputBar({ onSend, disabled }) {
   const inputRef = useRef(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const value = inputRef.current?.value.trim();
+    const input = inputRef.current;
+    const value = input?.value.trim();
     if (!value || disabled) return;
-    inputRef.current.value = '';
-    onSend(value);
+    input.value = '';
+    const ok = await onSend(value);
+    // Put the text back on failure, unless the user already typed again.
+    if (!ok && inputRef.current && !inputRef.current.value) {
+      inputRef.current.value = value;
+    }
+  };
+
+  // Korean (and other IME) input: the Enter that commits a composed syllable
+  // must not also submit, or the message goes out early and the leftover
+  // syllable is sent again as a second message (Chrome). Only isComposing is
+  // checked, not keyCode 229: Safari (incl. iOS) reports 229 on the
+  // committing Enter with isComposing false, and blocking it there would make
+  // the send key look broken.
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && e.nativeEvent.isComposing) {
+      e.preventDefault();
+    }
   };
 
   return (
@@ -27,16 +44,15 @@ export default function ChatInputBar({ onSend, disabled }) {
         type="text"
         defaultValue=""
         placeholder="메시지를 입력하세요..."
+        onKeyDown={handleKeyDown}
+        enterKeyHint="send"
         // text-base (16px), not text-sm (14px): iOS Safari auto-zooms the
         // whole page on focusing any input with a font-size under 16px —
         // that zoom is what revealed background content and shifted the
         // 전송 button, not an actual layout bug.
         className="flex-1 min-w-0"
       />
-      <Button
-        type="submit"
-       
-      >
+      <Button type="submit" disabled={disabled}>
         전송
       </Button>
     </form>

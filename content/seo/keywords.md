@@ -15,7 +15,7 @@ Statuses:
 | IB TOK 에세이 | IB | done | ib-tok-essay |
 | IB 예상점수 predicted grade | IB | done | ib-predicted-grade |
 | IB 점수 국내 대학 입시 | IB | done | ib-score-korean-university-admission |
-| IB HL SL 차이 | IB | planned | |
+| IB HL SL 차이 | IB | done | ib-hl-vs-sl |
 | SAT 시험 일정 한국 | SAT | planned | |
 | 디지털 SAT 구조 | SAT | planned | |
 | SAT 독학 | SAT | planned | |
@@ -40,6 +40,9 @@ Statuses:
 | 재외국민 특례 수시 6회 제한 | 특례입학 | suggested | |
 | 해외 고교 성적증명서 아포스티유 | 특례입학 | suggested | |
 | IB 학생 수능 준비 | IB | suggested | |
+| IB HL 4과목 | IB | suggested | |
+| IB 디플로마 취득 조건 | IB | suggested | |
+| IB HL SL 변경 시기 | IB | suggested | |
 | 3년 특례 | 특례입학 | done | 3-year-admission-program |
 | 3년 특례 부모 조건 | 특례입학 | done | 3-year-admission-program-parents |
 | 재외국민특별전형 | 특례입학 | done | overseas-citizen |

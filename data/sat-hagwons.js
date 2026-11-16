@@ -247,8 +247,9 @@ const satHagwons = [
   {
     image: "/images/hagwons/small/eliteprep.png",
     name: 'Elite Prep (엘리트에듀)',
-    // NEIS: unconfirmed. Possibly 엘리트어학학원 (B10/1168/1000036080).
+    neis: { office: 'B10', zone: '1168', id: '3000052649', name: '엘리트신사어학원' },
     region: '서울 강남',
+    address: '서울특별시 강남구 논현로152길 21, 1층 (신사동, 디오사옥)',
     lessonType: ['그룹', '1:1'],
     format: ['대면'],
     services: ['AP', 'IB', '컨설팅'],

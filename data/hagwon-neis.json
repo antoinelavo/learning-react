@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-04",
+  "updatedAt": "2026-11-16",
   "source": "교육청 학원·교습소 정보 (hakwon.neis.go.kr, open.neis.go.kr)",
   "hagwons": {
     "2185": {
@@ -9999,6 +9999,320 @@
           "fee": 3030720,
           "otherFee": 0,
           "total": 3030720
+        }
+      ]
+    },
+    "3000052649": {
+      "name": "엘리트신사어학원",
+      "establishedYmd": "20250604",
+      "realm": "국제화",
+      "tracks": [
+        "외국어"
+      ],
+      "courses": [
+        {
+          "subject": "SAT 실전  M",
+          "period": "1개월0일",
+          "hours": 20.1,
+          "fee": 360000,
+          "otherFee": 0,
+          "total": 360000
+        },
+        {
+          "subject": "SSAT  M",
+          "period": "1개월0일",
+          "hours": 20.1,
+          "fee": 360000,
+          "otherFee": 0,
+          "total": 360000
+        },
+        {
+          "subject": "SAT 직전 특강",
+          "period": "1개월0일",
+          "hours": 25.1,
+          "fee": 450000,
+          "otherFee": 0,
+          "total": 450000
+        },
+        {
+          "subject": "SAT 직전특강",
+          "period": "1개월0일",
+          "hours": 41.8,
+          "fee": 750000,
+          "otherFee": 0,
+          "total": 750000
+        },
+        {
+          "subject": "SAT 실전 RW",
+          "period": "1개월0일",
+          "hours": 47,
+          "fee": 840000,
+          "otherFee": 0,
+          "total": 840000
+        },
+        {
+          "subject": "SSAT RWV",
+          "period": "1개월0일",
+          "hours": 47,
+          "fee": 840000,
+          "otherFee": 0,
+          "total": 840000
+        },
+        {
+          "subject": "SAT 실전 M",
+          "period": "1개월0일",
+          "hours": 80,
+          "fee": 1200000,
+          "otherFee": 0,
+          "total": 1200000
+        },
+        {
+          "subject": "AP Calculus",
+          "period": "1개월0일",
+          "hours": 82.7,
+          "fee": 1440000,
+          "otherFee": 0,
+          "total": 1440000
+        },
+        {
+          "subject": "AP Econ Macro",
+          "period": "1개월0일",
+          "hours": 82.7,
+          "fee": 1440000,
+          "otherFee": 0,
+          "total": 1440000
+        },
+        {
+          "subject": "AP Econ Micro",
+          "period": "1개월0일",
+          "hours": 82.7,
+          "fee": 1440000,
+          "otherFee": 0,
+          "total": 1440000
+        },
+        {
+          "subject": "AP Physics C: E&M",
+          "period": "1개월0일",
+          "hours": 82.7,
+          "fee": 1440000,
+          "otherFee": 0,
+          "total": 1440000
+        },
+        {
+          "subject": "AP Physics C: Mech",
+          "period": "1개월0일",
+          "hours": 82.7,
+          "fee": 1440000,
+          "otherFee": 0,
+          "total": 1440000
+        },
+        {
+          "subject": "AP Stat",
+          "period": "1개월0일",
+          "hours": 82.7,
+          "fee": 1440000,
+          "otherFee": 0,
+          "total": 1440000
+        },
+        {
+          "subject": "AP US History",
+          "period": "1개월0일",
+          "hours": 82.7,
+          "fee": 1440000,
+          "otherFee": 0,
+          "total": 1440000
+        },
+        {
+          "subject": "AP World History",
+          "period": "1개월0일",
+          "hours": 82.7,
+          "fee": 1440000,
+          "otherFee": 0,
+          "total": 1440000
+        },
+        {
+          "subject": "Alg1",
+          "period": "1개월0일",
+          "hours": 82.7,
+          "fee": 1440000,
+          "otherFee": 0,
+          "total": 1440000
+        },
+        {
+          "subject": "Alg2",
+          "period": "1개월0일",
+          "hours": 82.7,
+          "fee": 1440000,
+          "otherFee": 0,
+          "total": 1440000
+        },
+        {
+          "subject": "Geom",
+          "period": "1개월0일",
+          "hours": 82.7,
+          "fee": 1440000,
+          "otherFee": 0,
+          "total": 1440000
+        },
+        {
+          "subject": "IB Physics  SL",
+          "period": "1개월0일",
+          "hours": 81.3,
+          "fee": 1440000,
+          "otherFee": 0,
+          "total": 1440000
+        },
+        {
+          "subject": "IB Physics HL",
+          "period": "1개월0일",
+          "hours": 81.3,
+          "fee": 1440000,
+          "otherFee": 0,
+          "total": 1440000
+        },
+        {
+          "subject": "Pre-alg",
+          "period": "1개월0일",
+          "hours": 82.7,
+          "fee": 1440000,
+          "otherFee": 0,
+          "total": 1440000
+        },
+        {
+          "subject": "Precal",
+          "period": "1개월0일",
+          "hours": 82.7,
+          "fee": 1440000,
+          "otherFee": 0,
+          "total": 1440000
+        },
+        {
+          "subject": "R/H Bio",
+          "period": "1개월0일",
+          "hours": 82.7,
+          "fee": 1440000,
+          "otherFee": 0,
+          "total": 1440000
+        },
+        {
+          "subject": "R/H Chem",
+          "period": "1개월0일",
+          "hours": 82.7,
+          "fee": 1440000,
+          "otherFee": 0,
+          "total": 1440000
+        },
+        {
+          "subject": "R/H Physics",
+          "period": "1개월0일",
+          "hours": 82.7,
+          "fee": 1440000,
+          "otherFee": 0,
+          "total": 1440000
+        },
+        {
+          "subject": "SSAT M",
+          "period": "1개월0일",
+          "hours": 100,
+          "fee": 1600000,
+          "otherFee": 0,
+          "total": 1600000
+        },
+        {
+          "subject": "SSAT R",
+          "period": "1개월0일",
+          "hours": 120,
+          "fee": 2000000,
+          "otherFee": 0,
+          "total": 2000000
+        },
+        {
+          "subject": "SSAT V",
+          "period": "1개월0일",
+          "hours": 120,
+          "fee": 2000000,
+          "otherFee": 0,
+          "total": 2000000
+        },
+        {
+          "subject": "AP Bio",
+          "period": "1개월0일",
+          "hours": 120.9,
+          "fee": 2160000,
+          "otherFee": 0,
+          "total": 2160000
+        },
+        {
+          "subject": "AP CS A",
+          "period": "1개월0일",
+          "hours": 120.9,
+          "fee": 2160000,
+          "otherFee": 0,
+          "total": 2160000
+        },
+        {
+          "subject": "AP Chem",
+          "period": "1개월0일",
+          "hours": 120.9,
+          "fee": 2160000,
+          "otherFee": 0,
+          "total": 2160000
+        },
+        {
+          "subject": "AP Physics 1",
+          "period": "1개월0일",
+          "hours": 120.9,
+          "fee": 2160000,
+          "otherFee": 0,
+          "total": 2160000
+        },
+        {
+          "subject": "SAT 실전 M 코어",
+          "period": "1개월0일",
+          "hours": 140,
+          "fee": 2400000,
+          "otherFee": 0,
+          "total": 2400000
+        },
+        {
+          "subject": "SAT 실전 R 코어",
+          "period": "1개월0일",
+          "hours": 140,
+          "fee": 2400000,
+          "otherFee": 0,
+          "total": 2400000
+        },
+        {
+          "subject": "SAT 실전 W 코어",
+          "period": "1개월0일",
+          "hours": 140,
+          "fee": 2400000,
+          "otherFee": 0,
+          "total": 2400000
+        },
+        {
+          "subject": "RW Clinic",
+          "period": "1개월0일",
+          "hours": 170,
+          "fee": 3000000,
+          "otherFee": 0,
+          "total": 3000000
+        },
+        {
+          "subject": "SAT 실전 R",
+          "period": "1개월0일",
+          "hours": 170,
+          "fee": 3000000,
+          "otherFee": 0,
+          "total": 3000000
+        },
+        {
+          "subject": "SAT 실전 W",
+          "period": "1개월0일",
+          "hours": 170,
+          "fee": 3000000,
+          "otherFee": 0,
+          "total": 3000000
         }
       ]
     },

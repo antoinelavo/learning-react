@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useChat } from '@/contexts/ChatContext';
 import { Button, cardClasses, Badge } from '@/components/ui';
 import { TEACHER_PUBLIC_COLUMNS } from '@/lib/teacherColumns';
+import { isRoutableTeacherName, teacherProfilePath, teacherProfileSegment } from '@/lib/teacherProfile';
 
 const MOBILE_SUBJECT_LIMIT = 6;
 const DESCRIPTION_MAX = 150;
@@ -106,11 +107,6 @@ function buildJsonLd(teacher, url, description) {
   return JSON.stringify(data).replace(/</g, '\\u003c');
 }
 
-function isRoutableName(name) {
-  const trimmed = (name || '').trim();
-  return trimmed !== '' && trimmed !== '.' && trimmed !== '..';
-}
-
 // 1) Build‐time: pre-render every approved teacher
 export async function getStaticPaths() {
   // Supabase returns data: null (not undefined) on a query error, so a
@@ -118,7 +114,7 @@ export async function getStaticPaths() {
   // or a transient query error crashes the entire production build.
   const { data, error } = await supabase
     .from('teachers')
-    .select('name')
+    .select('id, name')
     .eq('status', 'approved')
     .eq('is_test', false);
 
@@ -126,15 +122,13 @@ export async function getStaticPaths() {
     console.error('getStaticPaths: failed to fetch approved teachers', error);
   }
 
-  // Skip names that can't be a URL segment: "." and ".." are dot-segments
-  // that resolve to another path (/profile/. → /profile), which makes
-  // Next.js abort the whole build with "Requested and resolved page
-  // mismatch". Such a teacher needs a real display name.
+  // A name that can't be a URL segment ("." resolves to /profile, which
+  // aborts the whole build with "Requested and resolved page mismatch")
+  // uses the teacher's id instead. See lib/teacherProfile.js.
   const paths = (data || [])
-    .filter((t) => isRoutableName(t.name))
-    .map((t) => ({
-      params: { name: encodeURIComponent(t.name) },
-    }));
+    .map((t) => teacherProfileSegment(t))
+    .filter((segment) => segment !== null)
+    .map((segment) => ({ params: { name: encodeURIComponent(segment) } }));
 
   return {
     paths,
@@ -144,13 +138,34 @@ export async function getStaticPaths() {
 
 // 2) SSG + ISR: fetch profile data
 export async function getStaticProps({ params }) {
-  const decodedName = decodeURIComponent(params.name);
-  const { data: teacher, error } = await supabase
+  const segment = decodeURIComponent(params.name);
+
+  // Look up by name first, so a teacher whose name is a number keeps
+  // working. Fall back to the id URL (/profile/<id>), which is how teachers
+  // with an unroutable name are linked.
+  let { data: teacher, error } = await supabase
     .from('teachers')
     .select(TEACHER_PUBLIC_COLUMNS)
-    .eq('name', decodedName)
+    .eq('name', segment)
     .eq('status', 'approved')
-    .single();
+    .maybeSingle();
+
+  if (!error && !teacher && /^\d+$/.test(segment)) {
+    ({ data: teacher, error } = await supabase
+      .from('teachers')
+      .select(TEACHER_PUBLIC_COLUMNS)
+      .eq('id', Number(segment))
+      .eq('status', 'approved')
+      .maybeSingle());
+
+    // A teacher with a normal name has one URL: /profile/<name>.
+    if (!error && teacher && !teacher.is_test && isRoutableTeacherName(teacher.name)) {
+      return {
+        redirect: { destination: teacherProfilePath(teacher), permanent: true },
+        revalidate: 60,
+      };
+    }
+  }
 
   if (error || !teacher) {
     return { notFound: true };
@@ -202,7 +217,7 @@ export default function ProfilePage({ teacher }) {
   const priceText = rateSet ? `시간당 ${teacher.rate}만원` : '수업료 협의';
   const rateNote = teacher.rate_description?.trim();
   const description = buildDescription(teacher, priceText) || '이 선생님의 프로필을 확인하세요.';
-  const profileUrl = `https://www.ibmaster.net/profile/${encodeURIComponent(teacher.name)}`;
+  const profileUrl = `https://www.ibmaster.net${teacherProfilePath(teacher)}`;
 
   return (
     <>

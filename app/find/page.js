@@ -2,6 +2,7 @@ import TeacherList from './TeacherList';
 import { supabase } from '@/lib/supabase';
 import { jsonLdString } from '@/lib/hagwonNeis';
 import { cardClasses } from '@/components/ui';
+import { teacherProfilePath } from '@/lib/teacherProfile';
 
 const SITE_URL = 'https://www.ibmaster.net';
 
@@ -13,7 +14,7 @@ export const revalidate = 3600;
 async function getDirectoryTeachers() {
   const { data, error } = await supabase
     .from('teachers')
-    .select('name')
+    .select('id, name')
     .eq('status', 'approved')
     .eq('is_test', false)
     .order('name');
@@ -24,7 +25,6 @@ async function getDirectoryTeachers() {
   return (data || []).filter(t => t.name?.trim());
 }
 
-const profilePath = name => `/profile/${encodeURIComponent(name)}`;
 
 function directoryJsonLd(teachers) {
   return {
@@ -37,7 +37,7 @@ function directoryJsonLd(teachers) {
       '@type': 'ListItem',
       position: i + 1,
       name: t.name,
-      url: `${SITE_URL}${profilePath(t.name)}`,
+      url: `${SITE_URL}${teacherProfilePath(t)}`,
     })),
   };
 }
@@ -90,7 +90,7 @@ export default async function FindPage() {
             <ul className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm">
               {teachers.map(t => (
                 <li key={t.name}>
-                  <a href={profilePath(t.name)} className="text-gray-600 hover:underline">{t.name}</a>
+                  <a href={teacherProfilePath(t)} className="text-gray-600 hover:underline">{t.name}</a>
                 </li>
               ))}
             </ul>

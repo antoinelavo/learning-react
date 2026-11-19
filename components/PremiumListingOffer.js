@@ -446,6 +446,7 @@ const checkAvailability = async (subjectsToCheck) => {
             <p className="text-xs text-gray-500 mb-1">일반 프로필</p>
             <div className="pointer-events-none bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
               <TeacherCard
+                id={teacher.id}
                 name={teacher.name}
                 school={teacher.school}
                 shortintroduction={teacher.shortintroduction}
@@ -457,6 +458,7 @@ const checkAvailability = async (subjectsToCheck) => {
             <p className="text-xs text-gray-500 mb-1">프리미엄 프로필</p>
             <div className="pointer-events-none border-2 border-yellow-400 rounded-xl overflow-hidden shadow-sm">
               <TeacherCard
+                id={teacher.id}
                 name={teacher.name}
                 school={teacher.school}
                 shortintroduction={teacher.shortintroduction}

@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { activatePremium, deactivatePayment } from '@/lib/premiumActivation';
 import { sendPremiumEmail, UPGRADE_EMAIL_FAILED_MESSAGE } from '@/lib/upgradeEmail';
 import { cardClasses, Badge, Notice } from '@/components/ui';
+import { teacherProfilePath } from '@/lib/teacherProfile';
 
 const ERROR_MESSAGES = {
   spots_unavailable: '선택한 과목의 프리미엄 자리가 모두 찼습니다.',
@@ -206,7 +207,7 @@ export default function PaymentRequestsTable() {
                   <tr key={row.id} className="border-t">
                     <td className="px-4 py-2 font-medium whitespace-nowrap">
                       <a
-                        href={`/profile/${encodeURIComponent(row.name)}`}
+                        href={teacherProfilePath({ id: row.teacher_id, name: row.name })}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="hover:underline"

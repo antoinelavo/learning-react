@@ -106,6 +106,11 @@ function buildJsonLd(teacher, url, description) {
   return JSON.stringify(data).replace(/</g, '\\u003c');
 }
 
+function isRoutableName(name) {
+  const trimmed = (name || '').trim();
+  return trimmed !== '' && trimmed !== '.' && trimmed !== '..';
+}
+
 // 1) Build‐time: pre-render every approved teacher
 export async function getStaticPaths() {
   // Supabase returns data: null (not undefined) on a query error, so a
@@ -121,9 +126,15 @@ export async function getStaticPaths() {
     console.error('getStaticPaths: failed to fetch approved teachers', error);
   }
 
-  const paths = (data || []).map((t) => ({
-    params: { name: encodeURIComponent(t.name) },
-  }));
+  // Skip names that can't be a URL segment: "." and ".." are dot-segments
+  // that resolve to another path (/profile/. → /profile), which makes
+  // Next.js abort the whole build with "Requested and resolved page
+  // mismatch". Such a teacher needs a real display name.
+  const paths = (data || [])
+    .filter((t) => isRoutableName(t.name))
+    .map((t) => ({
+      params: { name: encodeURIComponent(t.name) },
+    }));
 
   return {
     paths,

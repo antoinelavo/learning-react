@@ -101,6 +101,10 @@ async function main() {
 
   // Teacher profiles
   for (const teacher of teachers) {
+    // "." and ".." resolve to another path, so they can't be profile URLs
+    // (and getStaticPaths in pages/profile/[name].js skips them too).
+    const name = (teacher.name || '').trim();
+    if (name === '' || name === '.' || name === '..') continue;
     const lastmod = teacher.last_updated
       ? teacher.last_updated.split('T')[0]
       : teacher.created_date

@@ -16,7 +16,7 @@ Statuses:
 | IB 예상점수 predicted grade | IB | done | ib-predicted-grade |
 | IB 점수 국내 대학 입시 | IB | done | ib-score-korean-university-admission |
 | IB HL SL 차이 | IB | done | ib-hl-vs-sl |
-| SAT 시험 일정 한국 | SAT | planned | |
+| SAT 시험 일정 한국 | SAT | done | sat-test-dates-korea |
 | 디지털 SAT 구조 | SAT | planned | |
 | SAT 독학 | SAT | planned | |
 | AP 시험 과목 추천 | SAT | planned | |
@@ -43,6 +43,9 @@ Statuses:
 | IB HL 4과목 | IB | suggested | |
 | IB 디플로마 취득 조건 | IB | suggested | |
 | IB HL SL 변경 시기 | IB | suggested | |
+| SAT 성적 발표 시간 한국 | SAT | suggested | |
+| SAT 시험장 서울 | SAT | suggested | |
+| SAT 추가 등록 late registration | SAT | suggested | |
 | 3년 특례 | 특례입학 | done | 3-year-admission-program |
 | 3년 특례 부모 조건 | 특례입학 | done | 3-year-admission-program-parents |
 | 재외국민특별전형 | 특례입학 | done | overseas-citizen |

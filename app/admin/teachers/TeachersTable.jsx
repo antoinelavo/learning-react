@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Input, Select, Button, cardClasses } from '@/components/ui';
+import { teacherProfilePath } from '@/lib/teacherProfile';
 
 const STATUS_STYLES = {
   approved: 'bg-green-100 text-green-700',
@@ -153,7 +154,7 @@ export default function TeachersTable() {
                       >
                         {col === 'name' ? (
                           <a
-                            href={`/profile/${encodeURIComponent(teacher.name)}`}
+                            href={teacherProfilePath(teacher)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="font-medium text-gray-900 hover:underline"
@@ -189,7 +190,7 @@ export default function TeachersTable() {
               <div key={teacher.id} className={cardClasses({ className: 'p-4 space-y-2' })}>
                 <div className="flex items-center justify-between gap-2">
                   <a
-                    href={`/profile/${encodeURIComponent(teacher.name)}`}
+                    href={teacherProfilePath(teacher)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-bold hover:underline"

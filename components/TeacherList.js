@@ -87,6 +87,7 @@ export default function TeacherList({ filters }) {
       {teachers.map(t => (
         <TeacherCard
           key={t.id}
+          id={t.id}
           name={t.name}
           school={t.school}
           shortintroduction={t.shortintroduction}

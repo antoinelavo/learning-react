@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { revealsRemaining } from '@/lib/reveal';
 import { sendPlusEmail, UPGRADE_EMAIL_FAILED_MESSAGE } from '@/lib/upgradeEmail';
 import { Input, cardClasses, Badge, Notice } from '@/components/ui';
+import { teacherProfilePath } from '@/lib/teacherProfile';
 
 // Toggle switch: on (파란색) = 플러스, off (회색) = 무료. Mirrors
 // app/admin/payments/PaymentRequestsTable.jsx's StatusSwitch.
@@ -149,7 +150,7 @@ export default function TeacherTiersTable() {
                   <tr key={teacher.id} className="border-t">
                     <td className="px-4 py-2 font-medium whitespace-nowrap">
                       <a
-                        href={`/profile/${encodeURIComponent(teacher.name)}`}
+                        href={teacherProfilePath(teacher)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="hover:underline"

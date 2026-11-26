@@ -1,12 +1,14 @@
 // components/TeacherCard.js
 import Link from 'next/link'
 import Image from 'next/image'
+import { teacherProfilePath } from '@/lib/teacherProfile'
 
 const DEFAULT_PICTURE = "https://ibmaster.antoinelavo.com/teachers/default.jpg"
 
 // One row of a grouped teacher list. The parent supplies the border, corners
 // and dividers; premium (badge) rows get a soft yellow background.
 export default function TeacherCard({
+  id,
   name,
   school,
   shortintroduction,
@@ -16,7 +18,7 @@ export default function TeacherCard({
 }) {
   return (
     <Link
-      href={`/profile/${encodeURIComponent(name)}`}
+      href={teacherProfilePath({ id, name }) || '/find'}
       className={`flex items-center gap-4 md:gap-8 px-4 py-4 sm:px-5 md:px-6 md:py-5 transition-colors ${
         badge ? 'bg-yellow-50 hover:bg-yellow-100' : 'bg-white hover:bg-gray-50'
       }`}

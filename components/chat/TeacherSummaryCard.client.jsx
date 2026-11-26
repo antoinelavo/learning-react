@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { teacherProfilePath } from '@/lib/teacherProfile';
 
 // Pinned atop a thread when the other participant is a teacher — a brief
 // summary pulled directly from their profile, per the original request.
@@ -12,7 +13,7 @@ export default function TeacherSummaryCard({ teacherUserId }) {
     let cancelled = false;
     supabase
       .from('teachers')
-      .select('name, profile_picture, shortintroduction, subjects, rate, rate_description')
+      .select('id, name, profile_picture, shortintroduction, subjects, rate, rate_description')
       .eq('user_id', teacherUserId)
       .maybeSingle()
       .then(({ data }) => {
@@ -27,7 +28,7 @@ export default function TeacherSummaryCard({ teacherUserId }) {
 
   return (
     <a
-      href={`/profile/${encodeURIComponent(teacher.name)}`}
+      href={teacherProfilePath(teacher) || '/find'}
       target="_blank"
       rel="noopener noreferrer"
       className="flex items-center gap-3 p-3 border-b border-gray-100 bg-gray-50 hover:bg-gray-100 transition-colors"

@@ -37,7 +37,7 @@ const SITE_URL = 'https://www.ibmaster.net';
 const TODAY = new Date().toISOString().split('T')[0];
 
 async function fetchApprovedTeachers() {
-  const url = `${SUPABASE_URL}/rest/v1/teachers?select=name,last_updated,created_date&status=eq.approved&is_test=eq.false`;
+  const url = `${SUPABASE_URL}/rest/v1/teachers?select=id,name,last_updated,created_date&status=eq.approved&is_test=eq.false`;
   const res = await fetch(url, {
     headers: {
       apikey: SUPABASE_ANON_KEY,
@@ -101,13 +101,17 @@ async function main() {
 
   // Teacher profiles
   for (const teacher of teachers) {
+    // Same rule as teacherProfileSegment in lib/teacherProfile.js: a name
+    // that can't be a URL segment ("." resolves to /profile) uses the id.
+    const name = (teacher.name || '').trim();
+    const segment = name !== '' && name !== '.' && name !== '..' ? teacher.name : teacher.id;
+    if (segment == null) continue;
     const lastmod = teacher.last_updated
       ? teacher.last_updated.split('T')[0]
       : teacher.created_date
         ? teacher.created_date.split('T')[0]
         : TODAY;
-    const encodedName = encodeURIComponent(teacher.name);
-    entries.push(urlEntry(`${SITE_URL}/profile/${encodedName}`, lastmod, 'monthly', '0.9'));
+    entries.push(urlEntry(`${SITE_URL}/profile/${encodeURIComponent(segment)}`, lastmod, 'monthly', '0.9'));
   }
 
   // Blog posts

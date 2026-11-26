@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Button, Tabs, cardClasses, Badge } from '@/components/ui';
 import { authFetch } from '@/lib/authFetch';
+import { teacherProfilePath } from '@/lib/teacherProfile';
 
 const batchSize = 10;
 
@@ -107,7 +108,7 @@ export default function TeacherList() {
         const profilePicture =
           teacher.profile_picture || 'https://ibmaster.antoinelavo.com/teachers/default.jpg';
         const truncatedSchool = teacher.school?.slice(0, 20) + (teacher.school?.length > 20 ? '...' : '');
-        const profileURL = `/profile/${encodeURIComponent(teacher.name)}`;
+        const profileURL = teacherProfilePath(teacher);
 
         return (
           <div key={teacher.id} className={cardClasses({ className: 'p-4 space-y-2' })}>

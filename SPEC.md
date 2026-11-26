@@ -33,8 +33,8 @@ A weekly Claude Code routine that reads aggregate marketplace numbers from Supab
 - Touches no "Ask before changing" areas (payments, migrations, blog, legal pages). Payment data is read only.
 
 ## Done when
-- [ ] `content/marketplace/routine-prompt.md` exists and covers setup, the open-PR guard, the branch name, every report section (A, B, C, D, recommended actions), the privacy rule, failure handling, and PR rules.
-- [ ] Every SQL query in the prompt was run successfully against the live database and returns aggregates only.
-- [ ] An example report built from those queries is saved as `content/marketplace/reports/` for the current date, with no personal data in it.
-- [ ] `CLAUDE.md` lists the new routine next to the other routines (Monday 9am KST).
-- [ ] `npm run build` passes.
+- [x] `content/marketplace/routine-prompt.md` exists and covers setup, the open-PR guard, the branch name, every report section (A, B, C, D, recommended actions), the privacy rule, failure handling, and PR rules.
+- [x] Every SQL query in the prompt was run successfully against the live database and returns aggregates only.
+- [x] An example report built from those queries is saved as `content/marketplace/reports/` for the current date, with no personal data in it.
+- [x] `CLAUDE.md` lists the new routine next to the other routines (Monday 9am KST).
+- [x] `npm run build` passes.

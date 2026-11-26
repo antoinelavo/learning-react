@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { confirmPlusBankTransfer, undoPlusBankTransfer } from '@/lib/tierActivation';
 import { sendPlusEmail, UPGRADE_EMAIL_FAILED_MESSAGE } from '@/lib/upgradeEmail';
 import { Notice, cardClasses, Badge } from '@/components/ui';
+import { teacherProfilePath } from '@/lib/teacherProfile';
 
 const ERROR_MESSAGES = {
   record_payment_failed: '결제 기록 중 오류가 발생했습니다.',
@@ -208,7 +209,7 @@ export default function PlusPaymentsTable() {
                     <td className="px-4 py-2 font-medium whitespace-nowrap">
                       {name ? (
                         <a
-                          href={`/profile/${encodeURIComponent(name)}`}
+                          href={teacherProfilePath({ id: row.teacher_id, name })}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="hover:underline"

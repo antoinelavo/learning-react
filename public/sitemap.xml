@@ -2,55 +2,55 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.ibmaster.net/</loc>
-    <lastmod>2026-11-25</lastmod>
+    <lastmod>2026-11-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
     <loc>https://www.ibmaster.net/find</loc>
-    <lastmod>2026-11-25</lastmod>
+    <lastmod>2026-11-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://www.ibmaster.net/apply</loc>
-    <lastmod>2026-11-25</lastmod>
+    <lastmod>2026-11-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.ibmaster.net/aboutus</loc>
-    <lastmod>2026-11-25</lastmod>
+    <lastmod>2026-11-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.ibmaster.net/hagwons</loc>
-    <lastmod>2026-11-25</lastmod>
+    <lastmod>2026-11-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.ibmaster.net/sat-hagwons</loc>
-    <lastmod>2026-11-25</lastmod>
+    <lastmod>2026-11-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://www.ibmaster.net/blog</loc>
-    <lastmod>2026-11-25</lastmod>
+    <lastmod>2026-11-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.ibmaster.net/students</loc>
-    <lastmod>2026-11-25</lastmod>
+    <lastmod>2026-11-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.ibmaster.net/hagwon-requests</loc>
-    <lastmod>2026-11-25</lastmod>
+    <lastmod>2026-11-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
@@ -877,12 +877,6 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.ibmaster.net/profile/IB44%EC%A0%90%EC%97%AC%EC%84%A0%EC%83%9D%EB%8B%98</loc>
-    <lastmod>2026-11-24</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
     <loc>https://www.ibmaster.net/profile/bio</loc>
     <lastmod>2026-10-19</lastmod>
     <changefreq>monthly</changefreq>
@@ -949,12 +943,6 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.ibmaster.net/profile/Solhee%20Lee</loc>
-    <lastmod>2026-11-24</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
     <loc>https://www.ibmaster.net/profile/%EC%B5%9C%EC%9E%AC%EC%84%9D</loc>
     <lastmod>2026-10-19</lastmod>
     <changefreq>monthly</changefreq>
@@ -969,6 +957,12 @@
   <url>
     <loc>https://www.ibmaster.net/profile/kang_s</loc>
     <lastmod>2026-05-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.ibmaster.net/profile/%EC%A0%84%EC%97%85%20IB%C2%B7IGCSE%20%EA%B0%95%EC%82%AC%20%EB%AF%B8%EC%89%98%EC%8C%A4</loc>
+    <lastmod>2026-11-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -1603,14 +1597,14 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.ibmaster.net/profile/%EA%B0%95%EC%97%B0%EC%B0%AC</loc>
-    <lastmod>2026-09-29</lastmod>
+    <loc>https://www.ibmaster.net/profile/IB%ED%8A%9C%ED%84%B015778</loc>
+    <lastmod>2026-08-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.ibmaster.net/profile/IB%ED%8A%9C%ED%84%B015778</loc>
-    <lastmod>2026-08-14</lastmod>
+    <loc>https://www.ibmaster.net/profile/%EA%B0%95%EC%97%B0%EC%B0%AC</loc>
+    <lastmod>2026-09-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -2023,8 +2017,8 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.ibmaster.net/profile/%EC%A0%84%EC%97%85%20IB%C2%B7IGCSE%20%EA%B0%95%EC%82%AC%20%EB%AF%B8%EC%89%98%EC%8C%A4</loc>
-    <lastmod>2026-11-23</lastmod>
+    <loc>https://www.ibmaster.net/profile/%EC%97%98%EB%9D%BC%EC%8C%A4</loc>
+    <lastmod>2026-11-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -2065,6 +2059,12 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://www.ibmaster.net/profile/Jack%20Son</loc>
+    <lastmod>2026-11-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://www.ibmaster.net/profile/Jessie%20Ju</loc>
     <lastmod>2026-06-04</lastmod>
     <changefreq>monthly</changefreq>
@@ -2078,7 +2078,7 @@
   </url>
   <url>
     <loc>https://www.ibmaster.net/profile/Olivia%20S</loc>
-    <lastmod>2026-11-25</lastmod>
+    <lastmod>2026-11-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -2089,7 +2089,7 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.ibmaster.net/profile/.</loc>
+    <loc>https://www.ibmaster.net/profile/219</loc>
     <lastmod>2026-11-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
@@ -2169,6 +2169,12 @@
   <url>
     <loc>https://www.ibmaster.net/profile/%EB%82%A8%EA%B8%B0%EC%9C%A4</loc>
     <lastmod>2026-02-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.ibmaster.net/profile/Solhee%20Lee</loc>
+    <lastmod>2026-11-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>

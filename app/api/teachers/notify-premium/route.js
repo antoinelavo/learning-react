@@ -9,6 +9,7 @@ import { NextResponse } from 'next/server';
 import { getAdminFromRequest, getSupabaseAdmin } from '@/lib/supabaseAdmin';
 import { getTeacherRecipient, sendTeacherEmail, SITE_URL } from '@/lib/email/teacherEmail';
 import { buildPremiumEmailHtml, PREMIUM_EMAIL_SUBJECT } from '@/lib/email/upgradeTemplates';
+import { teacherProfilePath } from '@/lib/teacherProfile';
 
 export async function POST(request) {
   try {
@@ -48,7 +49,7 @@ export async function POST(request) {
         subjects: premium.subject,
         startDate: premium.start_date,
         endDate: premium.end_date,
-        profileUrl: `${SITE_URL}/profile/${encodeURIComponent(recipient.teacher.name)}`,
+        profileUrl: `${SITE_URL}${teacherProfilePath(recipient.teacher)}`,
         dashboardUrl: `${SITE_URL}/dashboard`,
       }),
     });

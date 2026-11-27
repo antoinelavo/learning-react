@@ -203,8 +203,20 @@ export default function ApplyPage() {
     if (dbError) {
       alert('제출 실패했습니다.');
     } else {
+      // Approves the profile on the spot when it passes every rule (no
+      // duplicate, complete, long intro, login email). Otherwise it stays
+      // pending for review. A failure here never affects the submission.
+      let autoApproved = false;
+      try {
+        const res = await authFetch('/api/teachers/auto-approve', { method: 'POST' });
+        autoApproved = res.ok && (await res.json()).approved === true;
+      } catch (autoApproveError) {
+        console.error('auto-approve failed:', autoApproveError);
+      }
       alert(
-        '성공적으로 제출되었습니다! 검토 과정을 거친 후 프로필이 게시될 예정입니다. 프로필이 게시되기까지 영업일 기준 3일 정도 소요될 수 있습니다. 계정 상태 조회 및 프로필 수정은 "내 정보" 페이지에서 확인하실 수 있습니다.'
+        autoApproved
+          ? '성공적으로 제출되었습니다! 프로필이 승인되어 바로 게시되었습니다. 승인 안내 이메일을 확인해주세요. 계정 상태 조회 및 프로필 수정은 "내 정보" 페이지에서 확인하실 수 있습니다.'
+          : '성공적으로 제출되었습니다! 검토 과정을 거친 후 프로필이 게시될 예정입니다. 프로필이 게시되기까지 영업일 기준 3일 정도 소요될 수 있습니다. 계정 상태 조회 및 프로필 수정은 "내 정보" 페이지에서 확인하실 수 있습니다.'
       );
       reset();
     }

@@ -16,7 +16,8 @@ Stop duplicate teacher profiles (made to get extra free reveals) from being appr
 - **Auto-approve on submit**:
   - New route `app/api/teachers/auto-approve/route.js` (POST, no body needed). It verifies the caller with `getUserFromRequest`, finds that user's own `pending` teacher row, and checks every rule below with the service-role client.
   - If all rules pass, it sets `status = 'approved'` and `last_updated` today, and sends the existing approval email the same way `notify-approved` does (a failed email never undoes the approval). Otherwise it changes nothing and returns `{ approved: false }`.
-  - The client calls it right after a successful insert in `app/apply/page.jsx` and ignores any failure. The success message is unchanged.
+  - The client calls it right after a successful insert in `app/apply/page.jsx` and ignores any failure. The success message is unchanged unless the profile was auto-approved, in which case it says so.
+  - The route only considers a pending profile created in the last 10 minutes, so a rejected or edited profile can never approve itself.
 - Auto-approve rules (all must hold):
   1. Not a duplicate by the rules below.
   2. Complete: `name`, `school`, `shortintroduction`, `longintroduction`, `contact_information`, `profile_picture`, `subjects` (at least one) are all filled in.
@@ -49,10 +50,10 @@ Stop duplicate teacher profiles (made to get extra free reveals) from being appr
 - Touches no "Ask before changing" areas (no payments, migrations, blog or legal pages). It does change who gets approved, so the owner reviews the rules above before merging.
 
 ## Done when
-- [ ] `lib/teacherDuplicates.js` flags a contact-info match, a near-identical intro, and a similar name with the same school, and does not flag a name-only match, shown by a script run with sample inputs (output pasted in the build summary).
+- [x] `lib/teacherDuplicates.js` flags a contact-info match, a near-identical intro, and a similar name with the same school, and does not flag a name-only match, shown by a script run with sample inputs (output pasted in the build summary).
 - [ ] The pending list shows the "중복 의심" badge with each match's name, status and signal, using real pending data read from the live database (no personal data pasted in the summary).
-- [ ] Approving a flagged card asks for confirmation; approving an unflagged card does not.
+- [x] Approving a flagged card asks for confirmation; approving an unflagged card does not.
 - [ ] Reject sets `status = 'rejected'` after confirmation, removes the card, sends no email, and the "반려됨" tab shows it with a working "되돌리기" (checked by reading `TeacherList.jsx`; no live data was changed).
-- [ ] `POST /api/teachers/auto-approve` returns 401 without a token, `{ approved: false }` for a profile that fails each rule, and approves only the caller's own pending profile (checked against a local run with a stub, and by code reading; no real teacher was approved).
+- [x] `POST /api/teachers/auto-approve` returns 401 without a token, `{ approved: false }` for a profile that fails each rule, and approves only the caller's own pending profile (checked against a local run with a stub, and by code reading; no real teacher was approved).
 - [ ] `app/apply/page.jsx` calls the route after a successful insert and ignores its errors.
-- [ ] `npm run build` passes.
+- [x] `npm run build` passes.

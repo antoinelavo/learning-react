@@ -51,4 +51,4 @@ Give students a reason to come back: a real dashboard hub (D-day, chats, request
 - [ ] `/tools/calendar` works logged out, with category filters, D-day counters and Google Calendar links, and every event has a source URL and `lastVerified` date.
 - [ ] Both tool pages are in `public/sitemap.xml` after `node scripts/generate-sitemap.js`.
 - [ ] Pages are usable at phone width with no horizontal scroll.
-- [ ] `npm run build` passes.
+- [x] `npm run build` passes.

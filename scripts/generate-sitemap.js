@@ -2,7 +2,7 @@
  * Sitemap Generator
  *
  * Generates public/sitemap.xml by:
- * 1. Including static pages (home, find, apply, aboutus, hagwons, sat-hagwons, blog index)
+ * 1. Including static pages (home, find, apply, aboutus, hagwons, sat-hagwons, blog index, tools)
  * 2. Querying Supabase for all approved teacher profiles
  * 3. Reading all blog post MDX files for slugs and dates
  *
@@ -98,6 +98,8 @@ async function main() {
   entries.push(urlEntry(`${SITE_URL}/blog`, TODAY, 'weekly', '0.7'));
   entries.push(urlEntry(`${SITE_URL}/students`, TODAY, 'daily', '0.7'));
   entries.push(urlEntry(`${SITE_URL}/hagwon-requests`, TODAY, 'daily', '0.7'));
+  entries.push(urlEntry(`${SITE_URL}/tools/ib-calculator`, TODAY, 'monthly', '0.7'));
+  entries.push(urlEntry(`${SITE_URL}/tools/calendar`, TODAY, 'weekly', '0.7'));
 
   // Teacher profiles
   for (const teacher of teachers) {

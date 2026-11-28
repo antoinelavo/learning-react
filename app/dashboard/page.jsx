@@ -11,6 +11,7 @@ import PremiumListingOffer from '@/components/PremiumListingOffer';
 import TierUpgradeOffer from '@/components/TierUpgradeOffer';
 import TeacherCard from '@/components/TeacherCard';
 import EmailNotificationToggle from '@/components/chat/EmailNotificationToggle.client';
+import StudentHub from '@/components/dashboard/StudentHub.client';
 import { revealsRemaining } from '@/lib/reveal';
 import { Input, Select, Textarea, Button, Badge, Card, Tabs, Notice } from '@/components/ui';
 
@@ -351,20 +352,9 @@ export default function DashboardPage() {
     <div className="max-w-[1025px] mx-auto pt-4 pb-12 px-4 min-h-screen">
 
       {/* Student Section */}
-      {role === 'student' && 
-      <div>
-        <h1 className="text-2xl font-bold mb-1 mt-0 leading-none">계정 정보</h1>
-        {user && <p className="font-medium">계정 아이디: {user.email}</p>}
-        <p>학생 계정으로 로그인하셨습니다.</p>
-        <div className="mt-4">
-          <EmailNotificationToggle userId={user.id} />
-        </div>
-        <div className="mt-8 flex gap-4 w-full">
-          <Button onClick={handleLogout} variant="secondary" className="w-1/2">로그아웃</Button>
-          <Button onClick={handleDelete} variant="danger" className="w-1/2">탈퇴하기</Button>
-        </div>
-      </div>
-      }
+      {role === 'student' && user && (
+        <StudentHub user={user} onLogout={handleLogout} onDelete={handleDelete} />
+      )}
 
 
 

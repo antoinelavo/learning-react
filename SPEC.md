@@ -1,40 +1,41 @@
-# Spec: Weekly marketplace health report routine
+# Spec: Rewrite 5 low-CTR blog posts
 
 ## Goal
-A weekly Claude Code routine that reads aggregate marketplace numbers from Supabase and opens one PR with a short report and 3-5 recommended actions, so the owner can spot problems in under 2 hours a week.
+Raise Search Console CTR and clicks on five posts that rank well (positions 7–20) but get few clicks, by fully rewriting each from fresh research against `content/seo/guide.md`. Posts are done one at a time, with a review stop after each.
 
 ## Included
-- `content/marketplace/routine-prompt.md`: the routine's instructions, in the same style as `content/seo/audit-routine-prompt.md` (setup, open-PR guard, branch, steps, PR rules).
-- `content/marketplace/reports/` folder. The routine writes `content/marketplace/reports/YYYY-MM-DD.md` each run (KST date).
-- Report sections:
-  - **A. Funnel:** new student requests, new hagwon requests, reveals, teachers who revealed, new sign-ups. Each compared with the previous week.
-  - **B. Supply and demand health:** OPEN requests by age, OPEN requests older than 30 days (stale), requests with zero reveals, the teacher approval backlog (pending count and oldest age).
-  - **C. Revenue:** paid, pending and refunded payments, paid teacher count, free teachers who hit the reveal cap.
-  - **D. Chat:** conversations started, share with a teacher reply, conversations with no teacher reply after 48 hours.
-  - **Recommended actions:** the top 3-5, each tied to a number in the report and doable in under 2 hours.
-- Schedule: Mondays 9am KST. This is set up by the owner when creating the routine (not by code).
+Order, by impressions at the time of the audit:
+1. `content/blog/3-year-admission-program.mdx` (4,153 impressions, 1.28% CTR)
+2. `content/blog/SAT-scores-by-university.mdx` (3,112, 2.31%)
+3. `content/blog/IB-in-Korea.mdx` (3,207, 2.59%, position 19.7)
+4. `content/blog/IB-scores.mdx` (1,696, 2.18%)
+5. `content/blog/about-ib.mdx` (772, 0.65%, position 16.3)
+
+For each post:
+- Research on the web, using official sources only for facts that change (adiga.kr / 대교협, university admissions pages, 교육부, collegeboard.org, ibo.org).
+- Rewrite title, description and body per `content/seo/guide.md`: keyword-first title, 120–160 character description, opening answer paragraph, 4–7 `##` sections, a table or checklist, `## 자주 묻는 질문`, closing line, at least 3 internal links (2+ to existing posts), 1,500–3,500 Korean characters of body (longer only if the topic needs it).
+- Set `date` to the day of the rewrite (2026-11-28 for the first).
+- One commit per post on branch `claude/confident-pascal-6lhgst`, pushed after the post is approved.
 
 ## Not included
-- Traffic and `page_events` (only the hagwon pages are tracked).
-- Any change to production data: no closing requests, approving teachers, or sending emails. Actions are suggestions only.
-- The teacher approval triage routine (a separate spec).
-- New API routes, pages, migrations, or app code.
+- Changing slugs or URLs, or other posts.
+- Changing `ctaLink`/`ctaLabel`/`ctaDescription`/`category`/`featured`, unless a rewrite makes the CTA clearly wrong (then ask).
+- Site code, sitemap, new posts, opening a PR (only when asked).
+- The Nov 13 traffic drop investigation (findings only, already reported).
 
 ## Rules
-- Read-only SQL through the Supabase connector (project `scdoramzssnimcbsojml`). Aggregate counts and ages only.
-- The report must never contain emails, names, usernames, Kakao contacts, message text, bank details, or any per-person or per-request identifier.
-- A request is **stale** when its status is OPEN and it is older than 30 days.
-- Before anything else, stop if a PR titled `marketplace-report:` is already open. Report "Previous report PR still open: <link>" and change nothing.
-- Branch `marketplace-report/YYYY-MM-DD` from the latest `main`. The PR title starts with `marketplace-report:`. A human reviews and merges it; the routine never merges.
-- Week-over-week figures come from the previous report file in the folder. The first run says "no previous report" and shows no comparison.
-- Test teachers (`teachers.is_test = true`) are excluded from all teacher counts.
-- If a query fails, write "n/a (query failed)" for that figure, still open the PR, and list the failure at the top of the report.
-- Report text is Korean-site-agnostic: write it in English; the prompt, code and commit messages are English too.
-- Touches no "Ask before changing" areas (payments, migrations, blog, legal pages). Payment data is read only.
+- Blog posts are an "ask before changing" area; the owner has asked for these five.
+- Drop the year tag (`[2025년 최신]`, `- 2025년 최신 반영`) from every title. A year may still appear in the body or title only where the topic is tied to a year (e.g. the 특례 post's `2027학년도` admissions cycle), and only if verified.
+- Never invent statistics, prices, school names, requirements or dates. If it can't be verified from an official source, leave it out. Keep existing content only where it still checks out.
+- Korean 존댓말. Keep IB/SAT terms in English where readers search them. Graded-work examples in English with a Korean gloss.
+- Internal links must point to slugs that exist in `content/blog/`, `/find`, `/hagwons` or `/sat-hagwons`. No h1 in the body, no footnotes; at most one inline official link where it helps.
+- Sources and a short list of what changed go in my message after each post (and in a PR body if one is opened later).
+- Stop after each post and wait for approval before starting the next.
 
 ## Done when
-- [x] `content/marketplace/routine-prompt.md` exists and covers setup, the open-PR guard, the branch name, every report section (A, B, C, D, recommended actions), the privacy rule, failure handling, and PR rules.
-- [x] Every SQL query in the prompt was run successfully against the live database and returns aggregates only.
-- [x] An example report built from those queries is saved as `content/marketplace/reports/` for the current date, with no personal data in it.
-- [x] `CLAUDE.md` lists the new routine next to the other routines (Monday 9am KST).
-- [x] `npm run build` passes.
+- [ ] All five titles have no year tag.
+- [ ] Each post has frontmatter `date: "2026-11-28"` (or its rewrite day) and a 120–160 character description containing the keyword.
+- [ ] Each post follows the guide's structure, has at least 3 valid internal links (2+ to existing blog posts), and an FAQ section.
+- [ ] Every changed fact is backed by an official source I list in my message.
+- [ ] Post N+1 starts only after you approve post N.
+- [ ] `npm run build` passes after each post.

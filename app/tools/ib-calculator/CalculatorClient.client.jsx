@@ -7,6 +7,7 @@ import {
   DEFAULT_BANDS,
   DIPLOMA_MAX_POINTS,
     computeSubjectPercent,
+  corePoints,
   diplomaChecks,
   diplomaTotal,
   gradeFromPercent,
@@ -154,7 +155,8 @@ function SubjectRow({ index, row, bands, taken, onChange }) {
 
 export default function CalculatorClient() {
   const [rows, setRows] = useState(() => Array.from({ length: ROW_COUNT }, emptyRow));
-  const [core, setCore] = useState('0');
+  const [tok, setTok] = useState('');
+  const [ee, setEe] = useState('');
   const [bands, setBands] = useState(DEFAULT_BANDS);
   const [ready, setReady] = useState(false);
 
@@ -162,15 +164,16 @@ export default function CalculatorClient() {
     const saved = loadSaved();
     if (saved) {
       setRows(Array.from({ length: ROW_COUNT }, (_, i) => ({ ...emptyRow(), ...saved.rows[i] })));
-      if (saved.core != null) setCore(String(saved.core));
+      if (typeof saved.tok === 'string') setTok(saved.tok);
+      if (typeof saved.ee === 'string') setEe(saved.ee);
       if (saved.bands && !validateBands(saved.bands)) setBands(saved.bands);
     }
     setReady(true);
   }, []);
 
   useEffect(() => {
-    if (ready) save({ rows, core, bands });
-  }, [ready, rows, core, bands]);
+    if (ready) save({ rows, tok, ee, bands });
+  }, [ready, rows, tok, ee, bands]);
 
   const bandsError = validateBands(bands);
   const activeBands = bandsError ? DEFAULT_BANDS : bands;
@@ -181,10 +184,12 @@ export default function CalculatorClient() {
     if (!components) return null;
     return gradeFromPercent(computeSubjectPercent(components, row.inputs).percent, activeBands);
   });
-  const diploma = diplomaTotal(grades, Number(core));
+  const coreResult = corePoints(tok, ee);
+  const core = coreResult ? coreResult.points : 0;
+  const diploma = diplomaTotal(grades, core);
   const checks = diplomaChecks(
     grades.map((grade, i) => ({ grade, level: rows[i].level })),
-    Number(core)
+    core
   );
   // A subject can be chosen once ('기타 과목' may repeat).
   const taken = new Set(rows.map((r) => r.subject).filter((k) => k && k !== 'custom'));
@@ -192,7 +197,8 @@ export default function CalculatorClient() {
   const updateRow = (i, next) => setRows((prev) => prev.map((r, idx) => (idx === i ? next : r)));
   const reset = () => {
     setRows(Array.from({ length: ROW_COUNT }, emptyRow));
-    setCore('0');
+    setTok('');
+    setEe('');
     setBands(DEFAULT_BANDS);
   };
 
@@ -227,14 +233,31 @@ export default function CalculatorClient() {
 
       <Card padding="sm" className="mt-4 space-y-3">
         <h2 className="text-base font-bold m-0">TOK / EE 코어 점수</h2>
-        <Select aria-label="코어 점수" value={core} onChange={(e) => setCore(e.target.value)}>
-          {[0, 1, 2, 3].map((p) => (
-            <option key={p} value={p}>{p}점</option>
-          ))}
-        </Select>
+        <div className="grid grid-cols-2 gap-2">
+          <Select aria-label="TOK 성적" value={tok} onChange={(e) => setTok(e.target.value)}>
+            <option value="">TOK 성적</option>
+            {['A', 'B', 'C', 'D', 'E'].map((g) => (
+              <option key={g} value={g}>TOK {g}</option>
+            ))}
+          </Select>
+          <Select aria-label="EE 성적" value={ee} onChange={(e) => setEe(e.target.value)}>
+            <option value="">EE 성적</option>
+            {['A', 'B', 'C', 'D', 'E'].map((g) => (
+              <option key={g} value={g}>EE {g}</option>
+            ))}
+          </Select>
+        </div>
+        {!coreResult ? (
+          <p className="text-sm text-gray-600 m-0">TOK와 EE 성적을 고르면 코어 점수가 계산됩니다.</p>
+        ) : coreResult.failing ? (
+          <Notice color="red" compact>TOK 또는 EE가 E이면 디플로마를 받을 수 없습니다 (IB의 Failing condition).</Notice>
+        ) : (
+          <p className="text-sm m-0">코어 점수 <strong>{coreResult.points}점</strong></p>
+        )}
         <p className="text-xs text-gray-500 m-0">
-          TOK와 EE 성적(A~E)으로 0~3점이 정해집니다. 정확한 표는{' '}
-          <a href={DP_PASSING_CRITERIA_URL} target="_blank" rel="noopener noreferrer" className="underline">IB 공식 안내</a>의 Core points matrix를 확인하세요.
+          IB의{' '}
+          <a href={DP_PASSING_CRITERIA_URL} target="_blank" rel="noopener noreferrer" className="underline">Core points matrix</a>
+          를 기준으로 계산합니다.
         </p>
       </Card>
 

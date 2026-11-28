@@ -6,8 +6,8 @@ import { DP_PASSING_CRITERIA_URL, IB_SUBJECTS, SUBJECTS_BY_KEY } from '@/data/ib
 import {
   DEFAULT_BANDS,
   DIPLOMA_MAX_POINTS,
-  DIPLOMA_MIN_POINTS,
-  computeSubjectPercent,
+    computeSubjectPercent,
+  diplomaChecks,
   diplomaTotal,
   gradeFromPercent,
   validateBands,
@@ -182,6 +182,10 @@ export default function CalculatorClient() {
     return gradeFromPercent(computeSubjectPercent(components, row.inputs).percent, activeBands);
   });
   const diploma = diplomaTotal(grades, Number(core));
+  const checks = diplomaChecks(
+    grades.map((grade, i) => ({ grade, level: rows[i].level })),
+    Number(core)
+  );
   // A subject can be chosen once ('기타 과목' may repeat).
   const taken = new Set(rows.map((r) => r.subject).filter((k) => k && k !== 'custom'));
 
@@ -203,8 +207,8 @@ export default function CalculatorClient() {
         <p className="m-0 font-semibold">예상 등급은 추정치입니다.</p>
         <p className="m-0 mt-1 text-xs">
           IB는 시험 세션마다 등급 구간(grade boundary)을 정하고 이를 공개하지 않습니다. 아래 기본 구간은 공식 값이 아니므로
-          참고용으로만 쓰고, 필요하면 직접 수정하세요. 지금은 공식 자료로 확인이 끝난 과목부터 순서대로 열고 있으며,
-          나머지 과목은 &quot;기타 과목&quot;으로 등급을 직접 입력해 총점만 계산할 수 있습니다.
+          참고용으로만 쓰고, 필요하면 직접 수정하세요. 과목 이름 옆에 표시된 시험 연도가 내가 치르는 교육과정과 맞는지
+          확인하세요. 목록에 없는 과목은 &quot;기타 과목&quot;으로 등급을 직접 입력해 총점만 계산할 수 있습니다.
         </p>
       </Notice>
 
@@ -229,8 +233,8 @@ export default function CalculatorClient() {
           ))}
         </Select>
         <p className="text-xs text-gray-500 m-0">
-          TOK와 EE 성적(A~E)으로 0~3점이 정해집니다. 정확한 표와 디플로마 수여 조건은{' '}
-          <a href={DP_PASSING_CRITERIA_URL} target="_blank" rel="noopener noreferrer" className="underline">IB 공식 안내</a>를 확인하세요.
+          TOK와 EE 성적(A~E)으로 0~3점이 정해집니다. 정확한 표는{' '}
+          <a href={DP_PASSING_CRITERIA_URL} target="_blank" rel="noopener noreferrer" className="underline">IB 공식 안내</a>의 Core points matrix를 확인하세요.
         </p>
       </Card>
 
@@ -240,15 +244,22 @@ export default function CalculatorClient() {
           {diploma.total}
           <span className="text-base font-medium text-gray-500"> / {DIPLOMA_MAX_POINTS}</span>
         </p>
-        {diploma.complete ? (
-          <Notice color={diploma.meetsMinimum ? 'green' : 'red'} compact>
-            {diploma.meetsMinimum
-              ? `최소 ${DIPLOMA_MIN_POINTS}점 이상입니다. 다른 수여 조건은 공식 안내에서 확인하세요.`
-              : `최소 ${DIPLOMA_MIN_POINTS}점에 ${DIPLOMA_MIN_POINTS - diploma.total}점 부족합니다.`}
-          </Notice>
+        {checks ? (
+          <ul className="list-none p-0 m-0 space-y-2">
+            {checks.map((c) => (
+              <li key={c.key} className="flex items-center justify-between gap-3 text-sm">
+                <span>{c.label}</span>
+                <Badge color={c.ok ? 'green' : 'red'}>{c.ok ? '충족' : '미충족'}</Badge>
+              </li>
+            ))}
+          </ul>
         ) : (
-          <p className="text-sm text-gray-600 m-0">6과목의 등급이 모두 정해지면 합격선 여부를 보여드립니다.</p>
+          <p className="text-sm text-gray-600 m-0">6과목의 등급이 모두 정해지면 수여 조건을 확인해 드립니다.</p>
         )}
+        <p className="text-xs text-gray-500 m-0">
+          CAS 이수, TOK·EE 성적 조건은 학교와 IB가 확인합니다. 전체 조건은{' '}
+          <a href={DP_PASSING_CRITERIA_URL} target="_blank" rel="noopener noreferrer" className="underline">IB 공식 안내</a>를 확인하세요.
+        </p>
       </Card>
 
       <Card padding="sm" className="mt-4 space-y-3">

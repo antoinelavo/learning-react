@@ -1,29 +1,32 @@
 // IB subject components and weightings for /tools/ib-calculator.
 //
 // Only add a subject-level after reading its weightings in the official IB
-// subject brief or subject guide, and record the source. The IB does not
-// publish a maximum mark you can rely on per session here, so the student
-// enters each component's maximum mark from their own paper or markscheme.
+// subject brief or subject guide, and record the source. Weightings below
+// come from the IB subject-brief PDFs named in each entry's `sources`.
 //
 // Subject shape:
 //   key, name, group
-//   sources: [{ label, url }]            official documents
-//   lastVerified: 'YYYY-MM-DD'
-//   levels: { SL: [components], HL: [components] }
-//   component: { key, label, weight }    weight = % of the final subject grade
-//
-// Subjects listed with `levels: null` are shown as 준비 중 until their
-// weightings are confirmed from official documents.
+//   edition        short Korean note on which exams the curriculum applies to
+//   sources        [{ label, url }] official documents
+//   lastVerified   'YYYY-MM-DD'
+//   levels         { SL: [components], HL: [components] }, or null when the
+//                  weightings are not confirmed yet (shown as 준비 중)
+//   component      { key, label, weight, max? }
+//                  weight = % of the final subject grade
+//                  max    = maximum mark, only where the brief states it
+//                           (the student can edit it; otherwise they type it)
+
+const IB = 'https://www.ibo.org/globalassets/new-structure/programmes/dp/pdfs';
 
 export const IB_SUBJECTS = [
   {
     key: 'physics',
     name: 'Physics (물리)',
     group: 4,
+    edition: '2025년 시험부터',
     lastVerified: '2026-11-28',
     sources: [
-      { label: 'IB Physics guide (first assessment 2025)', url: 'https://ibo.org/globalassets/new-structure/university-admission/pdfs/subject-guides/physics-guide.pdf' },
-      { label: 'IB Physics subject brief', url: 'https://www.ibo.org/globalassets/new-structure/recognition/pdfs/dp_sciences_physics_subject-brief_jan_2022_e.pdf' },
+      { label: 'Physics subject brief', url: 'https://www.ibo.org/globalassets/new-structure/recognition/pdfs/dp_sciences_physics_subject-brief_jan_2022_e.pdf' },
     ],
     levels: {
       SL: [
@@ -38,18 +41,153 @@ export const IB_SUBJECTS = [
       ],
     },
   },
+  {
+    key: 'math-aa',
+    name: 'Mathematics: Analysis and Approaches',
+    group: 5,
+    edition: '2021년 시험부터',
+    lastVerified: '2026-11-28',
+    sources: [
+      { label: 'Math AA subject brief', url: 'https://www.ibo.org/contentassets/5895a05412144fe890312bad52b17044/subject-brief-dp-math-analysis-and-approaches-en.pdf' },
+    ],
+    levels: {
+      SL: [
+        { key: 'p1', label: 'Paper 1', weight: 40 },
+        { key: 'p2', label: 'Paper 2', weight: 40 },
+        { key: 'ia', label: 'Exploration (IA)', weight: 20 },
+      ],
+      HL: [
+        { key: 'p1', label: 'Paper 1', weight: 30 },
+        { key: 'p2', label: 'Paper 2', weight: 30 },
+        { key: 'p3', label: 'Paper 3', weight: 20 },
+        { key: 'ia', label: 'Exploration (IA)', weight: 20 },
+      ],
+    },
+  },
+  {
+    key: 'economics',
+    name: 'Economics (경제)',
+    group: 3,
+    edition: '2022년 시험부터',
+    lastVerified: '2026-11-28',
+    sources: [
+      { label: 'Economics SL brief', url: `${IB}/sl-economics-en.pdf` },
+      { label: 'Economics HL brief', url: `${IB}/hl-economics-en.pdf` },
+    ],
+    levels: {
+      SL: [
+        { key: 'p1', label: 'Paper 1', weight: 30 },
+        { key: 'p2', label: 'Paper 2', weight: 40 },
+        { key: 'ia', label: 'Portfolio (IA)', weight: 30 },
+      ],
+      HL: [
+        { key: 'p1', label: 'Paper 1', weight: 20 },
+        { key: 'p2', label: 'Paper 2', weight: 30 },
+        { key: 'p3', label: 'Paper 3', weight: 30 },
+        { key: 'ia', label: 'Portfolio (IA)', weight: 20 },
+      ],
+    },
+  },
+  {
+    key: 'business',
+    name: 'Business Management (경영)',
+    group: 3,
+    edition: '2024년 시험부터',
+    lastVerified: '2026-11-28',
+    sources: [
+      { label: 'Business Management SL brief', url: `${IB}/business-management-sl-subject-brief-en.pdf` },
+      { label: 'Business Management HL brief', url: `${IB}/business-management-hl-subject-brief-en.pdf` },
+    ],
+    levels: {
+      SL: [
+        { key: 'p1', label: 'Paper 1', weight: 35 },
+        { key: 'p2', label: 'Paper 2', weight: 35 },
+        { key: 'ia', label: 'Business research project (IA)', weight: 30 },
+      ],
+      HL: [
+        { key: 'p1', label: 'Paper 1', weight: 25 },
+        { key: 'p2', label: 'Paper 2', weight: 30 },
+        { key: 'p3', label: 'Paper 3', weight: 25 },
+        { key: 'ia', label: 'Business research project (IA)', weight: 20 },
+      ],
+    },
+  },
+  {
+    key: 'psychology',
+    name: 'Psychology (심리)',
+    group: 3,
+    edition: '2027년 시험부터',
+    lastVerified: '2026-11-28',
+    sources: [
+      { label: 'Psychology subject brief', url: 'https://ibo.org/globalassets/new-structure/programmes/dp/pdfs/dp_psychology_subjectbrief_en.pdf' },
+    ],
+    levels: {
+      SL: [
+        { key: 'p1', label: 'Paper 1', weight: 35, max: 35 },
+        { key: 'p2', label: 'Paper 2', weight: 35, max: 35 },
+        { key: 'ia', label: 'Research proposal (IA)', weight: 30, max: 24 },
+      ],
+      HL: [
+        { key: 'p1', label: 'Paper 1', weight: 25, max: 35 },
+        { key: 'p2', label: 'Paper 2', weight: 25, max: 35 },
+        { key: 'p3', label: 'Paper 3', weight: 30, max: 30 },
+        { key: 'ia', label: 'Research proposal (IA)', weight: 20, max: 24 },
+      ],
+    },
+  },
+  {
+    key: 'history-2028',
+    name: 'History (역사)',
+    group: 3,
+    edition: '2028년 시험부터 (새 교육과정)',
+    lastVerified: '2026-11-28',
+    sources: [
+      { label: 'History subject brief (first assessment 2028)', url: `${IB}/dp-history-sb-en.pdf` },
+    ],
+    levels: {
+      SL: [
+        { key: 'p1', label: 'Paper 1', weight: 30, max: 24 },
+        { key: 'p2', label: 'Paper 2', weight: 40, max: 25 },
+        { key: 'ia', label: 'Historical investigation (IA)', weight: 30, max: 24 },
+      ],
+      HL: [
+        { key: 'p1', label: 'Paper 1', weight: 20, max: 24 },
+        { key: 'p2', label: 'Paper 2', weight: 25, max: 25 },
+        { key: 'p3', label: 'Paper 3', weight: 35, max: 30 },
+        { key: 'ia', label: 'Historical investigation (IA)', weight: 20, max: 24 },
+      ],
+    },
+  },
+  {
+    key: 'english-b-2029',
+    name: 'English B',
+    group: 2,
+    edition: '2029년 시험부터 (새 교육과정)',
+    lastVerified: '2026-11-28',
+    sources: [
+      { label: 'Language B subject brief (first assessment 2029)', url: `${IB}/sb_lang_b_en.pdf` },
+    ],
+    levels: {
+      SL: [
+        { key: 'p1', label: 'Paper 1 (writing)', weight: 25 },
+        { key: 'p2l', label: 'Paper 2 (listening)', weight: 25 },
+        { key: 'p2r', label: 'Paper 2 (reading)', weight: 25 },
+        { key: 'ia', label: 'Individual oral (IA)', weight: 25 },
+      ],
+      HL: [
+        { key: 'p1', label: 'Paper 1 (writing)', weight: 25 },
+        { key: 'p2l', label: 'Paper 2 (listening)', weight: 25 },
+        { key: 'p2r', label: 'Paper 2 (reading)', weight: 25 },
+        { key: 'ia', label: 'Individual oral (IA)', weight: 25 },
+      ],
+    },
+  },
   { key: 'chemistry', name: 'Chemistry (화학)', group: 4, levels: null },
   { key: 'biology', name: 'Biology (생물)', group: 4, levels: null },
-  { key: 'math-aa', name: 'Mathematics: Analysis and Approaches', group: 5, levels: null },
   { key: 'math-ai', name: 'Mathematics: Applications and Interpretation', group: 5, levels: null },
   { key: 'english-a-lang-lit', name: 'English A: Language and Literature', group: 1, levels: null },
   { key: 'english-a-lit', name: 'English A: Literature', group: 1, levels: null },
-  { key: 'english-b', name: 'English B', group: 2, levels: null },
   { key: 'korean-a', name: 'Korean A: Literature', group: 1, levels: null },
-  { key: 'economics', name: 'Economics (경제)', group: 3, levels: null },
-  { key: 'business', name: 'Business Management (경영)', group: 3, levels: null },
-  { key: 'psychology', name: 'Psychology (심리)', group: 3, levels: null },
-  { key: 'history', name: 'History (역사)', group: 3, levels: null },
 ];
 
 export const SUBJECTS_BY_KEY = Object.fromEntries(IB_SUBJECTS.map((s) => [s.key, s]));

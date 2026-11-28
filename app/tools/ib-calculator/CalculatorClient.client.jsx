@@ -66,7 +66,7 @@ function SubjectRow({ index, row, bands, taken, onChange }) {
           <option value="">과목 선택</option>
           {IB_SUBJECTS.map((s) => (
             <option key={s.key} value={s.key} disabled={!s.levels || (taken.has(s.key) && s.key !== row.subject)}>
-              {s.name}{s.levels ? '' : ' (준비 중)'}
+              {s.name}{s.levels ? ` · ${s.edition}` : ' (준비 중)'}
             </option>
           ))}
           <option value="custom">기타 과목 (등급 직접 입력)</option>
@@ -110,7 +110,7 @@ function SubjectRow({ index, row, bands, taken, onChange }) {
                     step="any"
                     placeholder="만점"
                     aria-label={`${c.label} 만점`}
-                    value={row.inputs[c.key]?.max ?? ''}
+                    value={row.inputs[c.key]?.max ?? c.max ?? ''}
                     onChange={(e) => setInput(c.key, 'max', e.target.value)}
                   />
                 </div>
@@ -124,7 +124,7 @@ function SubjectRow({ index, row, bands, taken, onChange }) {
               : '모든 항목의 점수와 만점을 입력하면 계산됩니다.'}
           </p>
           <p className="text-xs text-gray-500 m-0">
-            만점은 해당 시험지나 채점 기준에 적힌 값을 입력하세요.{' '}
+            {subject.edition} 교육과정 기준입니다. 만점은 해당 시험지나 채점 기준에 적힌 값을 입력하세요.{' '}
             {subject.sources.map((s, i) => (
               <span key={s.url}>
                 {i > 0 && ' · '}

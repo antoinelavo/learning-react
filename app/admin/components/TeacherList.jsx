@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Button, Tabs, cardClasses, Badge } from '@/components/ui';
 import { authFetch } from '@/lib/authFetch';
+import { findDuplicates, SIGNAL_LABELS } from '@/lib/teacherDuplicates';
 import { teacherProfilePath } from '@/lib/teacherProfile';
 
 const batchSize = 10;
@@ -11,19 +12,37 @@ const batchSize = 10;
 const THREE_WEEKS_MS = 21 * 24 * 60 * 60 * 1000;
 
 export default function TeacherList() {
-  const [teachers, setTeachers] = useState([]);
+  // Every teacher (any status), so duplicates can be matched against
+  // approved and rejected profiles too. Pending ones are shown as cards.
+  const [allTeachers, setAllTeachers] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeTab, setActiveTab] = useState('recent');
 
   useEffect(() => {
     async function loadTeachers() {
-      const { data, error } = await supabase
-        .rpc('admin_list_teachers', { p_status: 'pending' });
+      // Page through the results: one response is capped (about 1000 rows),
+      // and a silent cap would hide duplicates.
+      const pageSize = 1000;
+      let data = [];
+      let error = null;
+      for (let from = 0; ; from += pageSize) {
+        const page = await supabase
+          .rpc('admin_list_teachers', { p_status: null })
+          .range(from, from + pageSize - 1);
+        if (page.error) {
+          error = page.error;
+          break;
+        }
+        data = data.concat(page.data || []);
+        if (!page.data || page.data.length < pageSize) break;
+      }
 
       if (!error && data) {
         // Look up each teacher's login email so we can flag ones missing
         // an email (the approval notification email can't reach them).
-        const userIds = Array.from(new Set(data.map((t) => t.user_id).filter(Boolean)));
+        const userIds = Array.from(
+          new Set(data.filter((t) => t.status === 'pending' || t.status === 'rejected').map((t) => t.user_id).filter(Boolean))
+        );
         let emailByUserId = {};
         if (userIds.length > 0) {
           const { data: users, error: usersError } = await supabase
@@ -35,7 +54,7 @@ export default function TeacherList() {
           }
         }
 
-        setTeachers(data.map((t) => ({ ...t, loginEmail: emailByUserId[t.user_id] || null })));
+        setAllTeachers(data.map((t) => ({ ...t, loginEmail: emailByUserId[t.user_id] || null })));
         setCurrentIndex(0);
       }
     }
@@ -45,7 +64,18 @@ export default function TeacherList() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  function setStatusLocal(id, status) {
+    setAllTeachers((prev) => prev.map((t) => (t.id === id ? { ...t, status } : t)));
+  }
+
   async function approveTeacher(id) {
+    const duplicates = duplicatesById[id] || [];
+    if (
+      duplicates.length > 0 &&
+      !window.confirm('중복으로 의심되는 프로필이 있습니다. 그래도 승인할까요?')
+    ) {
+      return;
+    }
     const today = new Date().toISOString().split('T')[0];
     const { error } = await supabase
       .from('teachers')
@@ -53,7 +83,7 @@ export default function TeacherList() {
       .eq('id', id);
 
     if (!error) {
-      setTeachers((prev) => prev.filter((t) => t.id !== id));
+      setStatusLocal(id, 'approved');
 
       // Best-effort notification email — must never block/undo the
       // approval itself if this fails (e.g. teacher has no email on file).
@@ -72,11 +102,54 @@ export default function TeacherList() {
     }
   }
 
+  async function rejectTeacher(id) {
+    if (!window.confirm('이 프로필을 반려할까요? (이메일은 발송되지 않습니다)')) return;
+    const { data, error } = await supabase
+      .from('teachers')
+      .update({ status: 'rejected' })
+      .eq('id', id)
+      .select('id');
+    if (error || !data || data.length === 0) {
+      alert('❌ 반려 중 오류가 발생했습니다.');
+      console.error(error);
+      return;
+    }
+    setStatusLocal(id, 'rejected');
+  }
+
+  async function restoreTeacher(id) {
+    const { data, error } = await supabase
+      .from('teachers')
+      .update({ status: 'pending' })
+      .eq('id', id)
+      .select('id');
+    if (error || !data || data.length === 0) {
+      alert('❌ 되돌리기 중 오류가 발생했습니다.');
+      console.error(error);
+      return;
+    }
+    setStatusLocal(id, 'pending');
+  }
+
   function handleScroll() {
     if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
       setCurrentIndex((prev) => prev + batchSize);
     }
   }
+
+  const teachers = useMemo(() => allTeachers.filter((t) => t.status === 'pending'), [allTeachers]);
+  const rejectedTeachers = useMemo(() => allTeachers.filter((t) => t.status === 'rejected'), [allTeachers]);
+
+  // Possible duplicates for every pending and rejected profile, by id.
+  const duplicatesById = useMemo(() => {
+    const result = {};
+    for (const t of allTeachers) {
+      if (t.status === 'pending' || t.status === 'rejected') {
+        result[t.id] = findDuplicates(t, allTeachers);
+      }
+    }
+    return result;
+  }, [allTeachers]);
 
   const now = Date.now();
   const recentTeachers = teachers.filter(t => {
@@ -88,7 +161,8 @@ export default function TeacherList() {
     return now - created >= THREE_WEEKS_MS;
   });
 
-  const filteredTeachers = activeTab === 'recent' ? recentTeachers : olderTeachers;
+  const filteredTeachers =
+    activeTab === 'recent' ? recentTeachers : activeTab === 'older' ? olderTeachers : rejectedTeachers;
   const visibleTeachers = filteredTeachers.slice(0, currentIndex + batchSize);
 
   return (
@@ -101,6 +175,7 @@ export default function TeacherList() {
         tabs={[
           { value: 'recent', label: `3주 미만 (${recentTeachers.length})` },
           { value: 'older', label: `3주 이상 (${olderTeachers.length})` },
+          { value: 'rejected', label: `반려됨 (${rejectedTeachers.length})` },
         ]}
       />
 
@@ -150,12 +225,44 @@ export default function TeacherList() {
                 return `${dateStr} (${timeAgo})`;
               })() : '없음'}
             </div>
-            <Button
-              onClick={() => approveTeacher(teacher.id)}
-              size="sm" className="mt-2"
-            >
-              승인
-            </Button>
+            {(duplicatesById[teacher.id] || []).length > 0 && (
+              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm space-y-1">
+                <Badge color="red">⚠️ 중복 의심</Badge>
+                {duplicatesById[teacher.id].map((match) => (
+                  <div key={match.id} className="text-gray-700">
+                    {match.status === 'approved' && teacherProfilePath(match) ? (
+                      <a
+                        href={teacherProfilePath(match)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-medium text-blue-600 hover:text-blue-700"
+                      >
+                        {match.name}
+                      </a>
+                    ) : (
+                      <span className="font-medium">{match.name}</span>
+                    )}{' '}
+                    ({match.status}) — {match.signals.map((sig) => SIGNAL_LABELS[sig]).join(', ')}
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-2 mt-2">
+              {teacher.status === 'rejected' ? (
+                <Button onClick={() => restoreTeacher(teacher.id)} size="sm" variant="secondary">
+                  되돌리기
+                </Button>
+              ) : (
+                <>
+                  <Button onClick={() => approveTeacher(teacher.id)} size="sm">
+                    승인
+                  </Button>
+                  <Button onClick={() => rejectTeacher(teacher.id)} size="sm" variant="secondary">
+                    반려
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         );
       })}

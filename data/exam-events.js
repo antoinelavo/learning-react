@@ -28,8 +28,20 @@ const SAT_REG_NOTE = '마감은 미국 동부 시간 밤 11시 59분 기준이�
 
 export const EXAM_EVENTS = [
   // --- IB ---------------------------------------------------------------
-  // Intentionally empty until the dates can be confirmed from the IB's own
-  // published schedules (see the build notes in SPEC.md).
+  // The IB has not published the May 2027 schedule yet, so the whole month is
+  // shown and the D-day counts down to 1 May. Replace this with the official
+  // session dates once the IB publishes them.
+  {
+    id: 'ib-2027-05',
+    category: 'IB',
+    title: 'IB 5월 시험 세션',
+    start: '2027-05-01',
+    end: '2027-05-31',
+    note: '5월 1일을 기준으로 D-day를 계산합니다. 과목별 정확한 시험 날짜는 IB 공식 일정이 나오면 업데이트되며, 그 전에는 학교 IB 코디네이터에게 확인하세요.',
+    target: true,
+    sourceUrl: 'https://www.ibo.org/programmes/diploma-programme/assessment-and-exams/',
+    lastVerified: '2026-11-28',
+  },
 
   // --- SAT (College Board) ---------------------------------------------
   {

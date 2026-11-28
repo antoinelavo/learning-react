@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Badge, Button, Card, Chip, Notice } from '@/components/ui';
-import { EXAM_EVENTS, EVENT_CATEGORIES } from '@/data/exam-events';
+import { EVENT_CATEGORIES } from '@/data/exam-events';
 import {
   eventCountdown,
   formatEventDate,
@@ -18,8 +18,65 @@ const CATEGORY_COLOR = { IB: 'blue', SAT: 'orange', ADMISSION: 'green' };
 const CATEGORY_LABEL = Object.fromEntries(EVENT_CATEGORIES.map((c) => [c.value, c.label]));
 
 function monthKey(event) {
-  const [y, m] = event.start.split('-');
+  return event.start.slice(0, 7);
+}
+
+function monthLabel(ym) {
+  const [y, m] = ym.split('-');
   return `${y}년 ${Number(m)}월`;
+}
+
+const pad = (n) => String(n).padStart(2, '0');
+const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
+
+// Month grid: days inside an IB or 입시 range are tinted, SAT dates get an
+// orange ring. The whole of a multi-week range (e.g. IB May) is highlighted.
+function MonthGrid({ ym, events, today }) {
+  const [y, m] = ym.split('-').map(Number);
+  const first = new Date(Date.UTC(y, m - 1, 1)).getUTCDay();
+  const days = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const cells = [...Array(first).fill(null), ...Array.from({ length: days }, (_, i) => i + 1)];
+
+  const classify = (date) => {
+    let tint = '';
+    let sat = false;
+    for (const e of events) {
+      const end = e.end || e.start;
+      if (date < e.start || date > end) continue;
+      if (e.category === 'IB') tint = 'ib';
+      else if (e.category === 'ADMISSION' && tint !== 'ib') tint = 'adm';
+      else if (e.category === 'SAT') sat = true;
+    }
+    return { tint, sat };
+  };
+
+  return (
+    <div className="grid grid-cols-7 gap-1 mb-3 text-center text-xs" role="img" aria-label={`${monthLabel(ym)} 달력`}>
+      {WEEKDAYS.map((d) => (
+        <div key={d} className="text-gray-400 py-1">{d}</div>
+      ))}
+      {cells.map((d, i) => {
+        if (d == null) return <div key={`e${i}`} />;
+        const date = `${ym}-${pad(d)}`;
+        const { tint, sat } = classify(date);
+        return (
+          <div
+            key={date}
+            className={[
+              'rounded-md py-1.5',
+              tint === 'ib' ? 'bg-blue-100 text-blue-800 font-semibold' : '',
+              tint === 'adm' ? 'bg-green-100 text-green-800 font-semibold' : '',
+              !tint ? 'text-gray-600' : '',
+              sat ? 'ring-2 ring-orange-400' : '',
+              date === today ? 'outline outline-2 outline-gray-800' : '',
+            ].join(' ')}
+          >
+            {d}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 export default function CalendarClient({ initialToday }) {
@@ -78,20 +135,13 @@ export default function CalendarClient({ initialToday }) {
         ))}
       </div>
 
-      {(filter === 'ALL' || filter === 'IB') && !EXAM_EVENTS.some((e) => e.category === 'IB') && (
-        <Notice color="yellow" className="mb-4">
-          <p className="text-sm m-0">
-            IB 시험 일정은 IB 공식 자료로 확인되는 대로 추가됩니다. 정확한 시험 일정은 학교 IB 코디네이터에게 확인하세요.
-          </p>
-        </Notice>
-      )}
-
       {groups.length === 0 ? (
         <Card padding="sm" className="text-center text-gray-600">예정된 일정이 없습니다.</Card>
       ) : (
         groups.map(([month, list]) => (
           <section key={month} className="mb-6">
-            <h2 className="text-base font-bold mb-2">{month}</h2>
+            <h2 className="text-base font-bold mb-2">{monthLabel(month)}</h2>
+            <MonthGrid ym={month} events={events} today={today} />
             <ul className="space-y-3 list-none p-0 m-0">
               {list.map((e) => {
                 const isTarget = target?.id === e.id;
